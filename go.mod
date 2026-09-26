@@ -13,6 +13,15 @@ require (
 )
 
 require (
+	connectrpc.com/cors v0.1.0 // indirect
+	github.com/boyter/go-string v1.0.5 // indirect
+	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
+	github.com/medama-io/go-useragent v1.2.5 // indirect
+	golang.org/x/time v0.16.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260921155816-b14227669459 // indirect
+)
+
+require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.12-20260825204119-511051f7f437.1
 	connectrpc.com/connect v1.21.0
 	github.com/BurntSushi/toml v1.4.1-0.20240526193622-a339e1f7089c // indirect

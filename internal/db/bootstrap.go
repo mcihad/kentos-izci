@@ -123,3 +123,30 @@ func redactURL(u string) string {
 	}
 	return strings.Replace(u, cfg.Password, "*****", 1)
 }
+
+// Reset drops and recreates the public schema of the database in appURL
+// (development only), using the superuser connection adminURL for the
+// connection to that database. All data is lost.
+func Reset(ctx context.Context, adminURL, appURL string) error {
+	app, err := pgx.ParseConfig(appURL)
+	if err != nil {
+		return fmt.Errorf("parse DATABASE_URL: %w", err)
+	}
+	admin, err := pgx.ParseConfig(adminURL)
+	if err != nil {
+		return fmt.Errorf("parse DB_ADMIN_URL: %w", err)
+	}
+	// Connect to the application database itself with the admin credentials.
+	admin.Database = app.Database
+	conn, err := pgx.ConnectConfig(ctx, admin)
+	if err != nil {
+		return fmt.Errorf("connect with DB_ADMIN_URL: %w", err)
+	}
+	defer conn.Close(ctx)
+	role := pgx.Identifier{app.User}.Sanitize()
+	_, err = conn.Exec(ctx, `DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public AUTHORIZATION `+role)
+	if err != nil {
+		return fmt.Errorf("reset schema: %w", err)
+	}
+	return nil
+}

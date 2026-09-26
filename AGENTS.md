@@ -48,8 +48,10 @@ commit message and the phase table in `docs/mimari.md` (once written).
 7. **Secrets.** `.env` is never committed; secrets are never logged (types like
    `config.SecretKey` redact themselves). Stored third-party tokens are
    encrypted with AES-GCM using `IZCI_SECRET_KEY`.
-8. **Migrations are append-only.** Never edit an applied migration; add a new
-   goose file in `internal/db/migrations` with both `Up` and `Down`.
+8. **Migrations are append-only once released.** Never edit a migration that
+   shipped in a release; add a new goose file in `internal/db/migrations` with
+   both `Up` and `Down`. Before the first release the schema may still be
+   reshaped in place (reset local databases with `make db-reset`).
 
 ## Map
 
@@ -59,8 +61,16 @@ commit message and the phase table in `docs/mimari.md` (once written).
 | `internal/cli` | cobra commands (`serve`, `migrate`, `db bootstrap`, `version`, …) |
 | `internal/config` | `.env` + environment → typed, validated `Config` |
 | `internal/server` | the single `http.Server` (h2c/TLS), middleware, SPA handler, health |
-| `internal/db` | pgx pool, `InOrg` / `InSystem`, goose migrations, bootstrap |
+| `internal/app` | wires everything (DB, ingest pipeline, services, jobs, HTTP server) |
+| `internal/db` | pgx pool, `InOrg` / `InSystem`, goose migrations, partitions, retention, bootstrap |
+| `internal/store` | hand-written SQL per aggregate; takes the scoped `pgx.Tx` |
+| `internal/ingest` | normalize → scrub → in-app → grouping → group-commit writer; `IngestService` |
+| `internal/clientip`, `internal/secret`, `internal/slug` | client address, tokens/AES-GCM/HMAC, slugs |
+| `internal/jobs` | periodic background tasks |
+| `internal/sample` | realistic sample events (demo, bench, test events) |
+| `internal/testutil` | per-test PostgreSQL schemas (`NewDB`) |
 | `internal/logging`, `internal/version` | slog setup, build metadata |
+| `tools/protoc-gen-izcidoc` | protoc plugin rendering `docs/api` from proto comments |
 | `proto/izci/ingest/v1` | public ingest contract (Event model, IngestService) |
 | `proto/izci/api/v1` | UI / external API contract |
 | `sdk/go` | separate Go module: Go SDK + generated ingest code (the server imports it) |

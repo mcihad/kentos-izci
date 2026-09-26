@@ -50,6 +50,7 @@ type Config struct {
 	Log       LogConfig
 	DB        DBConfig
 	Retention RetentionConfig
+	Ingest    IngestConfig
 
 	// secretGenerated is true when no IZCI_SECRET_KEY was configured and an
 	// ephemeral key was generated (development only).
@@ -94,6 +95,26 @@ type RetentionConfig struct {
 	Days int `env:"RETENTION_DAYS" envDefault:"90"`
 	// PremakeDays is how many future daily partitions are created ahead.
 	PremakeDays int `env:"PARTITION_PREMAKE_DAYS" envDefault:"7"`
+}
+
+// IngestConfig tunes the event pipeline.
+type IngestConfig struct {
+	// Shards is the number of parallel batch writers.
+	Shards int `env:"INGEST_SHARDS" envDefault:"4"`
+	// QueueSize is the capacity of each writer queue.
+	QueueSize int `env:"INGEST_QUEUE_SIZE" envDefault:"5000"`
+	// BatchSize caps events per database transaction.
+	BatchSize int `env:"INGEST_BATCH_SIZE" envDefault:"500"`
+	// Linger optionally waits for more events before writing a batch.
+	Linger time.Duration `env:"INGEST_LINGER" envDefault:"0s"`
+	// Ack is "durable" (answer after commit) or "async" (answer once queued).
+	Ack string `env:"INGEST_ACK" envDefault:"durable"`
+	// AckTimeout bounds how long a durable call waits for its batch.
+	AckTimeout time.Duration `env:"INGEST_ACK_TIMEOUT" envDefault:"15s"`
+	// RateLimitPerMinute is the default per-project limit.
+	RateLimitPerMinute int `env:"INGEST_RATE_LIMIT_PER_MINUTE" envDefault:"6000"`
+	// DedupeSize is how many recent event ids are remembered for retries.
+	DedupeSize int `env:"INGEST_DEDUPE_SIZE" envDefault:"200000"`
 }
 
 // Load reads the env file (if any) and parses the environment.
@@ -155,6 +176,16 @@ func (c *Config) finalize() error {
 	}
 	if c.Retention.PremakeDays < 1 || c.Retention.PremakeDays > 60 {
 		errs = append(errs, fmt.Errorf("PARTITION_PREMAKE_DAYS must be between 1 and 60 (got %d)", c.Retention.PremakeDays))
+	}
+
+	if c.Ingest.Ack != "durable" && c.Ingest.Ack != "async" {
+		errs = append(errs, fmt.Errorf("INGEST_ACK must be durable or async (got %q)", c.Ingest.Ack))
+	}
+	if c.Ingest.Shards < 1 || c.Ingest.Shards > 64 {
+		errs = append(errs, fmt.Errorf("INGEST_SHARDS must be between 1 and 64 (got %d)", c.Ingest.Shards))
+	}
+	if c.Ingest.BatchSize < 1 || c.Ingest.BatchSize > 5000 {
+		errs = append(errs, fmt.Errorf("INGEST_BATCH_SIZE must be between 1 and 5000 (got %d)", c.Ingest.BatchSize))
 	}
 
 	if c.DB.MaxConns < 2 {

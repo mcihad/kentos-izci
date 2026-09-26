@@ -9,7 +9,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/db"
 )
 
-func newMigrateCmd(a *app) *cobra.Command {
+func newMigrateCmd(a *cliApp) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "migrate",
 		Short: "Manage database schema migrations",
@@ -74,7 +74,7 @@ func newMigrateCmd(a *app) *cobra.Command {
 	return cmd
 }
 
-func newDBCmd(a *app) *cobra.Command {
+func newDBCmd(a *cliApp) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "db",
 		Short: "Database administration helpers",
@@ -112,6 +112,37 @@ row-level security is enforced. The command is idempotent.`,
 			for _, name := range res.DatabasesExisted {
 				fmt.Fprintf(out, "database %q already exists (owner ensured)\n", name)
 			}
+			return nil
+		},
+	})
+	cmd.AddCommand(&cobra.Command{
+		Use:   "reset",
+		Short: "Drop all data and re-create the schema (development only)",
+		Long: `Drop the public schema of the DATABASE_URL database and apply all
+migrations again. Uses DB_ADMIN_URL. Refuses to run when IZCI_ENV=production.`,
+		Args: cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			if err := a.load(); err != nil {
+				return err
+			}
+			if a.cfg.IsProduction() {
+				return fmt.Errorf("refusing to reset the database in production")
+			}
+			if err := a.cfg.RequireDatabase(); err != nil {
+				return err
+			}
+			if err := db.Reset(cmd.Context(), a.cfg.DB.AdminURL, a.cfg.DB.URL); err != nil {
+				return err
+			}
+			database, err := db.Open(cmd.Context(), a.cfg.DB, a.log)
+			if err != nil {
+				return err
+			}
+			defer database.Close()
+			if err := database.MigrateUp(cmd.Context()); err != nil {
+				return err
+			}
+			fmt.Fprintln(cmd.OutOrStdout(), "database reset and migrated")
 			return nil
 		},
 	})

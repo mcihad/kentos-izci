@@ -18,7 +18,7 @@ import (
 )
 
 // app carries state shared by all commands.
-type app struct {
+type cliApp struct {
 	envFile string
 	cfg     *config.Config
 	log     *slog.Logger
@@ -40,7 +40,7 @@ func Execute() int {
 }
 
 func newRootCmd() *cobra.Command {
-	a := &app{}
+	a := &cliApp{}
 	root := &cobra.Command{
 		Use:   "izci",
 		Short: "izci — error tracking and aggregation for KentOS applications",
@@ -57,13 +57,18 @@ analyze issues with AI (opencode) to open fix branches or pull requests.`,
 		newServeCmd(a),
 		newMigrateCmd(a),
 		newDBCmd(a),
+		newOrgCmd(a),
+		newProjectCmd(a),
+		newKeyCmd(a),
+		newEventCmd(),
+		newBenchCmd(),
 		newVersionCmd(),
 	)
 	return root
 }
 
 // load reads configuration and initializes logging once.
-func (a *app) load() error {
+func (a *cliApp) load() error {
 	if a.cfg != nil {
 		return nil
 	}
@@ -77,7 +82,7 @@ func (a *app) load() error {
 }
 
 // openDB loads config and connects to the database.
-func (a *app) openDB(ctx context.Context) (*db.DB, error) {
+func (a *cliApp) openDB(ctx context.Context) (*db.DB, error) {
 	if err := a.load(); err != nil {
 		return nil, err
 	}

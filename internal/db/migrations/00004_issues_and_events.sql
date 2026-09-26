@@ -93,7 +93,8 @@ CREATE TABLE events (
   score          smallint NOT NULL DEFAULT 0,
   unhandled      boolean NOT NULL DEFAULT false,
   size_bytes     integer NOT NULL DEFAULT 0,
-  warnings       text[] NOT NULL DEFAULT '{}',
+  -- Adjustments made during ingest, as a JSON array of strings.
+  warnings       jsonb NOT NULL DEFAULT '[]',
   -- The normalized izci.ingest.v1.Event as protojson.
   payload        jsonb NOT NULL,
   PRIMARY KEY (id, received_at)

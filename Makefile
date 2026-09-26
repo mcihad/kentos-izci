@@ -23,7 +23,7 @@ LDFLAGS := -s -w \
 	-X $(PKG)/internal/version.Commit=$(COMMIT) \
 	-X $(PKG)/internal/version.Date=$(DATE)
 
-.PHONY: help help-check setup db-setup migrate gen lint-proto web build run dev test test-go test-web lint typecheck check clean
+.PHONY: help help-check setup db-setup db-reset migrate gen lint-proto web build run dev test test-go test-web lint typecheck check clean
 
 #? Lists every target with a one-line summary. With T=<target> prints that
 #? target's full description, variables and examples.
@@ -53,6 +53,13 @@ setup: ## Install Go and web dependencies
 #> make db-setup
 db-setup: ## Create the izci role and databases (uses DB_ADMIN_URL)
 	$(GO) run ./cmd/izci db bootstrap
+
+#? DESTROYS all data in the DATABASE_URL database: drops the public schema
+#? and applies every migration again. Development only (refuses in
+#? production). Uses DB_ADMIN_URL.
+#> make db-reset
+db-reset: ## Wipe and re-create the development database
+	$(GO) run ./cmd/izci db reset
 
 #? Applies pending schema migrations to DATABASE_URL. `izci serve` does the
 #? same on startup unless DB_AUTO_MIGRATE=false.

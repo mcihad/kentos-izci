@@ -2,16 +2,15 @@ package cli
 
 import (
 	"log/slog"
-	"time"
 
 	"github.com/spf13/cobra"
 
-	"github.com/mcihad/kentos-izci/internal/server"
+	"github.com/mcihad/kentos-izci/internal/app"
 	"github.com/mcihad/kentos-izci/internal/version"
 	"github.com/mcihad/kentos-izci/web"
 )
 
-func newServeCmd(a *app) *cobra.Command {
+func newServeCmd(a *cliApp) *cobra.Command {
 	return &cobra.Command{
 		Use:   "serve",
 		Short: "Run the izci server (ingest, API, UI, MCP) on a single port",
@@ -40,37 +39,14 @@ Pending database migrations are applied on startup unless DB_AUTO_MIGRATE=false.
 				return err
 			}
 			defer database.Close()
-
-			srvInfo, err := database.CheckServer(ctx, a.cfg.IsProduction(), a.cfg.DB.AllowPrivilegedRole)
+			if err := app.Prepare(ctx, a.cfg, a.log, database); err != nil {
+				return err
+			}
+			instance, err := app.New(a.cfg, a.log, database, app.Options{UI: web.FS()})
 			if err != nil {
 				return err
 			}
-			a.log.Info("database connected",
-				slog.String("server", srvInfo.Version),
-				slog.String("database", srvInfo.Database),
-				slog.String("role", srvInfo.Role))
-
-			if a.cfg.DB.AutoMigrate {
-				if err := database.MigrateUp(ctx); err != nil {
-					return err
-				}
-			}
-			now := time.Now()
-			created, err := database.EnsureEventPartitions(ctx, now.AddDate(0, 0, -1), now.AddDate(0, 0, a.cfg.Retention.PremakeDays))
-			if err != nil {
-				return err
-			}
-			if len(created) > 0 {
-				a.log.Info("event partitions created", slog.Int("count", len(created)))
-			}
-
-			srv := server.New(server.Options{
-				Config: a.cfg,
-				Logger: a.log,
-				DB:     database,
-				UI:     web.FS(),
-			})
-			return srv.Run(ctx)
+			return instance.Run(ctx)
 		},
 	}
 }
