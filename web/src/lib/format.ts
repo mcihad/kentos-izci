@@ -54,6 +54,13 @@ export function formatTime(d: Date): string {
   return timeFmt.format(d);
 }
 
+const clockFmt = new Intl.DateTimeFormat("tr-TR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+/** 14:32:05 */
+export function formatClock(d: Date): string {
+  return clockFmt.format(d);
+}
+
 /** 26 Eyl */
 export function formatShortDate(d: Date): string {
   return shortDateFmt.format(d);

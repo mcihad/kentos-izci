@@ -140,7 +140,7 @@ export function ProjectAi({ project }: { project: Project }) {
       <Field
         label="Çalıştırılabilecek komutlar"
         htmlFor="ai-commands"
-        hint="Ajanın düzeltmeyi doğrulamak için çalıştırabileceği komutlar, her satıra bir tane."
+        hint="Ajanın düzeltmeyi doğrulamak için çalıştırabileceği komutlar, her satıra bir tane. Bu komutlar deponun kodunu sunucuda çalıştırır; yalnız güvendiğiniz depolar için ekleyin. Boş bırakılırsa ajan hiçbir komut çalıştıramaz."
       >
         <Textarea
           id="ai-commands"

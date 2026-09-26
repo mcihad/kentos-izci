@@ -53,6 +53,8 @@ type Config struct {
 	Ingest    IngestConfig
 	Auth      AuthConfig
 	Telegram  TelegramConfig
+	GitHub    GitHubConfig
+	AI        AIConfig
 	// OIDC holds the configured OpenID Connect providers (from
 	// OIDC_PROVIDERS and OIDC_<ID>_* variables).
 	OIDC []OIDCProvider `env:"-"`
@@ -151,6 +153,52 @@ type TelegramConfig struct {
 
 // Enabled reports whether a bot token is configured.
 func (t TelegramConfig) Enabled() bool { return t.BotToken != "" }
+
+// GitHubConfig configures GitHub (or GitHub Enterprise Server) access.
+type GitHubConfig struct {
+	// APIURL is the REST API base, e.g. https://github.example.com/api/v3.
+	APIURL string `env:"GITHUB_API_URL" envDefault:"https://api.github.com"`
+	// WebURL is the web base used for links and git remotes.
+	WebURL string `env:"GITHUB_WEB_URL" envDefault:"https://github.com"`
+	// AppID, AppSlug and AppPrivateKey configure an optional GitHub App;
+	// organizations can also connect with a personal access token.
+	AppID         int64  `env:"GITHUB_APP_ID"`
+	AppSlug       string `env:"GITHUB_APP_SLUG"`
+	AppPrivateKey Secret `env:"GITHUB_APP_PRIVATE_KEY"`
+	// AppPrivateKeyFile reads the key from a file instead.
+	AppPrivateKeyFile string `env:"GITHUB_APP_PRIVATE_KEY_FILE"`
+	// AppClientID and AppClientSecret are the app's OAuth credentials; izci
+	// uses them to verify who installed the app.
+	AppClientID     string `env:"GITHUB_APP_CLIENT_ID"`
+	AppClientSecret Secret `env:"GITHUB_APP_CLIENT_SECRET"`
+}
+
+// AppConfigured reports whether a GitHub App is configured.
+func (g GitHubConfig) AppConfigured() bool {
+	return g.AppID > 0 && g.AppSlug != "" && (g.AppPrivateKey != "" || g.AppPrivateKeyFile != "") &&
+		g.AppClientID != "" && g.AppClientSecret != ""
+}
+
+// AIConfig configures AI analysis with opencode.
+type AIConfig struct {
+	Enabled bool `env:"AI_ENABLED" envDefault:"false"`
+	// OpencodeBin is the opencode executable.
+	OpencodeBin string `env:"AI_OPENCODE_BIN" envDefault:"opencode"`
+	// Model is the default model ("provider/model"); empty uses opencode's.
+	Model string `env:"AI_OPENCODE_MODEL"`
+	// OpencodeConfig is an optional opencode config file applied to runs,
+	// e.g. for custom providers. Permissions set by izci always win.
+	OpencodeConfig string `env:"AI_OPENCODE_CONFIG"`
+	// MaxConcurrent bounds parallel runs on this instance.
+	MaxConcurrent int `env:"AI_MAX_CONCURRENT" envDefault:"2"`
+	// Timeout stops a run that takes longer.
+	Timeout time.Duration `env:"AI_TIMEOUT" envDefault:"20m"`
+	// OutputLanguage is the language of analyses written for people.
+	OutputLanguage string `env:"AI_OUTPUT_LANGUAGE" envDefault:"Turkish"`
+	// Git identity of commits made for AI fixes.
+	GitAuthorName  string `env:"AI_GIT_AUTHOR_NAME" envDefault:"izci-bot"`
+	GitAuthorEmail string `env:"AI_GIT_AUTHOR_EMAIL" envDefault:"izci-bot@users.noreply.github.com"`
+}
 
 // Secret is a string that is never printed: String returns a placeholder so
 // secrets do not leak through logs or error messages.
@@ -288,6 +336,18 @@ func (c *Config) finalize() error {
 		errs = append(errs, fmt.Errorf("TELEGRAM_MODE must be polling or webhook (got %q)", c.Telegram.Mode))
 	}
 	c.Telegram.APIURL = strings.TrimRight(c.Telegram.APIURL, "/")
+	c.GitHub.APIURL = strings.TrimRight(c.GitHub.APIURL, "/")
+	c.GitHub.WebURL = strings.TrimRight(c.GitHub.WebURL, "/")
+	if (c.GitHub.AppID > 0 || c.GitHub.AppSlug != "") && !c.GitHub.AppConfigured() {
+		errs = append(errs, errors.New("GITHUB_APP_ID, GITHUB_APP_SLUG, GITHUB_APP_PRIVATE_KEY(_FILE), GITHUB_APP_CLIENT_ID and "+
+			"GITHUB_APP_CLIENT_SECRET must be set together"))
+	}
+	if c.AI.MaxConcurrent < 1 || c.AI.MaxConcurrent > 32 {
+		errs = append(errs, fmt.Errorf("AI_MAX_CONCURRENT must be between 1 and 32 (got %d)", c.AI.MaxConcurrent))
+	}
+	if c.AI.Timeout < time.Minute {
+		errs = append(errs, fmt.Errorf("AI_TIMEOUT must be at least 1m (got %s)", c.AI.Timeout))
+	}
 
 	if c.Ingest.Ack != "durable" && c.Ingest.Ack != "async" {
 		errs = append(errs, fmt.Errorf("INGEST_ACK must be durable or async (got %q)", c.Ingest.Ack))

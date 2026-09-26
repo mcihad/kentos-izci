@@ -70,6 +70,8 @@ commit message and the phase table in `docs/mimari.md` (once written).
 | `internal/realtime` | in-process hub fanning committed ingest batches and triage out to `WatchLive` streams |
 | `internal/alert` | alert rules evaluated inside the ingest transaction (savepoint) → transactional notification outbox |
 | `internal/telegram` | Bot API client, outbox dispatcher (edit-in-place, flood control), chat/account linking, signed triage buttons, polling or webhook |
+| `internal/github` | GitHub REST client (no go-github), GitHub App JWT + cached installation tokens, OAuth check of who installed the app, sealed personal access tokens (`Access`) |
+| `internal/ai` | AI runs: bare mirror + per-run worktree, context files and prompt, the opencode process (JSON events → run log), results and diff, publishing branches/pull requests, `Doctor` |
 | `internal/ingest` | normalize → scrub → in-app → grouping → group-commit writer; `IngestService` |
 | `internal/clientip`, `internal/secret`, `internal/slug` | client address, tokens/AES-GCM/HMAC, slugs |
 | `internal/jobs` | periodic background tasks (usage flush, partitions, retention, project purge) |
@@ -97,6 +99,35 @@ make check                # the full gate: help-check, lint, typecheck, tests
 
 Local PostgreSQL is the `postgis_db` container from
 `/Users/cihad/Projects/database/docker-compose.yml` (PostgreSQL 18, :5432).
+
+## AI runs (security model)
+
+An AI run executes an agent on code and on error data that end users can
+influence (prompt injection), so these invariants hold — keep them when
+changing `internal/ai`:
+
+- **The checkout is untrusted once the agent ran.** Git never discovers the
+  repository from the checkout: commands get explicit `GIT_DIR` /
+  `GIT_WORK_TREE`, `GIT_CONFIG_GLOBAL=/dev/null`, `GIT_CONFIG_NOSYSTEM=1` and
+  `-c core.fsmonitor=false -c core.hooksPath=/dev/null …` (see `gitCmd`), so a
+  rewritten `.git` file cannot make izci execute code. Result files are read
+  through `os.Root`, so symlinks cannot leak server files into the UI.
+- **Publishing never uses the agent's checkout.** The commit is built in the
+  mirror from the stored diff with a temporary index (`commitPatch`); what is
+  pushed is exactly what reviewers saw. Pushes never force.
+- **The agent gets no secrets and no reach.** Environment allowlist (no izci
+  secrets, no GitHub token), isolated `XDG_CONFIG_HOME`,
+  `OPENCODE_DISABLE_PROJECT_CONFIG` (repositories cannot load plugins, MCP
+  servers or permissions), pinned permissions: edits inside the checkout, no
+  shell unless the project allowlists commands (an allowlisted command is code
+  execution — say so in the UI), no web, no LSP, no formatters.
+- **Personal data stays home.** `shareable` strips user email/IP/name,
+  cookies and forwarding headers before the event goes to the model provider.
+- Remote URLs must be `https://` (`AllowInsecureRemotes` is for tests only).
+  GitHub App installations are linked only after the installing GitHub user is
+  verified through OAuth (`App.VerifyInstaller`).
+- Tests use a fake `opencode` shell script; never call a real model in tests.
+  `izci ai doctor` checks a real setup without calling a model.
 
 ## Definition of done
 

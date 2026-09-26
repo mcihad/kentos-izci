@@ -7,10 +7,12 @@ import (
 	"connectrpc.com/connect"
 
 	"github.com/mcihad/kentos-izci/gen/izci/api/v1/apiv1connect"
+	"github.com/mcihad/kentos-izci/internal/ai"
 	"github.com/mcihad/kentos-izci/internal/alert"
 	"github.com/mcihad/kentos-izci/internal/auth"
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
+	"github.com/mcihad/kentos-izci/internal/github"
 	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/realtime"
 )
@@ -35,6 +37,10 @@ type Deps struct {
 	Notifier Notifier
 	// Alerts caches alert rules for ingest; invalidated on rule changes.
 	Alerts *alert.Engine
+	// AI runs analyses; nil disables AI features.
+	AI *ai.Runner
+	// GitHub gives access to repositories through integrations.
+	GitHub *github.Access
 }
 
 // Servers exposes the service implementations so that other subsystems
@@ -50,6 +56,8 @@ type Servers struct {
 	Dashboard    *DashboardServer
 	Admin        *AdminServer
 	Alert        *AlertServer
+	Integration  *IntegrationServer
+	Ai           *AiServer
 	// Hub is the live update hub the services publish to.
 	Hub *realtime.Hub
 }
@@ -74,7 +82,10 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 		d.Hub = realtime.NewHub()
 	}
 	b := &base{db: d.DB, auth: d.Auth, cfg: d.Config, log: d.Log, hub: d.Hub, pipeline: d.Pipeline, keys: d.Keys, done: d.StreamsDone,
-		notifier: d.Notifier, alerts: d.Alerts}
+		notifier: d.Notifier, alerts: d.Alerts, ai: d.AI, github: d.GitHub}
+	if b.github == nil {
+		b.github = github.NewAccess(d.Config.GitHub.APIURL, d.Config.GitHub.WebURL, nil, d.Auth.Box(), nil)
+	}
 	s := &Servers{
 		Auth:         &AuthServer{base: b},
 		User:         &UserServer{base: b},
@@ -86,6 +97,8 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 		Dashboard:    &DashboardServer{base: b},
 		Admin:        &AdminServer{base: b},
 		Alert:        &AlertServer{base: b},
+		Integration:  &IntegrationServer{base: b},
+		Ai:           &AiServer{base: b},
 		Hub:          d.Hub,
 	}
 	if d.Notifier != nil {
@@ -100,8 +113,9 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 	handle(apiv1connect.NewCustomerServiceHandler(s.Customer, opts...))
 	handle(apiv1connect.NewDashboardServiceHandler(s.Dashboard, opts...))
 	handle(apiv1connect.NewAlertServiceHandler(s.Alert, opts...))
-	handle(apiv1connect.NewIntegrationServiceHandler(apiv1connect.UnimplementedIntegrationServiceHandler{}, opts...))
-	handle(apiv1connect.NewAiServiceHandler(apiv1connect.UnimplementedAiServiceHandler{}, opts...))
+	handle(apiv1connect.NewIntegrationServiceHandler(s.Integration, opts...))
+	handle(apiv1connect.NewAiServiceHandler(s.Ai, opts...))
+	handle("GET /integrations/github/callback", http.HandlerFunc(s.Integration.GitHubCallback))
 	handle(apiv1connect.NewAdminServiceHandler(s.Admin, opts...))
 	return s, nil
 }

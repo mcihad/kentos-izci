@@ -17,6 +17,9 @@ const (
 	ActivityStatusChanged   int16 = 3
 	ActivityAssigned        int16 = 4
 	ActivityPriorityChanged int16 = 5
+	ActivityAiAnalysis      int16 = 7
+	ActivityBranchCreated   int16 = 8
+	ActivityPullRequest     int16 = 9
 	ActivityNotified        int16 = 10
 )
 

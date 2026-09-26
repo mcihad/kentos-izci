@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"math/rand/v2"
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
@@ -17,6 +18,7 @@ import (
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
 	"github.com/mcihad/kentos-izci/gen/izci/api/v1/apiv1connect"
 	"github.com/mcihad/kentos-izci/internal/auth"
+	"github.com/mcihad/kentos-izci/internal/github"
 	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/ingest/sentry"
 	"github.com/mcihad/kentos-izci/internal/sample"
@@ -777,6 +779,14 @@ func validRepoPart(s string) bool {
 	return true
 }
 
+// githubWebURL is the web address of GitHub (or GitHub Enterprise).
+func (b *base) githubWebURL() string {
+	if u := strings.TrimRight(b.cfg.GitHub.WebURL, "/"); u != "" {
+		return u
+	}
+	return "https://github.com"
+}
+
 // LinkRepository implements ProjectService.LinkRepository.
 func (s *ProjectServer) LinkRepository(ctx context.Context, req *connect.Request[apiv1.LinkRepositoryRequest]) (*connect.Response[apiv1.LinkRepositoryResponse], error) {
 	m := req.Msg
@@ -785,6 +795,41 @@ func (s *ProjectServer) LinkRepository(ctx context.Context, req *connect.Request
 		return nil, fieldError("repository", `repository must be "owner/name" or a GitHub URL`)
 	}
 	branch := strings.TrimSpace(m.GetDefaultBranch())
+	var integration *uuid.UUID
+	if raw := m.GetIntegrationId(); raw != "" {
+		id, err := uuid.Parse(raw)
+		if err != nil {
+			return nil, fieldError("integration_id", "invalid integration id")
+		}
+		// The integration must reach the repository; its default branch is
+		// used unless one was given.
+		var i *store.Integration
+		if err := s.inOrg(ctx, func(tx pgx.Tx, _ *auth.Tenant) error {
+			i, err = store.GetIntegration(ctx, tx, id)
+			return err
+		}); err != nil {
+			if errors.Is(err, store.ErrNotFound) {
+				return nil, errNotFound("integration")
+			}
+			return nil, internal(ctx, s.log, "link repository", err)
+		}
+		client, err := s.github.Client(i)
+		if err != nil {
+			return nil, githubError(ctx, s.log, "link repository", err)
+		}
+		repo, err := client.GetRepository(ctx, owner, name)
+		var gh *github.Error
+		if errors.As(err, &gh) && gh.Status == http.StatusNotFound {
+			return nil, fieldError("repository", "the integration cannot access "+owner+"/"+name)
+		}
+		if err != nil {
+			return nil, githubError(ctx, s.log, "link repository", err)
+		}
+		if branch == "" {
+			branch = repo.DefaultBranch
+		}
+		integration = &id
+	}
 	if branch == "" {
 		branch = "main"
 	}
@@ -799,22 +844,7 @@ func (s *ProjectServer) LinkRepository(ctx context.Context, req *connect.Request
 		if err != nil {
 			return err
 		}
-		var integration *uuid.UUID
-		if raw := m.GetIntegrationId(); raw != "" {
-			id, err := uuid.Parse(raw)
-			if err != nil {
-				return fieldError("integration_id", "invalid integration id")
-			}
-			var found bool
-			if err := tx.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM integrations WHERE id = $1 AND org_id = $2)`, id, t.OrgID()).Scan(&found); err != nil {
-				return err
-			}
-			if !found {
-				return errNotFound("integration")
-			}
-			integration = &id
-		}
-		repoURL := "https://github.com/" + owner + "/" + name
+		repoURL := s.githubWebURL() + "/" + owner + "/" + name
 		if _, err := tx.Exec(ctx, `
 			INSERT INTO project_repositories (project_id, org_id, integration_id, provider, owner, name, url, default_branch, path_mappings)
 			VALUES ($1, $2, $3, 'github', $4, $5, $6, $7, $8)

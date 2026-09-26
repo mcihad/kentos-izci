@@ -27,9 +27,9 @@ const (
 	admin  = apiv1.Role_ROLE_ADMIN
 	owner  = apiv1.Role_ROLE_OWNER
 
-	read  = apiv1.TokenScope_TOKEN_SCOPE_READ
-	write = apiv1.TokenScope_TOKEN_SCOPE_WRITE
-	ai    = apiv1.TokenScope_TOKEN_SCOPE_AI
+	read    = apiv1.TokenScope_TOKEN_SCOPE_READ
+	write   = apiv1.TokenScope_TOKEN_SCOPE_WRITE
+	aiScope = apiv1.TokenScope_TOKEN_SCOPE_AI
 )
 
 func orgRule(role apiv1.Role, scope apiv1.TokenScope) rule {
@@ -125,13 +125,13 @@ var rules = map[string]rule{
 	c.IntegrationServiceGetGitHubStatusProcedure:            orgRule(viewer, read),
 
 	// AiService
-	c.AiServiceStartRunProcedure:          orgRule(member, ai),
+	c.AiServiceStartRunProcedure:          orgRule(member, aiScope),
 	c.AiServiceGetRunProcedure:            orgRule(viewer, read),
 	c.AiServiceListRunsProcedure:          orgRule(viewer, read),
 	c.AiServiceWatchRunProcedure:          orgRule(viewer, read),
-	c.AiServiceCancelRunProcedure:         orgRule(member, ai),
-	c.AiServiceCreateBranchProcedure:      orgRule(member, ai),
-	c.AiServiceCreatePullRequestProcedure: orgRule(member, ai),
+	c.AiServiceCancelRunProcedure:         orgRule(member, aiScope),
+	c.AiServiceCreateBranchProcedure:      orgRule(member, aiScope),
+	c.AiServiceCreatePullRequestProcedure: orgRule(member, aiScope),
 	c.AiServiceGetAiStatusProcedure:       orgRule(viewer, read),
 
 	// UserService

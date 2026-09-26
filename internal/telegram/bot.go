@@ -34,6 +34,7 @@ const (
 	actionResolve = "r"
 	actionIgnore  = "i"
 	actionReopen  = "o"
+	actionAnalyze = "a"
 )
 
 const (
@@ -65,6 +66,9 @@ type Bot struct {
 	OnTriage func(ctx context.Context, orgID uuid.UUID, issueIDs []uuid.UUID)
 	// OnRulesChanged runs after the bot created alert rules.
 	OnRulesChanged func(orgID uuid.UUID)
+	// Analyze starts an AI analysis for a member and returns the reply
+	// shown to them; nil hides the AI button.
+	Analyze func(ctx context.Context, orgID, issueID, userID uuid.UUID) string
 
 	me   atomic.Pointer[User]
 	wake chan struct{}
@@ -251,7 +255,7 @@ func (b *Bot) deliver(ctx context.Context, it store.OutboxItem) {
 	}
 	link := b.issueURL(view)
 	text := RenderIssue(it.Kind, it.Payload, *view, link)
-	kb := Keyboard(*view, link, b.sign)
+	kb := Keyboard(*view, link, b.sign, b.Analyze != nil)
 
 	var thread *store.Thread
 	_ = b.db.InSystem(ctx, func(tx pgx.Tx) error {
@@ -747,6 +751,15 @@ func (b *Bot) handleCallback(ctx context.Context, cq *CallbackQuery) {
 		return
 	}
 
+	if action == actionAnalyze {
+		if b.Analyze == nil {
+			b.answer(ctx, cq, "Yapay zekâ analizi bu sunucuda kapalı.", true)
+			return
+		}
+		b.answer(ctx, cq, b.Analyze(ctx, orgID, issueID, userID), false)
+		return
+	}
+
 	ids := []uuid.UUID{issueID}
 	var status int16
 	var done string
@@ -803,7 +816,7 @@ func (b *Bot) refreshMessage(ctx context.Context, m *Message, issueID uuid.UUID,
 		view.StatusBy = actor
 	}
 	link := b.issueURL(view)
-	if err := b.client.EditMessageText(ctx, m.Chat.ID, m.MessageID, RenderIssue(kind, payload, *view, link), Keyboard(*view, link, b.sign)); err != nil {
+	if err := b.client.EditMessageText(ctx, m.Chat.ID, m.MessageID, RenderIssue(kind, payload, *view, link), Keyboard(*view, link, b.sign, b.Analyze != nil)); err != nil {
 		b.log.Warn("refresh telegram message", slog.Any("err", err))
 	}
 }

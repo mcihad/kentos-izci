@@ -35,12 +35,26 @@ function describe(a: IssueActivity): string {
       return a.data.assignee ? `hatayı ${a.data.assignee} kişisine atadı` : "atamayı kaldırdı";
     case ActivityKind.PRIORITY_CHANGED:
       return `önceliği ${priorityText[a.data.to ?? ""] ?? a.data.to} yaptı`;
-    case ActivityKind.AI_ANALYSIS:
-      return "yapay zekâ analizi başlattı";
-    case ActivityKind.BRANCH_CREATED:
-      return `dal oluşturdu${a.data.branch ? `: ${a.data.branch}` : ""}`;
-    case ActivityKind.PULL_REQUEST_OPENED:
-      return `çekme isteği açtı${a.data.url ? `: ${a.data.url}` : ""}`;
+    case ActivityKind.AI_ANALYSIS: {
+      const files = a.data.files ? `; ${a.data.files} dosyada düzeltme önerildi` : "";
+      if (a.data.status === "failed")
+        return a.actor
+          ? "yapay zekâ analizi başlattı; analiz tamamlanamadı"
+          : "Otomatik yapay zekâ analizi tamamlanamadı";
+      return a.actor
+        ? `yapay zekâ ile analiz etti${files}`
+        : `Otomatik yapay zekâ analizi tamamlandı${files}`;
+    }
+    case ActivityKind.BRANCH_CREATED: {
+      const branch = a.data.branch ? `: ${a.data.branch}` : "";
+      return a.actor
+        ? `düzeltmeyi bir dala gönderdi${branch}`
+        : `Düzeltme otomatik olarak bir dala gönderildi${branch}`;
+    }
+    case ActivityKind.PULL_REQUEST_OPENED: {
+      const number = a.data.number ? ` (#${a.data.number})` : "";
+      return a.actor ? `çekme isteği açtı${number}` : `Otomatik olarak çekme isteği açıldı${number}`;
+    }
     case ActivityKind.NOTIFIED:
       return `bildirim gönderildi${a.data.channel ? ` (${a.data.channel})` : ""}`;
     default:

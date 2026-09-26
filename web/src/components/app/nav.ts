@@ -6,6 +6,7 @@ import {
   CompassIcon,
   type LucideIcon,
   RadioIcon,
+  SparklesIcon,
 } from "lucide-react";
 
 export type NavItem = {
@@ -16,7 +17,8 @@ export type NavItem = {
     | "/o/$org/customers"
     | "/o/$org/live"
     | "/o/$org/projects"
-    | "/o/$org/alerts";
+    | "/o/$org/alerts"
+    | "/o/$org/ai";
   icon: LucideIcon;
   exact?: boolean;
 };
@@ -28,5 +30,6 @@ export const primaryNav: NavItem[] = [
   { label: "Müşteriler", to: "/o/$org/customers", icon: Building2Icon },
   { label: "Canlı akış", to: "/o/$org/live", icon: RadioIcon },
   { label: "Projeler", to: "/o/$org/projects", icon: BoxesIcon },
+  { label: "Yapay zekâ", to: "/o/$org/ai", icon: SparklesIcon },
   { label: "Uyarılar", to: "/o/$org/alerts", icon: BellRingIcon },
 ];

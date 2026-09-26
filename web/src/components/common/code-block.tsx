@@ -4,7 +4,8 @@ import { useTokens } from "@/lib/highlight";
 import { cn } from "@/lib/utils";
 import { CopyButton } from "./copy-button";
 
-function Line({ tokens, text }: { tokens?: ThemedToken[]; text: string }) {
+/** One source line, highlighted when tokens are available. */
+export function TokenLine({ tokens, text }: { tokens?: ThemedToken[]; text: string }) {
   if (!tokens) return <>{text || " "}</>;
   if (tokens.length === 0) return <> </>;
   return (
@@ -65,7 +66,7 @@ export function CodeLines({
                   {start + i}
                 </td>
                 <td className="whitespace-pre pr-4">
-                  <Line tokens={tokens?.[i]} text={text} />
+                  <TokenLine tokens={tokens?.[i]} text={text} />
                 </td>
               </tr>
             );
@@ -107,7 +108,7 @@ export function CodeBlock({
         {lines.map((text, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: line positions are stable
           <div key={i}>
-            <Line tokens={tokens?.[i]} text={text} />
+            <TokenLine tokens={tokens?.[i]} text={text} />
           </div>
         ))}
       </pre>

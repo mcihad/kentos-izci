@@ -18,6 +18,7 @@ import { Route as OOrgRouteImport } from "./routes/o.$org";
 import { Route as OOrgIndexRouteImport } from "./routes/o.$org.index";
 import { Route as OOrgAccountRouteImport } from "./routes/o.$org.account";
 import { Route as OOrgAdminRouteImport } from "./routes/o.$org.admin";
+import { Route as OOrgAiRouteImport } from "./routes/o.$org.ai";
 import { Route as OOrgAlertsRouteImport } from "./routes/o.$org.alerts";
 import { Route as OOrgLiveRouteImport } from "./routes/o.$org.live";
 import { Route as OOrgSettingsRouteImport } from "./routes/o.$org.settings";
@@ -71,6 +72,11 @@ const OOrgAccountRoute = OOrgAccountRouteImport.update({
 const OOrgAdminRoute = OOrgAdminRouteImport.update({
   id: "/admin",
   path: "/admin",
+  getParentRoute: () => OOrgRoute,
+} as any);
+const OOrgAiRoute = OOrgAiRouteImport.update({
+  id: "/ai",
+  path: "/ai",
   getParentRoute: () => OOrgRoute,
 } as any);
 const OOrgAlertsRoute = OOrgAlertsRouteImport.update({
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   "/o/$org": typeof OOrgRouteWithChildren;
   "/o/$org/account": typeof OOrgAccountRoute;
   "/o/$org/admin": typeof OOrgAdminRoute;
+  "/o/$org/ai": typeof OOrgAiRoute;
   "/o/$org/alerts": typeof OOrgAlertsRoute;
   "/o/$org/live": typeof OOrgLiveRoute;
   "/o/$org/settings": typeof OOrgSettingsRoute;
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   "/invite/$token": typeof InviteTokenRoute;
   "/o/$org/account": typeof OOrgAccountRoute;
   "/o/$org/admin": typeof OOrgAdminRoute;
+  "/o/$org/ai": typeof OOrgAiRoute;
   "/o/$org/alerts": typeof OOrgAlertsRoute;
   "/o/$org/live": typeof OOrgLiveRoute;
   "/o/$org/settings": typeof OOrgSettingsRoute;
@@ -168,6 +176,7 @@ export interface FileRoutesById {
   "/o/$org": typeof OOrgRouteWithChildren;
   "/o/$org/account": typeof OOrgAccountRoute;
   "/o/$org/admin": typeof OOrgAdminRoute;
+  "/o/$org/ai": typeof OOrgAiRoute;
   "/o/$org/alerts": typeof OOrgAlertsRoute;
   "/o/$org/live": typeof OOrgLiveRoute;
   "/o/$org/settings": typeof OOrgSettingsRoute;
@@ -190,6 +199,7 @@ export interface FileRouteTypes {
     | "/o/$org"
     | "/o/$org/account"
     | "/o/$org/admin"
+    | "/o/$org/ai"
     | "/o/$org/alerts"
     | "/o/$org/live"
     | "/o/$org/settings"
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
     | "/invite/$token"
     | "/o/$org/account"
     | "/o/$org/admin"
+    | "/o/$org/ai"
     | "/o/$org/alerts"
     | "/o/$org/live"
     | "/o/$org/settings"
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
     | "/o/$org"
     | "/o/$org/account"
     | "/o/$org/admin"
+    | "/o/$org/ai"
     | "/o/$org/alerts"
     | "/o/$org/live"
     | "/o/$org/settings"
@@ -315,6 +327,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof OOrgAdminRouteImport;
       parentRoute: typeof OOrgRoute;
     };
+    "/o/$org/ai": {
+      id: "/o/$org/ai";
+      path: "/ai";
+      fullPath: "/o/$org/ai";
+      preLoaderRoute: typeof OOrgAiRouteImport;
+      parentRoute: typeof OOrgRoute;
+    };
     "/o/$org/alerts": {
       id: "/o/$org/alerts";
       path: "/alerts";
@@ -384,6 +403,7 @@ declare module "@tanstack/react-router" {
 interface OOrgRouteChildren {
   OOrgAccountRoute: typeof OOrgAccountRoute;
   OOrgAdminRoute: typeof OOrgAdminRoute;
+  OOrgAiRoute: typeof OOrgAiRoute;
   OOrgAlertsRoute: typeof OOrgAlertsRoute;
   OOrgLiveRoute: typeof OOrgLiveRoute;
   OOrgSettingsRoute: typeof OOrgSettingsRoute;
@@ -399,6 +419,7 @@ interface OOrgRouteChildren {
 const OOrgRouteChildren: OOrgRouteChildren = {
   OOrgAccountRoute: OOrgAccountRoute,
   OOrgAdminRoute: OOrgAdminRoute,
+  OOrgAiRoute: OOrgAiRoute,
   OOrgAlertsRoute: OOrgAlertsRoute,
   OOrgLiveRoute: OOrgLiveRoute,
   OOrgSettingsRoute: OOrgSettingsRoute,

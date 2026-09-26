@@ -32,9 +32,13 @@ type env struct {
 	log      *slog.Logger
 	hub      *realtime.Hub
 	pipeline *ingest.Pipeline
+	box      *secret.Box
 }
 
-func newEnv(t *testing.T) *env {
+// envOption adds collaborators (AI runner, GitHub access) before mounting.
+type envOption func(e *env, d *api.Deps)
+
+func newEnv(t *testing.T, opts ...envOption) *env {
 	t.Helper()
 	database := testutil.NewDB(t)
 	cfg := &config.Config{
@@ -52,16 +56,21 @@ func newEnv(t *testing.T) *env {
 	t.Cleanup(func() { _ = pipeline.Close(context.Background()) })
 	done := make(chan struct{})
 	mux := http.NewServeMux()
-	if _, err := api.Mount(mux.Handle, api.Deps{DB: database, Auth: svc, Config: cfg, Log: log, Hub: hub, Pipeline: pipeline,
-		Keys: ingest.NewKeyResolver(database, time.Minute), StreamsDone: done}); err != nil {
+	e := &env{cfg: cfg, db: database, log: log, hub: hub, pipeline: pipeline, box: box}
+	deps := api.Deps{DB: database, Auth: svc, Config: cfg, Log: log, Hub: hub, Pipeline: pipeline,
+		Keys: ingest.NewKeyResolver(database, time.Minute), StreamsDone: done}
+	for _, o := range opts {
+		o(e, &deps)
+	}
+	if _, err := api.Mount(mux.Handle, deps); err != nil {
 		t.Fatal(err)
 	}
-	srv := httptest.NewServer(mux)
+	e.srv = httptest.NewServer(mux)
 	t.Cleanup(func() {
 		close(done)
-		srv.Close()
+		e.srv.Close()
 	})
-	return &env{srv: srv, cfg: cfg, db: database, log: log, hub: hub, pipeline: pipeline}
+	return e
 }
 
 // testLog writes server error logs into the test output.
@@ -85,6 +94,9 @@ type client struct {
 	dashboard apiv1connect.DashboardServiceClient
 	admin     apiv1connect.AdminServiceClient
 	alert     apiv1connect.AlertServiceClient
+	ai        apiv1connect.AiServiceClient
+	integ     apiv1connect.IntegrationServiceClient
+	hc        *http.Client
 	hdr       map[string]string
 }
 
@@ -103,6 +115,9 @@ func (e *env) client(hdr map[string]string) *client {
 		dashboard: apiv1connect.NewDashboardServiceClient(hc, e.srv.URL, opt),
 		admin:     apiv1connect.NewAdminServiceClient(hc, e.srv.URL, opt),
 		alert:     apiv1connect.NewAlertServiceClient(hc, e.srv.URL, opt),
+		ai:        apiv1connect.NewAiServiceClient(hc, e.srv.URL, opt),
+		integ:     apiv1connect.NewIntegrationServiceClient(hc, e.srv.URL, opt),
+		hc:        hc,
 		hdr:       hdr,
 	}
 }

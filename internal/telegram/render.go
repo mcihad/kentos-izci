@@ -136,7 +136,7 @@ func RenderTest(channelName, orgName string) string {
 
 // Keyboard returns the buttons under an issue notification. Link buttons
 // are only added for public addresses, which Telegram accepts.
-func Keyboard(v IssueView, issueURL string, sign func(action, issueID string) string) *InlineKeyboard {
+func Keyboard(v IssueView, issueURL string, sign func(action, issueID string) string, ai bool) *InlineKeyboard {
 	var row []Button
 	if public(issueURL) {
 		row = append(row, Button{Text: "Aç", URL: issueURL})
@@ -148,7 +148,11 @@ func Keyboard(v IssueView, issueURL string, sign func(action, issueID string) st
 	} else {
 		row = append(row, Button{Text: "↩️ Yeniden aç", CallbackData: sign(actionReopen, v.ID)})
 	}
-	return &InlineKeyboard{Rows: [][]Button{row}}
+	rows := [][]Button{row}
+	if ai && v.Status == store.IssueUnresolved {
+		rows = append(rows, []Button{{Text: "🤖 Yapay zekâ ile analiz et", CallbackData: sign(actionAnalyze, v.ID)}})
+	}
+	return &InlineKeyboard{Rows: rows}
 }
 
 func public(raw string) bool {

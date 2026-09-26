@@ -6,25 +6,31 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io/fs"
 	"log/slog"
+	"os"
 	"sync"
 	"time"
 
 	"connectrpc.com/connect"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
+	"github.com/mcihad/kentos-izci/internal/ai"
 	"github.com/mcihad/kentos-izci/internal/alert"
 	"github.com/mcihad/kentos-izci/internal/api"
 	"github.com/mcihad/kentos-izci/internal/auth"
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
+	"github.com/mcihad/kentos-izci/internal/github"
 	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/ingest/sentry"
 	"github.com/mcihad/kentos-izci/internal/jobs"
 	"github.com/mcihad/kentos-izci/internal/realtime"
 	"github.com/mcihad/kentos-izci/internal/secret"
 	"github.com/mcihad/kentos-izci/internal/server"
+	"github.com/mcihad/kentos-izci/internal/store"
 	"github.com/mcihad/kentos-izci/internal/telegram"
 	"github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1/ingestv1connect"
 )
@@ -46,6 +52,10 @@ type App struct {
 	Alerts *alert.Engine
 	// Bot is the Telegram bot; nil when TELEGRAM_BOT_TOKEN is empty.
 	Bot *telegram.Bot
+	// GitHub gives access to repositories through integrations.
+	GitHub *github.Access
+	// AI runs AI analyses; it idles unless AI_ENABLED is set.
+	AI *ai.Runner
 
 	jobs  *jobs.Runner
 	usage *ingest.UsageRecorder
@@ -70,6 +80,10 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 		a.Bot = telegram.New(cfg.Telegram, cfg.PublicURL, database, box, log, nil)
 		a.Bot.OnRulesChanged = a.Alerts.Invalidate
 	}
+	if a.GitHub, err = NewGitHubAccess(cfg, box); err != nil {
+		return nil, err
+	}
+	a.AI = ai.New(database, log, ai.Options{Config: cfg.AI, DataDir: cfg.DataDir, PublicURL: cfg.PublicURL, GitHub: a.GitHub})
 
 	a.Pipeline = ingest.NewPipeline(database, log, ingest.PipelineConfig{
 		Shards:    cfg.Ingest.Shards,
@@ -101,6 +115,7 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 			if b.Notifications > 0 && a.Bot != nil {
 				a.Bot.Wake()
 			}
+			a.AI.NewIssues(b)
 		},
 	})
 
@@ -127,6 +142,7 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	deps := api.Deps{
 		DB: database, Auth: a.Auth, Config: cfg, Log: log,
 		Hub: a.Hub, Pipeline: a.Pipeline, Keys: a.keys, StreamsDone: a.Server.StreamsDone(), Alerts: a.Alerts,
+		AI: a.AI, GitHub: a.GitHub,
 	}
 	if a.Bot != nil {
 		deps.Notifier = a.Bot
@@ -134,8 +150,12 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	if a.API, err = api.Mount(a.Server.Handle, deps); err != nil {
 		return nil, err
 	}
+	a.AI.OnIssueChange = a.API.Issue.PublishIssueUpdates
 	if a.Bot != nil {
 		a.Bot.OnTriage = a.API.Issue.PublishIssueUpdates
+		if a.AI.Enabled() {
+			a.Bot.Analyze = a.analyzeFromTelegram
+		}
 		if cfg.Telegram.Mode == "webhook" {
 			a.Server.Handle("POST /telegram/webhook", a.Bot.WebhookHandler())
 		}
@@ -174,6 +194,49 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	return a, nil
 }
 
+// NewGitHubAccess builds repository access from the GitHub settings: tokens
+// of integrations and, when configured, the GitHub App.
+func NewGitHubAccess(cfg *config.Config, box *secret.Box) (*github.Access, error) {
+	var app *github.App
+	if cfg.GitHub.AppConfigured() {
+		key := cfg.GitHub.AppPrivateKey.Value()
+		if key == "" {
+			raw, err := os.ReadFile(cfg.GitHub.AppPrivateKeyFile)
+			if err != nil {
+				return nil, fmt.Errorf("read GITHUB_APP_PRIVATE_KEY_FILE: %w", err)
+			}
+			key = string(raw)
+		}
+		var err error
+		if app, err = github.NewApp(github.AppConfig{ID: cfg.GitHub.AppID, Slug: cfg.GitHub.AppSlug, PrivateKey: key,
+			ClientID: cfg.GitHub.AppClientID, ClientSecret: cfg.GitHub.AppClientSecret.Value(), APIURL: cfg.GitHub.APIURL,
+			WebURL: cfg.GitHub.WebURL}, nil); err != nil {
+			return nil, err
+		}
+	}
+	return github.NewAccess(cfg.GitHub.APIURL, cfg.GitHub.WebURL, app, box, nil), nil
+}
+
+// analyzeFromTelegram starts an analysis for a Telegram button press and
+// returns the (Turkish) reply shown to the member.
+func (a *App) analyzeFromTelegram(ctx context.Context, orgID, issueID, userID uuid.UUID) string {
+	_, err := a.AI.Start(ctx, orgID, ai.StartRequest{IssueID: issueID, Trigger: store.AiTriggerTelegram, RequestedBy: &userID})
+	switch {
+	case err == nil:
+		return "Yapay zekâ analizi başladı; sonuç İzci'de hatanın Yapay zekâ sekmesinde görünecek."
+	case errors.Is(err, store.ErrRunActive):
+		return "Bu hata için bir analiz zaten sürüyor."
+	case errors.Is(err, ai.ErrBudgetExceeded):
+		return "Organizasyonun bu ayki yapay zekâ analiz hakkı doldu."
+	case errors.Is(err, ai.ErrDisabled):
+		return "Yapay zekâ analizi bu sunucuda kapalı."
+	case errors.Is(err, store.ErrNotFound):
+		return "Bu hata artık yok."
+	}
+	a.Log.Error("start AI analysis from Telegram", slog.Any("err", err))
+	return "Analiz şu anda başlatılamadı. Biraz sonra yeniden deneyin."
+}
+
 // Prepare checks the server, applies migrations (when enabled) and creates
 // event partitions ahead of time.
 func Prepare(ctx context.Context, cfg *config.Config, log *slog.Logger, database *db.DB) error {
@@ -208,6 +271,11 @@ func (a *App) Run(ctx context.Context) error {
 	if a.Bot != nil {
 		bot.Go(func() { a.Bot.Run(jobCtx) })
 	}
+	bot.Go(func() {
+		if err := a.AI.Run(jobCtx); err != nil {
+			a.Log.Error("AI runner stopped", slog.Any("err", err))
+		}
+	})
 
 	serveErr := a.Server.Run(ctx)
 

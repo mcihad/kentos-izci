@@ -2,6 +2,7 @@ import { skipToken, useQuery } from "@connectrpc/connect-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { BracesIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, DownloadIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { IssueAi } from "@/components/ai/issue-ai";
 import { gutter } from "@/components/app/page";
 import { CodeBlock } from "@/components/common/code-block";
 import { CopyButton } from "@/components/common/copy-button";
@@ -33,7 +34,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { IssueStatus, StatsPeriod } from "@/gen/izci/api/v1/common_pb";
 import { type EventDetail, EventPick, EventService } from "@/gen/izci/api/v1/event_pb";
-import { IssueService } from "@/gen/izci/api/v1/issue_pb";
+import { AiState, IssueService } from "@/gen/izci/api/v1/issue_pb";
 import { isNotFound } from "@/lib/errors";
 import { platformLabel } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
@@ -42,14 +43,15 @@ import { useHotkeys } from "@/lib/shortcuts";
 import { useTriage } from "@/lib/triage";
 import { cn } from "@/lib/utils";
 
-type Tab = "event" | "events" | "impact" | "activity";
-type IssueSearch = { event?: string; tab?: Tab };
+type Tab = "event" | "events" | "impact" | "activity" | "ai";
+type IssueSearch = { event?: string; tab?: Tab; run?: string };
 
 const tabs: { id: Tab; label: string }[] = [
   { id: "event", label: "Olay" },
   { id: "events", label: "Tüm olaylar" },
   { id: "impact", label: "Etki" },
   { id: "activity", label: "Etkinlik" },
+  { id: "ai", label: "Yapay zekâ" },
 ];
 
 const picks: Record<string, EventPick> = {
@@ -62,6 +64,7 @@ export const Route = createFileRoute("/o/$org/issues/$issueId")({
   validateSearch: (s: Record<string, unknown>): IssueSearch => ({
     event: typeof s.event === "string" ? s.event : undefined,
     tab: typeof s.tab === "string" && tabs.some((t) => t.id === s.tab) ? (s.tab as Tab) : undefined,
+    run: typeof s.run === "string" ? s.run : undefined,
   }),
   component: IssuePage,
 });
@@ -179,7 +182,7 @@ function IssuePage() {
             <Link
               key={t.id}
               from={Route.fullPath}
-              search={(p) => ({ ...p, tab: t.id === "event" ? undefined : t.id })}
+              search={(p) => ({ ...p, tab: t.id === "event" ? undefined : t.id, run: undefined })}
               className={cn(
                 "whitespace-nowrap border-b-2 pb-2.5 transition-colors",
                 tab === t.id
@@ -188,6 +191,9 @@ function IssuePage() {
               )}
             >
               {t.label}
+              {t.id === "ai" && s.aiState === AiState.RUNNING ? (
+                <span className="ml-1.5 inline-block size-1.5 animate-pulse rounded-full bg-primary align-middle" />
+              ) : null}
             </Link>
           ))}
         </nav>
@@ -218,6 +224,14 @@ function IssuePage() {
             <IssueEvents issueId={s.id} shortId={s.shortId} />
           ) : tab === "impact" ? (
             <Impact facets={facets.data?.facets} />
+          ) : tab === "ai" ? (
+            <IssueAi
+              issue={s}
+              eventId={search.event}
+              runId={search.run}
+              onSelectRun={(run) => void navigate({ search: (p) => ({ ...p, run }), replace: true })}
+              writable={writable}
+            />
           ) : (
             <Activity issueId={s.id} writable={writable} />
           )}
