@@ -321,5 +321,5 @@ func domainAllowed(email string, allowed []string) bool {
 // loginRedirect sends the browser to the login page with an error code the
 // UI translates.
 func loginRedirect(w http.ResponseWriter, r *http.Request, code string) {
-	http.Redirect(w, r, "/giris?hata="+url.QueryEscape(code), http.StatusFound)
+	http.Redirect(w, r, "/login?error="+url.QueryEscape(code), http.StatusFound)
 }

@@ -26,3 +26,4 @@ web/node_modules/.tmp/
 .vscode/*
 !.vscode/extensions.json
 *.swp
+/.claude/launch.json

@@ -1,0 +1,114 @@
+import { useQuery } from "@connectrpc/connect-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ChevronRightIcon } from "lucide-react";
+import { gutter, useDocumentTitle } from "@/components/app/page";
+import { EmptyState, ErrorState } from "@/components/common/states";
+import { ProjectAi } from "@/components/project/ai";
+import { ProjectGeneral } from "@/components/project/general";
+import { ProjectKeys } from "@/components/project/keys";
+import { ProjectPrivacy } from "@/components/project/privacy";
+import { ProjectReleases } from "@/components/project/releases";
+import { ProjectRepository } from "@/components/project/repository";
+import { ProjectSetup } from "@/components/project/setup";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ProjectService } from "@/gen/izci/api/v1/project_pb";
+import { isNotFound } from "@/lib/errors";
+import { platformLabel } from "@/lib/labels";
+import { useOrg } from "@/lib/org";
+import { cn } from "@/lib/utils";
+
+const tabs = [
+  { id: "general", label: "Genel" },
+  { id: "setup", label: "Kurulum" },
+  { id: "keys", label: "Anahtarlar" },
+  { id: "releases", label: "Sürümler" },
+  { id: "repository", label: "Depo" },
+  { id: "privacy", label: "Gizlilik" },
+  { id: "ai", label: "Yapay zekâ" },
+] as const;
+type Tab = (typeof tabs)[number]["id"];
+
+export const Route = createFileRoute("/o/$org/projects/$slug")({
+  validateSearch: (s: Record<string, unknown>): { tab?: Tab } => ({
+    tab: typeof s.tab === "string" && tabs.some((t) => t.id === s.tab) ? (s.tab as Tab) : undefined,
+  }),
+  component: ProjectPage,
+});
+
+function ProjectPage() {
+  const org = useOrg();
+  const { slug } = Route.useParams();
+  const search = Route.useSearch();
+  const q = useQuery(ProjectService.method.getProject, { slug });
+  const project = q.data?.project;
+  useDocumentTitle(project?.name);
+
+  if (q.isPending) {
+    return (
+      <div className={cn("space-y-4 py-6", gutter)}>
+        <Skeleton className="h-7 w-56" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+  if (!project) {
+    return isNotFound(q.error) ? (
+      <EmptyState title="Proje bulunamadı" className="py-24">
+        <span className="font-mono">{slug}</span> adlı bir proje yok ya da silinmiş.
+      </EmptyState>
+    ) : (
+      <ErrorState error={q.error} onRetry={() => void q.refetch()} className="py-24" />
+    );
+  }
+  const tab: Tab = search.tab ?? (project.stats?.lastEventAt ? "general" : "setup");
+
+  return (
+    <div className="pb-12">
+      <header className="border-b">
+        <div className={cn("pt-4 pb-4", gutter)}>
+          <nav className="flex items-center gap-1.5 text-[12.5px] text-muted-foreground" aria-label="Konum">
+            <Link to="/o/$org/projects" params={{ org: org.slug }} className="hover:text-foreground">
+              Projeler
+            </Link>
+            <ChevronRightIcon className="size-3.5" />
+            <span className="font-mono text-foreground">{project.slug}</span>
+          </nav>
+          <h1 className="mt-2 font-semibold text-[20px] leading-tight tracking-[-0.015em]">{project.name}</h1>
+          <p className="mt-1 text-[12.5px] text-muted-foreground">
+            {platformLabel(project.platform)} projesi, Sentry numarası{" "}
+            <span className="font-mono">{String(project.publicId)}</span>
+          </p>
+        </div>
+        <nav
+          className={cn("-mb-px flex gap-5 overflow-x-auto text-[13px]", gutter)}
+          aria-label="Ayar bölümleri"
+        >
+          {tabs.map((t) => (
+            <Link
+              key={t.id}
+              from={Route.fullPath}
+              search={{ tab: t.id }}
+              className={cn(
+                "whitespace-nowrap border-b-2 pb-2.5 transition-colors",
+                tab === t.id
+                  ? "border-primary font-medium text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {t.label}
+            </Link>
+          ))}
+        </nav>
+      </header>
+      <div className={gutter} key={project.id}>
+        {tab === "general" ? <ProjectGeneral project={project} /> : null}
+        {tab === "setup" ? <ProjectSetup project={project} /> : null}
+        {tab === "keys" ? <ProjectKeys project={project} /> : null}
+        {tab === "releases" ? <ProjectReleases project={project} /> : null}
+        {tab === "repository" ? <ProjectRepository project={project} /> : null}
+        {tab === "privacy" ? <ProjectPrivacy project={project} /> : null}
+        {tab === "ai" ? <ProjectAi project={project} /> : null}
+      </div>
+    </div>
+  );
+}

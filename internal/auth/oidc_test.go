@@ -129,7 +129,7 @@ func TestOIDCLoginFlow(t *testing.T) {
 		t.Fatal(err)
 	}
 	mux.HandleFunc("GET /o/kentos", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("app")) })
-	mux.HandleFunc("GET /giris", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("login")) })
+	mux.HandleFunc("GET /login", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("login")) })
 
 	jar, _ := cookiejar.New(nil)
 	browser := &http.Client{Jar: jar}
@@ -168,7 +168,7 @@ func TestOIDCLoginFlow(t *testing.T) {
 	// A forged callback (state mismatch) is rejected.
 	res, _ = browser.Get(izci.URL + "/auth/oidc/kimlik/callback?code=x&state=forged")
 	res.Body.Close()
-	if res.Request.URL.Path != "/giris" || !strings.Contains(res.Request.URL.RawQuery, "hata=oidc_state") {
+	if res.Request.URL.Path != "/login" || !strings.Contains(res.Request.URL.RawQuery, "error=oidc_state") {
 		t.Fatalf("forged callback ended at %s", res.Request.URL)
 	}
 
@@ -176,7 +176,7 @@ func TestOIDCLoginFlow(t *testing.T) {
 	idp.sub, idp.email = "other", "someone@gmail.com"
 	res, _ = browser.Get(izci.URL + "/auth/oidc/kimlik/start")
 	res.Body.Close()
-	if !strings.Contains(res.Request.URL.RawQuery, "hata=oidc_domain") {
+	if !strings.Contains(res.Request.URL.RawQuery, "error=oidc_domain") {
 		t.Fatalf("foreign domain ended at %s", res.Request.URL)
 	}
 }

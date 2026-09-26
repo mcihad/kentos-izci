@@ -24,8 +24,8 @@
   --secondary-foreground: oklch(0.27 0.012 255);
   --muted: oklch(0.965 0.004 250);
   --muted-foreground: oklch(0.52 0.014 255);
-  --accent: oklch(0.955 0.012 184);
-  --accent-foreground: oklch(0.3 0.04 190);
+  --accent: oklch(0.958 0.004 250);
+  --accent-foreground: oklch(0.21 0.012 255);
   --destructive: oklch(0.58 0.21 27);
   --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(0.915 0.005 250);
@@ -37,6 +37,11 @@
   --level-warning: oklch(0.74 0.15 70);
   --level-info: oklch(0.6 0.14 250);
   --level-debug: oklch(0.6 0.015 255);
+
+  --health-good: oklch(0.6 0.13 155);
+  --trail: oklch(0.86 0.01 250);
+  --code: oklch(0.975 0.003 250);
+  --highlight: oklch(0.56 0.105 184 / 0.1);
 
   --chart-1: oklch(0.56 0.105 184);
   --chart-2: oklch(0.6 0.2 27);
@@ -55,25 +60,25 @@
 }
 
 .dark {
-  --background: oklch(0.155 0.007 255);
+  --background: oklch(0.205 0.009 255);
   --foreground: oklch(0.935 0.006 250);
-  --card: oklch(0.185 0.008 255);
+  --card: oklch(0.23 0.009 255);
   --card-foreground: var(--foreground);
-  --popover: oklch(0.2 0.009 255);
+  --popover: oklch(0.245 0.01 255);
   --popover-foreground: var(--foreground);
-  --primary: oklch(0.8 0.125 182);
+  --primary: oklch(0.79 0.105 180);
   --primary-foreground: oklch(0.2 0.03 190);
-  --secondary: oklch(0.235 0.009 255);
+  --secondary: oklch(0.26 0.01 255);
   --secondary-foreground: oklch(0.9 0.006 250);
-  --muted: oklch(0.225 0.008 255);
-  --muted-foreground: oklch(0.66 0.014 255);
-  --accent: oklch(0.27 0.03 190);
-  --accent-foreground: oklch(0.92 0.03 182);
+  --muted: oklch(0.255 0.01 255);
+  --muted-foreground: oklch(0.68 0.014 255);
+  --accent: oklch(0.275 0.011 255);
+  --accent-foreground: oklch(0.95 0.006 250);
   --destructive: oklch(0.66 0.19 25);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.27 0.009 255);
-  --input: oklch(0.3 0.01 255);
-  --ring: oklch(0.8 0.125 182 / 0.5);
+  --border: oklch(0.295 0.01 255);
+  --input: oklch(0.32 0.011 255);
+  --ring: oklch(0.79 0.105 180 / 0.5);
 
   --level-fatal: oklch(0.7 0.2 350);
   --level-error: oklch(0.7 0.18 27);
@@ -81,19 +86,24 @@
   --level-info: oklch(0.72 0.12 250);
   --level-debug: oklch(0.66 0.014 255);
 
-  --chart-1: oklch(0.8 0.125 182);
+  --health-good: oklch(0.74 0.13 155);
+  --trail: oklch(0.37 0.012 255);
+  --code: oklch(0.185 0.009 255);
+  --highlight: oklch(0.79 0.105 180 / 0.1);
+
+  --chart-1: oklch(0.79 0.105 180);
   --chart-2: oklch(0.7 0.18 27);
   --chart-3: oklch(0.82 0.14 75);
   --chart-4: oklch(0.72 0.12 250);
   --chart-5: oklch(0.7 0.2 350);
 
-  --sidebar: oklch(0.14 0.007 255);
+  --sidebar: oklch(0.182 0.009 255);
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: oklch(0.21 0.009 255);
+  --sidebar-accent: oklch(0.245 0.01 255);
   --sidebar-accent-foreground: var(--foreground);
-  --sidebar-border: oklch(0.235 0.009 255);
+  --sidebar-border: oklch(0.265 0.01 255);
   --sidebar-ring: var(--ring);
 }
 
@@ -130,6 +140,10 @@
   --color-level-warning: var(--level-warning);
   --color-level-info: var(--level-info);
   --color-level-debug: var(--level-debug);
+  --color-health-good: var(--health-good);
+  --color-trail: var(--trail);
+  --color-code: var(--code);
+  --color-highlight: var(--highlight);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -164,4 +178,65 @@
   samp {
     @apply font-mono;
   }
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 30%, transparent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  /* Quiet scrollbars that match the theme. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--muted-foreground) 35%, transparent) transparent;
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* A new live row fades from the accent tint to the normal background. */
+@keyframes izci-arrive {
+  from {
+    background-color: var(--highlight);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+.animate-arrive {
+  animation: izci-arrive 2.4s ease-out;
+}
+
+/* The trail line of stack traces and breadcrumbs draws in once. */
+@keyframes izci-trail {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.animate-trail {
+  animation: izci-trail 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-arrive,
+  .animate-trail {
+    animation: none;
+  }
+}
+
+/* Syntax highlighting: Shiki emits both theme colors as variables. */
+.shiki-t {
+  color: var(--shiki-light);
+  font-style: var(--shiki-light-font-style);
+}
+.dark .shiki-t {
+  color: var(--shiki-dark);
+  font-style: var(--shiki-dark-font-style);
 }

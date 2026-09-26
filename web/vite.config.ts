@@ -1,6 +1,7 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
 import { compression } from "vite-plugin-compression2";
@@ -24,6 +25,9 @@ const proxied = ["/izci.", "/auth/", "/api/", "/mcp", "/healthz", "/readyz", "/l
 
 export default defineConfig({
   plugins: [
+    // Must run before the React plugin: it generates src/routeTree.gen.ts and
+    // splits every route into its own chunk.
+    tanstackRouter({ target: "react", autoCodeSplitting: true, quoteStyle: "double", semicolons: true }),
     react(),
     tailwindcss(),
     compression({
@@ -34,7 +38,15 @@ export default defineConfig({
     keepGitkeep(),
   ],
   resolve: {
-    alias: { "@": path.resolve(import.meta.dirname, "src") },
+    alias: [
+      { find: "@", replacement: path.resolve(import.meta.dirname, "src") },
+      // The API descriptors import validate.proto for field options only;
+      // see src/lib/proto/validate-stub.ts.
+      {
+        find: /^(\.\.\/)+buf\/validate\/validate_pb(\.js)?$/,
+        replacement: path.resolve(import.meta.dirname, "src/lib/proto/validate-stub.ts"),
+      },
+    ],
   },
   server: {
     port: 5301,

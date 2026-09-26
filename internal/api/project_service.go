@@ -79,6 +79,9 @@ func (s *ProjectServer) decorate(ctx context.Context, tx pgx.Tx, t *auth.Tenant,
 		byID[id].Stats.UnresolvedIssues = uint32(n)
 	}
 	rows.Close()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	rows, err = tx.Query(ctx, `SELECT project_id, hour, sum(count)::bigint FROM project_hourly
 		WHERE project_id = ANY($1) AND hour >= $2 GROUP BY 1, 2`, ids, w.start)
 	if err != nil {
@@ -97,6 +100,9 @@ func (s *ProjectServer) decorate(ctx context.Context, tx pgx.Tx, t *auth.Tenant,
 		}
 	}
 	rows.Close()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	for id, c := range counts {
 		byID[id].Stats.Series_24H, byID[id].Stats.Events_24H = w.series(c), sum(c)
 	}
@@ -107,7 +113,7 @@ func (s *ProjectServer) decorate(ctx context.Context, tx pgx.Tx, t *auth.Tenant,
 	for id, r := range repos {
 		byID[id].Repository = r
 	}
-	return out, rows.Err()
+	return out, nil
 }
 
 func loadRepositories(ctx context.Context, tx pgx.Tx, ids []uuid.UUID) (map[uuid.UUID]*apiv1.ProjectRepository, error) {

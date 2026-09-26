@@ -257,7 +257,7 @@ func TestInvitationsRolesAndTenancy(t *testing.T) {
 	}
 	url := inv.Msg.GetInvitation().GetUrl()
 	token := url[strings.LastIndex(url, "/")+1:]
-	if !strings.HasPrefix(url, "http://izci.test/davet/izi_") {
+	if !strings.HasPrefix(url, "http://izci.test/invite/izi_") {
 		t.Fatalf("invitation url: %s", url)
 	}
 

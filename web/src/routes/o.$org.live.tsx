@@ -1,0 +1,188 @@
+import { createClient } from "@connectrpc/connect";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { PauseIcon, PlayIcon, RadioIcon } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ProjectFilter } from "@/components/app/filters";
+import { gutter, PageHeader } from "@/components/app/page";
+import { EmptyState } from "@/components/common/states";
+import { IssueTitle, LevelBlaze } from "@/components/issue/badges";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DashboardService, LiveEventKind, type WatchLiveResponse } from "@/gen/izci/api/v1/dashboard_pb";
+import { Level } from "@/gen/izci/ingest/v1/event_pb";
+import { formatTime, toDate } from "@/lib/format";
+import { useOrg } from "@/lib/org";
+import { cn } from "@/lib/utils";
+
+export const Route = createFileRoute("/o/$org/live")({
+  component: LivePage,
+});
+
+type Row = WatchLiveResponse & { key: string };
+
+const kindLabels: Partial<Record<LiveEventKind, { label: string; className: string }>> = {
+  [LiveEventKind.ISSUE_CREATED]: { label: "Yeni hata", className: "border-primary/40 text-primary" },
+  [LiveEventKind.ISSUE_REGRESSED]: {
+    label: "Geri döndü",
+    className: "border-level-warning/45 text-level-warning",
+  },
+  [LiveEventKind.ISSUE_UPDATED]: { label: "Güncellendi", className: "border-border text-muted-foreground" },
+};
+
+const minLevels: { value: string; label: string; level: Level }[] = [
+  { value: "all", label: "Tüm seviyeler", level: Level.UNSPECIFIED },
+  { value: "warning", label: "Uyarı ve üstü", level: Level.WARNING },
+  { value: "error", label: "Hata ve üstü", level: Level.ERROR },
+  { value: "fatal", label: "Yalnız ölümcül", level: Level.FATAL },
+];
+
+type Status = "connecting" | "live" | "retrying";
+
+function LivePage() {
+  const org = useOrg();
+  const [projects, setProjects] = useState<string[]>([]);
+  const [min, setMin] = useState("all");
+  const [paused, setPaused] = useState(false);
+  const [rows, setRows] = useState<Row[]>([]);
+  const [status, setStatus] = useState<Status>("connecting");
+  const pausedRef = useRef(paused);
+  pausedRef.current = paused;
+  const minLevel = minLevels.find((m) => m.value === min)?.level ?? Level.UNSPECIFIED;
+
+  useEffect(() => {
+    const client = createClient(DashboardService, org.transport);
+    const abort = new AbortController();
+    let attempt = 0;
+    let seq = 0;
+    (async () => {
+      while (!abort.signal.aborted) {
+        try {
+          setStatus(attempt === 0 ? "connecting" : "retrying");
+          for await (const msg of client.watchLive({ projects, minLevel }, { signal: abort.signal })) {
+            attempt = 0;
+            setStatus("live");
+            if (msg.kind === LiveEventKind.HEARTBEAT || pausedRef.current) continue;
+            seq++;
+            const row = Object.assign(msg, { key: `${seq}-${msg.event?.id ?? msg.issue?.id ?? ""}` });
+            setRows((r) => [row, ...r].slice(0, 200));
+          }
+        } catch {
+          // Reconnect below unless the page went away.
+        }
+        if (abort.signal.aborted) return;
+        attempt++;
+        setStatus("retrying");
+        await new Promise((r) => setTimeout(r, Math.min(30_000, 1000 * 2 ** Math.min(attempt, 5))));
+      }
+    })();
+    return () => abort.abort();
+  }, [org.transport, projects, minLevel]);
+
+  const perMinute = useMemo(() => {
+    const since = Date.now() - 60_000;
+    return rows.filter(
+      (r) => (toDate(r.time)?.getTime() ?? 0) >= since && r.kind !== LiveEventKind.ISSUE_UPDATED,
+    ).length;
+  }, [rows]);
+
+  return (
+    <div className="pb-12">
+      <PageHeader
+        title="Canlı akış"
+        description={
+          <span className="inline-flex items-center gap-2">
+            <span
+              className={cn(
+                "size-2 rounded-full",
+                status === "live"
+                  ? "animate-pulse bg-primary"
+                  : status === "retrying"
+                    ? "bg-level-warning"
+                    : "bg-muted-foreground",
+              )}
+            />
+            {status === "live"
+              ? `Bağlı, son dakikada ${perMinute} olay`
+              : status === "retrying"
+                ? "Bağlantı koptu, yeniden bağlanılıyor…"
+                : "Bağlanıyor…"}
+          </span>
+        }
+        actions={
+          <>
+            <ProjectFilter value={projects} onChange={setProjects} />
+            <Select value={min} onValueChange={setMin}>
+              <SelectTrigger size="sm" className="h-8 text-[13px]" aria-label="En düşük seviye">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent align="end">
+                {minLevels.map((m) => (
+                  <SelectItem key={m.value} value={m.value}>
+                    {m.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="sm" className="h-8" onClick={() => setPaused(!paused)}>
+              {paused ? <PlayIcon className="size-3.5" /> : <PauseIcon className="size-3.5" />}
+              {paused ? "Sürdür" : "Duraklat"}
+            </Button>
+          </>
+        }
+      />
+      {rows.length === 0 ? (
+        <EmptyState icon={RadioIcon} title="Olay bekleniyor" className="py-20">
+          Uygulamalarınızdan gelen her olay ve hata güncellemesi burada anında görünür. Denemek için bir
+          projeden test olayı gönderin.
+        </EmptyState>
+      ) : (
+        <ol>
+          {rows.map((r) => {
+            const issue = r.issue;
+            const kind = kindLabels[r.kind];
+            const t = toDate(r.time);
+            return (
+              <li key={r.key} className="animate-arrive relative border-b">
+                <Link
+                  to="/o/$org/issues/$issueId"
+                  params={{ org: org.slug, issueId: issue?.shortId ?? "" }}
+                  search={r.event ? { event: r.event.id } : {}}
+                  className={cn("flex items-stretch gap-3 py-2.5 hover:bg-accent/40", gutter)}
+                >
+                  <LevelBlaze level={r.event?.level ?? issue?.level ?? Level.ERROR} />
+                  <time className="w-16 shrink-0 pt-0.5 font-mono text-[12px] text-muted-foreground tabular">
+                    {t ? `${formatTime(t)}:${String(t.getSeconds()).padStart(2, "0")}` : ""}
+                  </time>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px]">
+                      {issue ? (
+                        <IssueTitle type={issue.type} value={issue.value} title={issue.title} />
+                      ) : null}
+                    </p>
+                    <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12px] text-muted-foreground">
+                      <span className="font-mono text-[11.5px] text-foreground/80">{issue?.shortId}</span>
+                      {kind ? (
+                        <span
+                          className={cn("rounded-full border px-1.5 font-medium text-[11px]", kind.className)}
+                        >
+                          {kind.label}
+                        </span>
+                      ) : null}
+                      <span>{issue?.project?.slug}</span>
+                      {r.event?.customer ? (
+                        <span>{r.event.customer.name || r.event.customer.key}</span>
+                      ) : null}
+                      {r.event?.environment ? <span>{r.event.environment}</span> : null}
+                      {r.event?.release ? <span className="font-mono">{r.event.release}</span> : null}
+                      {r.event?.user ? <span>{r.event.user}</span> : null}
+                    </p>
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
+        </ol>
+      )}
+    </div>
+  );
+}

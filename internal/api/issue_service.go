@@ -559,6 +559,9 @@ func (s *IssueServer) GetIssueStats(ctx context.Context, req *connect.Request[ap
 				}
 			}
 			rows.Close()
+			if err := rows.Err(); err != nil {
+				return err
+			}
 		} else {
 			series, err := issueSeries(ctx, tx, w, []uuid.UUID{issueID})
 			if err != nil {
@@ -634,6 +637,9 @@ func (s *IssueServer) GetIssueTagFacets(ctx context.Context, req *connect.Reques
 				f.Values = append(f.Values, &v)
 			}
 			rows.Close()
+			if err := rows.Err(); err != nil {
+				return err
+			}
 			out.Facets = append(out.Facets, f)
 		}
 		return nil

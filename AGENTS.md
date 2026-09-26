@@ -117,4 +117,30 @@ A change is done when:
 - **Web:** Tailwind v4 tokens from `web/src/index.css` (never hardcode colors or
   sizes), shadcn/ui (new-york) + ReUI components, `cn()` for class merging,
   `data-slot` on primitives, `cva` for variants, mobile-first layouts.
+
+## Web UI
+
+- **Layout of `web/src`:** `routes/` (TanStack Router, file based, English
+  paths: `/o/$org/issues/$issueId`), `lib/` (transports, errors, formatting,
+  labels, session, triage, highlighting), `components/` by area (`app`,
+  `issue`, `event`, `customer`, `project`, `settings`, `account`, `charts`,
+  `common`, `brand`; `ui` holds generated shadcn primitives and is not linted).
+- **Data:** Connect-Query hooks only. Organization-scoped calls use the
+  transport of `useOrg()` (it sends `Izci-Org`); each organization has its own
+  transport, so caches never mix tenants. Invalidate with
+  `createConnectQueryKey({ schema: Service, transport: org.transport, cardinality: undefined })`.
+- **Copy:** Turkish, sentence case, active verbs ("Çöz", "Anahtar oluştur").
+  Errors say what happened and what to do, without apologizing; API errors
+  are mapped by `ErrorReason` in `lib/errors.ts`.
+- **Design language:** graphite neutrals, one teal accent (`primary`) for
+  interaction and selection, level colors only for severity. Stack traces and
+  breadcrumbs share the "trail" (`components/event/stack-trail.tsx`): in-app
+  frames get teal blazes, library frames hollow dots, the crash site a mark in
+  the level color. Monospace is reserved for code and identifiers.
+- **Budget:** `pnpm build` fails when first-load JavaScript exceeds 200 KB
+  gzip (`web/scripts/check-bundle.mjs`). Route definitions (`validateSearch`,
+  `beforeLoad`) stay in the entry chunk, so they must not reference generated
+  message code; syntax grammars and pages load on demand.
+- **Generated code:** `buf/validate/validate_pb` is aliased to a small stub in
+  `vite.config.ts`; the UI never evaluates validation rules.
 - **Commits:** Conventional Commits in English (`feat(ingest): …`).

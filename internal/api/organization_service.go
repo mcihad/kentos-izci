@@ -190,7 +190,7 @@ func (s *OrganizationServer) InviteMember(ctx context.Context, req *connect.Requ
 		if err != nil {
 			return err
 		}
-		out.Invitation = toInvitation(inv, t.Org, p.User, s.cfg.PublicURL+"/davet/"+token)
+		out.Invitation = toInvitation(inv, t.Org, p.User, s.cfg.PublicURL+"/invite/"+token)
 		return s.audit(ctx, tx, "invitation.create", "invitation", inv.ID.String(), email, map[string]string{"role": inv.Role.String()})
 	})
 	switch {
