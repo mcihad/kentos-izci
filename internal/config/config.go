@@ -51,6 +51,10 @@ type Config struct {
 	DB        DBConfig
 	Retention RetentionConfig
 	Ingest    IngestConfig
+	Auth      AuthConfig
+	// OIDC holds the configured OpenID Connect providers (from
+	// OIDC_PROVIDERS and OIDC_<ID>_* variables).
+	OIDC []OIDCProvider `env:"-"`
 
 	// secretGenerated is true when no IZCI_SECRET_KEY was configured and an
 	// ephemeral key was generated (development only).
@@ -117,6 +121,36 @@ type IngestConfig struct {
 	DedupeSize int `env:"INGEST_DEDUPE_SIZE" envDefault:"200000"`
 }
 
+// AuthConfig configures sign-in.
+type AuthConfig struct {
+	// Signup is "invite" (default), "open" or "closed".
+	Signup string `env:"AUTH_SIGNUP" envDefault:"invite"`
+	// SessionTTL is the sliding lifetime of browser sessions.
+	SessionTTL time.Duration `env:"AUTH_SESSION_TTL" envDefault:"720h"`
+	// PasswordLogin enables email + password sign-in.
+	PasswordLogin bool `env:"AUTH_PASSWORD_LOGIN" envDefault:"true"`
+	// InvitationTTL is how long invitation links stay valid.
+	InvitationTTL time.Duration `env:"AUTH_INVITATION_TTL" envDefault:"168h"`
+	// Providers lists OpenID Connect provider ids, e.g. "kimlik,google".
+	Providers []string `env:"OIDC_PROVIDERS" envSeparator:","`
+}
+
+// OIDCProvider is one OpenID Connect identity provider, configured with
+// OIDC_<ID>_* variables (ID upper-cased, e.g. OIDC_KIMLIK_ISSUER).
+type OIDCProvider struct {
+	ID             string   `env:"-"`
+	Name           string   `env:"NAME"`
+	Issuer         string   `env:"ISSUER"`
+	ClientID       string   `env:"CLIENT_ID"`
+	ClientSecret   string   `env:"CLIENT_SECRET"`
+	Scopes         []string `env:"SCOPES" envSeparator:"," envDefault:"openid,profile,email"`
+	Icon           string   `env:"ICON" envDefault:"generic"`
+	AutoCreate     bool     `env:"AUTO_CREATE" envDefault:"true"`
+	AllowedDomains []string `env:"ALLOWED_DOMAINS" envSeparator:","`
+	DefaultOrg     string   `env:"DEFAULT_ORG"`
+	DefaultRole    string   `env:"DEFAULT_ROLE" envDefault:"member"`
+}
+
 // Load reads the env file (if any) and parses the environment.
 // An empty envFile means DefaultEnvFile, which may be absent.
 func Load(envFile string) (*Config, error) {
@@ -135,6 +169,21 @@ func Load(envFile string) (*Config, error) {
 	var cfg Config
 	if err := env.Parse(&cfg); err != nil {
 		return nil, fmt.Errorf("parse environment: %w", err)
+	}
+	for _, id := range cfg.Auth.Providers {
+		id = strings.ToLower(strings.TrimSpace(id))
+		if id == "" {
+			continue
+		}
+		p := OIDCProvider{ID: id}
+		prefix := "OIDC_" + strings.ToUpper(strings.ReplaceAll(id, "-", "_")) + "_"
+		if err := env.ParseWithOptions(&p, env.Options{Prefix: prefix}); err != nil {
+			return nil, fmt.Errorf("parse OIDC provider %q: %w", id, err)
+		}
+		if p.Name == "" {
+			p.Name = id
+		}
+		cfg.OIDC = append(cfg.OIDC, p)
 	}
 	if err := cfg.finalize(); err != nil {
 		return nil, err
@@ -176,6 +225,23 @@ func (c *Config) finalize() error {
 	}
 	if c.Retention.PremakeDays < 1 || c.Retention.PremakeDays > 60 {
 		errs = append(errs, fmt.Errorf("PARTITION_PREMAKE_DAYS must be between 1 and 60 (got %d)", c.Retention.PremakeDays))
+	}
+
+	switch c.Auth.Signup {
+	case "invite", "open", "closed":
+	default:
+		errs = append(errs, fmt.Errorf("AUTH_SIGNUP must be invite, open or closed (got %q)", c.Auth.Signup))
+	}
+	for _, p := range c.OIDC {
+		if p.Issuer == "" || p.ClientID == "" {
+			errs = append(errs, fmt.Errorf("OIDC provider %q needs OIDC_%s_ISSUER and OIDC_%s_CLIENT_ID",
+				p.ID, strings.ToUpper(p.ID), strings.ToUpper(p.ID)))
+		}
+		switch p.DefaultRole {
+		case "viewer", "member", "admin", "owner":
+		default:
+			errs = append(errs, fmt.Errorf("OIDC_%s_DEFAULT_ROLE must be viewer, member, admin or owner", strings.ToUpper(p.ID)))
+		}
 	}
 
 	if c.Ingest.Ack != "durable" && c.Ingest.Ack != "async" {

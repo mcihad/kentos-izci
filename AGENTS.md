@@ -64,6 +64,8 @@ commit message and the phase table in `docs/mimari.md` (once written).
 | `internal/app` | wires everything (DB, ingest pipeline, services, jobs, HTTP server) |
 | `internal/db` | pgx pool, `InOrg` / `InSystem`, goose migrations, partitions, retention, bootstrap |
 | `internal/store` | hand-written SQL per aggregate; takes the scoped `pgx.Tx` |
+| `internal/auth` | argon2id passwords, sessions, personal access tokens, OIDC (PKCE), tenant resolution |
+| `internal/api` | izci.api.v1 Connect services; `authz.go` holds the per-procedure authorization table |
 | `internal/ingest` | normalize → scrub → in-app → grouping → group-commit writer; `IngestService` |
 | `internal/clientip`, `internal/secret`, `internal/slug` | client address, tokens/AES-GCM/HMAC, slugs |
 | `internal/jobs` | periodic background tasks |

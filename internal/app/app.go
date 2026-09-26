@@ -12,11 +12,14 @@ import (
 
 	"connectrpc.com/connect"
 
+	"github.com/mcihad/kentos-izci/internal/api"
+	"github.com/mcihad/kentos-izci/internal/auth"
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
 	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/ingest/sentry"
 	"github.com/mcihad/kentos-izci/internal/jobs"
+	"github.com/mcihad/kentos-izci/internal/secret"
 	"github.com/mcihad/kentos-izci/internal/server"
 	"github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1/ingestv1connect"
 )
@@ -29,6 +32,9 @@ type App struct {
 	Server   *server.Server
 	Pipeline *ingest.Pipeline
 	Ingest   *ingest.Service
+
+	Auth *auth.Service
+	API  *api.Servers
 
 	jobs  *jobs.Runner
 	usage *ingest.UsageRecorder
@@ -70,6 +76,16 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	)
 	a.Server.Handle(path, ingest.CORS(handler))
 	sentry.NewHandler(a.Ingest, log).Register(a.Server.Handle)
+
+	box, err := secret.NewBox(cfg.SecretKey)
+	if err != nil {
+		return nil, err
+	}
+	a.Auth = auth.NewService(database, cfg, box, log)
+	a.Auth.RegisterRoutes(a.Server.Handle)
+	if a.API, err = api.Mount(a.Server.Handle, api.Deps{DB: database, Auth: a.Auth, Config: cfg, Log: log}); err != nil {
+		return nil, err
+	}
 
 	a.jobs = jobs.NewRunner(log,
 		jobs.Task{Name: "flush-usage", Interval: 15 * time.Second, Run: func(ctx context.Context) error {
