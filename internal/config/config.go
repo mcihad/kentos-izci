@@ -1,0 +1,261 @@
+// Package config loads izci's runtime configuration from the environment.
+//
+// Values come from real environment variables first; a `.env` file (default:
+// `.env` in the working directory) only fills in variables that are not already
+// set. Production deployments (Docker/Dokploy) pass real environment variables
+// and ship no `.env` at all. Every variable is documented in `.env.example` and
+// in docs/yapilandirma.md.
+package config
+
+import (
+	"crypto/rand"
+	"encoding/base64"
+	"encoding/hex"
+	"errors"
+	"fmt"
+	"io/fs"
+	"log/slog"
+	"net/netip"
+	"net/url"
+	"os"
+	"strings"
+	"time"
+
+	"github.com/caarlos0/env/v11"
+	"github.com/joho/godotenv"
+)
+
+// DefaultEnvFile is loaded when no explicit env file is given. A missing
+// default file is not an error.
+const DefaultEnvFile = ".env"
+
+// Environment names the deployment mode.
+type Environment string
+
+// Supported environments.
+const (
+	EnvDevelopment Environment = "development"
+	EnvProduction  Environment = "production"
+	EnvTest        Environment = "test"
+)
+
+// Config is the complete, validated runtime configuration.
+type Config struct {
+	Env       Environment `env:"IZCI_ENV" envDefault:"development"`
+	PublicURL string      `env:"IZCI_PUBLIC_URL" envDefault:"http://localhost:5300"`
+	SecretKey SecretKey   `env:"IZCI_SECRET_KEY"`
+	DataDir   string      `env:"IZCI_DATA_DIR" envDefault:"./data"`
+
+	HTTP HTTPConfig
+	Log  LogConfig
+	DB   DBConfig
+
+	// secretGenerated is true when no IZCI_SECRET_KEY was configured and an
+	// ephemeral key was generated (development only).
+	secretGenerated bool
+}
+
+// HTTPConfig configures the single public listener.
+type HTTPConfig struct {
+	Addr            string        `env:"IZCI_HTTP_ADDR" envDefault:":5300"`
+	TLSCertFile     string        `env:"IZCI_TLS_CERT_FILE"`
+	TLSKeyFile      string        `env:"IZCI_TLS_KEY_FILE"`
+	TrustedProxies  PrefixList    `env:"IZCI_TRUSTED_PROXIES"`
+	ShutdownTimeout time.Duration `env:"IZCI_SHUTDOWN_TIMEOUT" envDefault:"20s"`
+}
+
+// LogConfig configures structured logging.
+type LogConfig struct {
+	Level  slog.Level `env:"IZCI_LOG_LEVEL" envDefault:"info"`
+	Format string     `env:"IZCI_LOG_FORMAT"` // "json" or "text"; defaults by environment
+}
+
+// DBConfig configures PostgreSQL access.
+type DBConfig struct {
+	URL         string `env:"DATABASE_URL"`
+	MaxConns    int32  `env:"DB_MAX_CONNS" envDefault:"20"`
+	AutoMigrate bool   `env:"DB_AUTO_MIGRATE" envDefault:"true"`
+	// AdminURL is a superuser connection used only by `izci db bootstrap`
+	// to create the izci role and databases in development.
+	AdminURL string `env:"DB_ADMIN_URL"`
+	// TestURL points integration tests at a disposable database.
+	TestURL string `env:"IZCI_TEST_DATABASE_URL"`
+	// AllowPrivilegedRole lets izci run as a superuser/BYPASSRLS role in
+	// production. Row-level security is silently skipped for such roles, so
+	// this must stay false outside of emergencies.
+	AllowPrivilegedRole bool `env:"DB_ALLOW_PRIVILEGED_ROLE" envDefault:"false"`
+}
+
+// Load reads the env file (if any) and parses the environment.
+// An empty envFile means DefaultEnvFile, which may be absent.
+func Load(envFile string) (*Config, error) {
+	explicit := envFile != ""
+	if !explicit {
+		envFile = DefaultEnvFile
+	}
+	if err := godotenv.Load(envFile); err != nil {
+		if !explicit && errors.Is(err, fs.ErrNotExist) {
+			// No .env file: rely on real environment variables only.
+		} else {
+			return nil, fmt.Errorf("load env file %q: %w", envFile, err)
+		}
+	}
+
+	var cfg Config
+	if err := env.Parse(&cfg); err != nil {
+		return nil, fmt.Errorf("parse environment: %w", err)
+	}
+	if err := cfg.finalize(); err != nil {
+		return nil, err
+	}
+	return &cfg, nil
+}
+
+func (c *Config) finalize() error {
+	var errs []error
+
+	switch c.Env {
+	case EnvDevelopment, EnvProduction, EnvTest:
+	default:
+		errs = append(errs, fmt.Errorf("IZCI_ENV must be development, production or test (got %q)", c.Env))
+	}
+
+	if c.Log.Format == "" {
+		if c.Env == EnvProduction {
+			c.Log.Format = "json"
+		} else {
+			c.Log.Format = "text"
+		}
+	}
+	if c.Log.Format != "json" && c.Log.Format != "text" {
+		errs = append(errs, fmt.Errorf("IZCI_LOG_FORMAT must be json or text (got %q)", c.Log.Format))
+	}
+
+	c.PublicURL = strings.TrimRight(c.PublicURL, "/")
+	if u, err := url.Parse(c.PublicURL); err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
+		errs = append(errs, fmt.Errorf("IZCI_PUBLIC_URL must be an absolute http(s) URL (got %q)", c.PublicURL))
+	}
+
+	if (c.HTTP.TLSCertFile == "") != (c.HTTP.TLSKeyFile == "") {
+		errs = append(errs, errors.New("IZCI_TLS_CERT_FILE and IZCI_TLS_KEY_FILE must be set together"))
+	}
+
+	if c.DB.MaxConns < 2 {
+		errs = append(errs, fmt.Errorf("DB_MAX_CONNS must be at least 2 (got %d)", c.DB.MaxConns))
+	}
+
+	if len(c.SecretKey) == 0 {
+		if c.Env == EnvProduction {
+			errs = append(errs, errors.New("IZCI_SECRET_KEY is required in production (generate with: openssl rand -base64 32)"))
+		} else {
+			key := make([]byte, secretKeySize)
+			if _, err := rand.Read(key); err != nil {
+				return fmt.Errorf("generate ephemeral secret key: %w", err)
+			}
+			c.SecretKey = key
+			c.secretGenerated = true
+		}
+	}
+
+	return errors.Join(errs...)
+}
+
+// IsProduction reports whether izci runs in production mode.
+func (c *Config) IsProduction() bool { return c.Env == EnvProduction }
+
+// SecretGenerated reports whether an ephemeral secret key is in use.
+func (c *Config) SecretGenerated() bool { return c.secretGenerated }
+
+// RequireDatabase returns an error when DATABASE_URL is missing.
+func (c *Config) RequireDatabase() error {
+	if strings.TrimSpace(c.DB.URL) == "" {
+		return errors.New("DATABASE_URL is not set (see .env.example)")
+	}
+	return nil
+}
+
+// TLSEnabled reports whether the listener terminates TLS itself.
+func (c *Config) TLSEnabled() bool { return c.HTTP.TLSCertFile != "" }
+
+const secretKeySize = 32
+
+// SecretKey is the 32-byte master key used for AES-GCM encryption of stored
+// secrets and HMAC signing. Accepts standard/URL base64 or hex encoding.
+type SecretKey []byte
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (k *SecretKey) UnmarshalText(text []byte) error {
+	s := strings.TrimSpace(string(text))
+	if s == "" {
+		*k = nil
+		return nil
+	}
+	decoders := []func(string) ([]byte, error){
+		base64.StdEncoding.DecodeString,
+		base64.RawStdEncoding.DecodeString,
+		base64.URLEncoding.DecodeString,
+		base64.RawURLEncoding.DecodeString,
+		hex.DecodeString,
+	}
+	for _, decode := range decoders {
+		if b, err := decode(s); err == nil && len(b) == secretKeySize {
+			*k = b
+			return nil
+		}
+	}
+	return fmt.Errorf("IZCI_SECRET_KEY must encode exactly %d bytes as base64 or hex", secretKeySize)
+}
+
+// String never reveals the key.
+func (k SecretKey) String() string {
+	if len(k) == 0 {
+		return ""
+	}
+	return "[redacted]"
+}
+
+// PrefixList is a comma-separated list of CIDR prefixes or bare IP addresses.
+type PrefixList []netip.Prefix
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (p *PrefixList) UnmarshalText(text []byte) error {
+	var out PrefixList
+	for _, part := range strings.Split(string(text), ",") {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		if strings.Contains(part, "/") {
+			prefix, err := netip.ParsePrefix(part)
+			if err != nil {
+				return fmt.Errorf("invalid CIDR %q: %w", part, err)
+			}
+			out = append(out, prefix.Masked())
+			continue
+		}
+		addr, err := netip.ParseAddr(part)
+		if err != nil {
+			return fmt.Errorf("invalid IP %q: %w", part, err)
+		}
+		out = append(out, netip.PrefixFrom(addr, addr.BitLen()))
+	}
+	*p = out
+	return nil
+}
+
+// Contains reports whether addr falls into any prefix of the list.
+func (p PrefixList) Contains(addr netip.Addr) bool {
+	addr = addr.Unmap()
+	for _, prefix := range p {
+		if prefix.Contains(addr) {
+			return true
+		}
+	}
+	return false
+}
+
+// LookupEnvFile returns the env file path chosen by the IZCI_ENV_FILE
+// variable, or "" for the default.
+func LookupEnvFile() string {
+	return os.Getenv("IZCI_ENV_FILE")
+}

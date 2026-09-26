@@ -1,0 +1,28 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Build output
+/bin/
+/dist/
+/coverage/
+*.test
+*.out
+
+# Runtime data (AI workspaces, repo mirrors)
+/data/
+
+# Web
+node_modules/
+web/dist/*
+!web/dist/.gitkeep
+web/node_modules/.tmp/
+*.tsbuildinfo
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp

@@ -1,0 +1,15 @@
+# buf configuration for izci's protobuf contracts.
+# Every message, field, enum, enum value, oneof, service and RPC must carry a
+# leading comment (COMMENTS rules): the comments are the API reference.
+version: v2
+modules:
+  - path: proto
+deps:
+  - buf.build/bufbuild/protovalidate
+lint:
+  use:
+    - STANDARD
+    - COMMENTS
+breaking:
+  use:
+    - FILE
