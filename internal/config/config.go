@@ -46,9 +46,10 @@ type Config struct {
 	SecretKey SecretKey   `env:"IZCI_SECRET_KEY"`
 	DataDir   string      `env:"IZCI_DATA_DIR" envDefault:"./data"`
 
-	HTTP HTTPConfig
-	Log  LogConfig
-	DB   DBConfig
+	HTTP      HTTPConfig
+	Log       LogConfig
+	DB        DBConfig
+	Retention RetentionConfig
 
 	// secretGenerated is true when no IZCI_SECRET_KEY was configured and an
 	// ephemeral key was generated (development only).
@@ -84,6 +85,15 @@ type DBConfig struct {
 	// production. Row-level security is silently skipped for such roles, so
 	// this must stay false outside of emergencies.
 	AllowPrivilegedRole bool `env:"DB_ALLOW_PRIVILEGED_ROLE" envDefault:"false"`
+}
+
+// RetentionConfig bounds how long events are kept.
+type RetentionConfig struct {
+	// Days is the instance-wide maximum age of events; whole daily partitions
+	// older than this are dropped. Organization limits may be shorter.
+	Days int `env:"RETENTION_DAYS" envDefault:"90"`
+	// PremakeDays is how many future daily partitions are created ahead.
+	PremakeDays int `env:"PARTITION_PREMAKE_DAYS" envDefault:"7"`
 }
 
 // Load reads the env file (if any) and parses the environment.
@@ -138,6 +148,13 @@ func (c *Config) finalize() error {
 
 	if (c.HTTP.TLSCertFile == "") != (c.HTTP.TLSKeyFile == "") {
 		errs = append(errs, errors.New("IZCI_TLS_CERT_FILE and IZCI_TLS_KEY_FILE must be set together"))
+	}
+
+	if c.Retention.Days < 1 || c.Retention.Days > 3650 {
+		errs = append(errs, fmt.Errorf("RETENTION_DAYS must be between 1 and 3650 (got %d)", c.Retention.Days))
+	}
+	if c.Retention.PremakeDays < 1 || c.Retention.PremakeDays > 60 {
+		errs = append(errs, fmt.Errorf("PARTITION_PREMAKE_DAYS must be between 1 and 60 (got %d)", c.Retention.PremakeDays))
 	}
 
 	if c.DB.MaxConns < 2 {

@@ -2,6 +2,7 @@ package cli
 
 import (
 	"log/slog"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -53,6 +54,14 @@ Pending database migrations are applied on startup unless DB_AUTO_MIGRATE=false.
 				if err := database.MigrateUp(ctx); err != nil {
 					return err
 				}
+			}
+			now := time.Now()
+			created, err := database.EnsureEventPartitions(ctx, now.AddDate(0, 0, -1), now.AddDate(0, 0, a.cfg.Retention.PremakeDays))
+			if err != nil {
+				return err
+			}
+			if len(created) > 0 {
+				a.log.Info("event partitions created", slog.Int("count", len(created)))
 			}
 
 			srv := server.New(server.Options{

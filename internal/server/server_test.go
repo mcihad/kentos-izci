@@ -22,12 +22,12 @@ func testConfig() *config.Config {
 
 func testUI() fstest.MapFS {
 	return fstest.MapFS{
-		"index.html":             {Data: []byte("<!doctype html><title>izci</title>")},
-		"assets/app-3f2a1c.js":   {Data: []byte("console.log('app')")},
+		"index.html":              {Data: []byte("<!doctype html><title>izci</title>")},
+		"assets/app-3f2a1c.js":    {Data: []byte("console.log('app')")},
 		"assets/app-3f2a1c.js.br": {Data: []byte("BROTLI")},
 		"assets/app-3f2a1c.js.gz": {Data: []byte("GZIP")},
-		"favicon.svg":            {Data: []byte("<svg/>")},
-		".gitkeep":               {Data: nil},
+		"favicon.svg":             {Data: []byte("<svg/>")},
+		".gitkeep":                {Data: nil},
 	}
 }
 

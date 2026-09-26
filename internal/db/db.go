@@ -20,9 +20,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	pgxuuid "github.com/vgarvardt/pgx-google-uuid/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	pgxuuid "github.com/vgarvardt/pgx-google-uuid/v5"
 
 	"github.com/mcihad/kentos-izci/internal/config"
 )

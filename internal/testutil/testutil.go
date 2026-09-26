@@ -74,6 +74,20 @@ func NewDB(t testing.TB) *db.DB {
 	if err != nil {
 		t.Fatalf("connect to test database: %v", err)
 	}
+	// Extensions are database-wide: keep pg_trgm in public so that it is
+	// visible from every private test schema (and survives their drops).
+	if _, err := admin.Exec(ctx, `
+		DO $$
+		BEGIN
+		  IF NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_trgm') THEN
+		    CREATE EXTENSION pg_trgm SCHEMA public;
+		  ELSIF (SELECT n.nspname FROM pg_extension e JOIN pg_namespace n ON n.oid = e.extnamespace
+		         WHERE e.extname = 'pg_trgm') <> 'public' THEN
+		    ALTER EXTENSION pg_trgm SET SCHEMA public;
+		  END IF;
+		END $$`); err != nil {
+		t.Fatalf("ensure pg_trgm: %v", err)
+	}
 	if _, err := admin.Exec(ctx, "CREATE SCHEMA "+schema); err != nil {
 		t.Fatalf("create test schema: %v", err)
 	}
