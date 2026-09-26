@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
@@ -138,3 +140,8 @@ func pageSize(n uint32) int {
 	}
 	return min(int(n), 100)
 }
+
+var jsonInOpts = protojson.UnmarshalOptions{DiscardUnknown: true}
+
+// jsonIn decodes protojson stored in a jsonb column.
+func jsonIn(data []byte, m proto.Message) error { return jsonInOpts.Unmarshal(data, m) }

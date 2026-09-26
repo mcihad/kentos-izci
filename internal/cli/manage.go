@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
+	"github.com/mcihad/kentos-izci/internal/ingest/sentry"
 	"github.com/mcihad/kentos-izci/internal/slug"
 	"github.com/mcihad/kentos-izci/internal/store"
 )
@@ -138,7 +139,7 @@ func newProjectCmd(a *cliApp) *cobra.Command {
 			out := cmd.OutOrStdout()
 			fmt.Fprintf(out, "project %q created (id %s, sentry id %d)\n", project.Slug, project.ID, project.PublicID)
 			fmt.Fprintf(out, "API key (shown once): %s\n", token)
-			fmt.Fprintf(out, "Sentry DSN: %s\n", sentryDSN(a.cfg.PublicURL, token, project.PublicID))
+			fmt.Fprintf(out, "Sentry DSN: %s\n", sentry.DSN(a.cfg.PublicURL, token, project.PublicID))
 			return nil
 		},
 	}
@@ -196,7 +197,7 @@ func newKeyCmd(a *cliApp) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "API key (shown once): %s\nSentry DSN: %s\n", token, sentryDSN(a.cfg.PublicURL, token, project.PublicID))
+			fmt.Fprintf(cmd.OutOrStdout(), "API key (shown once): %s\nSentry DSN: %s\n", token, sentry.DSN(a.cfg.PublicURL, token, project.PublicID))
 			return nil
 		},
 	}
@@ -208,13 +209,4 @@ func newKeyCmd(a *cliApp) *cobra.Command {
 	create.Flags().BoolVar(&releases, "releases", true, "also allow registering releases")
 	cmd.AddCommand(create)
 	return cmd
-}
-
-// sentryDSN renders "https://<key>@host/<public id>".
-func sentryDSN(publicURL, key string, publicID int64) string {
-	scheme, rest, ok := strings.Cut(publicURL, "://")
-	if !ok {
-		return ""
-	}
-	return fmt.Sprintf("%s://%s@%s/%d", scheme, key, strings.TrimRight(rest, "/"), publicID)
 }

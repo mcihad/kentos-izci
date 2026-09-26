@@ -63,3 +63,52 @@ func (d *DB) ApplyRetention(ctx context.Context, cutoff time.Time) (RetentionRes
 	}
 	return res, nil
 }
+
+// PurgeDeletedProjects removes projects marked deleted, at most limit per
+// call. Tables without foreign keys are cleared first; deleting the project
+// row then cascades to issues, keys, releases, rules and repositories.
+func (d *DB) PurgeDeletedProjects(ctx context.Context, limit int) ([]string, error) {
+	var slugs []string
+	err := d.InSystem(ctx, func(tx pgx.Tx) error {
+		rows, err := tx.Query(ctx, `SELECT id, slug FROM projects WHERE deleted_at IS NOT NULL ORDER BY deleted_at LIMIT $1`, limit)
+		if err != nil {
+			return err
+		}
+		type victim struct {
+			id   [16]byte
+			slug string
+		}
+		var list []victim
+		for rows.Next() {
+			var v victim
+			if err := rows.Scan(&v.id, &v.slug); err != nil {
+				rows.Close()
+				return err
+			}
+			list = append(list, v)
+		}
+		rows.Close()
+		if err := rows.Err(); err != nil {
+			return err
+		}
+		for _, v := range list {
+			for _, sql := range []string{
+				`DELETE FROM events WHERE project_id = $1`,
+				`DELETE FROM issue_hourly WHERE project_id = $1`,
+				`DELETE FROM project_hourly WHERE project_id = $1`,
+				`DELETE FROM customer_hourly WHERE project_id = $1`,
+				`DELETE FROM issue_tags WHERE project_id = $1`,
+				`DELETE FROM issue_users u USING issues i WHERE i.id = u.issue_id AND i.project_id = $1`,
+				`DELETE FROM notification_threads t USING issues i WHERE i.id = t.issue_id AND i.project_id = $1`,
+				`DELETE FROM projects WHERE id = $1`,
+			} {
+				if _, err := tx.Exec(ctx, sql, v.id); err != nil {
+					return fmt.Errorf("purge project %s: %w", v.slug, err)
+				}
+			}
+			slugs = append(slugs, v.slug)
+		}
+		return nil
+	})
+	return slugs, err
+}

@@ -19,6 +19,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/ingest/sentry"
 	"github.com/mcihad/kentos-izci/internal/jobs"
+	"github.com/mcihad/kentos-izci/internal/realtime"
 	"github.com/mcihad/kentos-izci/internal/secret"
 	"github.com/mcihad/kentos-izci/internal/server"
 	"github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1/ingestv1connect"
@@ -35,6 +36,8 @@ type App struct {
 
 	Auth *auth.Service
 	API  *api.Servers
+	// Hub fans live updates out to WatchLive streams.
+	Hub *realtime.Hub
 
 	jobs  *jobs.Runner
 	usage *ingest.UsageRecorder
@@ -49,7 +52,7 @@ type Options struct {
 // New wires the application on an open database. Migrations and
 // partitions must already be in place (see Prepare).
 func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*App, error) {
-	a := &App{Config: cfg, Log: log, DB: database}
+	a := &App{Config: cfg, Log: log, DB: database, Hub: realtime.NewHub()}
 
 	a.Pipeline = ingest.NewPipeline(database, log, ingest.PipelineConfig{
 		Shards:    cfg.Ingest.Shards,
@@ -57,7 +60,13 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 		BatchSize: cfg.Ingest.BatchSize,
 		Linger:    cfg.Ingest.Linger,
 		PublicURL: cfg.PublicURL,
-	}, ingest.Hooks{})
+	}, ingest.Hooks{
+		AfterCommit: func(b *ingest.Batch) {
+			if a.Hub.Subscribers() > 0 {
+				a.Hub.Publish(realtime.FromBatch(b, cfg.PublicURL)...)
+			}
+		},
+	})
 
 	a.keys = ingest.NewKeyResolver(database, 30*time.Second)
 	a.usage = ingest.NewUsageRecorder()
@@ -83,7 +92,10 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	}
 	a.Auth = auth.NewService(database, cfg, box, log)
 	a.Auth.RegisterRoutes(a.Server.Handle)
-	if a.API, err = api.Mount(a.Server.Handle, api.Deps{DB: database, Auth: a.Auth, Config: cfg, Log: log}); err != nil {
+	if a.API, err = api.Mount(a.Server.Handle, api.Deps{
+		DB: database, Auth: a.Auth, Config: cfg, Log: log,
+		Hub: a.Hub, Pipeline: a.Pipeline, Keys: a.keys, StreamsDone: a.Server.StreamsDone(),
+	}); err != nil {
 		return nil, err
 	}
 
@@ -98,6 +110,13 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 			created, err := database.EnsureEventPartitions(ctx, now.AddDate(0, 0, -1), now.AddDate(0, 0, cfg.Retention.PremakeDays))
 			if len(created) > 0 {
 				log.Info("event partitions created", slog.Int("count", len(created)))
+			}
+			return err
+		}},
+		jobs.Task{Name: "project-purge", Interval: 5 * time.Minute, Run: func(ctx context.Context) error {
+			purged, err := database.PurgeDeletedProjects(ctx, 5)
+			if len(purged) > 0 {
+				log.Info("deleted projects purged", slog.Any("projects", purged))
 			}
 			return err
 		}},

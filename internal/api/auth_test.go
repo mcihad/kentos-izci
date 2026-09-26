@@ -18,13 +18,20 @@ import (
 	"github.com/mcihad/kentos-izci/internal/api"
 	"github.com/mcihad/kentos-izci/internal/auth"
 	"github.com/mcihad/kentos-izci/internal/config"
+	"github.com/mcihad/kentos-izci/internal/db"
+	"github.com/mcihad/kentos-izci/internal/ingest"
+	"github.com/mcihad/kentos-izci/internal/realtime"
 	"github.com/mcihad/kentos-izci/internal/secret"
 	"github.com/mcihad/kentos-izci/internal/testutil"
 )
 
 type env struct {
-	srv *httptest.Server
-	cfg *config.Config
+	srv      *httptest.Server
+	cfg      *config.Config
+	db       *db.DB
+	log      *slog.Logger
+	hub      *realtime.Hub
+	pipeline *ingest.Pipeline
 }
 
 func newEnv(t *testing.T) *env {
@@ -32,26 +39,52 @@ func newEnv(t *testing.T) *env {
 	database := testutil.NewDB(t)
 	cfg := &config.Config{
 		Env: config.EnvTest, PublicURL: "http://izci.test",
-		Auth: config.AuthConfig{Signup: "invite", SessionTTL: time.Hour, PasswordLogin: true, InvitationTTL: time.Hour},
+		Auth:      config.AuthConfig{Signup: "invite", SessionTTL: time.Hour, PasswordLogin: true, InvitationTTL: time.Hour},
+		Retention: config.RetentionConfig{Days: 30, PremakeDays: 2},
 	}
 	box, _ := secret.NewBox(make([]byte, 32))
-	log := slog.New(slog.DiscardHandler)
+	log := slog.New(slog.NewTextHandler(testLog{t}, &slog.HandlerOptions{Level: slog.LevelError}))
 	svc := auth.NewService(database, cfg, box, log)
+	hub := realtime.NewHub()
+	pipeline := ingest.NewPipeline(database, log, ingest.PipelineConfig{Shards: 2, QueueSize: 1000, BatchSize: 200, PublicURL: cfg.PublicURL},
+		ingest.Hooks{AfterCommit: func(b *ingest.Batch) { hub.Publish(realtime.FromBatch(b, cfg.PublicURL)...) }})
+	pipeline.Start()
+	t.Cleanup(func() { _ = pipeline.Close(context.Background()) })
+	done := make(chan struct{})
 	mux := http.NewServeMux()
-	if _, err := api.Mount(mux.Handle, api.Deps{DB: database, Auth: svc, Config: cfg, Log: log}); err != nil {
+	if _, err := api.Mount(mux.Handle, api.Deps{DB: database, Auth: svc, Config: cfg, Log: log, Hub: hub, Pipeline: pipeline,
+		Keys: ingest.NewKeyResolver(database, time.Minute), StreamsDone: done}); err != nil {
 		t.Fatal(err)
 	}
 	srv := httptest.NewServer(mux)
-	t.Cleanup(srv.Close)
-	return &env{srv: srv, cfg: cfg}
+	t.Cleanup(func() {
+		close(done)
+		srv.Close()
+	})
+	return &env{srv: srv, cfg: cfg, db: database, log: log, hub: hub, pipeline: pipeline}
+}
+
+// testLog writes server error logs into the test output.
+type testLog struct{ t *testing.T }
+
+func (l testLog) Write(p []byte) (int, error) {
+	l.t.Helper()
+	l.t.Log(strings.TrimSpace(string(p)))
+	return len(p), nil
 }
 
 // client is a browser-like API client with its own cookie jar.
 type client struct {
-	auth apiv1connect.AuthServiceClient
-	user apiv1connect.UserServiceClient
-	org  apiv1connect.OrganizationServiceClient
-	hdr  map[string]string
+	auth      apiv1connect.AuthServiceClient
+	user      apiv1connect.UserServiceClient
+	org       apiv1connect.OrganizationServiceClient
+	project   apiv1connect.ProjectServiceClient
+	issue     apiv1connect.IssueServiceClient
+	event     apiv1connect.EventServiceClient
+	customer  apiv1connect.CustomerServiceClient
+	dashboard apiv1connect.DashboardServiceClient
+	admin     apiv1connect.AdminServiceClient
+	hdr       map[string]string
 }
 
 func (e *env) client(hdr map[string]string) *client {
@@ -59,10 +92,16 @@ func (e *env) client(hdr map[string]string) *client {
 	hc := &http.Client{Jar: jar}
 	opt := connect.WithInterceptors(headerInterceptor(hdr))
 	return &client{
-		auth: apiv1connect.NewAuthServiceClient(hc, e.srv.URL, opt),
-		user: apiv1connect.NewUserServiceClient(hc, e.srv.URL, opt),
-		org:  apiv1connect.NewOrganizationServiceClient(hc, e.srv.URL, opt),
-		hdr:  hdr,
+		auth:      apiv1connect.NewAuthServiceClient(hc, e.srv.URL, opt),
+		user:      apiv1connect.NewUserServiceClient(hc, e.srv.URL, opt),
+		org:       apiv1connect.NewOrganizationServiceClient(hc, e.srv.URL, opt),
+		project:   apiv1connect.NewProjectServiceClient(hc, e.srv.URL, opt),
+		issue:     apiv1connect.NewIssueServiceClient(hc, e.srv.URL, opt),
+		event:     apiv1connect.NewEventServiceClient(hc, e.srv.URL, opt),
+		customer:  apiv1connect.NewCustomerServiceClient(hc, e.srv.URL, opt),
+		dashboard: apiv1connect.NewDashboardServiceClient(hc, e.srv.URL, opt),
+		admin:     apiv1connect.NewAdminServiceClient(hc, e.srv.URL, opt),
+		hdr:       hdr,
 	}
 }
 
@@ -77,7 +116,13 @@ func (h headerInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 	}
 }
 func (h headerInterceptor) WrapStreamingClient(n connect.StreamingClientFunc) connect.StreamingClientFunc {
-	return n
+	return func(ctx context.Context, spec connect.Spec) connect.StreamingClientConn {
+		conn := n(ctx, spec)
+		for k, v := range h {
+			conn.RequestHeader().Set(k, v)
+		}
+		return conn
+	}
 }
 func (h headerInterceptor) WrapStreamingHandler(n connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
 	return n

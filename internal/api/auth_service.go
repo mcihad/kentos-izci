@@ -17,6 +17,8 @@ import (
 	"github.com/mcihad/kentos-izci/internal/auth"
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
+	"github.com/mcihad/kentos-izci/internal/ingest"
+	"github.com/mcihad/kentos-izci/internal/realtime"
 	"github.com/mcihad/kentos-izci/internal/slug"
 	"github.com/mcihad/kentos-izci/internal/store"
 	"github.com/mcihad/kentos-izci/internal/version"
@@ -24,10 +26,14 @@ import (
 
 // base holds dependencies shared by all service implementations.
 type base struct {
-	db   *db.DB
-	auth *auth.Service
-	cfg  *config.Config
-	log  *slog.Logger
+	db       *db.DB
+	auth     *auth.Service
+	cfg      *config.Config
+	log      *slog.Logger
+	hub      *realtime.Hub
+	pipeline *ingest.Pipeline
+	keys     *ingest.KeyResolver
+	done     <-chan struct{}
 }
 
 // AuthServer implements izci.api.v1.AuthService.

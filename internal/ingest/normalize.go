@@ -182,12 +182,7 @@ func Normalize(ev *ingestv1.Event, opt NormalizeOptions) (*Processed, error) {
 	normalizeContexts(ev, w, scrub)
 	normalizeTagsExtra(ev, w, scrub)
 
-	// User-Agent: from the request headers, else from the browser context.
-	uaRaw := headerValue(ev.GetRequest().GetHeaders(), "User-Agent")
-	if uaRaw == "" {
-		uaRaw = ev.GetContexts().GetBrowser().GetUserAgent()
-	}
-	p.UA = ParseUserAgent(uaRaw)
+	p.UA = ParseUserAgent(UserAgentOf(ev))
 	enrichFromUserAgent(ev, p)
 
 	p.ClientIP = resolveClientIP(ev, p.Platform, opt.TransportIP)
@@ -243,6 +238,19 @@ func hasCrashedThread(ev *ingestv1.Event) bool {
 	}
 	return false
 }
+
+// UserAgentOf returns the User-Agent of an event: the request header, else
+// the browser context.
+func UserAgentOf(ev *ingestv1.Event) string {
+	if ua := headerValue(ev.GetRequest().GetHeaders(), "User-Agent"); ua != "" {
+		return ua
+	}
+	return ev.GetContexts().GetBrowser().GetUserAgent()
+}
+
+// ReceivedAt returns the receive time embedded in a server-side event id,
+// which identifies the daily partition of the event.
+func ReceivedAt(id uuid.UUID) time.Time { return uuidV7Time(id) }
 
 // uuidV7Time extracts the millisecond timestamp of a UUIDv7.
 func uuidV7Time(id uuid.UUID) time.Time {

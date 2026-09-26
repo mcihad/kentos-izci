@@ -311,6 +311,16 @@ func sentryAuthKey(h string) string {
 	return ""
 }
 
+// DSN renders the Sentry DSN "https://<key>@host/<public id>" of a project
+// for an izci instance reachable at publicURL.
+func DSN(publicURL, key string, publicID int64) string {
+	scheme, rest, ok := strings.Cut(publicURL, "://")
+	if !ok {
+		return ""
+	}
+	return fmt.Sprintf("%s://%s@%s/%d", scheme, key, strings.TrimRight(rest, "/"), publicID)
+}
+
 // dsnKey extracts the public key from a DSN URL.
 func dsnKey(dsn string) string {
 	if dsn == "" {
