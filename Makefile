@@ -23,7 +23,7 @@ LDFLAGS := -s -w \
 	-X $(PKG)/internal/version.Commit=$(COMMIT) \
 	-X $(PKG)/internal/version.Date=$(DATE)
 
-.PHONY: help help-check setup db-setup db-reset migrate gen lint-proto web build run dev test test-go test-web lint typecheck check clean
+.PHONY: help help-check setup db-setup db-reset migrate demo gen lint-proto web build run dev test test-go test-web lint typecheck check clean
 
 #? Lists every target with a one-line summary. With T=<target> prints that
 #? target's full description, variables and examples.
@@ -111,6 +111,14 @@ dev: ## Run Go server + Vite dev server (HMR)
 	$(PNPM) -C web dev; \
 	wait
 
+#? Fills the development database with demo projects (Kalem, Platform,
+#? Bildirim, Kalem Web) and realistic events spread over the last days.
+#= EVENTS  number of events (default 20000)
+#> make demo
+#> make demo EVENTS=100000
+demo: ## Seed demo projects and events
+	$(GO) run ./cmd/izci demo seed --events $(or $(EVENTS),20000) --days 14
+
 #? Runs Go unit and integration tests plus web unit tests. Integration tests
 #? use IZCI_TEST_DATABASE_URL (from the environment or .env) and are skipped
 #? when it is unset.
@@ -122,7 +130,7 @@ test: test-go test-web ## Run all tests
 #> make test-go
 #> make test-go ARGS="-run TestSPA -v"
 test-go: ## Run Go tests
-	$(GO) test -race -count=1 $(ARGS) ./... ./sdk/go/...
+	$(GO) test -race -count=1 $(ARGS) ./... ./sdk/go/... ./sdk/go/izcipgx/...
 
 #? Runs the web unit tests (vitest).
 #> make test-web
@@ -132,7 +140,7 @@ test-web: ## Run web tests
 #? Static analysis: go vet, staticcheck, Biome (web) and proto lint.
 #> make lint
 lint: lint-proto ## Run all linters
-	$(GO) vet ./... ./sdk/go/...
+	$(GO) vet ./... ./sdk/go/... ./sdk/go/izcipgx/...
 	$(GO) tool staticcheck ./... ./sdk/go/...
 	$(PNPM) -C web lint
 

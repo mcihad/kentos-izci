@@ -16,6 +16,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/spf13/cobra"
 
+	"github.com/mcihad/kentos-izci/internal/demo"
 	"github.com/mcihad/kentos-izci/internal/sample"
 	ingestv1 "github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1"
 	"github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1/ingestv1connect"
@@ -223,5 +224,43 @@ func newBenchCmd() *cobra.Command {
 	ingestCmd.Flags().IntVar(&batch, "batch", 1, "events per request (1 = SendEvent, >1 = SendEvents)")
 	ingestCmd.Flags().IntVar(&rate, "rate", 0, "target events per second across workers (0 = unlimited)")
 	cmd.AddCommand(ingestCmd)
+	return cmd
+}
+
+func newDemoCmd(a *cliApp) *cobra.Command {
+	cmd := &cobra.Command{Use: "demo", Short: "Demo data for development and presentations"}
+	var org string
+	var events, days int
+	var seed uint64
+	seedCmd := &cobra.Command{
+		Use:   "seed",
+		Short: "Create demo projects and realistic events spread over past days",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			database, err := a.openDB(cmd.Context())
+			if err != nil {
+				return err
+			}
+			defer database.Close()
+			if err := database.MigrateUp(cmd.Context()); err != nil {
+				return err
+			}
+			if seed == 0 {
+				seed = uint64(time.Now().UnixNano())
+			}
+			s, err := demo.Seed(cmd.Context(), database, a.log, demo.Options{OrgSlug: org, Events: events, Days: days, Seed: seed})
+			if err != nil {
+				return err
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "seeded %d events into %d issues across projects %v in %s\n",
+				s.Events, s.Issues, s.Projects, s.Elapsed.Round(time.Millisecond))
+			return nil
+		},
+	}
+	seedCmd.Flags().StringVar(&org, "org", "kentos", "organization slug (created when missing)")
+	seedCmd.Flags().IntVar(&events, "events", 5000, "number of events")
+	seedCmd.Flags().IntVar(&days, "days", 14, "spread events over this many past days")
+	seedCmd.Flags().Uint64Var(&seed, "seed", 0, "random seed (0 = time based)")
+	cmd.AddCommand(seedCmd)
 	return cmd
 }
