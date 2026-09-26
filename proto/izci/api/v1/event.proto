@@ -1,0 +1,212 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "izci/api/v1/common.proto";
+import "izci/ingest/v1/event.proto";
+
+// EventService reads individual events of the current organization.
+service EventService {
+  // GetEvent returns one event with everything needed to render it, plus the
+  // ids of its neighbours within the same issue. Requires ROLE_VIEWER.
+  rpc GetEvent(GetEventRequest) returns (GetEventResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // GetRawEvent returns the stored event as JSON, for download and
+  // debugging. Requires ROLE_VIEWER.
+  rpc GetRawEvent(GetRawEventRequest) returns (GetRawEventResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+}
+
+// EventSummary is the compact form of an event used in lists.
+message EventSummary {
+  // Server-side event id (UUIDv7). Use it for GetEvent.
+  string id = 1;
+
+  // Client-side event id (Event.event_id).
+  string event_id = 2;
+
+  // Issue the event belongs to.
+  string issue_id = 3;
+
+  // When izci received the event.
+  google.protobuf.Timestamp received_at = 4;
+
+  // When the event happened according to the client.
+  google.protobuf.Timestamp occurred_at = 5;
+
+  // Severity.
+  izci.ingest.v1.Level level = 6;
+
+  // One-line description: the message, or "Type: value" of the primary
+  // exception.
+  string title = 7;
+
+  // Environment, e.g. "production".
+  string environment = 8;
+
+  // Release, e.g. "1.4.2".
+  string release = 9;
+
+  // Customer, when reported.
+  CustomerRef customer = 10;
+
+  // Tenant id, when reported.
+  string tenant = 11;
+
+  // Best user label: email, username or id.
+  string user = 12;
+
+  // Browser name and major version, e.g. "Chrome 129".
+  string browser = 13;
+
+  // Operating system name and version, e.g. "Windows 11".
+  string os = 14;
+
+  // Request URL, when any.
+  string url = 15;
+
+  // Stored client IP address (subject to project privacy settings).
+  string client_ip = 16;
+
+  // Server name, e.g. "api-7d9c8f-x2kqp".
+  string server_name = 17;
+}
+
+// EventDetail is a fully normalized event.
+message EventDetail {
+  // Server-side event id (UUIDv7).
+  string id = 1;
+
+  // Client-side event id.
+  string event_id = 2;
+
+  // Issue the event belongs to.
+  IssueRef issue = 3;
+
+  // Project of the event.
+  ProjectRef project = 4;
+
+  // When izci received the event.
+  google.protobuf.Timestamp received_at = 5;
+
+  // The event after normalization, trimming and scrubbing.
+  izci.ingest.v1.Event event = 6;
+
+  // Stored client IP address (subject to project privacy settings).
+  string client_ip = 7;
+
+  // User-Agent parsed by the server.
+  UserAgentInfo user_agent = 8;
+
+  // Adjustments the server made during ingest (trimming, clock fixes).
+  repeated string warnings = 9;
+
+  // Encoded size of the stored event in bytes.
+  uint32 size_bytes = 10;
+
+  // Git ref (commit SHA when known, otherwise the default branch) to use for
+  // source links, empty when the project has no linked repository.
+  string source_ref = 11;
+
+  // Web URL of the linked repository, empty when none.
+  string repository_url = 12;
+
+  // Path rewrites of the linked repository, to turn frame paths into
+  // repository paths.
+  repeated PathRewrite path_rewrites = 13;
+}
+
+// PathRewrite maps a frame path prefix to a repository path prefix.
+message PathRewrite {
+  // Prefix as reported by the application.
+  string from_prefix = 1;
+
+  // Replacement prefix relative to the repository root.
+  string to_prefix = 2;
+}
+
+// UserAgentInfo is a parsed User-Agent header.
+message UserAgentInfo {
+  // Browser name, e.g. "Chrome".
+  string browser = 1;
+
+  // Browser version, e.g. "129.0.6668.58".
+  string browser_version = 2;
+
+  // Operating system, e.g. "Windows".
+  string os = 3;
+
+  // Operating system version, e.g. "10".
+  string os_version = 4;
+
+  // Device model, e.g. "iPhone".
+  string device = 5;
+
+  // Form factor: "desktop", "mobile", "tablet", "tv" or "bot".
+  string device_type = 6;
+
+  // True for crawlers and other automated clients.
+  bool bot = 7;
+
+  // The raw header.
+  string raw = 8;
+}
+
+// EventPick selects an event of an issue.
+enum EventPick {
+  // Not set; treated as EVENT_PICK_LATEST.
+  EVENT_PICK_UNSPECIFIED = 0;
+  // Most recently received event.
+  EVENT_PICK_LATEST = 1;
+  // First received event.
+  EVENT_PICK_OLDEST = 2;
+  // Most informative recent event (has a stack trace with in-app frames,
+  // request and user data), falling back to the latest.
+  EVENT_PICK_RECOMMENDED = 3;
+}
+
+// GetEventRequest selects an event by id, by client event id, or as an
+// issue's latest/oldest/recommended event.
+message GetEventRequest {
+  // Server-side event id. Takes precedence when set.
+  string id = 1;
+
+  // Issue whose event to pick (with pick) when id is empty.
+  string issue_id = 2;
+
+  // Which event of issue_id to return.
+  EventPick pick = 3;
+
+  // Client-side event id (e.g. an "error code" shown to an end user),
+  // searched across the organization when id and issue_id are empty.
+  string client_event_id = 4 [(buf.validate.field).string.max_len = 64];
+}
+
+// GetEventResponse returns the event and its neighbours.
+message GetEventResponse {
+  // The event.
+  EventDetail event = 1;
+
+  // Id of the previous (older) event of the same issue, empty when none.
+  string previous_id = 2;
+
+  // Id of the next (newer) event of the same issue, empty when none.
+  string next_id = 3;
+}
+
+// GetRawEventRequest identifies an event.
+message GetRawEventRequest {
+  // Server-side event id.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// GetRawEventResponse returns the stored JSON.
+message GetRawEventResponse {
+  // Stored event as pretty-printed JSON.
+  string json = 1;
+}

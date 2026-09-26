@@ -1,0 +1,273 @@
+syntax = "proto3";
+
+// Package izci.api.v1 is the API behind the izci web UI. It is also the
+// public management API for automation (CLI scripts, CI, MCP tools).
+//
+// # Authentication
+//
+// Calls are authenticated either by the browser session cookie set by
+// AuthService.Login (web UI) or by a personal access token (prefix "izp_")
+// sent as "Authorization: Bearer izp_…" (automation). Session-based calls must
+// use the Connect protocol and carry the "Connect-Protocol-Version: 1" header,
+// which protects them against cross-site request forgery.
+//
+// # Organization scope
+//
+// Most services operate inside one organization, selected with the
+// "Izci-Org" request header carrying the organization slug (e.g.
+// "Izci-Org: kentos"). Tokens bound to one organization imply it. Calls that
+// need an organization and have none fail with PERMISSION_DENIED and reason
+// ERROR_REASON_ORGANIZATION_REQUIRED.
+//
+// # Errors
+//
+// Errors use standard Connect/gRPC codes and carry an ErrorDetail with a
+// machine-readable ErrorReason. Clients should branch on the reason, not on
+// the (English) message.
+//
+// # Pagination
+//
+// List methods take page_size (default 50, max 100 unless documented
+// otherwise) and an opaque page_token, and return next_page_token, which is
+// empty on the last page.
+package izci.api.v1;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+// Role is a member's role in an organization. Every role includes the
+// permissions of the roles listed before it.
+enum Role {
+  // Not set.
+  ROLE_UNSPECIFIED = 0;
+  // Read-only access to issues, events, customers and dashboards.
+  ROLE_VIEWER = 1;
+  // Triage issues (status, assignment, priority), comment and run AI
+  // analyses.
+  ROLE_MEMBER = 2;
+  // Manage projects, API keys, alert rules, channels, integrations and
+  // members (except owners).
+  ROLE_ADMIN = 3;
+  // Full control, including owners, organization settings and deletion.
+  ROLE_OWNER = 4;
+}
+
+// IssueStatus is the triage state of an issue.
+enum IssueStatus {
+  // Not set.
+  ISSUE_STATUS_UNSPECIFIED = 0;
+  // Needs attention. New events keep arriving into it.
+  ISSUE_STATUS_UNRESOLVED = 1;
+  // Marked as fixed. A new event reopens it as a regression.
+  ISSUE_STATUS_RESOLVED = 2;
+  // Muted. New events are counted but do not notify, until the ignore
+  // condition (duration, event count or escalation) expires.
+  ISSUE_STATUS_IGNORED = 3;
+}
+
+// IssueSubstatus refines an unresolved issue.
+enum IssueSubstatus {
+  // Not set (resolved and ignored issues).
+  ISSUE_SUBSTATUS_UNSPECIFIED = 0;
+  // First seen within the last 72 hours.
+  ISSUE_SUBSTATUS_NEW = 1;
+  // Unresolved for longer than 72 hours with a normal event rate.
+  ISSUE_SUBSTATUS_ONGOING = 2;
+  // Was resolved and received a new event (in a newer release when the issue
+  // was resolved "in next release").
+  ISSUE_SUBSTATUS_REGRESSED = 3;
+  // Event rate is significantly above its recent baseline.
+  ISSUE_SUBSTATUS_ESCALATING = 4;
+}
+
+// Priority is the triage priority of an issue.
+enum Priority {
+  // Not set.
+  PRIORITY_UNSPECIFIED = 0;
+  // Low impact.
+  PRIORITY_LOW = 1;
+  // Default for new issues.
+  PRIORITY_MEDIUM = 2;
+  // Needs attention soon.
+  PRIORITY_HIGH = 3;
+  // Needs attention now: fatal, unhandled or wide impact.
+  PRIORITY_CRITICAL = 4;
+}
+
+// StatsPeriod is a trailing time window used for counts and charts.
+enum StatsPeriod {
+  // Not set; methods document their own default (usually 24 hours).
+  STATS_PERIOD_UNSPECIFIED = 0;
+  // Last hour, in 1-minute buckets.
+  STATS_PERIOD_LAST_HOUR = 1;
+  // Last 24 hours, in 1-hour buckets.
+  STATS_PERIOD_LAST_24_HOURS = 2;
+  // Last 7 days, in 6-hour buckets.
+  STATS_PERIOD_LAST_7_DAYS = 3;
+  // Last 14 days, in 1-day buckets.
+  STATS_PERIOD_LAST_14_DAYS = 4;
+  // Last 30 days, in 1-day buckets.
+  STATS_PERIOD_LAST_30_DAYS = 5;
+  // Last 90 days, in 1-day buckets.
+  STATS_PERIOD_LAST_90_DAYS = 6;
+}
+
+// Series is a compact, evenly spaced time series of counts.
+message Series {
+  // Start of the first bucket.
+  google.protobuf.Timestamp start = 1;
+
+  // Width of every bucket.
+  google.protobuf.Duration interval = 2;
+
+  // Count per bucket, oldest first; bucket i covers
+  // [start + i·interval, start + (i+1)·interval).
+  repeated uint64 counts = 3;
+}
+
+// UserRef is a compact reference to a user.
+message UserRef {
+  // User id (UUID).
+  string id = 1;
+
+  // Display name.
+  string name = 2;
+
+  // Email address.
+  string email = 3;
+
+  // Avatar image URL, empty when none.
+  string avatar_url = 4;
+}
+
+// OrganizationRef is a compact reference to an organization.
+message OrganizationRef {
+  // Organization id (UUID).
+  string id = 1;
+
+  // URL-safe unique identifier, e.g. "kentos".
+  string slug = 2;
+
+  // Display name, e.g. "KentOS".
+  string name = 3;
+}
+
+// ProjectRef is a compact reference to a project.
+message ProjectRef {
+  // Project id (UUID).
+  string id = 1;
+
+  // URL-safe identifier unique within the organization, e.g. "kalem".
+  string slug = 2;
+
+  // Display name, e.g. "KentOS Kalem".
+  string name = 3;
+
+  // Main platform of the project, e.g. "dotnet", "go", "javascript".
+  string platform = 4;
+}
+
+// CustomerRef is a compact reference to a customer.
+message CustomerRef {
+  // Stable customer key as reported by applications (Event.customer.id),
+  // e.g. "sivas-belediyesi".
+  string key = 1;
+
+  // Display name, e.g. "Sivas Belediyesi".
+  string name = 2;
+}
+
+// IssueRef is a compact reference to an issue.
+message IssueRef {
+  // Issue id (UUID).
+  string id = 1;
+
+  // Short id, e.g. "KALEM-1A".
+  string short_id = 2;
+
+  // Issue title.
+  string title = 3;
+}
+
+// ErrorDetail is attached to every error returned by izci.api.v1 services.
+message ErrorDetail {
+  // Machine-readable cause of the error.
+  ErrorReason reason = 1;
+
+  // Request field the error refers to, as a dotted path (e.g.
+  // "settings.timezone"), for validation errors.
+  string field = 2;
+
+  // Additional values for building a user-facing message, e.g.
+  // {"limit": "10"} for ERROR_REASON_LIMIT_REACHED or {"position": "14"} for
+  // ERROR_REASON_INVALID_QUERY.
+  map<string, string> metadata = 3;
+}
+
+// ErrorReason enumerates the causes of API errors. The web UI maps each
+// reason to a localized message.
+enum ErrorReason {
+  // Not set.
+  ERROR_REASON_UNSPECIFIED = 0;
+  // The caller is not signed in or the session expired.
+  ERROR_REASON_UNAUTHENTICATED = 1;
+  // The caller's role or token scope does not allow the operation.
+  ERROR_REASON_PERMISSION_DENIED = 2;
+  // The call needs an organization (Izci-Org header) and none was given, or
+  // the caller is not a member of it.
+  ERROR_REASON_ORGANIZATION_REQUIRED = 3;
+  // The requested resource does not exist or is not visible to the caller.
+  ERROR_REASON_NOT_FOUND = 4;
+  // A request field is invalid; ErrorDetail.field names it.
+  ERROR_REASON_INVALID_ARGUMENT = 5;
+  // Email or password is wrong.
+  ERROR_REASON_INVALID_CREDENTIALS = 6;
+  // The user account is disabled.
+  ERROR_REASON_ACCOUNT_DISABLED = 7;
+  // Too many attempts; retry later (metadata "retry_after_seconds").
+  ERROR_REASON_TOO_MANY_ATTEMPTS = 8;
+  // The new password does not meet the policy (metadata "min_length").
+  ERROR_REASON_WEAK_PASSWORD = 9;
+  // Initial setup was already completed.
+  ERROR_REASON_SETUP_COMPLETED = 10;
+  // Initial setup must be completed first.
+  ERROR_REASON_SETUP_REQUIRED = 11;
+  // Self sign-up is disabled on this instance.
+  ERROR_REASON_SIGNUP_DISABLED = 12;
+  // Another account already uses this email address.
+  ERROR_REASON_EMAIL_TAKEN = 13;
+  // The slug is already in use.
+  ERROR_REASON_SLUG_TAKEN = 14;
+  // The invitation does not exist, was revoked, used or expired.
+  ERROR_REASON_INVITATION_INVALID = 15;
+  // The operation would leave the organization without an owner.
+  ERROR_REASON_LAST_OWNER = 16;
+  // A plan limit was reached (metadata "limit", "resource").
+  ERROR_REASON_LIMIT_REACHED = 17;
+  // The monthly quota is exhausted.
+  ERROR_REASON_QUOTA_EXCEEDED = 18;
+  // The search query cannot be parsed (metadata "position", "token").
+  ERROR_REASON_INVALID_QUERY = 19;
+  // An external integration call failed (metadata "provider", "status").
+  ERROR_REASON_INTEGRATION_FAILED = 20;
+  // The GitHub token is invalid or lacks the required permissions.
+  ERROR_REASON_GITHUB_TOKEN_INVALID = 21;
+  // The GitHub App is not configured on this instance.
+  ERROR_REASON_GITHUB_APP_NOT_CONFIGURED = 22;
+  // The project has no linked repository.
+  ERROR_REASON_REPOSITORY_NOT_LINKED = 23;
+  // AI analysis is disabled on this instance or project.
+  ERROR_REASON_AI_DISABLED = 24;
+  // The AI run budget (daily or monthly) is exhausted.
+  ERROR_REASON_AI_BUDGET_EXCEEDED = 25;
+  // An AI run is already queued or running for this issue.
+  ERROR_REASON_AI_RUN_ACTIVE = 26;
+  // The AI run has not finished successfully or has no code changes.
+  ERROR_REASON_AI_RUN_NOT_READY = 27;
+  // Telegram is not configured on this instance.
+  ERROR_REASON_TELEGRAM_NOT_CONFIGURED = 28;
+  // The resource was modified concurrently; reload and retry.
+  ERROR_REASON_CONFLICT = 29;
+  // Unexpected server error.
+  ERROR_REASON_INTERNAL = 30;
+}

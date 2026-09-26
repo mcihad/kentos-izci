@@ -1,0 +1,155 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "izci/api/v1/common.proto";
+import "izci/api/v1/customer.proto";
+import "izci/api/v1/event.proto";
+import "izci/api/v1/issue.proto";
+import "izci/ingest/v1/event.proto";
+
+// DashboardService powers the overview page and the live feed.
+service DashboardService {
+  // GetOverview returns totals, charts and top lists for a period. Requires
+  // ROLE_VIEWER.
+  rpc GetOverview(GetOverviewRequest) returns (GetOverviewResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // WatchLive streams events and issue changes of the organization as they
+  // happen. The server sends a heartbeat every 20 seconds; clients should
+  // reconnect with backoff when the stream ends. Requires ROLE_VIEWER.
+  rpc WatchLive(WatchLiveRequest) returns (stream WatchLiveResponse);
+}
+
+// OverviewTotals are the headline numbers of a period.
+message OverviewTotals {
+  // Events in the period.
+  uint64 events = 1;
+
+  // Events in the preceding period of equal length (for the trend).
+  uint64 previous_events = 2;
+
+  // Average events per minute over the last 15 minutes.
+  double events_per_minute = 3;
+
+  // Issues first seen in the period.
+  uint32 new_issues = 4;
+
+  // Issues that regressed in the period.
+  uint32 regressed_issues = 5;
+
+  // Currently unresolved issues.
+  uint32 unresolved_issues = 6;
+
+  // Distinct users affected in the period.
+  uint32 affected_users = 7;
+
+  // Distinct customers affected in the period.
+  uint32 affected_customers = 8;
+}
+
+// LevelSeries is the event series of one level.
+message LevelSeries {
+  // The level.
+  izci.ingest.v1.Level level = 1;
+
+  // Event counts.
+  Series series = 2;
+}
+
+// ProjectHealth summarizes a project in the period.
+message ProjectHealth {
+  // The project.
+  ProjectRef project = 1;
+
+  // Events in the period.
+  uint64 events = 2;
+
+  // Unresolved issues.
+  uint32 unresolved_issues = 3;
+
+  // Issues first seen in the period.
+  uint32 new_issues = 4;
+
+  // Event counts over the period.
+  Series series = 5;
+}
+
+// GetOverviewRequest selects the scope.
+message GetOverviewRequest {
+  // Window; defaults to 24 hours.
+  StatsPeriod period = 1;
+
+  // Project slugs; empty includes all.
+  repeated string projects = 2 [(buf.validate.field).repeated.max_items = 50];
+
+  // Environments; empty includes all.
+  repeated string environments = 3 [(buf.validate.field).repeated.max_items = 20];
+
+  // Customer keys; empty includes all.
+  repeated string customers = 4 [(buf.validate.field).repeated.max_items = 50];
+}
+
+// GetOverviewResponse holds the dashboard data.
+message GetOverviewResponse {
+  // Headline numbers.
+  OverviewTotals totals = 1;
+
+  // Event series per level, most severe first.
+  repeated LevelSeries events_by_level = 2;
+
+  // Issues with the largest growth in the period (max 10).
+  repeated IssueSummary trending_issues = 3;
+
+  // Issues first seen in the period, newest first (max 10).
+  repeated IssueSummary new_issues = 4;
+
+  // Projects, most events first.
+  repeated ProjectHealth projects = 5;
+
+  // Most affected customers (max 10).
+  repeated CustomerSummary customers = 6;
+}
+
+// LiveEventKind classifies live updates.
+enum LiveEventKind {
+  // Not set.
+  LIVE_EVENT_KIND_UNSPECIFIED = 0;
+  // Keep-alive; carries no data.
+  LIVE_EVENT_KIND_HEARTBEAT = 1;
+  // An event was stored.
+  LIVE_EVENT_KIND_EVENT = 2;
+  // A new issue was created.
+  LIVE_EVENT_KIND_ISSUE_CREATED = 3;
+  // A resolved issue regressed.
+  LIVE_EVENT_KIND_ISSUE_REGRESSED = 4;
+  // An issue was triaged (status, assignee, priority).
+  LIVE_EVENT_KIND_ISSUE_UPDATED = 5;
+}
+
+// WatchLiveRequest filters the live stream.
+message WatchLiveRequest {
+  // Project slugs; empty includes all.
+  repeated string projects = 1 [(buf.validate.field).repeated.max_items = 50];
+
+  // Only events at or above this level.
+  izci.ingest.v1.Level min_level = 2;
+}
+
+// WatchLiveResponse is one live update.
+message WatchLiveResponse {
+  // Kind of update.
+  LiveEventKind kind = 1;
+
+  // When it happened.
+  google.protobuf.Timestamp time = 2;
+
+  // The affected issue (all kinds except HEARTBEAT).
+  IssueSummary issue = 3;
+
+  // The stored event (kinds EVENT, ISSUE_CREATED, ISSUE_REGRESSED).
+  EventSummary event = 4;
+}

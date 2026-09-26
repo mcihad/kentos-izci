@@ -1,0 +1,1034 @@
+syntax = "proto3";
+
+// Package izci.ingest.v1 is the public contract applications use to report
+// errors and messages to izci.
+//
+// The central type is Event: one occurrence of an error (or a notable message)
+// captured by an application, together with everything needed to understand
+// it — the exception chain with stack traces, breadcrumbs that led up to it, the
+// HTTP request being served, the affected user, customer and tenant, and the
+// state of the device, runtime and process (CPU, memory, …).
+//
+// izci groups events that share a fingerprint into issues, counts how often
+// each issue repeats, and notifies developers.
+//
+// Conventions used throughout this package:
+//
+//   - Every field is optional unless documented otherwise. Leave a field unset
+//     rather than sending placeholder values such as "unknown" or "N/A".
+//   - Strings are UTF-8. Oversized values are truncated by the server (never
+//     rejected); the documented limits are the maximum sizes that are kept.
+//   - Byte counts are in bytes, durations in milliseconds unless the type is
+//     google.protobuf.Duration, percentages are 0–100.
+//   - Stack frames are ordered from the OLDEST call to the NEWEST call: the
+//     frame that raised the error is the LAST element (same as Sentry).
+//   - Chained exceptions are ordered from the ROOT CAUSE to the exception that
+//     was finally caught: the primary exception is the LAST element.
+//   - Sensitive data (passwords, tokens, cookies, card numbers, Turkish ID
+//     numbers, …) is scrubbed again on the server, but SDKs should avoid
+//     sending it at all.
+package izci.ingest.v1;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+// Event is a single occurrence of an error or message reported by an
+// application.
+//
+// The smallest useful event carries a timestamp, a level and either one
+// exception (type + value) or a message. Everything else enriches the event and
+// makes it easier to diagnose.
+//
+// Sentry equivalent: the error event payload.
+message Event {
+  // Client-generated unique identifier of this event: a UUID in canonical
+  // textual form (e.g. "6f1c1b5e-2c3d-4f6a-9b8e-0d1e2f3a4b5c"). UUIDv7 or UUIDv4
+  // is recommended.
+  //
+  // The id is the idempotency key: when an SDK retries a request after a
+  // timeout, events whose event_id was already stored for the project are
+  // acknowledged as duplicates and not stored twice. When empty, the server
+  // assigns a random UUID (and retries can then create duplicates).
+  //
+  // Applications may show this id to end users ("error code") so that support
+  // staff can find the exact event later.
+  string event_id = 1;
+
+  // Moment the event happened, measured by the client clock.
+  //
+  // When unset, the server uses the time it received the event. Timestamps more
+  // than 5 minutes in the future or older than the project's retention window
+  // are replaced by the receive time (the original value is kept in the event
+  // warnings).
+  google.protobuf.Timestamp timestamp = 2;
+
+  // Severity of the event. Defaults to ERROR for events with exceptions and
+  // INFO for message-only events.
+  Level level = 3;
+
+  // Technology that produced the event, used to pick stack-trace heuristics
+  // and syntax highlighting. Well-known values: "go", "dotnet", "javascript"
+  // (browser), "node", "dart" (Flutter), "python", "java", "kotlin", "swift",
+  // "php", "rust", "ruby", "elixir", "native", "other".
+  // Max 32 characters.
+  string platform = 4;
+
+  // Name of the logger that produced the event, e.g.
+  // "KentOS.Kalem.Services.OrderService" or "app.billing". Max 128 characters.
+  string logger = 5;
+
+  // Name of the operation in progress when the event happened: an HTTP route
+  // ("GET /api/orders/{id}"), a job name ("nightly-sync"), a gRPC method
+  // ("/izci.api.v1.IssueService/ListIssues") or a UI screen ("CheckoutPage").
+  // Prefer route templates over concrete URLs so that events aggregate well.
+  // Max 256 characters.
+  string transaction = 6;
+
+  // Host name of the machine, container or pod that produced the event, e.g.
+  // "api-7d9c8f-x2kqp". Max 128 characters.
+  string server_name = 7;
+
+  // Version of the application, e.g. "1.4.2", "kalem@1.4.2+241" or a git
+  // commit SHA. Releases let izci tell which version introduced an issue and
+  // detect regressions after an issue was resolved. Register richer metadata
+  // (commit, repository) with IngestService.RegisterRelease. Max 200 characters.
+  string release = 8;
+
+  // Build variant of the release (e.g. "arm64", "google-play"). Only meaningful
+  // together with release. Max 64 characters.
+  string dist = 9;
+
+  // Deployment environment, e.g. "production", "staging", "development".
+  // Lower-cased by the server. Defaults to "production" when unset.
+  // Max 64 characters.
+  string environment = 10;
+
+  // Customer (organization using the application) on whose behalf the
+  // application was running — for KentOS typically a municipality. izci lets
+  // you filter and alert per customer and counts how many customers an issue
+  // affects.
+  Customer customer = 11;
+
+  // Tenant inside the application, for multi-tenant applications that host
+  // several logical tenants in one deployment. Independent of customer: a
+  // customer may own several tenants.
+  Tenant tenant = 12;
+
+  // Human-readable message. Required when the event has no exceptions; for
+  // events with exceptions it adds context (e.g. the log line that reported
+  // the error).
+  Message message = 13;
+
+  // Exception chain, ordered from the ROOT CAUSE to the PRIMARY exception (the
+  // one finally caught or reported), so the last element is the most relevant
+  // one. A single exception is a one-element list. Max 10 exceptions; when
+  // longer, the first and last ones are kept.
+  //
+  // Sentry equivalent: exception.values (same ordering).
+  repeated Exception exceptions = 14;
+
+  // Threads (or goroutines, isolates) of the process at the time of the event,
+  // for crash reports. Usually only the crashed thread carries a stack trace.
+  // Max 64 threads.
+  repeated Thread threads = 15;
+
+  // Trail of events that happened before this event (log lines, HTTP calls,
+  // SQL queries, UI clicks, navigations), OLDEST first. Max 100 breadcrumbs;
+  // when more are sent the most recent 100 are kept.
+  repeated Breadcrumb breadcrumbs = 16;
+
+  // HTTP (or RPC) request that was being handled when the event occurred.
+  Request request = 17;
+
+  // Response that was sent (or was about to be sent) for request.
+  Response response = 18;
+
+  // End user affected by the event.
+  User user = 19;
+
+  // Structured information about the device, operating system, runtime,
+  // browser, application, process (CPU and memory), culture, trace, database
+  // query and cloud environment.
+  Contexts contexts = 20;
+
+  // Indexed key/value pairs used for search, filtering and the tag
+  // distribution charts of an issue, e.g. {"module": "billing",
+  // "payment_method": "card"}.
+  //
+  // Keys: max 64 characters, [A-Za-z0-9_.:-]. Values: max 200 characters.
+  // Max 50 tags. Keys starting with "izci." are reserved. Prefer
+  // low-cardinality values; put unique values such as order ids into extra.
+  map<string, string> tags = 21;
+
+  // Arbitrary additional data that is shown with the event but not indexed,
+  // e.g. {"order_id": 91512, "cart": {"items": 3}}. Max 64 KiB once encoded as
+  // JSON; larger payloads are dropped with a warning.
+  google.protobuf.Struct extra = 22;
+
+  // Custom grouping fingerprint. When set, events with an identical
+  // fingerprint are grouped into the same issue regardless of their stack
+  // traces. The special element "{{ default }}" stands for the fingerprint
+  // izci would have computed, so ["{{ default }}", "tenant-a"] splits the
+  // default group per tenant. Max 16 elements of 256 characters each.
+  //
+  // Sentry equivalent: fingerprint.
+  repeated string fingerprint = 23;
+
+  // SDK that produced the event.
+  Sdk sdk = 24;
+
+  // Versions of the libraries loaded by the application, name → version, e.g.
+  // {"github.com/jackc/pgx/v5": "v5.11.0"}. Helps to spot issues caused by a
+  // dependency upgrade. Max 500 entries.
+  map<string, string> modules = 25;
+}
+
+// Level is the severity of an event, from least to most severe.
+enum Level {
+  // Level not set. The server uses ERROR for events with exceptions and INFO
+  // for message-only events.
+  LEVEL_UNSPECIFIED = 0;
+  // Diagnostic information useful only while debugging.
+  LEVEL_DEBUG = 1;
+  // Informational message about normal operation.
+  LEVEL_INFO = 2;
+  // Something unexpected happened but the operation continued.
+  LEVEL_WARNING = 3;
+  // An operation failed. The default for exceptions.
+  LEVEL_ERROR = 4;
+  // The application (or a critical part of it) crashed or became unusable.
+  LEVEL_FATAL = 5;
+}
+
+// Customer identifies the organization on whose behalf the application was
+// running (for KentOS applications: the municipality or institution).
+//
+// Customers are shared across all projects of an izci organization: the same
+// customer id reported by two applications refers to the same customer.
+message Customer {
+  // Stable identifier of the customer, e.g. "sivas-belediyesi" or "C-10042".
+  // Used for grouping and filtering, so it must not change over time. Compared
+  // case-insensitively. Max 64 characters.
+  string id = 1;
+
+  // Display name, e.g. "Sivas Belediyesi". The most recently reported name
+  // wins and can be edited in the izci UI. Max 200 characters.
+  string name = 2;
+
+  // Additional descriptive attributes, e.g. {"plan": "premium", "region":
+  // "iç-anadolu"}. Max 20 entries; keys max 64, values max 200 characters.
+  map<string, string> attributes = 3;
+}
+
+// Tenant identifies a logical tenant inside a multi-tenant application.
+message Tenant {
+  // Stable identifier of the tenant within the application, e.g. "t-1932".
+  // Max 64 characters.
+  string id = 1;
+
+  // Display name of the tenant. Max 200 characters.
+  string name = 2;
+}
+
+// Message is a human-readable description of the event.
+message Message {
+  // Final text as shown to humans, e.g. "User 42 not found". Max 8 KiB.
+  string formatted = 1;
+
+  // Parameterized template the text was produced from, e.g.
+  // "User %s not found" or "User {UserId} not found". When present, izci
+  // groups message-only events by template instead of by formatted text, so
+  // "User 42 not found" and "User 43 not found" become one issue. Max 1 KiB.
+  string template = 2;
+
+  // Values substituted into template, in order. Max 32 values of 1 KiB.
+  repeated string params = 3;
+}
+
+// Exception is one error in an exception chain.
+message Exception {
+  // Type (class) of the error, e.g. "System.NullReferenceException",
+  // "TypeError", "*fs.PathError", "PSQLException". The most important
+  // grouping input together with the stack trace. Max 256 characters.
+  string type = 1;
+
+  // Error message, e.g. "Object reference not set to an instance of an
+  // object." Max 8 KiB.
+  string value = 2;
+
+  // Namespace, package or module that defines the type, e.g. "System" or
+  // "github.com/lib/pq". Max 256 characters.
+  string module = 3;
+
+  // Identifier of the thread that raised the exception; matches Thread.id.
+  string thread_id = 4;
+
+  // How the exception was captured (handled or not, by which mechanism).
+  Mechanism mechanism = 5;
+
+  // Stack trace at the point the exception was raised.
+  Stacktrace stacktrace = 6;
+}
+
+// Mechanism describes how an exception was captured.
+message Mechanism {
+  // Capture mechanism, e.g. "generic" (captured manually), "panic" (Go),
+  // "onerror" and "onunhandledrejection" (browser), "middleware" (HTTP
+  // middleware), "logger" (captured from a log call),
+  // "AppDomain.UnhandledException" (.NET), "FlutterError" (Flutter).
+  // Max 64 characters.
+  string type = 1;
+
+  // Whether the application handled the exception. False means the
+  // exception crashed the process or the request (unhandled); such events are
+  // highlighted and default to at least ERROR level. Unset means unknown.
+  optional bool handled = 2;
+
+  // True when the exception type was synthesized by the SDK (e.g. a
+  // non-exception value was thrown in JavaScript), which tells izci to ignore
+  // the type for grouping.
+  bool synthetic = 3;
+
+  // Free-form description of the mechanism. Max 1 KiB.
+  string description = 4;
+
+  // Link to documentation about this kind of error. Max 1 KiB.
+  string help_link = 5;
+
+  // Mechanism-specific data, e.g. {"signal": "SIGSEGV"}. Max 20 entries.
+  map<string, string> data = 6;
+
+  // Identifier of this exception inside an exception group (e.g. Python
+  // ExceptionGroup, .NET AggregateException). Unique within the event.
+  int32 exception_id = 7;
+
+  // exception_id of the parent exception inside an exception group.
+  optional int32 parent_id = 8;
+
+  // True when this exception is a group that aggregates child exceptions.
+  bool is_exception_group = 9;
+
+  // Attribute of the parent through which this exception was found, e.g.
+  // "__cause__", "InnerException" or "exceptions[2]".
+  string source = 10;
+}
+
+// Stacktrace is a list of stack frames.
+message Stacktrace {
+  // Frames ordered from the OLDEST call (e.g. main or the thread entry point)
+  // to the NEWEST call (the function that raised the error), so the crashing
+  // frame is the LAST element. Max 250 frames per stack trace; when longer,
+  // the oldest 50 and the newest 200 are kept.
+  repeated Frame frames = 1;
+
+  // CPU register values for native crashes, name → hexadecimal value, e.g.
+  // {"rip": "0x00007ff8a1b2c3d4"}.
+  map<string, string> registers = 2;
+}
+
+// Frame is a single stack frame.
+//
+// Provide at least a function or a filename. Frames of the application's own
+// code should be marked in_app = true; they are highlighted in the UI and are
+// the only frames used for grouping when present.
+message Frame {
+  // Function or method name, e.g. "OrderService.CreateOrder",
+  // "(*Server).handleRequest" or "handleSubmit". Max 256 characters.
+  string function = 1;
+
+  // Original (mangled or minified) function name before symbolication or
+  // demangling. Max 256 characters.
+  string raw_function = 2;
+
+  // Module, namespace or class the function belongs to, e.g.
+  // "KentOS.Kalem.Services" or "github.com/mcihad/app/internal/orders".
+  // Max 256 characters.
+  string module = 3;
+
+  // Library or assembly that contains the frame, e.g.
+  // "KentOS.Kalem.Application.dll" or "libsystem_kernel.dylib".
+  // Max 256 characters.
+  string package = 4;
+
+  // Path of the source file relative to the project root when known, e.g.
+  // "src/Services/OrderService.cs". Used for display, grouping and linking to
+  // the repository. Max 512 characters.
+  string filename = 5;
+
+  // Absolute path or URL of the source file on the machine that produced the
+  // event, e.g. "/app/src/Services/OrderService.cs" or
+  // "https://app.example.com/assets/index-3f2a1c.js". Max 1 KiB.
+  string abs_path = 6;
+
+  // 1-based line number. 0 means unknown.
+  uint32 lineno = 7;
+
+  // 1-based column number. 0 means unknown.
+  uint32 colno = 8;
+
+  // Source line at lineno, without the trailing newline. Max 1 KiB.
+  string context_line = 9;
+
+  // Up to 5 source lines immediately before context_line, oldest first.
+  repeated string pre_context = 10;
+
+  // Up to 5 source lines immediately after context_line.
+  repeated string post_context = 11;
+
+  // Whether the frame belongs to the application's own code (as opposed to a
+  // framework, the standard library or a dependency). Unset lets the server
+  // decide using the project's in-app rules and platform heuristics (e.g.
+  // node_modules, vendor, System.* are not in-app).
+  optional bool in_app = 12;
+
+  // Local variables at the time of the error, name → printed value. Values
+  // are scrubbed by the server like any other data. Max 50 entries of 1 KiB.
+  map<string, string> vars = 13;
+
+  // Instruction address for native frames, as hexadecimal, e.g.
+  // "0x0000000100a4c2f8".
+  string instruction_addr = 14;
+
+  // Symbol name for native frames when different from function.
+  string symbol = 15;
+
+  // Platform of this frame when it differs from Event.platform (mixed stacks,
+  // e.g. native frames under a Flutter app).
+  string platform = 16;
+}
+
+// Thread describes one thread (or goroutine, isolate) of the process.
+message Thread {
+  // Identifier of the thread, unique within the event, e.g. "1" or "main".
+  string id = 1;
+
+  // Name of the thread, e.g. "main" or "ThreadPool Worker #3".
+  string name = 2;
+
+  // True for the thread that crashed or raised the reported exception.
+  bool crashed = 3;
+
+  // True for the thread that was running when the event was captured.
+  bool current = 4;
+
+  // True for the main (UI) thread.
+  bool main = 5;
+
+  // Scheduler state, e.g. "Runnable", "Blocked", "Waiting".
+  string state = 6;
+
+  // Stack trace of the thread (same ordering as Exception.stacktrace).
+  Stacktrace stacktrace = 7;
+}
+
+// Breadcrumb is an event that happened before the reported event.
+message Breadcrumb {
+  // When the breadcrumb was recorded.
+  google.protobuf.Timestamp timestamp = 1;
+
+  // Kind of breadcrumb, which selects the icon and rendering in the UI:
+  // "default", "debug", "info", "error", "http", "navigation", "query" (SQL or
+  // other database call), "ui" (click, input), "user" (user action),
+  // "transaction". Unknown values render as "default".
+  string type = 2;
+
+  // Dotted category, e.g. "http.client", "db.sql", "ui.click", "auth",
+  // "console". Max 128 characters.
+  string category = 3;
+
+  // Severity of the breadcrumb.
+  Level level = 4;
+
+  // Human-readable description, e.g. "GET https://api.example.com/users -> 200"
+  // or the SQL statement. Max 8 KiB.
+  string message = 5;
+
+  // Structured data. Conventional keys by type:
+  // http → "method", "url", "status_code", "duration_ms";
+  // query → "db.system", "db.statement", "duration_ms", "rows";
+  // navigation → "from", "to". Max 8 KiB once encoded as JSON.
+  google.protobuf.Struct data = 6;
+}
+
+// Request describes the HTTP or RPC request being processed.
+message Request {
+  // HTTP method in upper case, e.g. "GET", "POST". For gRPC use "POST".
+  string method = 1;
+
+  // Absolute URL of the request, e.g.
+  // "https://kalem.example.com/api/orders/42". The query string may be
+  // included here or sent separately in query_string. Max 4 KiB.
+  string url = 2;
+
+  // Route template that matched the request, e.g. "/api/orders/{id}". Makes
+  // requests to different ids comparable. Max 512 characters.
+  string route = 3;
+
+  // Raw query string without the leading "?", e.g. "page=2&sort=desc".
+  // Sensitive parameters (token, password, …) are scrubbed by the server.
+  // Max 4 KiB.
+  string query_string = 4;
+
+  // Request headers in the order they were received; repeated headers appear
+  // multiple times. Authorization, Cookie, Proxy-Authorization, X-Api-Key and
+  // similar credentials are always scrubbed by the server. Browser headers such
+  // as User-Agent, Accept-Language and Referer are parsed into the browser,
+  // os and device contexts. Max 100 headers; values max 2 KiB.
+  repeated Header headers = 5;
+
+  // Cookies, name → value. Values are scrubbed by default; only the names are
+  // kept unless the project allows cookie values. Max 50 cookies.
+  map<string, string> cookies = 6;
+
+  // Request body as text (JSON, form data, …). Max 16 KiB; larger bodies are
+  // truncated. Sensitive fields are scrubbed by the server.
+  string body = 7;
+
+  // Size of the full request body in bytes, even when body was truncated or
+  // omitted.
+  int64 body_size = 8;
+
+  // Protocol of the request, e.g. "HTTP/1.1", "HTTP/2", "gRPC".
+  string protocol = 9;
+
+  // Network address of the peer as seen by the application (may be a proxy),
+  // e.g. "10.0.4.17". The end user's address belongs in User.ip_address.
+  string remote_addr = 10;
+
+  // Selected server environment variables for the request (CGI style), e.g.
+  // {"SERVER_NAME": "kalem.example.com"}. Max 50 entries.
+  map<string, string> env = 11;
+
+  // URL fragment without the leading "#", for browser applications.
+  string fragment = 12;
+}
+
+// Header is one HTTP header.
+message Header {
+  // Header name as received, e.g. "User-Agent". Compared case-insensitively.
+  string name = 1;
+
+  // Header value. Max 2 KiB.
+  string value = 2;
+}
+
+// Response describes the response to Request.
+message Response {
+  // HTTP status code, e.g. 500. For gRPC, the HTTP status of the transport.
+  uint32 status_code = 1;
+
+  // Response headers (same rules as Request.headers).
+  repeated Header headers = 2;
+
+  // Size of the response body in bytes.
+  int64 body_size = 3;
+}
+
+// User identifies the end user affected by the event.
+//
+// Provide at least one of id, username, email or ip_address; izci counts
+// distinct users per issue using the first one that is present.
+message User {
+  // Stable identifier of the user in the application, e.g. "42" or a UUID.
+  // Max 128 characters.
+  string id = 1;
+
+  // Login name. Max 128 characters.
+  string username = 2;
+
+  // Email address. Max 256 characters.
+  string email = 3;
+
+  // Display name. Max 200 characters.
+  string name = 4;
+
+  // IPv4 or IPv6 address of the user. The special value "{{auto}}" asks the
+  // server to use the client address of the ingest request (resolved through
+  // trusted proxies). Depending on project privacy settings the address is
+  // stored as is, anonymized (last octet removed) or not at all.
+  string ip_address = 5;
+
+  // Role, plan or group of the user, e.g. "admin", "citizen", "staff".
+  // Max 64 characters.
+  string segment = 6;
+
+  // Additional attributes, e.g. {"department": "imar"}. Max 20 entries.
+  map<string, string> attributes = 7;
+
+  // Geographic location of the user, when known to the application.
+  Geo geo = 8;
+}
+
+// Geo is an approximate geographic location.
+message Geo {
+  // ISO 3166-1 alpha-2 country code, e.g. "TR".
+  string country_code = 1;
+
+  // Region or province, e.g. "Sivas".
+  string region = 2;
+
+  // City or district, e.g. "Merkez".
+  string city = 3;
+}
+
+// Contexts groups structured, well-known context blocks.
+//
+// All blocks are optional; send what the platform can observe cheaply.
+// Server-side SDKs should at least send runtime, os, process (CPU and memory)
+// and device.memory. Browser SDKs usually rely on the server parsing the
+// User-Agent header into browser, os and device.
+message Contexts {
+  // Physical or virtual device: model, CPU and memory state, storage, screen.
+  DeviceContext device = 1;
+
+  // Operating system.
+  OsContext os = 2;
+
+  // Language runtime, e.g. Go, .NET, Node.js, Dart VM.
+  RuntimeContext runtime = 3;
+
+  // Web browser (browser applications).
+  BrowserContext browser = 4;
+
+  // Application metadata: name, version, start time, memory usage.
+  AppContext app = 5;
+
+  // The reporting process: pid, CPU usage, memory, threads, garbage
+  // collection.
+  ProcessContext process = 6;
+
+  // Graphics processor (mobile and desktop applications).
+  GpuContext gpu = 7;
+
+  // Locale and timezone settings.
+  CultureContext culture = 8;
+
+  // Distributed tracing identifiers linking the event to a trace.
+  TraceContext trace = 9;
+
+  // Database operation related to the event (e.g. the failing SQL query).
+  DatabaseContext database = 10;
+
+  // Cloud, container or orchestrator environment.
+  CloudContext cloud = 11;
+
+  // Additional named context blocks, e.g. {"payment": {"provider": "iyzico",
+  // "attempt": 2}}. Max 20 blocks, 8 KiB each once encoded as JSON.
+  map<string, google.protobuf.Struct> custom = 12;
+}
+
+// DeviceContext describes the device the application runs on.
+message DeviceContext {
+  // Name of the device, e.g. "Pixel 8", "MacBook Pro" or the host name.
+  string name = 1;
+
+  // Device family, e.g. "iPhone", "Android", "Desktop", "Server".
+  string family = 2;
+
+  // Model name, e.g. "iPhone15,2", "SM-S918B".
+  string model = 3;
+
+  // Internal model identifier.
+  string model_id = 4;
+
+  // Manufacturer, e.g. "Samsung", "Apple", "Dell".
+  string manufacturer = 5;
+
+  // Brand, e.g. "Galaxy".
+  string brand = 6;
+
+  // CPU architecture, e.g. "amd64", "arm64", "x86".
+  string arch = 7;
+
+  // Form factor: "desktop", "mobile", "tablet", "server", "tv", "embedded".
+  string device_type = 8;
+
+  // True when running in a simulator or emulator.
+  bool simulator = 9;
+
+  // Screen orientation: "portrait" or "landscape".
+  string orientation = 10;
+
+  // Battery level, 0–100.
+  optional float battery_level = 11;
+
+  // Whether the device is charging.
+  optional bool charging = 12;
+
+  // Whether the device had network connectivity.
+  optional bool online = 13;
+
+  // CPU information and load.
+  CpuInfo cpu = 14;
+
+  // System memory state.
+  MemoryInfo memory = 15;
+
+  // Storage state of the main volume.
+  StorageInfo storage = 16;
+
+  // Primary screen.
+  ScreenInfo screen = 17;
+
+  // When the device booted.
+  google.protobuf.Timestamp boot_time = 18;
+}
+
+// CpuInfo describes the processors and their load.
+message CpuInfo {
+  // Number of logical CPUs available to the process (after container limits
+  // when known), e.g. runtime.NumCPU() in Go.
+  uint32 count = 1;
+
+  // Number of physical cores, when known.
+  uint32 physical_count = 2;
+
+  // Processor model, e.g. "Apple M3 Pro", "Intel(R) Xeon(R) Gold 6338".
+  string model = 3;
+
+  // Nominal clock frequency in MHz.
+  double frequency_mhz = 4;
+
+  // System-wide CPU utilization in percent (0–100) sampled around the time of
+  // the event.
+  optional double usage_percent = 5;
+
+  // Load averages over 1, 5 and 15 minutes (Unix-like systems), in that
+  // order.
+  repeated double load_average = 6;
+}
+
+// MemoryInfo describes system memory.
+message MemoryInfo {
+  // Total physical memory in bytes (container limit when known).
+  uint64 total_bytes = 1;
+
+  // Free (unused) memory in bytes.
+  uint64 free_bytes = 2;
+
+  // Memory available to new allocations without swapping, in bytes (Linux
+  // MemAvailable). Usually larger than free_bytes.
+  uint64 available_bytes = 3;
+
+  // Used memory in bytes.
+  uint64 used_bytes = 4;
+
+  // Used memory in percent (0–100).
+  optional double used_percent = 5;
+
+  // Total swap space in bytes.
+  uint64 swap_total_bytes = 6;
+
+  // Free swap space in bytes.
+  uint64 swap_free_bytes = 7;
+
+  // True when the operating system reported a low-memory condition.
+  bool low_memory = 8;
+}
+
+// StorageInfo describes the main storage volume.
+message StorageInfo {
+  // Total capacity in bytes.
+  uint64 total_bytes = 1;
+
+  // Free space in bytes.
+  uint64 free_bytes = 2;
+}
+
+// ScreenInfo describes the primary screen.
+message ScreenInfo {
+  // Width in physical pixels.
+  uint32 width_pixels = 1;
+
+  // Height in physical pixels.
+  uint32 height_pixels = 2;
+
+  // Pixel density (device pixel ratio), e.g. 2.0 or 3.0.
+  double density = 3;
+
+  // Dots per inch.
+  uint32 dpi = 4;
+}
+
+// OsContext describes the operating system.
+message OsContext {
+  // Name, e.g. "Linux", "Windows", "macOS", "Android", "iOS".
+  string name = 1;
+
+  // Version, e.g. "24.04", "10.0.26100", "15.3".
+  string version = 2;
+
+  // Build identifier, e.g. "24D60".
+  string build = 3;
+
+  // Kernel version, e.g. "6.8.0-45-generic".
+  string kernel_version = 4;
+
+  // Whether the device is rooted or jailbroken.
+  optional bool rooted = 5;
+
+  // Unparsed description when name and version are not available separately,
+  // e.g. "Ubuntu 24.04.1 LTS".
+  string raw_description = 6;
+
+  // Distribution for Linux, e.g. "ubuntu", "alpine", "debian".
+  string distribution = 7;
+}
+
+// RuntimeContext describes the language runtime.
+message RuntimeContext {
+  // Name, e.g. "go", ".NET", "node", "dart", "CPython", "JVM".
+  string name = 1;
+
+  // Version, e.g. "1.26.1", "10.0.0", "24.14.0".
+  string version = 2;
+
+  // Build or flavor, e.g. "release", "aot".
+  string build = 3;
+
+  // Unparsed description, e.g. ".NET 10.0.0-rc.1".
+  string raw_description = 4;
+}
+
+// BrowserContext describes the web browser.
+message BrowserContext {
+  // Browser name, e.g. "Chrome", "Firefox", "Safari", "Edge".
+  string name = 1;
+
+  // Browser version, e.g. "129.0.6668.58".
+  string version = 2;
+
+  // Raw User-Agent string, when it is not sent as a request header. The
+  // server parses it into browser, os and device information.
+  string user_agent = 3;
+}
+
+// AppContext describes the application.
+message AppContext {
+  // Application identifier, e.g. bundle id "tr.gov.sivas.mobil".
+  string id = 1;
+
+  // Human-readable application name, e.g. "KentOS Kalem".
+  string name = 2;
+
+  // User-visible version, e.g. "1.4.2".
+  string version = 3;
+
+  // Build number, e.g. "241".
+  string build = 4;
+
+  // When the application instance started.
+  google.protobuf.Timestamp start_time = 5;
+
+  // Whether the application was in the foreground (mobile/desktop).
+  optional bool in_foreground = 6;
+
+  // Memory used by the application in bytes.
+  uint64 memory_bytes = 7;
+}
+
+// ProcessContext describes the reporting process and its resource usage.
+message ProcessContext {
+  // Operating system process id.
+  uint32 pid = 1;
+
+  // Executable name, e.g. "izci", "dotnet", "node".
+  string name = 2;
+
+  // Command line. Scrubbed by the server; avoid sending secrets passed as
+  // arguments. Max 2 KiB.
+  string command_line = 3;
+
+  // When the process started.
+  google.protobuf.Timestamp start_time = 4;
+
+  // Time since the process started.
+  google.protobuf.Duration uptime = 5;
+
+  // CPU used by this process in percent of one core over the recent
+  // sampling interval (can exceed 100 on multi-core systems).
+  optional double cpu_percent = 6;
+
+  // Resident set size (physical memory) in bytes.
+  uint64 rss_bytes = 7;
+
+  // Bytes of allocated heap objects (Go HeapAlloc, .NET GC heap size, V8
+  // usedHeapSize).
+  uint64 heap_alloc_bytes = 8;
+
+  // Heap memory obtained from the operating system in bytes (Go HeapSys, V8
+  // totalHeapSize).
+  uint64 heap_sys_bytes = 9;
+
+  // Number of completed garbage collection cycles.
+  uint32 gc_count = 10;
+
+  // Cumulative garbage collection pause time.
+  google.protobuf.Duration gc_pause_total = 11;
+
+  // Number of operating system threads.
+  uint32 threads = 12;
+
+  // Number of goroutines (Go) or green threads.
+  uint32 goroutines = 13;
+
+  // Number of open file descriptors or handles.
+  uint32 open_fds = 14;
+
+  // User-mode CPU time consumed by the process.
+  google.protobuf.Duration cpu_time_user = 15;
+
+  // Kernel-mode CPU time consumed by the process.
+  google.protobuf.Duration cpu_time_system = 16;
+
+  // Working directory of the process.
+  string working_directory = 17;
+}
+
+// GpuContext describes the graphics processor.
+message GpuContext {
+  // GPU name, e.g. "Apple M3 Pro", "Adreno 740".
+  string name = 1;
+
+  // Vendor, e.g. "Apple", "Qualcomm", "NVIDIA".
+  string vendor_name = 2;
+
+  // Video memory in bytes.
+  uint64 memory_bytes = 3;
+
+  // Graphics API, e.g. "Metal", "Vulkan", "WebGL 2".
+  string api_type = 4;
+
+  // Driver version.
+  string driver_version = 5;
+}
+
+// CultureContext describes locale settings.
+message CultureContext {
+  // BCP 47 locale, e.g. "tr-TR".
+  string locale = 1;
+
+  // IANA timezone, e.g. "Europe/Istanbul".
+  string timezone = 2;
+
+  // Calendar system, e.g. "gregorian".
+  string calendar = 3;
+
+  // Whether the user prefers a 24-hour clock.
+  optional bool is_24_hour_format = 4;
+}
+
+// TraceContext links the event to a distributed trace.
+message TraceContext {
+  // W3C trace id: 32 lowercase hexadecimal characters.
+  string trace_id = 1;
+
+  // Span id of the active span: 16 lowercase hexadecimal characters.
+  string span_id = 2;
+
+  // Span id of the parent span.
+  string parent_span_id = 3;
+
+  // Operation name of the active span, e.g. "http.server".
+  string op = 4;
+
+  // Status of the span, e.g. "ok", "internal_error".
+  string status = 5;
+}
+
+// DatabaseContext describes a database operation related to the event —
+// typically the query that failed.
+message DatabaseContext {
+  // Database system: "postgresql", "mssql", "oracle", "mysql", "sqlite",
+  // "mongodb", "redis", …
+  string system = 1;
+
+  // Database (catalog) name.
+  string name = 2;
+
+  // Statement text, e.g. "SELECT * FROM orders WHERE id = $1". Prefer
+  // parameterized statements; literals are scrubbed for known patterns but
+  // the SDK should not inline sensitive values. Max 8 KiB.
+  string statement = 3;
+
+  // Operation, e.g. "SELECT", "INSERT", "findOne".
+  string operation = 4;
+
+  // Duration of the operation in milliseconds.
+  double duration_ms = 5;
+
+  // Bound parameter values as text, in order. Scrubbed by the server; send
+  // only when useful and safe. Max 50 values of 1 KiB.
+  repeated string parameters = 6;
+
+  // Host (and port) of the database server, e.g. "db-primary:5432".
+  string host = 7;
+
+  // Number of rows returned or affected, when known.
+  optional int64 rows = 8;
+
+  // Database-specific error code, e.g. PostgreSQL SQLSTATE "23505" or SQL
+  // Server error number "2627".
+  string error_code = 9;
+}
+
+// CloudContext describes the hosting environment.
+message CloudContext {
+  // Provider, e.g. "aws", "azure", "gcp", "hetzner", "on-premise".
+  string provider = 1;
+
+  // Region, e.g. "eu-central-1".
+  string region = 2;
+
+  // Availability zone, e.g. "eu-central-1a".
+  string availability_zone = 3;
+
+  // Account or subscription id.
+  string account_id = 4;
+
+  // Virtual machine or instance id.
+  string instance_id = 5;
+
+  // Orchestrator or platform, e.g. "kubernetes", "docker", "dokploy", "iis".
+  string platform = 6;
+
+  // Cluster name.
+  string cluster = 7;
+
+  // Kubernetes namespace.
+  string namespace = 8;
+
+  // Pod name.
+  string pod = 9;
+
+  // Container name or id.
+  string container = 10;
+
+  // Node (host) name.
+  string node = 11;
+}
+
+// Sdk identifies the SDK that produced the event.
+message Sdk {
+  // SDK name, e.g. "izci.go", "sentry.dotnet", "sentry.javascript.browser".
+  string name = 1;
+
+  // SDK version, e.g. "0.3.0".
+  string version = 2;
+
+  // Enabled integrations, e.g. ["http", "slog", "pgx"].
+  repeated string integrations = 3;
+
+  // Packages that make up the SDK.
+  repeated SdkPackage packages = 4;
+}
+
+// SdkPackage is one package of an SDK.
+message SdkPackage {
+  // Package name, e.g. "go:github.com/mcihad/kentos-izci/sdk/go".
+  string name = 1;
+
+  // Package version.
+  string version = 2;
+}

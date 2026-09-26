@@ -1,0 +1,393 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "izci/api/v1/common.proto";
+
+// AuthService handles first-run setup, sign-in and sessions.
+//
+// Methods of this service do not require the Izci-Org header. Login,
+// CompleteSetup, SignUp and AcceptInvitation set the "izci_session" cookie
+// (HttpOnly, Secure, SameSite=Lax); Logout clears it. OpenID Connect sign-in
+// is a browser redirect flow outside of this service: open
+// AuthProvider.login_url.
+service AuthService {
+  // GetSetupState tells whether the instance still needs its initial setup
+  // (no user exists yet). Callable without authentication.
+  rpc GetSetupState(GetSetupStateRequest) returns (GetSetupStateResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // CompleteSetup creates the first user (an instance superadmin and owner),
+  // the first organization and the first project, then signs the user in.
+  // Fails with ERROR_REASON_SETUP_COMPLETED once any user exists.
+  rpc CompleteSetup(CompleteSetupRequest) returns (CompleteSetupResponse);
+
+  // ListAuthProviders lists the sign-in options shown on the login page.
+  // Callable without authentication.
+  rpc ListAuthProviders(ListAuthProvidersRequest) returns (ListAuthProvidersResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // Login signs in with email and password. Repeated failures are rate
+  // limited per account and per client address
+  // (ERROR_REASON_TOO_MANY_ATTEMPTS).
+  rpc Login(LoginRequest) returns (LoginResponse);
+
+  // Logout ends the current session.
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
+
+  // GetSession returns the signed-in user and their organizations. Fails
+  // with UNAUTHENTICATED when there is no valid session.
+  rpc GetSession(GetSessionRequest) returns (GetSessionResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // ChangePassword changes (or, for accounts created through OpenID Connect,
+  // sets) the password of the signed-in user and ends their other sessions.
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+
+  // SignUp creates an account together with a new organization when self
+  // sign-up is open (AUTH_SIGNUP=open), then signs the user in.
+  rpc SignUp(SignUpRequest) returns (SignUpResponse);
+
+  // GetInvitation describes a pending invitation by its token. Callable
+  // without authentication so the invitation page can render.
+  rpc GetInvitation(GetInvitationRequest) returns (GetInvitationResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // AcceptInvitation joins the invited organization. A signed-in user joins
+  // with their account; otherwise an account is created from name and
+  // password for the invited email address.
+  rpc AcceptInvitation(AcceptInvitationRequest) returns (AcceptInvitationResponse);
+}
+
+// SignupMode controls who may create accounts.
+enum SignupMode {
+  // Not set.
+  SIGNUP_MODE_UNSPECIFIED = 0;
+  // Accounts are created only through invitations (and OpenID Connect
+  // just-in-time provisioning when enabled).
+  SIGNUP_MODE_INVITE = 1;
+  // Anyone may sign up and create an organization.
+  SIGNUP_MODE_OPEN = 2;
+  // No new accounts except by instance administrators.
+  SIGNUP_MODE_CLOSED = 3;
+}
+
+// User is an izci account.
+message User {
+  // User id (UUID).
+  string id = 1;
+
+  // Email address, unique per instance.
+  string email = 2;
+
+  // Display name.
+  string name = 3;
+
+  // Avatar image URL (from the identity provider or Gravatar), may be empty.
+  string avatar_url = 4;
+
+  // Whether the user administers the whole instance (all organizations).
+  bool superadmin = 5;
+
+  // Whether the account has a local password (OpenID Connect-only accounts
+  // do not).
+  bool has_password = 6;
+
+  // Identity providers linked to the account, e.g. ["kimlik"].
+  repeated string linked_providers = 7;
+
+  // Linked Telegram account, when any.
+  TelegramAccount telegram = 8;
+
+  // When the account was created.
+  google.protobuf.Timestamp created_at = 9;
+}
+
+// TelegramAccount is a Telegram user linked to an izci account, which lets
+// the user act on notification buttons.
+message TelegramAccount {
+  // Telegram user id.
+  int64 user_id = 1;
+
+  // Telegram username without "@", may be empty.
+  string username = 2;
+
+  // When the account was linked.
+  google.protobuf.Timestamp linked_at = 3;
+}
+
+// Membership is a user's role in one organization.
+message Membership {
+  // The organization.
+  OrganizationRef organization = 1;
+
+  // The user's role in it.
+  Role role = 2;
+}
+
+// Session describes the signed-in user.
+message Session {
+  // The signed-in user.
+  User user = 1;
+
+  // Organizations the user belongs to, ordered by name.
+  repeated Membership memberships = 2;
+
+  // When the session expires unless it is used again (sliding expiration).
+  google.protobuf.Timestamp expires_at = 3;
+}
+
+// AuthProvider is an OpenID Connect identity provider.
+message AuthProvider {
+  // Provider id used in URLs, e.g. "kimlik".
+  string id = 1;
+
+  // Button label, e.g. "KentOS Kimlik".
+  string display_name = 2;
+
+  // Icon hint for the button: "kimlik", "google", "microsoft", "keycloak",
+  // "github" or "generic".
+  string icon = 3;
+
+  // Relative URL that starts the sign-in redirect, e.g.
+  // "/auth/oidc/kimlik/start". Append "?next=/path" to return to a page.
+  string login_url = 4;
+}
+
+// Invitation invites an email address into an organization.
+message Invitation {
+  // Invitation id (UUID).
+  string id = 1;
+
+  // Organization to join.
+  OrganizationRef organization = 2;
+
+  // Invited email address.
+  string email = 3;
+
+  // Role granted on acceptance.
+  Role role = 4;
+
+  // Who sent the invitation.
+  UserRef invited_by = 5;
+
+  // When the invitation was created.
+  google.protobuf.Timestamp created_at = 6;
+
+  // When the invitation stops being valid.
+  google.protobuf.Timestamp expires_at = 7;
+
+  // Link to share with the invitee. Only returned to organization admins
+  // right after InviteMember.
+  string url = 8;
+}
+
+// GetSetupStateRequest has no fields.
+message GetSetupStateRequest {}
+
+// GetSetupStateResponse reports whether setup is pending.
+message GetSetupStateResponse {
+  // True when no user exists yet and the setup screen must be shown.
+  bool setup_required = 1;
+
+  // Server version, e.g. "v1.0.0".
+  string version = 2;
+
+  // Configured public base URL of the instance.
+  string public_url = 3;
+}
+
+// CompleteSetupRequest holds the first user, organization and project.
+message CompleteSetupRequest {
+  // Display name of the first user.
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+
+  // Email address of the first user.
+  string email = 2 [(buf.validate.field).string.email = true];
+
+  // Password of the first user, at least 10 characters.
+  string password = 3 [(buf.validate.field).string = {
+    min_len: 10
+    max_len: 200
+  }];
+
+  // Display name of the first organization, e.g. "KentOS".
+  string organization_name = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // Slug of the first organization: 2–50 lowercase letters, digits or
+  // hyphens, starting with a letter, e.g. "kentos".
+  string organization_slug = 5 [(buf.validate.field).string.pattern = "^[a-z][a-z0-9-]{0,48}[a-z0-9]$"];
+
+  // Display name of the first project, e.g. "KentOS Kalem".
+  string project_name = 6 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // Platform of the first project, e.g. "dotnet".
+  string project_platform = 7 [(buf.validate.field).string.max_len = 32];
+}
+
+// CompleteSetupResponse returns the new session and the first API key.
+message CompleteSetupResponse {
+  // Session of the new user.
+  Session session = 1;
+
+  // Slug of the created project.
+  string project_slug = 2;
+
+  // Ingest API key of the created project. Shown only once.
+  string api_key = 3;
+}
+
+// ListAuthProvidersRequest has no fields.
+message ListAuthProvidersRequest {}
+
+// ListAuthProvidersResponse lists sign-in options.
+message ListAuthProvidersResponse {
+  // Configured OpenID Connect providers.
+  repeated AuthProvider providers = 1;
+
+  // Whether email + password sign-in is enabled.
+  bool password_login_enabled = 2;
+
+  // Who may create new accounts.
+  SignupMode signup_mode = 3;
+}
+
+// LoginRequest holds credentials.
+message LoginRequest {
+  // Email address.
+  string email = 1 [(buf.validate.field).string = {
+    min_len: 3
+    max_len: 320
+  }];
+
+  // Password.
+  string password = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+}
+
+// LoginResponse returns the new session.
+message LoginResponse {
+  // Session of the signed-in user.
+  Session session = 1;
+}
+
+// LogoutRequest has no fields.
+message LogoutRequest {}
+
+// LogoutResponse has no fields.
+message LogoutResponse {}
+
+// GetSessionRequest has no fields.
+message GetSessionRequest {}
+
+// GetSessionResponse returns the current session.
+message GetSessionResponse {
+  // Current session.
+  Session session = 1;
+}
+
+// ChangePasswordRequest holds the old and new password.
+message ChangePasswordRequest {
+  // Current password; may be empty only when the account has no password.
+  string current_password = 1 [(buf.validate.field).string.max_len = 200];
+
+  // New password, at least 10 characters.
+  string new_password = 2 [(buf.validate.field).string = {
+    min_len: 10
+    max_len: 200
+  }];
+}
+
+// ChangePasswordResponse has no fields.
+message ChangePasswordResponse {}
+
+// SignUpRequest creates an account and an organization.
+message SignUpRequest {
+  // Display name.
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+
+  // Email address.
+  string email = 2 [(buf.validate.field).string.email = true];
+
+  // Password, at least 10 characters.
+  string password = 3 [(buf.validate.field).string = {
+    min_len: 10
+    max_len: 200
+  }];
+
+  // Display name of the new organization.
+  string organization_name = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // Slug of the new organization (same rules as in CompleteSetupRequest).
+  string organization_slug = 5 [(buf.validate.field).string.pattern = "^[a-z][a-z0-9-]{0,48}[a-z0-9]$"];
+}
+
+// SignUpResponse returns the new session.
+message SignUpResponse {
+  // Session of the new user.
+  Session session = 1;
+}
+
+// GetInvitationRequest identifies an invitation.
+message GetInvitationRequest {
+  // Invitation token from the invitation link.
+  string token = 1 [(buf.validate.field).string = {
+    min_len: 16
+    max_len: 128
+  }];
+}
+
+// GetInvitationResponse describes the invitation.
+message GetInvitationResponse {
+  // The invitation.
+  Invitation invitation = 1;
+
+  // Whether an account with the invited email already exists (the page then
+  // asks the user to sign in instead of choosing a password).
+  bool account_exists = 2;
+}
+
+// AcceptInvitationRequest accepts an invitation.
+message AcceptInvitationRequest {
+  // Invitation token from the invitation link.
+  string token = 1 [(buf.validate.field).string = {
+    min_len: 16
+    max_len: 128
+  }];
+
+  // Display name for a new account; ignored for signed-in users.
+  string name = 2 [(buf.validate.field).string.max_len = 200];
+
+  // Password for a new account (at least 10 characters); ignored for
+  // signed-in users.
+  string password = 3 [(buf.validate.field).string.max_len = 200];
+}
+
+// AcceptInvitationResponse returns the resulting session.
+message AcceptInvitationResponse {
+  // Session of the user, now a member of the organization.
+  Session session = 1;
+}

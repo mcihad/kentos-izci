@@ -1,0 +1,196 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "izci/api/v1/common.proto";
+
+// IntegrationService connects the organization to source-code hosts
+// (GitHub), which izci uses to link stack frames to source, to let the AI
+// agent read the code and to push fix branches and open pull requests.
+//
+// Two connection types exist: a fine-grained personal access token (stored
+// encrypted) and the izci GitHub App (short-lived installation tokens;
+// requires GITHUB_APP_* configuration on the instance).
+service IntegrationService {
+  // ListIntegrations lists connected accounts. Requires ROLE_VIEWER.
+  rpc ListIntegrations(ListIntegrationsRequest) returns (ListIntegrationsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // ConnectGitHubToken validates and stores a GitHub token. The token needs
+  // "Contents: read and write", "Pull requests: read and write" and
+  // "Metadata: read" on the repositories izci should use. Requires
+  // ROLE_ADMIN.
+  rpc ConnectGitHubToken(ConnectGitHubTokenRequest) returns (ConnectGitHubTokenResponse);
+
+  // StartGitHubAppInstallation returns the URL that installs the izci GitHub
+  // App; GitHub redirects back to izci, which stores the installation.
+  // Requires ROLE_ADMIN.
+  rpc StartGitHubAppInstallation(StartGitHubAppInstallationRequest) returns (StartGitHubAppInstallationResponse);
+
+  // ListRepositories lists repositories reachable through an integration.
+  // Requires ROLE_ADMIN.
+  rpc ListRepositories(ListRepositoriesRequest) returns (ListRepositoriesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // DeleteIntegration disconnects an account; linked projects lose AI fix
+  // features. Requires ROLE_ADMIN.
+  rpc DeleteIntegration(DeleteIntegrationRequest) returns (DeleteIntegrationResponse);
+
+  // GetGitHubStatus reports whether the GitHub App is configured on the
+  // instance. Requires ROLE_VIEWER.
+  rpc GetGitHubStatus(GetGitHubStatusRequest) returns (GetGitHubStatusResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+}
+
+// Integration is a connected source-code host account.
+message Integration {
+  // Integration id (UUID).
+  string id = 1;
+
+  // Host, currently always "github".
+  string provider = 2;
+
+  // How izci authenticates.
+  IntegrationAuth auth = 3;
+
+  // Descriptive name.
+  string name = 4;
+
+  // Account (user or organization) login, e.g. "mcihad".
+  string account_login = 5;
+
+  // Account avatar URL.
+  string account_avatar_url = 6;
+
+  // GitHub App installation id for INTEGRATION_AUTH_APP.
+  int64 installation_id = 7;
+
+  // Whether the last verification succeeded.
+  bool healthy = 8;
+
+  // Last verification error, empty when healthy.
+  string status_message = 9;
+
+  // Who connected it.
+  UserRef created_by = 10;
+
+  // When it was connected.
+  google.protobuf.Timestamp created_at = 11;
+
+  // When the credentials were last verified.
+  google.protobuf.Timestamp verified_at = 12;
+}
+
+// IntegrationAuth is how izci authenticates to the host.
+enum IntegrationAuth {
+  // Not set.
+  INTEGRATION_AUTH_UNSPECIFIED = 0;
+  // A personal access token, stored encrypted.
+  INTEGRATION_AUTH_TOKEN = 1;
+  // A GitHub App installation.
+  INTEGRATION_AUTH_APP = 2;
+}
+
+// Repository is a repository reachable through an integration.
+message Repository {
+  // Owner login.
+  string owner = 1;
+
+  // Repository name.
+  string name = 2;
+
+  // "owner/name".
+  string full_name = 3;
+
+  // Web URL.
+  string url = 4;
+
+  // Default branch.
+  string default_branch = 5;
+
+  // Whether the repository is private.
+  bool private = 6;
+
+  // Description.
+  string description = 7;
+}
+
+// ListIntegrationsRequest has no fields.
+message ListIntegrationsRequest {}
+
+// ListIntegrationsResponse lists integrations.
+message ListIntegrationsResponse {
+  // Integrations, newest first.
+  repeated Integration integrations = 1;
+}
+
+// ConnectGitHubTokenRequest holds a token.
+message ConnectGitHubTokenRequest {
+  // Descriptive name.
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // The token ("github_pat_…" or "ghp_…").
+  string token = 2 [(buf.validate.field).string = {
+    min_len: 20
+    max_len: 255
+  }];
+}
+
+// ConnectGitHubTokenResponse returns the integration.
+message ConnectGitHubTokenResponse {
+  // The stored integration.
+  Integration integration = 1;
+}
+
+// StartGitHubAppInstallationRequest has no fields.
+message StartGitHubAppInstallationRequest {}
+
+// StartGitHubAppInstallationResponse holds the install URL.
+message StartGitHubAppInstallationResponse {
+  // URL to open in the browser.
+  string install_url = 1;
+}
+
+// ListRepositoriesRequest selects the integration.
+message ListRepositoriesRequest {
+  // Integration id.
+  string integration_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // Text matched against repository names.
+  string query = 2 [(buf.validate.field).string.max_len = 100];
+}
+
+// ListRepositoriesResponse lists repositories.
+message ListRepositoriesResponse {
+  // Repositories ordered by name (max 100).
+  repeated Repository repositories = 1;
+}
+
+// DeleteIntegrationRequest identifies the integration.
+message DeleteIntegrationRequest {
+  // Integration id.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// DeleteIntegrationResponse has no fields.
+message DeleteIntegrationResponse {}
+
+// GetGitHubStatusRequest has no fields.
+message GetGitHubStatusRequest {}
+
+// GetGitHubStatusResponse reports GitHub App availability.
+message GetGitHubStatusResponse {
+  // Whether the GitHub App is configured.
+  bool app_configured = 1;
+
+  // App slug, used in installation URLs.
+  string app_slug = 2;
+}

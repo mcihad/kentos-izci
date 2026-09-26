@@ -1,0 +1,646 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "izci/api/v1/common.proto";
+import "izci/api/v1/event.proto";
+import "izci/ingest/v1/event.proto";
+
+// IssueService lists, inspects and triages issues of the current
+// organization.
+//
+// An issue is a group of events that share a fingerprint (see
+// docs/gruplama.md). Search queries use the izci search language, e.g.
+//
+//   is:unresolved level:error customer:sivas-belediyesi release:1.4.2
+//   browser:Chrome !environment:staging "timeout"
+//
+// Supported keys: is (unresolved, resolved, ignored, new, regressed,
+// escalating, assigned, unassigned, unhandled), level, project, environment
+// (env), release, customer, tenant, user, browser, os, device, server,
+// assigned (me, none, an email), type, file, has (ai, user, customer),
+// first_seen / last_seen (-24h, -7d, >2026-09-01), times_seen (>100),
+// priority, and any custom tag key. Prefix a term with "!" to negate it;
+// quoted or bare words search titles, messages and culprits.
+service IssueService {
+  // ListIssues searches issues. Requires ROLE_VIEWER.
+  rpc ListIssues(ListIssuesRequest) returns (ListIssuesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // GetIssue returns one issue by id or short id. Requires ROLE_VIEWER.
+  rpc GetIssue(GetIssueRequest) returns (GetIssueResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // UpdateIssues changes status, assignee or priority of up to 100 issues at
+  // once. Requires ROLE_MEMBER.
+  rpc UpdateIssues(UpdateIssuesRequest) returns (UpdateIssuesResponse);
+
+  // ListIssueEvents pages through the events of an issue, newest first.
+  // Requires ROLE_VIEWER.
+  rpc ListIssueEvents(ListIssueEventsRequest) returns (ListIssueEventsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // GetIssueStats returns the event count series of an issue. Requires
+  // ROLE_VIEWER.
+  rpc GetIssueStats(GetIssueStatsRequest) returns (GetIssueStatsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // GetIssueTagFacets returns the distribution of tag values (customer,
+  // tenant, release, browser, …) across the events of an issue. Requires
+  // ROLE_VIEWER.
+  rpc GetIssueTagFacets(GetIssueTagFacetsRequest) returns (GetIssueTagFacetsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // ListIssueActivity lists comments and changes of an issue, newest first.
+  // Requires ROLE_VIEWER.
+  rpc ListIssueActivity(ListIssueActivityRequest) returns (ListIssueActivityResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // AddIssueComment adds a Markdown comment to an issue. Requires
+  // ROLE_MEMBER.
+  rpc AddIssueComment(AddIssueCommentRequest) returns (AddIssueCommentResponse);
+
+  // SuggestSearch completes the search term under the cursor: keys, values
+  // seen in the data and operators. Requires ROLE_VIEWER.
+  rpc SuggestSearch(SuggestSearchRequest) returns (SuggestSearchResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+}
+
+// IssueSummary is the compact form of an issue used in lists.
+message IssueSummary {
+  // Issue id (UUID).
+  string id = 1;
+
+  // Short id, e.g. "KALEM-1A".
+  string short_id = 2;
+
+  // Project of the issue.
+  ProjectRef project = 3;
+
+  // Title: "Type: value" of the primary exception, or the message.
+  string title = 4;
+
+  // Where the error happened: the top in-app frame ("OrderService.Create in
+  // OrderService.cs") or the transaction.
+  string culprit = 5;
+
+  // Exception type, e.g. "System.NullReferenceException"; empty for
+  // message issues.
+  string type = 6;
+
+  // Exception message or message text (first line, truncated).
+  string value = 7;
+
+  // Highest level seen.
+  izci.ingest.v1.Level level = 8;
+
+  // Platform of the events.
+  string platform = 9;
+
+  // Triage status.
+  IssueStatus status = 10;
+
+  // Substatus of unresolved issues.
+  IssueSubstatus substatus = 11;
+
+  // Priority.
+  Priority priority = 12;
+
+  // First event.
+  google.protobuf.Timestamp first_seen = 13;
+
+  // Latest event.
+  google.protobuf.Timestamp last_seen = 14;
+
+  // Total number of events ("how many times it repeated").
+  uint64 times_seen = 15;
+
+  // Distinct users affected.
+  uint32 users_count = 16;
+
+  // Distinct customers affected.
+  uint32 customers_count = 17;
+
+  // Events within the requested stats period.
+  uint64 period_count = 18;
+
+  // Event counts over the requested stats period (sparkline).
+  Series series = 19;
+
+  // Assigned member, when any.
+  UserRef assignee = 20;
+
+  // True when at least one event was unhandled (crashed).
+  bool unhandled = 21;
+
+  // State of AI analysis for this issue.
+  AiState ai_state = 22;
+
+  // Absolute link to the issue in the web UI.
+  string permalink = 23;
+}
+
+// AiState summarizes AI work on an issue.
+enum AiState {
+  // Not set.
+  AI_STATE_UNSPECIFIED = 0;
+  // No analysis yet.
+  AI_STATE_NONE = 1;
+  // An analysis is queued or running.
+  AI_STATE_RUNNING = 2;
+  // Analyzed, without proposed code changes.
+  AI_STATE_ANALYZED = 3;
+  // A code fix was proposed and awaits review.
+  AI_STATE_FIX_PROPOSED = 4;
+  // A branch or pull request with the fix exists.
+  AI_STATE_PULL_REQUEST = 5;
+  // The latest analysis failed.
+  AI_STATE_FAILED = 6;
+}
+
+// Issue is the full form of an issue.
+message Issue {
+  // Summary fields.
+  IssueSummary summary = 1;
+
+  // Release of the first event.
+  string first_release = 2;
+
+  // Release of the latest event.
+  string last_release = 3;
+
+  // When the issue was resolved, if it is.
+  google.protobuf.Timestamp resolved_at = 4;
+
+  // Who resolved it.
+  UserRef resolved_by = 5;
+
+  // Release the issue is resolved in: an event from a newer release counts
+  // as a regression. Empty means any new event is a regression.
+  string resolved_in_release = 6;
+
+  // Ignore condition of an ignored issue.
+  Snooze snooze = 7;
+
+  // How the issue was grouped.
+  Grouping grouping = 8;
+
+  // Location of the top in-app frame.
+  IssueLocation location = 9;
+
+  // Id of the latest event.
+  string latest_event_id = 10;
+
+  // Branches and pull requests created for this issue.
+  repeated PullRequestRef pull_requests = 11;
+}
+
+// Snooze describes when an ignored issue becomes unresolved again.
+message Snooze {
+  // Ignore until this moment.
+  google.protobuf.Timestamp until = 1;
+
+  // Ignore until the issue receives this many more events.
+  uint64 until_count = 2;
+
+  // Events counted since the issue was ignored.
+  uint64 count_since = 3;
+
+  // Ignore until the issue starts escalating.
+  bool until_escalating = 4;
+}
+
+// Grouping explains why events belong to this issue.
+message Grouping {
+  // Algorithm version, e.g. 1.
+  uint32 version = 1;
+
+  // Strategy that produced the fingerprint: "custom", "stacktrace",
+  // "exception" or "message".
+  string strategy = 2;
+
+  // Fingerprint as lowercase hexadecimal.
+  string fingerprint = 3;
+
+  // Human-readable inputs that were hashed, in order.
+  repeated string components = 4;
+}
+
+// IssueLocation is where the error was raised.
+message IssueLocation {
+  // Source file, e.g. "src/Services/OrderService.cs".
+  string filename = 1;
+
+  // Function, e.g. "OrderService.CreateOrder".
+  string function = 2;
+
+  // Module or namespace.
+  string module = 3;
+
+  // Line number.
+  uint32 lineno = 4;
+}
+
+// PullRequestRef is a branch or pull request created for an issue.
+message PullRequestRef {
+  // Pull request number; 0 when only a branch exists.
+  uint32 number = 1;
+
+  // Web URL of the pull request (or the branch).
+  string url = 2;
+
+  // Title.
+  string title = 3;
+
+  // Branch name.
+  string branch = 4;
+
+  // Whether the pull request is a draft.
+  bool draft = 5;
+
+  // State: "open", "closed", "merged" or "branch".
+  string state = 6;
+
+  // AI run that produced it.
+  string ai_run_id = 7;
+}
+
+// IssueSort orders issue lists.
+enum IssueSort {
+  // Not set; treated as ISSUE_SORT_LAST_SEEN.
+  ISSUE_SORT_UNSPECIFIED = 0;
+  // Most recently seen first.
+  ISSUE_SORT_LAST_SEEN = 1;
+  // Newest issues first.
+  ISSUE_SORT_FIRST_SEEN = 2;
+  // Most events within the stats period first.
+  ISSUE_SORT_EVENTS = 3;
+  // Most affected users first.
+  ISSUE_SORT_USERS = 4;
+  // Highest priority first.
+  ISSUE_SORT_PRIORITY = 5;
+}
+
+// TagFacet is the value distribution of one tag.
+message TagFacet {
+  // Tag key, e.g. "customer", "browser", "release".
+  string key = 1;
+
+  // Events carrying the tag.
+  uint64 total = 2;
+
+  // Distinct values.
+  uint32 unique_values = 3;
+
+  // Most frequent values, most frequent first.
+  repeated TagValueCount values = 4;
+}
+
+// TagValueCount is one value of a tag facet.
+message TagValueCount {
+  // Raw value, e.g. "sivas-belediyesi".
+  string value = 1;
+
+  // Display label, e.g. the customer name "Sivas Belediyesi".
+  string label = 2;
+
+  // Events with this value.
+  uint64 count = 3;
+
+  // First event with this value.
+  google.protobuf.Timestamp first_seen = 4;
+
+  // Latest event with this value.
+  google.protobuf.Timestamp last_seen = 5;
+}
+
+// IssueActivity is a comment or change on an issue.
+message IssueActivity {
+  // Activity id (UUID).
+  string id = 1;
+
+  // Kind of activity.
+  ActivityKind kind = 2;
+
+  // Who did it; empty for system activity.
+  UserRef actor = 3;
+
+  // Comment text (Markdown) for comments.
+  string text = 4;
+
+  // Details, e.g. {"from": "ISSUE_STATUS_UNRESOLVED", "to":
+  // "ISSUE_STATUS_RESOLVED"} or {"url": "https://github.com/…/pull/12"}.
+  map<string, string> data = 5;
+
+  // When it happened.
+  google.protobuf.Timestamp created_at = 6;
+}
+
+// ActivityKind is the kind of an issue activity.
+enum ActivityKind {
+  // Not set.
+  ACTIVITY_KIND_UNSPECIFIED = 0;
+  // The issue was first seen.
+  ACTIVITY_KIND_CREATED = 1;
+  // A member commented.
+  ACTIVITY_KIND_COMMENT = 2;
+  // The status changed.
+  ACTIVITY_KIND_STATUS_CHANGED = 3;
+  // The assignee changed.
+  ACTIVITY_KIND_ASSIGNED = 4;
+  // The priority changed.
+  ACTIVITY_KIND_PRIORITY_CHANGED = 5;
+  // A resolved issue received a new event.
+  ACTIVITY_KIND_REGRESSED = 6;
+  // An AI analysis finished.
+  ACTIVITY_KIND_AI_ANALYSIS = 7;
+  // A fix branch was pushed.
+  ACTIVITY_KIND_BRANCH_CREATED = 8;
+  // A fix pull request was opened.
+  ACTIVITY_KIND_PULL_REQUEST_OPENED = 9;
+  // A notification was sent.
+  ACTIVITY_KIND_NOTIFIED = 10;
+}
+
+// SearchSuggestion is one completion for the search box.
+message SearchSuggestion {
+  // Text that replaces the term under the cursor, e.g. "customer:" or
+  // "customer:sivas-belediyesi".
+  string text = 1;
+
+  // Label to display, e.g. "Sivas Belediyesi".
+  string label = 2;
+
+  // Extra description in English for keys (e.g. "Customer key reported by
+  // the application"); the UI shows its own localized text for known keys.
+  string description = 3;
+
+  // What the suggestion completes.
+  SuggestionKind kind = 4;
+
+  // Number of events or issues with this value, when relevant.
+  uint64 count = 5;
+}
+
+// SuggestionKind classifies search suggestions.
+enum SuggestionKind {
+  // Not set.
+  SUGGESTION_KIND_UNSPECIFIED = 0;
+  // A search key, e.g. "customer:".
+  SUGGESTION_KIND_KEY = 1;
+  // A value for a key.
+  SUGGESTION_KIND_VALUE = 2;
+  // A saved or recent full query.
+  SUGGESTION_KIND_QUERY = 3;
+}
+
+// ListIssuesRequest searches issues.
+message ListIssuesRequest {
+  // Search query in the izci search language. Defaults to "is:unresolved".
+  string query = 1 [(buf.validate.field).string.max_len = 2000];
+
+  // Sort order.
+  IssueSort sort = 2;
+
+  // Window for period_count and series; also limits results to issues seen
+  // within it. Defaults to 24 hours.
+  StatsPeriod stats_period = 3;
+
+  // Project slugs to include; empty includes all projects.
+  repeated string projects = 4 [(buf.validate.field).repeated.max_items = 50];
+
+  // Environments to include; empty includes all.
+  repeated string environments = 5 [(buf.validate.field).repeated.max_items = 20];
+
+  // Customer keys to include; empty includes all.
+  repeated string customers = 6 [(buf.validate.field).repeated.max_items = 50];
+
+  // Maximum issues to return (default 50, max 100).
+  uint32 page_size = 7 [(buf.validate.field).uint32.lte = 100];
+
+  // Token from a previous response.
+  string page_token = 8;
+}
+
+// ListIssuesResponse is a page of issues.
+message ListIssuesResponse {
+  // Matching issues in the requested order.
+  repeated IssueSummary issues = 1;
+
+  // Token for the next page; empty on the last page.
+  string next_page_token = 2;
+
+  // Estimated total number of matching issues (capped at 10000).
+  uint32 total_estimate = 3;
+}
+
+// GetIssueRequest identifies an issue.
+message GetIssueRequest {
+  // Issue id (UUID) or short id (e.g. "KALEM-1A").
+  string issue = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+
+  // Window for the series in the summary. Defaults to 24 hours.
+  StatsPeriod stats_period = 2;
+}
+
+// GetIssueResponse returns the issue.
+message GetIssueResponse {
+  // The issue.
+  Issue issue = 1;
+}
+
+// UpdateIssuesRequest changes issues.
+message UpdateIssuesRequest {
+  // Issue ids (UUIDs), 1 to 100.
+  repeated string issue_ids = 1 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 100
+    items: {string: {uuid: true}}
+  }];
+
+  // New status; unchanged when unset.
+  optional IssueStatus status = 2;
+
+  // Resolution details when status is RESOLVED.
+  ResolveOptions resolve = 3;
+
+  // Ignore condition when status is IGNORED; without it the issue is
+  // ignored until changed manually.
+  IgnoreOptions ignore = 4;
+
+  // New assignee user id; an empty string unassigns; unchanged when unset.
+  optional string assignee_id = 5;
+
+  // New priority; unchanged when unset.
+  optional Priority priority = 6;
+}
+
+// ResolveOptions refine a resolution.
+message ResolveOptions {
+  // Resolve in the next release: only events from a release newer than the
+  // latest seen release count as regressions.
+  bool in_next_release = 1;
+
+  // Resolve in this specific release, e.g. "1.4.3".
+  string in_release = 2 [(buf.validate.field).string.max_len = 200];
+}
+
+// IgnoreOptions define when an ignored issue comes back.
+message IgnoreOptions {
+  // Ignore for this long.
+  google.protobuf.Duration duration = 1;
+
+  // Ignore until this many more events arrive.
+  uint64 count = 2;
+
+  // Ignore until the event rate escalates.
+  bool until_escalating = 3;
+}
+
+// UpdateIssuesResponse returns the updated issues.
+message UpdateIssuesResponse {
+  // The updated issues.
+  repeated IssueSummary issues = 1;
+}
+
+// ListIssueEventsRequest pages through an issue's events.
+message ListIssueEventsRequest {
+  // Issue id.
+  string issue_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // Optional filter in the search language, restricted to event-level keys
+  // (environment, release, customer, tenant, user, browser, os, server).
+  string query = 2 [(buf.validate.field).string.max_len = 2000];
+
+  // Maximum events to return (default 50, max 100).
+  uint32 page_size = 3 [(buf.validate.field).uint32.lte = 100];
+
+  // Token from a previous response.
+  string page_token = 4;
+}
+
+// ListIssueEventsResponse is a page of events.
+message ListIssueEventsResponse {
+  // Events, newest first.
+  repeated EventSummary events = 1;
+
+  // Token for the next page; empty on the last page.
+  string next_page_token = 2;
+}
+
+// GetIssueStatsRequest selects the window.
+message GetIssueStatsRequest {
+  // Issue id.
+  string issue_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // Window; defaults to 24 hours.
+  StatsPeriod period = 2;
+
+  // Restrict to one environment; empty for all.
+  string environment = 3 [(buf.validate.field).string.max_len = 64];
+}
+
+// GetIssueStatsResponse returns counts.
+message GetIssueStatsResponse {
+  // Event counts over the window.
+  Series series = 1;
+
+  // Total events within the window.
+  uint64 total = 2;
+}
+
+// GetIssueTagFacetsRequest selects facets.
+message GetIssueTagFacetsRequest {
+  // Issue id.
+  string issue_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // Tag keys to return; empty returns the default set (customer, tenant,
+  // environment, release, browser, os, device, server_name, level) plus the
+  // most used custom tags.
+  repeated string keys = 2 [(buf.validate.field).repeated.max_items = 30];
+
+  // Values per facet (default 10, max 50).
+  uint32 top_values = 3 [(buf.validate.field).uint32.lte = 50];
+}
+
+// GetIssueTagFacetsResponse returns facets.
+message GetIssueTagFacetsResponse {
+  // Facets in the order requested (or the default order).
+  repeated TagFacet facets = 1;
+}
+
+// ListIssueActivityRequest pages through activity.
+message ListIssueActivityRequest {
+  // Issue id.
+  string issue_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // Maximum entries to return (default 50, max 100).
+  uint32 page_size = 2 [(buf.validate.field).uint32.lte = 100];
+
+  // Token from a previous response.
+  string page_token = 3;
+}
+
+// ListIssueActivityResponse is a page of activity.
+message ListIssueActivityResponse {
+  // Activity, newest first.
+  repeated IssueActivity activities = 1;
+
+  // Token for the next page; empty on the last page.
+  string next_page_token = 2;
+}
+
+// AddIssueCommentRequest adds a comment.
+message AddIssueCommentRequest {
+  // Issue id.
+  string issue_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // Markdown text, 1–10000 characters.
+  string text = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 10000
+  }];
+}
+
+// AddIssueCommentResponse returns the comment.
+message AddIssueCommentResponse {
+  // The created comment.
+  IssueActivity activity = 1;
+}
+
+// SuggestSearchRequest describes the search box state.
+message SuggestSearchRequest {
+  // Current query text.
+  string query = 1 [(buf.validate.field).string.max_len = 2000];
+
+  // Cursor position (in characters) within query.
+  uint32 cursor = 2;
+
+  // Projects to draw values from; empty uses all.
+  repeated string projects = 3 [(buf.validate.field).repeated.max_items = 50];
+}
+
+// SuggestSearchResponse lists completions.
+message SuggestSearchResponse {
+  // Suggestions, best first (max 20).
+  repeated SearchSuggestion suggestions = 1;
+
+  // Start (in characters) of the term the suggestions replace.
+  uint32 replace_from = 2;
+
+  // End (exclusive) of the term the suggestions replace.
+  uint32 replace_to = 3;
+}

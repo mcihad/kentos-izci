@@ -1,0 +1,221 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "izci/api/v1/auth.proto";
+import "izci/api/v1/common.proto";
+
+// UserService manages the signed-in user's own account: profile, personal
+// access tokens, sessions and the linked Telegram account. It does not use
+// the Izci-Org header.
+service UserService {
+  // UpdateProfile changes the display name.
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
+
+  // ListAccessTokens lists the user's personal access tokens.
+  rpc ListAccessTokens(ListAccessTokensRequest) returns (ListAccessTokensResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // CreateAccessToken creates a personal access token for the API, the CLI
+  // and MCP clients. The secret is returned only once. A token never grants
+  // more than the user's role in its organization.
+  rpc CreateAccessToken(CreateAccessTokenRequest) returns (CreateAccessTokenResponse);
+
+  // RevokeAccessToken revokes a token immediately.
+  rpc RevokeAccessToken(RevokeAccessTokenRequest) returns (RevokeAccessTokenResponse);
+
+  // ListSessions lists the user's active browser sessions.
+  rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // RevokeSession ends one of the user's sessions (or all other sessions).
+  rpc RevokeSession(RevokeSessionRequest) returns (RevokeSessionResponse);
+
+  // CreateTelegramAccountLinkCode creates a one-time code (valid 15 minutes)
+  // that links the user's Telegram account: send "/ben <code>" to the bot.
+  rpc CreateTelegramAccountLinkCode(CreateTelegramAccountLinkCodeRequest) returns (CreateTelegramAccountLinkCodeResponse);
+
+  // UnlinkTelegramAccount removes the linked Telegram account.
+  rpc UnlinkTelegramAccount(UnlinkTelegramAccountRequest) returns (UnlinkTelegramAccountResponse);
+}
+
+// AccessToken is a personal access token.
+message AccessToken {
+  // Token id (UUID).
+  string id = 1;
+
+  // Descriptive name, e.g. "Claude Code on laptop".
+  string name = 2;
+
+  // First characters of the token, e.g. "izp_8c1d0e".
+  string prefix = 3;
+
+  // Organization the token is bound to; unset for tokens valid in all of
+  // the user's organizations.
+  OrganizationRef organization = 4;
+
+  // Granted scopes.
+  repeated TokenScope scopes = 5;
+
+  // When the token was created.
+  google.protobuf.Timestamp created_at = 6;
+
+  // When the token was last used.
+  google.protobuf.Timestamp last_used_at = 7;
+
+  // When the token expires; unset for tokens without expiry.
+  google.protobuf.Timestamp expires_at = 8;
+}
+
+// TokenScope is a permission of a personal access token.
+enum TokenScope {
+  // Not set.
+  TOKEN_SCOPE_UNSPECIFIED = 0;
+  // Read issues, events, customers, projects and dashboards.
+  TOKEN_SCOPE_READ = 1;
+  // Triage issues and comment (requires the member role).
+  TOKEN_SCOPE_WRITE = 2;
+  // Start AI runs and create branches or pull requests.
+  TOKEN_SCOPE_AI = 3;
+}
+
+// SessionInfo describes a browser session.
+message SessionInfo {
+  // Session id.
+  string id = 1;
+
+  // Whether this is the session making the request.
+  bool current = 2;
+
+  // Client address that created the session.
+  string ip_address = 3;
+
+  // Browser and operating system, e.g. "Chrome 129 · macOS".
+  string client = 4;
+
+  // When the session was created.
+  google.protobuf.Timestamp created_at = 5;
+
+  // When the session was last used.
+  google.protobuf.Timestamp last_seen_at = 6;
+
+  // When the session expires unless used.
+  google.protobuf.Timestamp expires_at = 7;
+}
+
+// UpdateProfileRequest changes the profile.
+message UpdateProfileRequest {
+  // New display name.
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+}
+
+// UpdateProfileResponse returns the user.
+message UpdateProfileResponse {
+  // The updated user.
+  User user = 1;
+}
+
+// ListAccessTokensRequest has no fields.
+message ListAccessTokensRequest {}
+
+// ListAccessTokensResponse lists tokens.
+message ListAccessTokensResponse {
+  // Tokens, newest first.
+  repeated AccessToken tokens = 1;
+}
+
+// CreateAccessTokenRequest describes the token.
+message CreateAccessTokenRequest {
+  // Descriptive name.
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // Organization slug to bind the token to; empty for all organizations.
+  string organization = 2 [(buf.validate.field).string.max_len = 50];
+
+  // Scopes, at least one.
+  repeated TokenScope scopes = 3 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 3
+  }];
+
+  // Lifetime; unset or zero creates a token without expiry. Max 1 year.
+  google.protobuf.Duration expires_in = 4;
+}
+
+// CreateAccessTokenResponse returns the token and its secret.
+message CreateAccessTokenResponse {
+  // The token.
+  AccessToken token = 1;
+
+  // The full token ("izp_…"). Shown only once.
+  string secret = 2;
+}
+
+// RevokeAccessTokenRequest identifies a token.
+message RevokeAccessTokenRequest {
+  // Token id.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// RevokeAccessTokenResponse has no fields.
+message RevokeAccessTokenResponse {}
+
+// ListSessionsRequest has no fields.
+message ListSessionsRequest {}
+
+// ListSessionsResponse lists sessions.
+message ListSessionsResponse {
+  // Sessions, most recently used first.
+  repeated SessionInfo sessions = 1;
+}
+
+// RevokeSessionRequest identifies the sessions to end.
+message RevokeSessionRequest {
+  // Session id to end; empty together with all_others ends every session
+  // except the current one.
+  string id = 1;
+
+  // End all sessions except the current one.
+  bool all_others = 2;
+}
+
+// RevokeSessionResponse reports how many sessions ended.
+message RevokeSessionResponse {
+  // Number of ended sessions.
+  uint32 revoked = 1;
+}
+
+// CreateTelegramAccountLinkCodeRequest has no fields.
+message CreateTelegramAccountLinkCodeRequest {}
+
+// CreateTelegramAccountLinkCodeResponse returns the code.
+message CreateTelegramAccountLinkCodeResponse {
+  // One-time code.
+  string code = 1;
+
+  // Bot username without "@".
+  string bot_username = 2;
+
+  // Link that opens a private chat with the bot with the command prefilled.
+  string link = 3;
+
+  // When the code expires.
+  google.protobuf.Timestamp expires_at = 4;
+}
+
+// UnlinkTelegramAccountRequest has no fields.
+message UnlinkTelegramAccountRequest {}
+
+// UnlinkTelegramAccountResponse has no fields.
+message UnlinkTelegramAccountResponse {}

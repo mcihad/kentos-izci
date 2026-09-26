@@ -1,0 +1,191 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "izci/api/v1/common.proto";
+import "izci/api/v1/issue.proto";
+
+// CustomerService reports on customers (the organizations that use the
+// monitored applications, e.g. municipalities).
+//
+// Customers are created automatically the first time an event reports
+// Event.customer.id and are shared by all projects of the organization.
+service CustomerService {
+  // ListCustomers lists customers with their health over a period.
+  // Requires ROLE_VIEWER.
+  rpc ListCustomers(ListCustomersRequest) returns (ListCustomersResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // GetCustomer returns one customer with a per-project breakdown and its
+  // most impactful issues. Requires ROLE_VIEWER.
+  rpc GetCustomer(GetCustomerRequest) returns (GetCustomerResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // UpdateCustomer changes the display name or notes. Requires ROLE_MEMBER.
+  rpc UpdateCustomer(UpdateCustomerRequest) returns (UpdateCustomerResponse);
+}
+
+// Customer is a customer of the organization's applications.
+message Customer {
+  // Customer id (UUID) in izci.
+  string id = 1;
+
+  // Stable key reported by applications, e.g. "sivas-belediyesi".
+  string key = 2;
+
+  // Display name.
+  string name = 3;
+
+  // Attributes reported by applications.
+  map<string, string> attributes = 4;
+
+  // Free-form notes kept in izci (Markdown).
+  string notes = 5;
+
+  // First event from this customer.
+  google.protobuf.Timestamp first_seen = 6;
+
+  // Latest event from this customer.
+  google.protobuf.Timestamp last_seen = 7;
+}
+
+// Health rates how a customer is affected by errors.
+enum Health {
+  // Not set.
+  HEALTH_UNSPECIFIED = 0;
+  // No unresolved errors of level ERROR or above in the period.
+  HEALTH_HEALTHY = 1;
+  // Unresolved errors, none critical.
+  HEALTH_DEGRADED = 2;
+  // Fatal, unhandled or rapidly growing errors.
+  HEALTH_CRITICAL = 3;
+}
+
+// CustomerSummary is a customer with statistics.
+message CustomerSummary {
+  // The customer.
+  Customer customer = 1;
+
+  // Health over the period.
+  Health health = 2;
+
+  // Unresolved issues affecting the customer.
+  uint32 unresolved_issues = 3;
+
+  // Issues first seen for this customer within the period.
+  uint32 new_issues = 4;
+
+  // Events within the period.
+  uint64 period_events = 5;
+
+  // Projects with events from this customer within the period.
+  uint32 affected_projects = 6;
+
+  // Event counts over the period.
+  Series series = 7;
+}
+
+// CustomerSort orders customer lists.
+enum CustomerSort {
+  // Not set; treated as CUSTOMER_SORT_EVENTS.
+  CUSTOMER_SORT_UNSPECIFIED = 0;
+  // Most events in the period first.
+  CUSTOMER_SORT_EVENTS = 1;
+  // Most unresolved issues first.
+  CUSTOMER_SORT_ISSUES = 2;
+  // Most recently seen first.
+  CUSTOMER_SORT_LAST_SEEN = 3;
+  // Alphabetical by name.
+  CUSTOMER_SORT_NAME = 4;
+}
+
+// CustomerProjectBreakdown is a customer's activity in one project.
+message CustomerProjectBreakdown {
+  // The project.
+  ProjectRef project = 1;
+
+  // Unresolved issues of the customer in the project.
+  uint32 unresolved_issues = 2;
+
+  // Events within the period.
+  uint64 period_events = 3;
+
+  // Event counts over the period.
+  Series series = 4;
+}
+
+// ListCustomersRequest filters and sorts customers.
+message ListCustomersRequest {
+  // Text matched against key and name.
+  string query = 1 [(buf.validate.field).string.max_len = 200];
+
+  // Window for statistics; defaults to 24 hours.
+  StatsPeriod period = 2;
+
+  // Sort order.
+  CustomerSort sort = 3;
+
+  // Maximum customers to return (default 50, max 100).
+  uint32 page_size = 4 [(buf.validate.field).uint32.lte = 100];
+
+  // Token from a previous response.
+  string page_token = 5;
+}
+
+// ListCustomersResponse is a page of customers.
+message ListCustomersResponse {
+  // Customers in the requested order.
+  repeated CustomerSummary customers = 1;
+
+  // Token for the next page; empty on the last page.
+  string next_page_token = 2;
+}
+
+// GetCustomerRequest identifies a customer.
+message GetCustomerRequest {
+  // Customer key.
+  string key = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+
+  // Window for statistics; defaults to 7 days.
+  StatsPeriod period = 2;
+}
+
+// GetCustomerResponse returns the customer.
+message GetCustomerResponse {
+  // Customer with statistics.
+  CustomerSummary summary = 1;
+
+  // Per-project breakdown, most events first.
+  repeated CustomerProjectBreakdown projects = 2;
+
+  // Unresolved issues affecting the customer, most events first (max 20).
+  repeated IssueSummary top_issues = 3;
+}
+
+// UpdateCustomerRequest changes a customer.
+message UpdateCustomerRequest {
+  // Customer key.
+  string key = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+
+  // New display name; unchanged when unset.
+  optional string name = 2 [(buf.validate.field).string.max_len = 200];
+
+  // New notes; unchanged when unset.
+  optional string notes = 3 [(buf.validate.field).string.max_len = 10000];
+}
+
+// UpdateCustomerResponse returns the updated customer.
+message UpdateCustomerResponse {
+  // The updated customer.
+  Customer customer = 1;
+}

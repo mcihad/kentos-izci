@@ -1,0 +1,709 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "izci/api/v1/common.proto";
+import "izci/ingest/v1/event.proto";
+
+// ProjectService manages projects of the current organization, their ingest
+// API keys, settings, environments, releases and linked repositories.
+//
+// A project corresponds to one application (e.g. "KentOS Kalem"). Every
+// event belongs to exactly one project, determined by the API key it was sent
+// with.
+service ProjectService {
+  // ListProjects lists the projects of the organization with 24-hour stats.
+  // Requires ROLE_VIEWER.
+  rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // GetProject returns one project. Requires ROLE_VIEWER.
+  rpc GetProject(GetProjectRequest) returns (GetProjectResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // CreateProject creates a project and its first API key. Requires
+  // ROLE_ADMIN. Fails with ERROR_REASON_LIMIT_REACHED at the plan limit.
+  rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse);
+
+  // UpdateProject changes name, platform and settings. Requires ROLE_ADMIN.
+  rpc UpdateProject(UpdateProjectRequest) returns (UpdateProjectResponse);
+
+  // DeleteProject deletes a project with all its issues and events. Requires
+  // ROLE_OWNER. Irreversible.
+  rpc DeleteProject(DeleteProjectRequest) returns (DeleteProjectResponse);
+
+  // ListApiKeys lists the project's API keys (without secrets). Requires
+  // ROLE_VIEWER.
+  rpc ListApiKeys(ListApiKeysRequest) returns (ListApiKeysResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // CreateApiKey creates an API key. The secret is returned only once.
+  // Requires ROLE_ADMIN.
+  rpc CreateApiKey(CreateApiKeyRequest) returns (CreateApiKeyResponse);
+
+  // UpdateApiKey changes name, allowed origins, rate limit or enabled state.
+  // Requires ROLE_ADMIN.
+  rpc UpdateApiKey(UpdateApiKeyRequest) returns (UpdateApiKeyResponse);
+
+  // RevokeApiKey permanently revokes an API key; clients using it are
+  // rejected within seconds. Requires ROLE_ADMIN.
+  rpc RevokeApiKey(RevokeApiKeyRequest) returns (RevokeApiKeyResponse);
+
+  // GetIngestEndpoints returns the addresses applications use to send events
+  // (gRPC target, Connect URL, Sentry DSN template). Requires ROLE_VIEWER.
+  rpc GetIngestEndpoints(GetIngestEndpointsRequest) returns (GetIngestEndpointsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // SendTestEvent sends a sample event through the full ingest pipeline so
+  // the setup can be verified end to end. Requires ROLE_MEMBER.
+  rpc SendTestEvent(SendTestEventRequest) returns (SendTestEventResponse);
+
+  // ListEnvironments lists the environments seen in the project. Requires
+  // ROLE_VIEWER.
+  rpc ListEnvironments(ListEnvironmentsRequest) returns (ListEnvironmentsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // ListReleases lists releases, newest first. Requires ROLE_VIEWER.
+  rpc ListReleases(ListReleasesRequest) returns (ListReleasesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // LinkRepository links the project to a source repository, used for
+  // source links, AI analysis and fix pull requests. Requires ROLE_ADMIN.
+  rpc LinkRepository(LinkRepositoryRequest) returns (LinkRepositoryResponse);
+
+  // UnlinkRepository removes the repository link. Requires ROLE_ADMIN.
+  rpc UnlinkRepository(UnlinkRepositoryRequest) returns (UnlinkRepositoryResponse);
+}
+
+// Project is one monitored application.
+message Project {
+  // Project id (UUID).
+  string id = 1;
+
+  // URL-safe identifier unique within the organization, e.g. "kalem".
+  string slug = 2;
+
+  // Display name, e.g. "KentOS Kalem".
+  string name = 3;
+
+  // Main platform, e.g. "dotnet", "go", "javascript", "dart".
+  string platform = 4;
+
+  // Numeric id used in Sentry DSNs ("https://<key>@host/<public_id>").
+  uint64 public_id = 5;
+
+  // Settings.
+  ProjectSettings settings = 6;
+
+  // Linked source repository, when any.
+  ProjectRepository repository = 7;
+
+  // Short statistics for lists.
+  ProjectStats stats = 8;
+
+  // When the project was created.
+  google.protobuf.Timestamp created_at = 9;
+}
+
+// ProjectStats summarizes recent activity.
+message ProjectStats {
+  // Number of unresolved issues.
+  uint32 unresolved_issues = 1;
+
+  // Events received in the last 24 hours.
+  uint64 events_24h = 2;
+
+  // Hourly event counts of the last 24 hours.
+  Series series_24h = 3;
+
+  // When the last event was received.
+  google.protobuf.Timestamp last_event_at = 4;
+}
+
+// ProjectSettings are the editable settings of a project.
+message ProjectSettings {
+  // Privacy and scrubbing rules.
+  PrivacySettings privacy = 1;
+
+  // Rules that decide which stack frames are application code.
+  InAppRules in_app = 2;
+
+  // Maximum events per minute accepted for the project (0 = instance
+  // default).
+  uint32 rate_limit_per_minute = 3;
+
+  // Environments whose events are dropped at ingest, e.g. ["development"].
+  repeated string ignored_environments = 4 [(buf.validate.field).repeated.max_items = 20];
+
+  // AI analysis automation.
+  AiSettings ai = 5;
+}
+
+// PrivacySettings control what personal data is stored.
+message PrivacySettings {
+  // How end-user IP addresses are stored.
+  IpStorage ip_storage = 1;
+
+  // Additional field names (case-insensitive substrings) to scrub everywhere
+  // in events, on top of the built-in list.
+  repeated string scrub_fields = 2 [(buf.validate.field).repeated.max_items = 100];
+
+  // Field names that must never be scrubbed even if they match a pattern.
+  repeated string safe_fields = 3 [(buf.validate.field).repeated.max_items = 100];
+
+  // Whether cookie values are stored (names are always stored).
+  bool store_cookie_values = 4;
+
+  // Whether request bodies are stored.
+  bool store_request_bodies = 5;
+}
+
+// IpStorage selects how IP addresses are stored.
+enum IpStorage {
+  // Not set; treated as IP_STORAGE_FULL.
+  IP_STORAGE_UNSPECIFIED = 0;
+  // Store the full address.
+  IP_STORAGE_FULL = 1;
+  // Store the network only (IPv4 /24, IPv6 /48).
+  IP_STORAGE_ANONYMIZED = 2;
+  // Do not store addresses at all.
+  IP_STORAGE_NONE = 3;
+}
+
+// InAppRules classify stack frames as application code.
+message InAppRules {
+  // Module or path prefixes that are application code, e.g.
+  // ["KentOS.", "github.com/mcihad/"].
+  repeated string include = 1 [(buf.validate.field).repeated.max_items = 50];
+
+  // Module or path prefixes that are never application code, e.g.
+  // ["KentOS.Shared.Vendor."].
+  repeated string exclude = 2 [(buf.validate.field).repeated.max_items = 50];
+}
+
+// AiSettings configure automatic AI analysis for the project.
+message AiSettings {
+  // When to start analyses automatically.
+  AutoAnalyze auto_analyze = 1;
+
+  // Minimum level of issues analyzed automatically.
+  izci.ingest.v1.Level min_level = 2;
+
+  // What to do automatically after a successful analysis.
+  AutoAction auto_action = 3;
+
+  // Maximum automatic runs per day (0 = no automatic runs).
+  uint32 daily_budget = 4 [(buf.validate.field).uint32.lte = 1000];
+
+  // opencode model override in "provider/model" form; empty uses the
+  // instance default.
+  string model = 5 [(buf.validate.field).string.max_len = 128];
+
+  // Shell commands the AI agent may run in the repository, as prefixes,
+  // e.g. ["go test", "dotnet build", "pnpm test"]. Everything else is denied.
+  repeated string allowed_commands = 6 [(buf.validate.field).repeated.max_items = 30];
+
+  // Extra instructions appended to every prompt, e.g. coding conventions of
+  // the repository. Max 4000 characters.
+  string instructions = 7 [(buf.validate.field).string.max_len = 4000];
+}
+
+// AutoAnalyze selects when AI analyses start automatically.
+enum AutoAnalyze {
+  // Not set; treated as AUTO_ANALYZE_OFF.
+  AUTO_ANALYZE_UNSPECIFIED = 0;
+  // Only manual analyses.
+  AUTO_ANALYZE_OFF = 1;
+  // Analyze every new issue at or above AiSettings.min_level.
+  AUTO_ANALYZE_NEW_ISSUES = 2;
+}
+
+// AutoAction selects what happens after a successful automatic analysis.
+enum AutoAction {
+  // Not set; treated as AUTO_ACTION_NONE.
+  AUTO_ACTION_UNSPECIFIED = 0;
+  // Keep the result for review in the UI.
+  AUTO_ACTION_NONE = 1;
+  // Push the proposed fix to a branch.
+  AUTO_ACTION_BRANCH = 2;
+  // Push the fix and open a draft pull request.
+  AUTO_ACTION_DRAFT_PULL_REQUEST = 3;
+  // Push the fix and open a ready-for-review pull request.
+  AUTO_ACTION_PULL_REQUEST = 4;
+}
+
+// ProjectRepository links a project to a source repository.
+message ProjectRepository {
+  // Integration used to access the repository; empty for public links
+  // without an integration (source links only).
+  string integration_id = 1;
+
+  // Hosting provider, e.g. "github".
+  string provider = 2;
+
+  // Repository owner, e.g. "mcihad".
+  string owner = 3;
+
+  // Repository name, e.g. "kentos-kalem".
+  string name = 4;
+
+  // Web URL, e.g. "https://github.com/mcihad/kentos-kalem".
+  string url = 5;
+
+  // Default branch, e.g. "main".
+  string default_branch = 6;
+
+  // Rewrites applied to stack frame paths to find files in the repository,
+  // applied in order; the first matching prefix wins.
+  repeated PathMapping path_mappings = 7;
+
+  // When the repository was linked.
+  google.protobuf.Timestamp linked_at = 8;
+}
+
+// PathMapping rewrites a stack frame path prefix to a repository path
+// prefix, e.g. "/app/" → "src/".
+message PathMapping {
+  // Prefix of Frame.abs_path or Frame.filename as reported by the
+  // application, e.g. "/app/" or "C:\\build\\src\\".
+  string from_prefix = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 512
+  }];
+
+  // Replacement prefix relative to the repository root, e.g. "src/"; may be
+  // empty.
+  string to_prefix = 2 [(buf.validate.field).string.max_len = 512];
+}
+
+// ApiKey is an ingest API key of a project.
+message ApiKey {
+  // Key id (UUID).
+  string id = 1;
+
+  // Descriptive name, e.g. "production backend".
+  string name = 2;
+
+  // First characters of the key for identification, e.g. "izk_4f9c2a".
+  string prefix = 3;
+
+  // What the key may do.
+  repeated ApiKeyScope scopes = 4;
+
+  // Browser origins allowed to use the key, e.g.
+  // ["https://kalem.example.com"]. Empty allows requests without an Origin
+  // header only (server-side applications).
+  repeated string allowed_origins = 5;
+
+  // Maximum events per minute accepted with this key (0 = project limit).
+  uint32 rate_limit_per_minute = 6;
+
+  // Disabled keys are rejected but can be re-enabled.
+  bool enabled = 7;
+
+  // Who created the key.
+  UserRef created_by = 8;
+
+  // When the key was created.
+  google.protobuf.Timestamp created_at = 9;
+
+  // When the key was last used (updated at most once per minute).
+  google.protobuf.Timestamp last_used_at = 10;
+}
+
+// ApiKeyScope is a permission of an API key.
+enum ApiKeyScope {
+  // Not set.
+  API_KEY_SCOPE_UNSPECIFIED = 0;
+  // Send events (IngestService.SendEvent, SendEvents, Sentry endpoints).
+  API_KEY_SCOPE_INGEST = 1;
+  // Register releases (IngestService.RegisterRelease), for CI.
+  API_KEY_SCOPE_RELEASES = 2;
+}
+
+// Environment is a deployment environment seen in events.
+message Environment {
+  // Name, e.g. "production".
+  string name = 1;
+
+  // First event from this environment.
+  google.protobuf.Timestamp first_seen = 2;
+
+  // Latest event from this environment.
+  google.protobuf.Timestamp last_seen = 3;
+}
+
+// Release is a version of the project's application.
+message Release {
+  // Release id (UUID).
+  string id = 1;
+
+  // Version as reported in events, e.g. "1.4.2".
+  string version = 2;
+
+  // Commit SHA, when registered.
+  string commit_sha = 3;
+
+  // Repository of the commit, "owner/name".
+  string repository = 4;
+
+  // Branch or tag.
+  string ref = 5;
+
+  // Link to the release page or CI run.
+  string url = 6;
+
+  // First event from this release.
+  google.protobuf.Timestamp first_seen = 7;
+
+  // Latest event from this release.
+  google.protobuf.Timestamp last_seen = 8;
+
+  // Deployments of this release.
+  repeated Deploy deploys = 9;
+
+  // Issues first seen in this release.
+  uint32 new_issues = 10;
+}
+
+// Deploy is a deployment of a release to an environment.
+message Deploy {
+  // Environment, e.g. "production".
+  string environment = 1;
+
+  // When it was deployed.
+  google.protobuf.Timestamp deployed_at = 2;
+
+  // Who or what deployed it.
+  string deployed_by = 3;
+}
+
+// ListProjectsRequest has no fields.
+message ListProjectsRequest {}
+
+// ListProjectsResponse lists projects.
+message ListProjectsResponse {
+  // Projects ordered by name.
+  repeated Project projects = 1;
+}
+
+// GetProjectRequest identifies a project.
+message GetProjectRequest {
+  // Project slug.
+  string slug = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+}
+
+// GetProjectResponse returns the project.
+message GetProjectResponse {
+  // The project.
+  Project project = 1;
+}
+
+// CreateProjectRequest describes the new project.
+message CreateProjectRequest {
+  // Display name.
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // Slug: 2–50 lowercase letters, digits or hyphens, starting with a letter.
+  // Derived from name when empty.
+  string slug = 2 [(buf.validate.field).string.pattern = "^$|^[a-z][a-z0-9-]{0,48}[a-z0-9]$"];
+
+  // Main platform, e.g. "dotnet".
+  string platform = 3 [(buf.validate.field).string.max_len = 32];
+}
+
+// CreateProjectResponse returns the project and its first key.
+message CreateProjectResponse {
+  // The new project.
+  Project project = 1;
+
+  // The first API key (scopes INGEST and RELEASES).
+  ApiKey api_key = 2;
+
+  // Secret of the first API key. Shown only once.
+  string api_key_secret = 3;
+}
+
+// UpdateProjectRequest changes a project.
+message UpdateProjectRequest {
+  // Slug of the project to change.
+  string slug = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+
+  // New display name; unchanged when empty.
+  string name = 2 [(buf.validate.field).string.max_len = 100];
+
+  // New platform; unchanged when empty.
+  string platform = 3 [(buf.validate.field).string.max_len = 32];
+
+  // New settings; replaces all settings when set.
+  ProjectSettings settings = 4;
+}
+
+// UpdateProjectResponse returns the updated project.
+message UpdateProjectResponse {
+  // The updated project.
+  Project project = 1;
+}
+
+// DeleteProjectRequest identifies the project to delete.
+message DeleteProjectRequest {
+  // Slug of the project.
+  string slug = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+
+  // Must repeat the slug, as a safeguard against accidental deletion.
+  string confirm_slug = 2;
+}
+
+// DeleteProjectResponse has no fields.
+message DeleteProjectResponse {}
+
+// ListApiKeysRequest identifies the project.
+message ListApiKeysRequest {
+  // Project slug.
+  string project = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+
+  // Also return revoked keys.
+  bool include_revoked = 2;
+}
+
+// ListApiKeysResponse lists API keys.
+message ListApiKeysResponse {
+  // Keys, newest first.
+  repeated ApiKey keys = 1;
+}
+
+// CreateApiKeyRequest describes the new key.
+message CreateApiKeyRequest {
+  // Project slug.
+  string project = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+
+  // Descriptive name.
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // Scopes; defaults to [API_KEY_SCOPE_INGEST].
+  repeated ApiKeyScope scopes = 3;
+
+  // Allowed browser origins, e.g. ["https://kalem.example.com"].
+  repeated string allowed_origins = 4 [(buf.validate.field).repeated = {
+    max_items: 20
+    items: {string: {uri: true}}
+  }];
+
+  // Maximum events per minute (0 = project limit).
+  uint32 rate_limit_per_minute = 5;
+}
+
+// CreateApiKeyResponse returns the key and its secret.
+message CreateApiKeyResponse {
+  // The new key.
+  ApiKey key = 1;
+
+  // The full key ("izk_…"). Shown only once.
+  string secret = 2;
+
+  // Ready-to-use Sentry DSN for this key.
+  string sentry_dsn = 3;
+}
+
+// UpdateApiKeyRequest changes a key.
+message UpdateApiKeyRequest {
+  // Project slug.
+  string project = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+
+  // Key id.
+  string key_id = 2 [(buf.validate.field).string.uuid = true];
+
+  // New name; unchanged when empty.
+  string name = 3 [(buf.validate.field).string.max_len = 100];
+
+  // New allowed origins; replaces the list.
+  repeated string allowed_origins = 4 [(buf.validate.field).repeated.max_items = 20];
+
+  // New rate limit (0 = project limit).
+  uint32 rate_limit_per_minute = 5;
+
+  // Enable or disable the key.
+  bool enabled = 6;
+}
+
+// UpdateApiKeyResponse returns the updated key.
+message UpdateApiKeyResponse {
+  // The updated key.
+  ApiKey key = 1;
+}
+
+// RevokeApiKeyRequest identifies the key to revoke.
+message RevokeApiKeyRequest {
+  // Project slug.
+  string project = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+
+  // Key id.
+  string key_id = 2 [(buf.validate.field).string.uuid = true];
+}
+
+// RevokeApiKeyResponse has no fields.
+message RevokeApiKeyResponse {}
+
+// GetIngestEndpointsRequest identifies the project.
+message GetIngestEndpointsRequest {
+  // Project slug.
+  string project = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+}
+
+// GetIngestEndpointsResponse lists ingest addresses.
+message GetIngestEndpointsResponse {
+  // Base URL for the Connect protocol and gRPC-Web, e.g.
+  // "https://izci.example.com".
+  string base_url = 1;
+
+  // Target for native gRPC clients, e.g. "izci.example.com:443".
+  string grpc_target = 2;
+
+  // Whether native gRPC must use TLS for grpc_target.
+  bool grpc_tls = 3;
+
+  // Sentry DSN with a "<key>" placeholder, e.g.
+  // "https://<key>@izci.example.com/42".
+  string sentry_dsn_template = 4;
+
+  // Numeric project id used in Sentry DSNs.
+  uint64 public_id = 5;
+}
+
+// SendTestEventRequest identifies the project.
+message SendTestEventRequest {
+  // Project slug.
+  string project = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+}
+
+// SendTestEventResponse points at the created test issue.
+message SendTestEventResponse {
+  // Id of the test event.
+  string event_id = 1;
+
+  // Id of the issue it was grouped into.
+  string issue_id = 2;
+
+  // Short id of that issue.
+  string issue_short_id = 3;
+}
+
+// ListEnvironmentsRequest identifies the project.
+message ListEnvironmentsRequest {
+  // Project slug; empty lists environments of all projects.
+  string project = 1 [(buf.validate.field).string.max_len = 50];
+}
+
+// ListEnvironmentsResponse lists environments.
+message ListEnvironmentsResponse {
+  // Environments ordered by name.
+  repeated Environment environments = 1;
+}
+
+// ListReleasesRequest pages through releases.
+message ListReleasesRequest {
+  // Project slug.
+  string project = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+
+  // Maximum releases to return (default 50, max 100).
+  uint32 page_size = 2 [(buf.validate.field).uint32.lte = 100];
+
+  // Token from a previous response.
+  string page_token = 3;
+}
+
+// ListReleasesResponse is a page of releases.
+message ListReleasesResponse {
+  // Releases, newest first.
+  repeated Release releases = 1;
+
+  // Token for the next page; empty on the last page.
+  string next_page_token = 2;
+}
+
+// LinkRepositoryRequest links a repository.
+message LinkRepositoryRequest {
+  // Project slug.
+  string project = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+
+  // Integration that grants access; empty for a public link without AI
+  // features.
+  string integration_id = 2;
+
+  // Repository in "owner/name" form or as a URL.
+  string repository = 3 [(buf.validate.field).string = {
+    min_len: 3
+    max_len: 300
+  }];
+
+  // Default branch; detected from the provider when empty.
+  string default_branch = 4 [(buf.validate.field).string.max_len = 200];
+
+  // Path rewrites for stack frames.
+  repeated PathMapping path_mappings = 5 [(buf.validate.field).repeated.max_items = 20];
+}
+
+// LinkRepositoryResponse returns the link.
+message LinkRepositoryResponse {
+  // The linked repository.
+  ProjectRepository repository = 1;
+}
+
+// UnlinkRepositoryRequest identifies the project.
+message UnlinkRepositoryRequest {
+  // Project slug.
+  string project = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+}
+
+// UnlinkRepositoryResponse has no fields.
+message UnlinkRepositoryResponse {}

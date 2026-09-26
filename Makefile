@@ -65,8 +65,10 @@ migrate: ## Apply database migrations
 #? message, field, enum value, service and RPC must carry a comment.
 #> make gen
 gen: lint-proto ## Generate code and API docs from proto
+	rm -rf gen sdk/go/proto web/src/gen docs/api
 	$(BUF) generate --template buf.gen.yaml
-	$(GO) run ./tools/protodoc -out docs/api
+	cd sdk/go && $(GO) mod tidy
+	$(GO) mod tidy
 
 #? Lints proto files (STANDARD + COMMENTS rules) and checks formatting.
 #> make lint-proto

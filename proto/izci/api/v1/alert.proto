@@ -1,0 +1,362 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "izci/api/v1/common.proto";
+import "izci/ingest/v1/event.proto";
+
+// AlertService manages alert rules and the notification channels they
+// deliver to (Telegram chats).
+//
+// Linking a Telegram chat: call CreateTelegramLinkCode, add the izci bot to
+// the group (or open a private chat with it) and send "/baglan <code>". The
+// chat then appears in ListChannels.
+service AlertService {
+  // ListAlertRules lists rules, optionally for one project. Requires
+  // ROLE_VIEWER.
+  rpc ListAlertRules(ListAlertRulesRequest) returns (ListAlertRulesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // CreateAlertRule creates a rule. Requires ROLE_ADMIN.
+  rpc CreateAlertRule(CreateAlertRuleRequest) returns (CreateAlertRuleResponse);
+
+  // UpdateAlertRule replaces a rule. Requires ROLE_ADMIN.
+  rpc UpdateAlertRule(UpdateAlertRuleRequest) returns (UpdateAlertRuleResponse);
+
+  // DeleteAlertRule deletes a rule. Requires ROLE_ADMIN.
+  rpc DeleteAlertRule(DeleteAlertRuleRequest) returns (DeleteAlertRuleResponse);
+
+  // ListChannels lists notification channels. Requires ROLE_VIEWER.
+  rpc ListChannels(ListChannelsRequest) returns (ListChannelsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // UpdateChannel renames or mutes a channel. Requires ROLE_ADMIN.
+  rpc UpdateChannel(UpdateChannelRequest) returns (UpdateChannelResponse);
+
+  // DeleteChannel removes a channel and detaches it from rules. Requires
+  // ROLE_ADMIN.
+  rpc DeleteChannel(DeleteChannelRequest) returns (DeleteChannelResponse);
+
+  // CreateTelegramLinkCode creates a one-time code (valid 15 minutes) that
+  // links a Telegram chat to the organization. Requires ROLE_ADMIN. Fails
+  // with ERROR_REASON_TELEGRAM_NOT_CONFIGURED when no bot is configured.
+  rpc CreateTelegramLinkCode(CreateTelegramLinkCodeRequest) returns (CreateTelegramLinkCodeResponse);
+
+  // SendTestNotification sends a sample notification to a channel. Requires
+  // ROLE_ADMIN.
+  rpc SendTestNotification(SendTestNotificationRequest) returns (SendTestNotificationResponse);
+
+  // GetNotificationStatus reports which notification transports are
+  // configured on the instance. Requires ROLE_VIEWER.
+  rpc GetNotificationStatus(GetNotificationStatusRequest) returns (GetNotificationStatusResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+}
+
+// AlertRule decides when to notify which channels.
+message AlertRule {
+  // Rule id (UUID).
+  string id = 1;
+
+  // Descriptive name, e.g. "Production errors".
+  string name = 2;
+
+  // Project the rule applies to; unset applies to all projects.
+  ProjectRef project = 3;
+
+  // Disabled rules never fire.
+  bool enabled = 4;
+
+  // What makes the rule fire.
+  AlertTrigger trigger = 5;
+
+  // Conditions every triggering event must meet.
+  AlertFilters filters = 6;
+
+  // Channels to notify.
+  repeated string channel_ids = 7;
+
+  // Minimum time between two notifications for the same issue. Repeated
+  // events within this window update the existing message instead.
+  google.protobuf.Duration throttle = 8;
+
+  // When the rule was created.
+  google.protobuf.Timestamp created_at = 9;
+
+  // When the rule was last changed.
+  google.protobuf.Timestamp updated_at = 10;
+
+  // When the rule last fired.
+  google.protobuf.Timestamp last_triggered_at = 11;
+}
+
+// AlertTrigger is the firing condition of a rule.
+message AlertTrigger {
+  // Kind of trigger.
+  TriggerKind kind = 1;
+
+  // For TRIGGER_KIND_FREQUENCY: number of events of one issue within window.
+  uint32 threshold = 2;
+
+  // For TRIGGER_KIND_FREQUENCY: the sliding window, 1 minute to 24 hours.
+  google.protobuf.Duration window = 3;
+}
+
+// TriggerKind is the kind of an alert trigger.
+enum TriggerKind {
+  // Not set.
+  TRIGGER_KIND_UNSPECIFIED = 0;
+  // A new issue was created.
+  TRIGGER_KIND_NEW_ISSUE = 1;
+  // A resolved issue received a new event.
+  TRIGGER_KIND_REGRESSION = 2;
+  // An issue received at least threshold events within window.
+  TRIGGER_KIND_FREQUENCY = 3;
+}
+
+// AlertFilters restrict which events can trigger a rule.
+message AlertFilters {
+  // Minimum level.
+  izci.ingest.v1.Level min_level = 1;
+
+  // Environments; empty allows all.
+  repeated string environments = 2 [(buf.validate.field).repeated.max_items = 20];
+
+  // Customer keys; empty allows all.
+  repeated string customers = 3 [(buf.validate.field).repeated.max_items = 50];
+
+  // Tags that must match exactly.
+  map<string, string> tags = 4;
+
+  // Only unhandled (crashing) events.
+  bool unhandled_only = 5;
+}
+
+// Channel is a notification destination.
+message Channel {
+  // Channel id (UUID).
+  string id = 1;
+
+  // Transport of the channel.
+  ChannelKind kind = 2;
+
+  // Display name, defaults to the chat title.
+  string name = 3;
+
+  // Telegram chat details for CHANNEL_KIND_TELEGRAM.
+  TelegramChat telegram = 4;
+
+  // Project the channel was linked for; unset for organization-wide
+  // channels. Informational: rules decide what is delivered.
+  ProjectRef project = 5;
+
+  // Muted channels receive nothing.
+  bool muted = 6;
+
+  // Who linked the channel.
+  UserRef created_by = 7;
+
+  // When the channel was linked.
+  google.protobuf.Timestamp created_at = 8;
+
+  // Last successful delivery.
+  google.protobuf.Timestamp last_delivery_at = 9;
+
+  // Last delivery error, empty when the last delivery succeeded.
+  string last_error = 10;
+}
+
+// ChannelKind is the transport of a channel.
+enum ChannelKind {
+  // Not set.
+  CHANNEL_KIND_UNSPECIFIED = 0;
+  // A Telegram private chat, group, supergroup topic or channel.
+  CHANNEL_KIND_TELEGRAM = 1;
+}
+
+// TelegramChat identifies a Telegram chat.
+message TelegramChat {
+  // Chat id.
+  int64 chat_id = 1;
+
+  // Forum topic (message_thread_id) in supergroups with topics; 0 for the
+  // main chat.
+  int64 thread_id = 2;
+
+  // Chat title or the private chat user's name.
+  string title = 3;
+
+  // Chat type: "private", "group", "supergroup" or "channel".
+  string type = 4;
+
+  // Public username of the chat without "@", may be empty.
+  string username = 5;
+}
+
+// ListAlertRulesRequest filters rules.
+message ListAlertRulesRequest {
+  // Project slug; empty lists all rules.
+  string project = 1 [(buf.validate.field).string.max_len = 50];
+}
+
+// ListAlertRulesResponse lists rules.
+message ListAlertRulesResponse {
+  // Rules ordered by name.
+  repeated AlertRule rules = 1;
+}
+
+// AlertRuleInput holds the editable fields of a rule.
+message AlertRuleInput {
+  // Descriptive name.
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // Project slug; empty applies to all projects.
+  string project = 2 [(buf.validate.field).string.max_len = 50];
+
+  // Whether the rule is active.
+  bool enabled = 3;
+
+  // Trigger.
+  AlertTrigger trigger = 4 [(buf.validate.field).required = true];
+
+  // Filters.
+  AlertFilters filters = 5;
+
+  // Channel ids to notify, 1 to 20.
+  repeated string channel_ids = 6 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 20
+    items: {string: {uuid: true}}
+  }];
+
+  // Throttle per issue; defaults to 30 minutes, max 7 days.
+  google.protobuf.Duration throttle = 7;
+}
+
+// CreateAlertRuleRequest creates a rule.
+message CreateAlertRuleRequest {
+  // The rule.
+  AlertRuleInput rule = 1 [(buf.validate.field).required = true];
+}
+
+// CreateAlertRuleResponse returns the rule.
+message CreateAlertRuleResponse {
+  // The created rule.
+  AlertRule rule = 1;
+}
+
+// UpdateAlertRuleRequest replaces a rule.
+message UpdateAlertRuleRequest {
+  // Rule id.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+
+  // New definition.
+  AlertRuleInput rule = 2 [(buf.validate.field).required = true];
+}
+
+// UpdateAlertRuleResponse returns the rule.
+message UpdateAlertRuleResponse {
+  // The updated rule.
+  AlertRule rule = 1;
+}
+
+// DeleteAlertRuleRequest identifies a rule.
+message DeleteAlertRuleRequest {
+  // Rule id.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// DeleteAlertRuleResponse has no fields.
+message DeleteAlertRuleResponse {}
+
+// ListChannelsRequest has no fields.
+message ListChannelsRequest {}
+
+// ListChannelsResponse lists channels.
+message ListChannelsResponse {
+  // Channels ordered by name.
+  repeated Channel channels = 1;
+}
+
+// UpdateChannelRequest changes a channel.
+message UpdateChannelRequest {
+  // Channel id.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+
+  // New name; unchanged when empty.
+  string name = 2 [(buf.validate.field).string.max_len = 100];
+
+  // Mute or unmute.
+  bool muted = 3;
+}
+
+// UpdateChannelResponse returns the channel.
+message UpdateChannelResponse {
+  // The updated channel.
+  Channel channel = 1;
+}
+
+// DeleteChannelRequest identifies a channel.
+message DeleteChannelRequest {
+  // Channel id.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// DeleteChannelResponse has no fields.
+message DeleteChannelResponse {}
+
+// CreateTelegramLinkCodeRequest scopes the link.
+message CreateTelegramLinkCodeRequest {
+  // Project slug the chat is meant for; empty for organization-wide.
+  string project = 1 [(buf.validate.field).string.max_len = 50];
+}
+
+// CreateTelegramLinkCodeResponse returns the code and deep links.
+message CreateTelegramLinkCodeResponse {
+  // One-time code, e.g. "IZ-7F3K2Q".
+  string code = 1;
+
+  // Bot username without "@".
+  string bot_username = 2;
+
+  // Link that adds the bot to a group with the code prefilled.
+  string group_link = 3;
+
+  // Link that opens a private chat with the bot with the code prefilled.
+  string private_link = 4;
+
+  // When the code expires.
+  google.protobuf.Timestamp expires_at = 5;
+}
+
+// SendTestNotificationRequest identifies the channel.
+message SendTestNotificationRequest {
+  // Channel id.
+  string channel_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// SendTestNotificationResponse has no fields.
+message SendTestNotificationResponse {}
+
+// GetNotificationStatusRequest has no fields.
+message GetNotificationStatusRequest {}
+
+// GetNotificationStatusResponse reports transport availability.
+message GetNotificationStatusResponse {
+  // Whether a Telegram bot is configured.
+  bool telegram_configured = 1;
+
+  // Bot username without "@".
+  string telegram_bot_username = 2;
+
+  // Update mode of the bot: "polling" or "webhook".
+  string telegram_mode = 3;
+}

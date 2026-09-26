@@ -1,0 +1,425 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "izci/api/v1/common.proto";
+import "izci/api/v1/issue.proto";
+
+// AiService runs AI analyses of issues with opencode and turns proposed
+// fixes into branches and pull requests.
+//
+// A run checks out the project's repository at the release of the analyzed
+// event, gives the agent the issue context (stack traces mapped to repository
+// paths, breadcrumbs, request, runtime) and restricted permissions, and
+// records the analysis and the resulting diff. Nothing is pushed until
+// CreateBranch or CreatePullRequest is called (or the project's automation
+// does it).
+service AiService {
+  // StartRun queues an analysis of an issue. Requires ROLE_MEMBER. Fails with
+  // ERROR_REASON_AI_RUN_ACTIVE when a run for the issue is already queued or
+  // running, and ERROR_REASON_AI_BUDGET_EXCEEDED at the monthly limit.
+  rpc StartRun(StartRunRequest) returns (StartRunResponse);
+
+  // GetRun returns a run with its analysis and diff. Requires ROLE_VIEWER.
+  rpc GetRun(GetRunRequest) returns (GetRunResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // ListRuns lists runs, newest first. Requires ROLE_VIEWER.
+  rpc ListRuns(ListRunsRequest) returns (ListRunsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // WatchRun streams the log and status changes of a run until it finishes.
+  // Log entries already recorded are replayed first. Requires ROLE_VIEWER.
+  rpc WatchRun(WatchRunRequest) returns (stream WatchRunResponse);
+
+  // CancelRun stops a queued or running run. Requires ROLE_MEMBER.
+  rpc CancelRun(CancelRunRequest) returns (CancelRunResponse);
+
+  // CreateBranch commits the proposed changes and pushes them to a new
+  // branch. Requires ROLE_MEMBER. Fails with ERROR_REASON_AI_RUN_NOT_READY
+  // when the run has no changes.
+  rpc CreateBranch(CreateBranchRequest) returns (CreateBranchResponse);
+
+  // CreatePullRequest pushes the branch (if needed) and opens a pull
+  // request. Requires ROLE_MEMBER.
+  rpc CreatePullRequest(CreatePullRequestRequest) returns (CreatePullRequestResponse);
+
+  // GetAiStatus reports whether AI analysis is available and the current
+  // queue. Requires ROLE_VIEWER.
+  rpc GetAiStatus(GetAiStatusRequest) returns (GetAiStatusResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+}
+
+// AiRun is one AI analysis of an issue.
+message AiRun {
+  // Run id (UUID).
+  string id = 1;
+
+  // Analyzed issue.
+  IssueRef issue = 2;
+
+  // Project of the issue.
+  ProjectRef project = 3;
+
+  // Event the analysis focused on.
+  string event_id = 4;
+
+  // Current status.
+  AiRunStatus status = 5;
+
+  // What started the run.
+  AiRunTrigger trigger = 6;
+
+  // Whether code changes were requested.
+  AiRunMode mode = 7;
+
+  // opencode model in "provider/model" form.
+  string model = 8;
+
+  // Who requested the run; empty for automatic runs.
+  UserRef requested_by = 9;
+
+  // Git commit the analysis ran against.
+  string base_commit = 10;
+
+  // Branch the fix is based on (the default branch unless the release
+  // commit was used).
+  string base_branch = 11;
+
+  // Structured result of a finished run.
+  AiResult result = 12;
+
+  // Full analysis report (Turkish Markdown) of a finished run.
+  string analysis_markdown = 13;
+
+  // Proposed changes as a unified diff; empty without changes.
+  string diff = 14;
+
+  // Files touched by the diff.
+  repeated ChangedFile files = 15;
+
+  // Branch or pull request created from the run.
+  PullRequestRef pull_request = 16;
+
+  // Error of a failed run.
+  string error = 17;
+
+  // Model usage.
+  AiUsage usage = 18;
+
+  // When the run was queued.
+  google.protobuf.Timestamp created_at = 19;
+
+  // When the agent started.
+  google.protobuf.Timestamp started_at = 20;
+
+  // When the run finished.
+  google.protobuf.Timestamp finished_at = 21;
+}
+
+// AiRunStatus is the lifecycle state of a run.
+enum AiRunStatus {
+  // Not set.
+  AI_RUN_STATUS_UNSPECIFIED = 0;
+  // Waiting for a free worker.
+  AI_RUN_STATUS_QUEUED = 1;
+  // Fetching the repository and preparing the workspace.
+  AI_RUN_STATUS_PREPARING = 2;
+  // The agent is working.
+  AI_RUN_STATUS_RUNNING = 3;
+  // Finished with a result.
+  AI_RUN_STATUS_SUCCEEDED = 4;
+  // Finished with an error.
+  AI_RUN_STATUS_FAILED = 5;
+  // Stopped by a user or by shutdown.
+  AI_RUN_STATUS_CANCELLED = 6;
+}
+
+// AiRunTrigger is what started a run.
+enum AiRunTrigger {
+  // Not set.
+  AI_RUN_TRIGGER_UNSPECIFIED = 0;
+  // A member started it in the web UI.
+  AI_RUN_TRIGGER_MANUAL = 1;
+  // Project automation started it for a new issue.
+  AI_RUN_TRIGGER_AUTOMATIC = 2;
+  // Started with the izci CLI.
+  AI_RUN_TRIGGER_CLI = 3;
+  // Started through an MCP tool.
+  AI_RUN_TRIGGER_MCP = 4;
+  // Started from a Telegram notification button.
+  AI_RUN_TRIGGER_TELEGRAM = 5;
+}
+
+// AiRunMode selects whether the agent may change code.
+enum AiRunMode {
+  // Not set; treated as AI_RUN_MODE_FIX when a repository is linked,
+  // otherwise AI_RUN_MODE_ANALYZE.
+  AI_RUN_MODE_UNSPECIFIED = 0;
+  // Explain the root cause without changing code.
+  AI_RUN_MODE_ANALYZE = 1;
+  // Explain the root cause and propose a code fix.
+  AI_RUN_MODE_FIX = 2;
+}
+
+// AiResult is the structured outcome of an analysis.
+message AiResult {
+  // One-paragraph summary.
+  string summary = 1;
+
+  // Root cause explanation.
+  string root_cause = 2;
+
+  // What the proposed fix changes and why.
+  string fix_summary = 3;
+
+  // Agent's confidence in the root cause and fix, 0.0–1.0.
+  double confidence = 4;
+
+  // Risk of the proposed change.
+  Risk risk = 5;
+
+  // Suggested tests or verification steps.
+  repeated string test_suggestions = 6;
+}
+
+// Risk rates a proposed change.
+enum Risk {
+  // Not set.
+  RISK_UNSPECIFIED = 0;
+  // Local, well-contained change.
+  RISK_LOW = 1;
+  // Touches shared code paths.
+  RISK_MEDIUM = 2;
+  // Broad or behavior-changing; review carefully.
+  RISK_HIGH = 3;
+}
+
+// ChangedFile is one file of a diff.
+message ChangedFile {
+  // Repository-relative path.
+  string path = 1;
+
+  // Added lines.
+  uint32 additions = 2;
+
+  // Removed lines.
+  uint32 deletions = 3;
+
+  // "added", "modified", "deleted" or "renamed".
+  string status = 4;
+}
+
+// AiUsage is the model usage of a run.
+message AiUsage {
+  // Input tokens.
+  uint64 input_tokens = 1;
+
+  // Output tokens.
+  uint64 output_tokens = 2;
+
+  // Estimated cost in US dollars, when reported by opencode.
+  double cost_usd = 3;
+}
+
+// AiLogEntry is one line of a run log.
+message AiLogEntry {
+  // When it was recorded.
+  google.protobuf.Timestamp time = 1;
+
+  // Kind of entry.
+  AiLogKind kind = 2;
+
+  // Text of the entry.
+  string message = 3;
+
+  // Tool name for AI_LOG_KIND_TOOL, e.g. "read", "edit", "bash".
+  string tool = 4;
+}
+
+// AiLogKind classifies log entries.
+enum AiLogKind {
+  // Not set.
+  AI_LOG_KIND_UNSPECIFIED = 0;
+  // Progress reported by izci (checkout, prompt, collection of results).
+  AI_LOG_KIND_SYSTEM = 1;
+  // Text written by the agent.
+  AI_LOG_KIND_TEXT = 2;
+  // A tool call of the agent.
+  AI_LOG_KIND_TOOL = 3;
+  // An agent step boundary.
+  AI_LOG_KIND_STEP = 4;
+  // An error.
+  AI_LOG_KIND_ERROR = 5;
+}
+
+// StartRunRequest describes the analysis.
+message StartRunRequest {
+  // Issue id.
+  string issue_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // Event to focus on; defaults to the issue's recommended event.
+  string event_id = 2;
+
+  // Whether code changes are wanted.
+  AiRunMode mode = 3;
+
+  // Model override in "provider/model" form.
+  string model = 4 [(buf.validate.field).string.max_len = 128];
+
+  // Extra instructions for this run, e.g. "the bug appears only for
+  // customers on the old tariff". Max 4000 characters.
+  string instructions = 5 [(buf.validate.field).string.max_len = 4000];
+}
+
+// StartRunResponse returns the queued run.
+message StartRunResponse {
+  // The queued run.
+  AiRun run = 1;
+}
+
+// GetRunRequest identifies a run.
+message GetRunRequest {
+  // Run id.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+
+  // Also return the recorded log.
+  bool include_log = 2;
+}
+
+// GetRunResponse returns the run.
+message GetRunResponse {
+  // The run.
+  AiRun run = 1;
+
+  // Log entries, oldest first, when requested.
+  repeated AiLogEntry log = 2;
+}
+
+// ListRunsRequest filters runs.
+message ListRunsRequest {
+  // Only runs of this issue.
+  string issue_id = 1;
+
+  // Only runs of this project (slug).
+  string project = 2 [(buf.validate.field).string.max_len = 50];
+
+  // Only runs with this status.
+  AiRunStatus status = 3;
+
+  // Maximum runs to return (default 50, max 100).
+  uint32 page_size = 4 [(buf.validate.field).uint32.lte = 100];
+
+  // Token from a previous response.
+  string page_token = 5;
+}
+
+// ListRunsResponse is a page of runs (without diff and full analysis).
+message ListRunsResponse {
+  // Runs, newest first.
+  repeated AiRun runs = 1;
+
+  // Token for the next page; empty on the last page.
+  string next_page_token = 2;
+}
+
+// WatchRunRequest identifies a run.
+message WatchRunRequest {
+  // Run id.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// WatchRunResponse is one update of a watched run.
+message WatchRunResponse {
+  // The update.
+  oneof update {
+    // The run changed state (sent first, and whenever the status changes;
+    // the last message carries the finished run).
+    AiRun run = 1;
+    // A new log entry.
+    AiLogEntry log = 2;
+  }
+}
+
+// CancelRunRequest identifies a run.
+message CancelRunRequest {
+  // Run id.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// CancelRunResponse returns the cancelled run.
+message CancelRunResponse {
+  // The run.
+  AiRun run = 1;
+}
+
+// CreateBranchRequest names the branch.
+message CreateBranchRequest {
+  // Run id.
+  string run_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // Branch name; defaults to "izci/fix/<short-id>-<slug>".
+  string branch = 2 [(buf.validate.field).string.max_len = 200];
+}
+
+// CreateBranchResponse returns the pushed branch.
+message CreateBranchResponse {
+  // The branch (number 0, state "branch").
+  PullRequestRef pull_request = 1;
+}
+
+// CreatePullRequestRequest describes the pull request.
+message CreatePullRequestRequest {
+  // Run id.
+  string run_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // Open as a draft (recommended).
+  bool draft = 2;
+
+  // Title; defaults to "fix: <issue title> (<short id>)".
+  string title = 3 [(buf.validate.field).string.max_len = 250];
+
+  // Target branch; defaults to the repository's default branch.
+  string base_branch = 4 [(buf.validate.field).string.max_len = 200];
+}
+
+// CreatePullRequestResponse returns the pull request.
+message CreatePullRequestResponse {
+  // The opened pull request.
+  PullRequestRef pull_request = 1;
+}
+
+// GetAiStatusRequest has no fields.
+message GetAiStatusRequest {}
+
+// GetAiStatusResponse describes AI availability.
+message GetAiStatusResponse {
+  // Whether AI analysis is enabled on the instance.
+  bool enabled = 1;
+
+  // Detected opencode version, empty when opencode is missing.
+  string opencode_version = 2;
+
+  // Default model.
+  string default_model = 3;
+
+  // Maximum parallel runs.
+  uint32 max_concurrent = 4;
+
+  // Runs waiting.
+  uint32 queued = 5;
+
+  // Runs in progress.
+  uint32 running = 6;
+
+  // Runs started this month by the organization.
+  uint32 monthly_runs = 7;
+
+  // Monthly limit of the organization (0 = unlimited).
+  uint32 monthly_limit = 8;
+}

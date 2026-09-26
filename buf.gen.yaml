@@ -1,0 +1,31 @@
+# Code generation for izci. Run through `make gen`, which also clears the
+# output directories first (buf's `clean` cannot be used with out: .).
+#
+# Go code lands next to its import path thanks to `module=`: ingest.v1 goes to
+# the SDK module (sdk/go/proto/...), everything else to gen/.
+version: v2
+managed:
+  enabled: true
+  disable:
+    - file_option: go_package
+      module: buf.build/bufbuild/protovalidate
+  override:
+    - file_option: go_package_prefix
+      value: github.com/mcihad/kentos-izci/gen
+    - file_option: go_package_prefix
+      path: izci/ingest
+      value: github.com/mcihad/kentos-izci/sdk/go/proto
+plugins:
+  - local: ["go", "tool", "protoc-gen-go"]
+    out: .
+    opt: module=github.com/mcihad/kentos-izci
+  - local: ["go", "tool", "protoc-gen-connect-go"]
+    out: .
+    opt: module=github.com/mcihad/kentos-izci
+  - local: web/node_modules/.bin/protoc-gen-es
+    out: web/src/gen
+    opt: target=ts
+    include_imports: true
+  - local: ["go", "run", "./tools/protoc-gen-izcidoc"]
+    out: docs/api
+    strategy: all

@@ -1,0 +1,196 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "izci/api/v1/auth.proto";
+import "izci/api/v1/organization.proto";
+
+// AdminService administers the whole instance. Every method requires a
+// superadmin; none uses the Izci-Org header.
+service AdminService {
+  // GetInstanceInfo returns version, database and feature information.
+  rpc GetInstanceInfo(GetInstanceInfoRequest) returns (GetInstanceInfoResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // ListOrganizations lists all organizations with their usage.
+  rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // UpdateOrganizationPlan changes the plan and limits of an organization.
+  rpc UpdateOrganizationPlan(UpdateOrganizationPlanRequest) returns (UpdateOrganizationPlanResponse);
+
+  // ListUsers lists all users.
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // UpdateUser grants or revokes superadmin and disables or enables an
+  // account. A superadmin cannot demote or disable themselves.
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+}
+
+// FeatureFlags tells which optional features are configured.
+message FeatureFlags {
+  // Telegram bot configured.
+  bool telegram = 1;
+
+  // AI analysis enabled and opencode found.
+  bool ai = 2;
+
+  // GitHub App configured.
+  bool github_app = 3;
+
+  // Configured OpenID Connect provider ids.
+  repeated string oidc_providers = 4;
+
+  // MCP endpoint enabled.
+  bool mcp = 5;
+}
+
+// AdminOrganization is an organization with instance-level statistics.
+message AdminOrganization {
+  // The organization.
+  Organization organization = 1;
+
+  // Events accepted this month.
+  uint64 month_events = 2;
+
+  // When the organization last received an event.
+  google.protobuf.Timestamp last_event_at = 3;
+}
+
+// AdminUser is a user with instance-level details.
+message AdminUser {
+  // The user.
+  User user = 1;
+
+  // Disabled users cannot sign in and their tokens are rejected.
+  bool disabled = 2;
+
+  // Last successful sign-in.
+  google.protobuf.Timestamp last_login_at = 3;
+
+  // Number of organizations the user belongs to.
+  uint32 organization_count = 4;
+}
+
+// GetInstanceInfoRequest has no fields.
+message GetInstanceInfoRequest {}
+
+// GetInstanceInfoResponse describes the instance.
+message GetInstanceInfoResponse {
+  // izci version.
+  string version = 1;
+
+  // Git commit of the build.
+  string commit = 2;
+
+  // Go version of the build.
+  string go_version = 3;
+
+  // PostgreSQL server version.
+  string postgres_version = 4;
+
+  // Configured public URL.
+  string public_url = 5;
+
+  // Number of organizations.
+  uint32 organizations = 6;
+
+  // Number of users.
+  uint32 users = 7;
+
+  // Events received in the last 24 hours across all organizations.
+  uint64 events_24h = 8;
+
+  // Optional features.
+  FeatureFlags features = 9;
+
+  // When the server process started.
+  google.protobuf.Timestamp started_at = 10;
+}
+
+// ListOrganizationsRequest pages through organizations.
+message ListOrganizationsRequest {
+  // Text matched against slug and name.
+  string query = 1 [(buf.validate.field).string.max_len = 100];
+
+  // Maximum organizations to return (default 50, max 100).
+  uint32 page_size = 2 [(buf.validate.field).uint32.lte = 100];
+
+  // Token from a previous response.
+  string page_token = 3;
+}
+
+// ListOrganizationsResponse is a page of organizations.
+message ListOrganizationsResponse {
+  // Organizations ordered by name.
+  repeated AdminOrganization organizations = 1;
+
+  // Token for the next page; empty on the last page.
+  string next_page_token = 2;
+}
+
+// UpdateOrganizationPlanRequest changes plan and limits.
+message UpdateOrganizationPlanRequest {
+  // Organization id.
+  string organization_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // Plan name, e.g. "team".
+  string plan = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+
+  // New limits.
+  OrganizationLimits limits = 3 [(buf.validate.field).required = true];
+}
+
+// UpdateOrganizationPlanResponse returns the organization.
+message UpdateOrganizationPlanResponse {
+  // The updated organization.
+  Organization organization = 1;
+}
+
+// ListUsersRequest pages through users.
+message ListUsersRequest {
+  // Text matched against email and name.
+  string query = 1 [(buf.validate.field).string.max_len = 100];
+
+  // Maximum users to return (default 50, max 100).
+  uint32 page_size = 2 [(buf.validate.field).uint32.lte = 100];
+
+  // Token from a previous response.
+  string page_token = 3;
+}
+
+// ListUsersResponse is a page of users.
+message ListUsersResponse {
+  // Users ordered by email.
+  repeated AdminUser users = 1;
+
+  // Token for the next page; empty on the last page.
+  string next_page_token = 2;
+}
+
+// UpdateUserRequest changes a user.
+message UpdateUserRequest {
+  // User id.
+  string user_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // New superadmin flag; unchanged when unset.
+  optional bool superadmin = 2;
+
+  // New disabled flag; unchanged when unset.
+  optional bool disabled = 3;
+}
+
+// UpdateUserResponse returns the user.
+message UpdateUserResponse {
+  // The updated user.
+  AdminUser user = 1;
+}

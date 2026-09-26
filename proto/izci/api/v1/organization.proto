@@ -1,0 +1,350 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "izci/api/v1/auth.proto";
+import "izci/api/v1/common.proto";
+
+// OrganizationService manages the organization selected by the Izci-Org
+// header: settings, members, invitations, usage and the audit log.
+//
+// An organization is the tenant boundary of izci: projects, customers,
+// issues, alert rules and integrations all belong to exactly one
+// organization, and no data is shared between organizations.
+service OrganizationService {
+  // GetOrganization returns the current organization. Requires ROLE_VIEWER.
+  rpc GetOrganization(GetOrganizationRequest) returns (GetOrganizationResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // CreateOrganization creates a new organization owned by the caller.
+  // Allowed for superadmins, and for everyone when self sign-up is open.
+  // Does not use the Izci-Org header.
+  rpc CreateOrganization(CreateOrganizationRequest) returns (CreateOrganizationResponse);
+
+  // UpdateOrganization changes the name and settings. Requires ROLE_ADMIN.
+  rpc UpdateOrganization(UpdateOrganizationRequest) returns (UpdateOrganizationResponse);
+
+  // ListMembers lists members and pending invitations. Requires ROLE_VIEWER.
+  rpc ListMembers(ListMembersRequest) returns (ListMembersResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // InviteMember invites an email address. Requires ROLE_ADMIN; inviting an
+  // owner requires ROLE_OWNER. Returns the invitation link to share (izci
+  // does not send email).
+  rpc InviteMember(InviteMemberRequest) returns (InviteMemberResponse);
+
+  // RevokeInvitation cancels a pending invitation. Requires ROLE_ADMIN.
+  rpc RevokeInvitation(RevokeInvitationRequest) returns (RevokeInvitationResponse);
+
+  // UpdateMember changes a member's role. Requires ROLE_ADMIN; changing an
+  // owner or granting ROLE_OWNER requires ROLE_OWNER. The last owner cannot be
+  // demoted (ERROR_REASON_LAST_OWNER).
+  rpc UpdateMember(UpdateMemberRequest) returns (UpdateMemberResponse);
+
+  // RemoveMember removes a member (or the caller, to leave). Requires
+  // ROLE_ADMIN to remove others. The last owner cannot be removed.
+  rpc RemoveMember(RemoveMemberRequest) returns (RemoveMemberResponse);
+
+  // GetUsage returns event and AI usage of the current month against the
+  // organization's limits. Requires ROLE_VIEWER.
+  rpc GetUsage(GetUsageRequest) returns (GetUsageResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // ListAuditLog lists security-relevant changes (keys, members,
+  // integrations, settings), newest first. Requires ROLE_ADMIN.
+  rpc ListAuditLog(ListAuditLogRequest) returns (ListAuditLogResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+}
+
+// Organization is a tenant of izci.
+message Organization {
+  // Organization id (UUID).
+  string id = 1;
+
+  // URL-safe unique identifier, e.g. "kentos".
+  string slug = 2;
+
+  // Display name.
+  string name = 3;
+
+  // Plan name, e.g. "internal", "free", "team".
+  string plan = 4;
+
+  // Editable settings.
+  OrganizationSettings settings = 5;
+
+  // Limits of the plan (read-only; changed by instance administrators).
+  OrganizationLimits limits = 6;
+
+  // Number of projects.
+  uint32 project_count = 7;
+
+  // Number of members.
+  uint32 member_count = 8;
+
+  // When the organization was created.
+  google.protobuf.Timestamp created_at = 9;
+}
+
+// OrganizationSettings are editable organization settings.
+message OrganizationSettings {
+  // IANA timezone used for notifications, digests and day boundaries in
+  // charts, e.g. "Europe/Istanbul".
+  string timezone = 1 [(buf.validate.field).string.max_len = 64];
+
+  // Email domains whose users join the organization automatically when they
+  // first sign in with OpenID Connect, e.g. ["kentos.com.tr"].
+  repeated string auto_join_domains = 2 [(buf.validate.field).repeated = {
+    max_items: 20
+    items: {string: {hostname: true}}
+  }];
+
+  // Role granted to users who join through auto_join_domains.
+  Role auto_join_role = 3;
+}
+
+// OrganizationLimits are the plan limits of an organization. Zero means
+// unlimited.
+message OrganizationLimits {
+  // Events accepted per calendar month.
+  uint64 monthly_events = 1;
+
+  // Days events are kept.
+  uint32 retention_days = 2;
+
+  // Maximum number of projects.
+  uint32 max_projects = 3;
+
+  // Maximum number of members.
+  uint32 max_members = 4;
+
+  // AI runs per calendar month.
+  uint32 monthly_ai_runs = 5;
+}
+
+// Member is a user's membership in the organization.
+message Member {
+  // The user.
+  UserRef user = 1;
+
+  // Role in the organization.
+  Role role = 2;
+
+  // When the user joined.
+  google.protobuf.Timestamp joined_at = 3;
+
+  // When the user was last active in izci.
+  google.protobuf.Timestamp last_seen_at = 4;
+}
+
+// DailyUsage is the usage of one day.
+message DailyUsage {
+  // Day in the organization's timezone, formatted "YYYY-MM-DD".
+  string date = 1;
+
+  // Events accepted.
+  uint64 accepted = 2;
+
+  // Events dropped by rate limits or quota.
+  uint64 rate_limited = 3;
+
+  // Events dropped by project filters.
+  uint64 filtered = 4;
+}
+
+// AuditLogEntry records one security-relevant change.
+message AuditLogEntry {
+  // Entry id (UUID).
+  string id = 1;
+
+  // Who made the change; empty for system actions.
+  UserRef actor = 2;
+
+  // Action in "<resource>.<verb>" form, e.g. "api_key.create",
+  // "member.update", "integration.delete".
+  string action = 3;
+
+  // Kind of the changed resource, e.g. "api_key".
+  string target_type = 4;
+
+  // Id of the changed resource.
+  string target_id = 5;
+
+  // Human-readable name of the changed resource.
+  string target_name = 6;
+
+  // Additional details, e.g. {"role": "ROLE_ADMIN"}.
+  map<string, string> metadata = 7;
+
+  // Client address of the actor.
+  string ip_address = 8;
+
+  // When the change happened.
+  google.protobuf.Timestamp created_at = 9;
+}
+
+// GetOrganizationRequest has no fields; the organization comes from the
+// Izci-Org header.
+message GetOrganizationRequest {}
+
+// GetOrganizationResponse returns the organization.
+message GetOrganizationResponse {
+  // The organization.
+  Organization organization = 1;
+
+  // The caller's role in it.
+  Role role = 2;
+}
+
+// CreateOrganizationRequest describes the new organization.
+message CreateOrganizationRequest {
+  // Display name.
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // Slug: 2–50 lowercase letters, digits or hyphens, starting with a letter.
+  string slug = 2 [(buf.validate.field).string.pattern = "^[a-z][a-z0-9-]{0,48}[a-z0-9]$"];
+}
+
+// CreateOrganizationResponse returns the new organization.
+message CreateOrganizationResponse {
+  // The new organization; the caller is its owner.
+  Organization organization = 1;
+}
+
+// UpdateOrganizationRequest changes the organization.
+message UpdateOrganizationRequest {
+  // New display name; unchanged when empty.
+  string name = 1 [(buf.validate.field).string.max_len = 100];
+
+  // New settings; unchanged when unset.
+  OrganizationSettings settings = 2;
+}
+
+// UpdateOrganizationResponse returns the updated organization.
+message UpdateOrganizationResponse {
+  // The updated organization.
+  Organization organization = 1;
+}
+
+// ListMembersRequest has no fields.
+message ListMembersRequest {}
+
+// ListMembersResponse lists members and invitations.
+message ListMembersResponse {
+  // Members ordered by name.
+  repeated Member members = 1;
+
+  // Pending invitations, newest first (only for ROLE_ADMIN and above).
+  repeated Invitation invitations = 2;
+}
+
+// InviteMemberRequest invites an email address.
+message InviteMemberRequest {
+  // Email address to invite.
+  string email = 1 [(buf.validate.field).string.email = true];
+
+  // Role granted on acceptance.
+  Role role = 2 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+}
+
+// InviteMemberResponse returns the invitation with its link.
+message InviteMemberResponse {
+  // The invitation; url holds the link to share.
+  Invitation invitation = 1;
+}
+
+// RevokeInvitationRequest identifies an invitation.
+message RevokeInvitationRequest {
+  // Invitation id.
+  string invitation_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// RevokeInvitationResponse has no fields.
+message RevokeInvitationResponse {}
+
+// UpdateMemberRequest changes a member's role.
+message UpdateMemberRequest {
+  // User id of the member.
+  string user_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // New role.
+  Role role = 2 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+}
+
+// UpdateMemberResponse returns the updated member.
+message UpdateMemberResponse {
+  // The updated member.
+  Member member = 1;
+}
+
+// RemoveMemberRequest identifies a member.
+message RemoveMemberRequest {
+  // User id of the member.
+  string user_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// RemoveMemberResponse has no fields.
+message RemoveMemberResponse {}
+
+// GetUsageRequest selects a month.
+message GetUsageRequest {
+  // Month formatted "YYYY-MM"; defaults to the current month.
+  string month = 1 [(buf.validate.field).string.pattern = "^$|^[0-9]{4}-(0[1-9]|1[0-2])$"];
+}
+
+// GetUsageResponse reports usage against limits.
+message GetUsageResponse {
+  // Month formatted "YYYY-MM".
+  string month = 1;
+
+  // Events accepted this month.
+  uint64 events_accepted = 2;
+
+  // Events dropped by rate limits or quota this month.
+  uint64 events_rate_limited = 3;
+
+  // Events dropped by project filters this month.
+  uint64 events_filtered = 4;
+
+  // AI runs started this month.
+  uint32 ai_runs = 5;
+
+  // Plan limits.
+  OrganizationLimits limits = 6;
+
+  // Per-day breakdown, oldest first.
+  repeated DailyUsage days = 7;
+}
+
+// ListAuditLogRequest pages through the audit log.
+message ListAuditLogRequest {
+  // Maximum entries to return (default 50, max 100).
+  uint32 page_size = 1 [(buf.validate.field).uint32.lte = 100];
+
+  // Token from a previous response.
+  string page_token = 2;
+}
+
+// ListAuditLogResponse is a page of audit log entries.
+message ListAuditLogResponse {
+  // Entries, newest first.
+  repeated AuditLogEntry entries = 1;
+
+  // Token for the next page; empty on the last page.
+  string next_page_token = 2;
+}
