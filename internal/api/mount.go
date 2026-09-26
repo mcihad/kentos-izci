@@ -7,6 +7,7 @@ import (
 	"connectrpc.com/connect"
 
 	"github.com/mcihad/kentos-izci/gen/izci/api/v1/apiv1connect"
+	"github.com/mcihad/kentos-izci/internal/alert"
 	"github.com/mcihad/kentos-izci/internal/auth"
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
@@ -30,6 +31,10 @@ type Deps struct {
 	// StreamsDone is closed when the server shuts down, ending live streams
 	// (optional in tests).
 	StreamsDone <-chan struct{}
+	// Notifier is the Telegram bot; nil when none is configured.
+	Notifier Notifier
+	// Alerts caches alert rules for ingest; invalidated on rule changes.
+	Alerts *alert.Engine
 }
 
 // Servers exposes the service implementations so that other subsystems
@@ -44,6 +49,7 @@ type Servers struct {
 	Customer     *CustomerServer
 	Dashboard    *DashboardServer
 	Admin        *AdminServer
+	Alert        *AlertServer
 	// Hub is the live update hub the services publish to.
 	Hub *realtime.Hub
 }
@@ -67,7 +73,8 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 	if d.Hub == nil {
 		d.Hub = realtime.NewHub()
 	}
-	b := &base{db: d.DB, auth: d.Auth, cfg: d.Config, log: d.Log, hub: d.Hub, pipeline: d.Pipeline, keys: d.Keys, done: d.StreamsDone}
+	b := &base{db: d.DB, auth: d.Auth, cfg: d.Config, log: d.Log, hub: d.Hub, pipeline: d.Pipeline, keys: d.Keys, done: d.StreamsDone,
+		notifier: d.Notifier, alerts: d.Alerts}
 	s := &Servers{
 		Auth:         &AuthServer{base: b},
 		User:         &UserServer{base: b},
@@ -78,7 +85,11 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 		Customer:     &CustomerServer{base: b},
 		Dashboard:    &DashboardServer{base: b},
 		Admin:        &AdminServer{base: b},
+		Alert:        &AlertServer{base: b},
 		Hub:          d.Hub,
+	}
+	if d.Notifier != nil {
+		s.User.TelegramLinkCode = d.Notifier.AccountLinkCode
 	}
 	handle(apiv1connect.NewAuthServiceHandler(s.Auth, opts...))
 	handle(apiv1connect.NewUserServiceHandler(s.User, opts...))
@@ -88,7 +99,7 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 	handle(apiv1connect.NewEventServiceHandler(s.Event, opts...))
 	handle(apiv1connect.NewCustomerServiceHandler(s.Customer, opts...))
 	handle(apiv1connect.NewDashboardServiceHandler(s.Dashboard, opts...))
-	handle(apiv1connect.NewAlertServiceHandler(apiv1connect.UnimplementedAlertServiceHandler{}, opts...))
+	handle(apiv1connect.NewAlertServiceHandler(s.Alert, opts...))
 	handle(apiv1connect.NewIntegrationServiceHandler(apiv1connect.UnimplementedIntegrationServiceHandler{}, opts...))
 	handle(apiv1connect.NewAiServiceHandler(apiv1connect.UnimplementedAiServiceHandler{}, opts...))
 	handle(apiv1connect.NewAdminServiceHandler(s.Admin, opts...))

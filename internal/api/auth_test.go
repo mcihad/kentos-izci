@@ -84,6 +84,7 @@ type client struct {
 	customer  apiv1connect.CustomerServiceClient
 	dashboard apiv1connect.DashboardServiceClient
 	admin     apiv1connect.AdminServiceClient
+	alert     apiv1connect.AlertServiceClient
 	hdr       map[string]string
 }
 
@@ -101,6 +102,7 @@ func (e *env) client(hdr map[string]string) *client {
 		customer:  apiv1connect.NewCustomerServiceClient(hc, e.srv.URL, opt),
 		dashboard: apiv1connect.NewDashboardServiceClient(hc, e.srv.URL, opt),
 		admin:     apiv1connect.NewAdminServiceClient(hc, e.srv.URL, opt),
+		alert:     apiv1connect.NewAlertServiceClient(hc, e.srv.URL, opt),
 		hdr:       hdr,
 	}
 }

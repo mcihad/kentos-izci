@@ -14,6 +14,7 @@ import (
 
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
 	"github.com/mcihad/kentos-izci/gen/izci/api/v1/apiv1connect"
+	"github.com/mcihad/kentos-izci/internal/alert"
 	"github.com/mcihad/kentos-izci/internal/auth"
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
@@ -34,6 +35,8 @@ type base struct {
 	pipeline *ingest.Pipeline
 	keys     *ingest.KeyResolver
 	done     <-chan struct{}
+	notifier Notifier
+	alerts   *alert.Engine
 }
 
 // AuthServer implements izci.api.v1.AuthService.

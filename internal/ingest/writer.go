@@ -44,6 +44,9 @@ type IssueOutcome struct {
 	Unignored   bool
 	Status      int16
 	TimesSeen   int64
+	// NewEnvironments lists environments the issue was seen in for the first
+	// time with this batch (all of them for a new issue).
+	NewEnvironments []string
 	// Events of this issue in the batch, oldest first.
 	Events []*Processed
 }
@@ -61,6 +64,10 @@ type Batch struct {
 	// transitions holds resolved/ignored issues that received events and
 	// may change status.
 	transitions map[uuid.UUID]issueRow
+
+	// Notifications is set by hooks to the number of notifications the
+	// batch queued, so that delivery can start right after the commit.
+	Notifications int
 }
 
 // writeBatch persists one batch in a single system-scoped transaction.
@@ -783,17 +790,25 @@ func writeCounters(ctx context.Context, tx pgx.Tx, b *Batch) error {
 			  count = g.count + excluded.count,
 			  first_seen = least(g.first_seen, excluded.first_seen),
 			  last_seen = greatest(g.last_seen, excluded.last_seen)
-			RETURNING g.issue_id, g.key, old.issue_id IS NULL`, iss, key, val, org, proj, cnt, first, last).
+			RETURNING g.issue_id, g.key, g.value, old.issue_id IS NULL`, iss, key, val, org, proj, cnt, first, last).
 			Query(func(rows pgx.Rows) error {
 				for rows.Next() {
 					var id uuid.UUID
-					var k string
+					var k, v string
 					var created bool
-					if err := rows.Scan(&id, &k, &created); err != nil {
+					if err := rows.Scan(&id, &k, &v, &created); err != nil {
 						return err
 					}
-					if created && k == "customer" {
+					if !created {
+						continue
+					}
+					switch k {
+					case "customer":
 						newCustomerIssues = append(newCustomerIssues, id)
+					case "environment":
+						if o := b.issueByID(id); o != nil {
+							o.NewEnvironments = append(o.NewEnvironments, v)
+						}
 					}
 				}
 				return rows.Err()

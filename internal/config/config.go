@@ -52,6 +52,7 @@ type Config struct {
 	Retention RetentionConfig
 	Ingest    IngestConfig
 	Auth      AuthConfig
+	Telegram  TelegramConfig
 	// OIDC holds the configured OpenID Connect providers (from
 	// OIDC_PROVIDERS and OIDC_<ID>_* variables).
 	OIDC []OIDCProvider `env:"-"`
@@ -133,6 +134,36 @@ type AuthConfig struct {
 	InvitationTTL time.Duration `env:"AUTH_INVITATION_TTL" envDefault:"168h"`
 	// Providers lists OpenID Connect provider ids, e.g. "kimlik,google".
 	Providers []string `env:"OIDC_PROVIDERS" envSeparator:","`
+}
+
+// TelegramConfig configures the notification bot.
+type TelegramConfig struct {
+	// BotToken is the token from @BotFather; empty disables Telegram.
+	BotToken Secret `env:"TELEGRAM_BOT_TOKEN"`
+	// Mode is "polling" (default; no public URL needed) or "webhook".
+	Mode string `env:"TELEGRAM_MODE" envDefault:"polling"`
+	// WebhookSecret authenticates webhook calls through the
+	// X-Telegram-Bot-Api-Secret-Token header (webhook mode only).
+	WebhookSecret Secret `env:"TELEGRAM_WEBHOOK_SECRET"`
+	// APIURL is the Bot API base URL; change it for a local Bot API server.
+	APIURL string `env:"TELEGRAM_API_URL" envDefault:"https://api.telegram.org"`
+}
+
+// Enabled reports whether a bot token is configured.
+func (t TelegramConfig) Enabled() bool { return t.BotToken != "" }
+
+// Secret is a string that is never printed: String returns a placeholder so
+// secrets do not leak through logs or error messages.
+type Secret string
+
+// Value returns the secret itself.
+func (s Secret) Value() string { return string(s) }
+
+func (s Secret) String() string {
+	if s == "" {
+		return ""
+	}
+	return "[redacted]"
 }
 
 // OIDCProvider is one OpenID Connect identity provider, configured with
@@ -243,6 +274,20 @@ func (c *Config) finalize() error {
 			errs = append(errs, fmt.Errorf("OIDC_%s_DEFAULT_ROLE must be viewer, member, admin or owner", strings.ToUpper(p.ID)))
 		}
 	}
+
+	switch c.Telegram.Mode {
+	case "polling":
+	case "webhook":
+		if c.Telegram.Enabled() && !validWebhookSecret(c.Telegram.WebhookSecret.Value()) {
+			errs = append(errs, errors.New("TELEGRAM_WEBHOOK_SECRET must be 16-256 characters of A-Z, a-z, 0-9, _ or - in webhook mode"))
+		}
+		if c.Telegram.Enabled() && !strings.HasPrefix(c.PublicURL, "https://") {
+			errs = append(errs, errors.New("TELEGRAM_MODE=webhook needs an https IZCI_PUBLIC_URL that Telegram can reach"))
+		}
+	default:
+		errs = append(errs, fmt.Errorf("TELEGRAM_MODE must be polling or webhook (got %q)", c.Telegram.Mode))
+	}
+	c.Telegram.APIURL = strings.TrimRight(c.Telegram.APIURL, "/")
 
 	if c.Ingest.Ack != "durable" && c.Ingest.Ack != "async" {
 		errs = append(errs, fmt.Errorf("INGEST_ACK must be durable or async (got %q)", c.Ingest.Ack))
@@ -372,4 +417,17 @@ func (p PrefixList) Contains(addr netip.Addr) bool {
 // variable, or "" for the default.
 func LookupEnvFile() string {
 	return os.Getenv("IZCI_ENV_FILE")
+}
+
+// validWebhookSecret checks Telegram's rules for secret_token.
+func validWebhookSecret(s string) bool {
+	if len(s) < 16 || len(s) > 256 {
+		return false
+	}
+	for _, c := range s {
+		if !(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_' || c == '-') {
+			return false
+		}
+	}
+	return true
 }

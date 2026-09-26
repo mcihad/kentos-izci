@@ -68,6 +68,8 @@ commit message and the phase table in `docs/mimari.md` (once written).
 | `internal/api` | izci.api.v1 Connect services (one `*_service.go` per service); `authz.go` holds the per-procedure authorization table, `issue_filter.go` turns search queries into SQL, `series.go` builds stats-period buckets |
 | `internal/search` | issue search language parser (`is:unresolved level:>=error customer:x "text"`) |
 | `internal/realtime` | in-process hub fanning committed ingest batches and triage out to `WatchLive` streams |
+| `internal/alert` | alert rules evaluated inside the ingest transaction (savepoint) → transactional notification outbox |
+| `internal/telegram` | Bot API client, outbox dispatcher (edit-in-place, flood control), chat/account linking, signed triage buttons, polling or webhook |
 | `internal/ingest` | normalize → scrub → in-app → grouping → group-commit writer; `IngestService` |
 | `internal/clientip`, `internal/secret`, `internal/slug` | client address, tokens/AES-GCM/HMAC, slugs |
 | `internal/jobs` | periodic background tasks (usage flush, partitions, retention, project purge) |

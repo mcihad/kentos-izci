@@ -19,6 +19,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/realtime"
 	"github.com/mcihad/kentos-izci/internal/search"
+	"github.com/mcihad/kentos-izci/internal/store"
 	ingestv1 "github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1"
 )
 
@@ -341,52 +342,34 @@ func (s *IssueServer) UpdateIssues(ctx context.Context, req *connect.Request[api
 		}
 		var changes []change
 		if m.Status != nil {
+			var err error
 			switch m.GetStatus() {
 			case apiv1.IssueStatus_ISSUE_STATUS_RESOLVED:
-				inRelease, next := m.GetResolve().GetInRelease(), m.GetResolve().GetInNextRelease()
-				_, err := tx.Exec(ctx, `
-					UPDATE issues SET status = 2, substatus = 1, resolved_at = now(), resolved_by = $2,
-					  resolved_in_release = CASE WHEN $3 <> '' THEN $3 WHEN $4 THEN last_release ELSE '' END,
-					  resolved_in_next_release = $4 AND $3 = '',
-					  snooze_until = NULL, snooze_count = NULL, snooze_base = NULL, snooze_until_escalating = false, updated_at = now()
-					WHERE id = ANY($1) AND org_id = $5`, ids, p.User.ID, inRelease, next, t.OrgID())
-				if err != nil {
-					return err
-				}
-				changes = append(changes, change{3, map[string]string{"to": "ISSUE_STATUS_RESOLVED", "release": inRelease}})
+				inRelease := m.GetResolve().GetInRelease()
+				err = store.ResolveIssues(ctx, tx, t.OrgID(), ids, p.User.ID, inRelease, m.GetResolve().GetInNextRelease())
+				changes = append(changes, change{store.ActivityStatusChanged, map[string]string{"to": store.StatusName(store.IssueResolved), "release": inRelease}})
 			case apiv1.IssueStatus_ISSUE_STATUS_IGNORED:
 				ig := m.GetIgnore()
-				var until *time.Time
+				var o store.IgnoreOptions
 				if d := ig.GetDuration().AsDuration(); d > 0 {
 					u := time.Now().Add(d)
-					until = &u
+					o.Until = &u
 				}
-				var count *int64
 				if c := ig.GetCount(); c > 0 {
 					v := int64(c)
-					count = &v
+					o.Count = &v
 				}
-				_, err := tx.Exec(ctx, `
-					UPDATE issues SET status = 3, substatus = 1, snooze_until = $2, snooze_count = $3,
-					  snooze_base = CASE WHEN $3::bigint IS NULL THEN NULL ELSE times_seen END,
-					  snooze_until_escalating = $4, updated_at = now()
-					WHERE id = ANY($1) AND org_id = $5`, ids, until, count, ig.GetUntilEscalating(), t.OrgID())
-				if err != nil {
-					return err
-				}
-				changes = append(changes, change{3, map[string]string{"to": "ISSUE_STATUS_IGNORED"}})
+				o.UntilEscalating = ig.GetUntilEscalating()
+				err = store.IgnoreIssues(ctx, tx, t.OrgID(), ids, o)
+				changes = append(changes, change{store.ActivityStatusChanged, map[string]string{"to": store.StatusName(store.IssueIgnored)}})
 			case apiv1.IssueStatus_ISSUE_STATUS_UNRESOLVED:
-				_, err := tx.Exec(ctx, `
-					UPDATE issues SET status = 1, substatus = 2, resolved_at = NULL, resolved_by = NULL, resolved_in_release = '',
-					  resolved_in_next_release = false, snooze_until = NULL, snooze_count = NULL, snooze_base = NULL,
-					  snooze_until_escalating = false, updated_at = now()
-					WHERE id = ANY($1) AND org_id = $2`, ids, t.OrgID())
-				if err != nil {
-					return err
-				}
-				changes = append(changes, change{3, map[string]string{"to": "ISSUE_STATUS_UNRESOLVED"}})
+				err = store.ReopenIssues(ctx, tx, t.OrgID(), ids)
+				changes = append(changes, change{store.ActivityStatusChanged, map[string]string{"to": store.StatusName(store.IssueUnresolved)}})
 			default:
 				return fieldError("status", "unknown status")
+			}
+			if err != nil {
+				return err
 			}
 		}
 		if m.AssigneeId != nil {
@@ -406,20 +389,16 @@ func (s *IssueServer) UpdateIssues(ctx context.Context, req *connect.Request[api
 			if _, err := tx.Exec(ctx, `UPDATE issues SET assignee_id = $2, updated_at = now() WHERE id = ANY($1) AND org_id = $3`, ids, assignee, t.OrgID()); err != nil {
 				return err
 			}
-			changes = append(changes, change{4, map[string]string{"assignee": name}})
+			changes = append(changes, change{store.ActivityAssigned, map[string]string{"assignee": name}})
 		}
 		if m.Priority != nil {
 			if _, err := tx.Exec(ctx, `UPDATE issues SET priority = $2, updated_at = now() WHERE id = ANY($1) AND org_id = $3`, ids, int16(m.GetPriority()), t.OrgID()); err != nil {
 				return err
 			}
-			changes = append(changes, change{5, map[string]string{"to": m.GetPriority().String()}})
+			changes = append(changes, change{store.ActivityPriorityChanged, map[string]string{"to": m.GetPriority().String()}})
 		}
 		for _, c := range changes {
-			data, _ := json.Marshal(c.data)
-			if _, err := tx.Exec(ctx, `
-				INSERT INTO issue_activity (org_id, issue_id, kind, actor_id, data)
-				SELECT $1, id, $3, $4, $5::jsonb FROM issues WHERE id = ANY($2) AND org_id = $1`,
-				t.OrgID(), ids, c.kind, p.User.ID, string(data)); err != nil {
+			if err := store.AddIssueActivity(ctx, tx, t.OrgID(), ids, c.kind, &p.User.ID, c.data); err != nil {
 				return err
 			}
 		}
@@ -842,4 +821,29 @@ func hexString(b []byte) string {
 		out[i*2], out[i*2+1] = hexdigits[c>>4], hexdigits[c&15]
 	}
 	return string(out)
+}
+
+// PublishIssueUpdates broadcasts the current state of issues that changed
+// outside the API (Telegram buttons) to live streams.
+func (s *IssueServer) PublishIssueUpdates(ctx context.Context, orgID uuid.UUID, ids []uuid.UUID) {
+	var issues []*apiv1.IssueSummary
+	err := s.db.InOrg(ctx, orgID, func(tx pgx.Tx) error {
+		org, err := store.GetOrganization(ctx, tx, orgID)
+		if err != nil {
+			return err
+		}
+		w := periodWindow(apiv1.StatsPeriod_STATS_PERIOD_LAST_24_HOURS, time.Now(), orgLocation(org))
+		issues, err = s.loadIssues(ctx, tx, &auth.Tenant{Org: org}, w, issueSelect+" WHERE i.id = ANY($1) AND i.org_id = $2", ids, orgID)
+		return err
+	})
+	if err != nil {
+		s.log.Warn("publish issue updates", "err", err)
+		return
+	}
+	now := time.Now()
+	for _, is := range issues {
+		pid, _ := uuid.Parse(is.GetProject().GetId())
+		s.hub.Publish(realtime.Message{Kind: apiv1.LiveEventKind_LIVE_EVENT_KIND_ISSUE_UPDATED, OrgID: orgID, ProjectID: pid,
+			Level: is.GetLevel(), Time: now, Issue: is})
+	}
 }

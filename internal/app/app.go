@@ -8,10 +8,13 @@ import (
 	"errors"
 	"io/fs"
 	"log/slog"
+	"sync"
 	"time"
 
 	"connectrpc.com/connect"
+	"github.com/jackc/pgx/v5"
 
+	"github.com/mcihad/kentos-izci/internal/alert"
 	"github.com/mcihad/kentos-izci/internal/api"
 	"github.com/mcihad/kentos-izci/internal/auth"
 	"github.com/mcihad/kentos-izci/internal/config"
@@ -22,6 +25,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/realtime"
 	"github.com/mcihad/kentos-izci/internal/secret"
 	"github.com/mcihad/kentos-izci/internal/server"
+	"github.com/mcihad/kentos-izci/internal/telegram"
 	"github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1/ingestv1connect"
 )
 
@@ -38,6 +42,10 @@ type App struct {
 	API  *api.Servers
 	// Hub fans live updates out to WatchLive streams.
 	Hub *realtime.Hub
+	// Alerts evaluates alert rules for every stored batch.
+	Alerts *alert.Engine
+	// Bot is the Telegram bot; nil when TELEGRAM_BOT_TOKEN is empty.
+	Bot *telegram.Bot
 
 	jobs  *jobs.Runner
 	usage *ingest.UsageRecorder
@@ -52,7 +60,16 @@ type Options struct {
 // New wires the application on an open database. Migrations and
 // partitions must already be in place (see Prepare).
 func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*App, error) {
-	a := &App{Config: cfg, Log: log, DB: database, Hub: realtime.NewHub()}
+	a := &App{Config: cfg, Log: log, DB: database, Hub: realtime.NewHub(), Alerts: alert.NewEngine(30 * time.Second)}
+
+	box, err := secret.NewBox(cfg.SecretKey)
+	if err != nil {
+		return nil, err
+	}
+	if cfg.Telegram.Enabled() {
+		a.Bot = telegram.New(cfg.Telegram, cfg.PublicURL, database, box, log, nil)
+		a.Bot.OnRulesChanged = a.Alerts.Invalidate
+	}
 
 	a.Pipeline = ingest.NewPipeline(database, log, ingest.PipelineConfig{
 		Shards:    cfg.Ingest.Shards,
@@ -61,9 +78,28 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 		Linger:    cfg.Ingest.Linger,
 		PublicURL: cfg.PublicURL,
 	}, ingest.Hooks{
+		InTx: func(ctx context.Context, tx pgx.Tx, b *ingest.Batch) error {
+			// Alerting runs in a savepoint: if it fails, the events are
+			// still stored, only without notifications.
+			sp, err := tx.Begin(ctx)
+			if err != nil {
+				return err
+			}
+			n, err := a.Alerts.Evaluate(ctx, sp, b)
+			if err != nil {
+				_ = sp.Rollback(ctx)
+				log.Error("alert evaluation failed; batch stored without notifications", slog.Any("err", err))
+				return nil
+			}
+			b.Notifications += n
+			return sp.Commit(ctx)
+		},
 		AfterCommit: func(b *ingest.Batch) {
 			if a.Hub.Subscribers() > 0 {
 				a.Hub.Publish(realtime.FromBatch(b, cfg.PublicURL)...)
+			}
+			if b.Notifications > 0 && a.Bot != nil {
+				a.Bot.Wake()
 			}
 		},
 	})
@@ -86,17 +122,23 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	a.Server.Handle(path, ingest.CORS(handler))
 	sentry.NewHandler(a.Ingest, log).Register(a.Server.Handle)
 
-	box, err := secret.NewBox(cfg.SecretKey)
-	if err != nil {
-		return nil, err
-	}
 	a.Auth = auth.NewService(database, cfg, box, log)
 	a.Auth.RegisterRoutes(a.Server.Handle)
-	if a.API, err = api.Mount(a.Server.Handle, api.Deps{
+	deps := api.Deps{
 		DB: database, Auth: a.Auth, Config: cfg, Log: log,
-		Hub: a.Hub, Pipeline: a.Pipeline, Keys: a.keys, StreamsDone: a.Server.StreamsDone(),
-	}); err != nil {
+		Hub: a.Hub, Pipeline: a.Pipeline, Keys: a.keys, StreamsDone: a.Server.StreamsDone(), Alerts: a.Alerts,
+	}
+	if a.Bot != nil {
+		deps.Notifier = a.Bot
+	}
+	if a.API, err = api.Mount(a.Server.Handle, deps); err != nil {
 		return nil, err
+	}
+	if a.Bot != nil {
+		a.Bot.OnTriage = a.API.Issue.PublishIssueUpdates
+		if cfg.Telegram.Mode == "webhook" {
+			a.Server.Handle("POST /telegram/webhook", a.Bot.WebhookHandler())
+		}
 	}
 
 	a.jobs = jobs.NewRunner(log,
@@ -162,6 +204,10 @@ func (a *App) Run(ctx context.Context) error {
 	a.Pipeline.Start()
 	jobCtx, stopJobs := context.WithCancel(context.Background())
 	a.jobs.Start(jobCtx)
+	var bot sync.WaitGroup
+	if a.Bot != nil {
+		bot.Go(func() { a.Bot.Run(jobCtx) })
+	}
 
 	serveErr := a.Server.Run(ctx)
 
@@ -172,6 +218,7 @@ func (a *App) Run(ctx context.Context) error {
 	}
 	stopJobs()
 	a.jobs.Wait()
+	bot.Wait()
 	// Final flush of counters gathered since the last tick.
 	a.usage.Flush(drainCtx, a.DB, a.Log)
 	a.keys.FlushUsage(drainCtx, a.Log)
