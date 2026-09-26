@@ -62,10 +62,12 @@ analyze issues with AI (opencode) to open fix branches or pull requests.`,
 		newOrgCmd(a),
 		newProjectCmd(a),
 		newKeyCmd(a),
+		newTokenCmd(a),
 		newEventCmd(),
 		newBenchCmd(),
 		newDemoCmd(a),
 		newAiCmd(a),
+		newMCPCmd(a),
 		newVersionCmd(),
 	)
 	return root

@@ -194,6 +194,28 @@ function CreateTokenDialog({ open, onOpenChange }: { open: boolean; onOpenChange
                   )}
                 />
               </div>
+              <div className="grid gap-1.5">
+                <p className="font-medium text-[13px]">Cursor (.cursor/mcp.json)</p>
+                <CodeBlock
+                  lang="json"
+                  code={JSON.stringify(
+                    {
+                      mcpServers: {
+                        izci: { url: mcpUrl, headers: { Authorization: `Bearer ${created.secret}` } },
+                      },
+                    },
+                    null,
+                    2,
+                  )}
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <p className="font-medium text-[13px]">Yerel süreç olarak (stdio)</p>
+                <CodeBlock
+                  lang="shellscript"
+                  code={`IZCI_TOKEN=${created.secret} izci mcp --url ${window.location.origin}`}
+                />
+              </div>
             </div>
             <DialogFooter>
               <Button onClick={() => close(false)}>Kaydettim, kapat</Button>

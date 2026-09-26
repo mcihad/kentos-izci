@@ -123,6 +123,23 @@ func (s *Service) Authenticate(ctx context.Context, h http.Header) (*Principal, 
 	return nil, nil
 }
 
+// ErrInvalidAccessToken means a personal access token is unknown, expired,
+// revoked or belongs to a disabled user.
+var ErrInvalidAccessToken = errors.New("invalid access token")
+
+// VerifyAccessToken checks a personal access token (MCP clients, which
+// cannot use session cookies).
+func (s *Service) VerifyAccessToken(ctx context.Context, token string) error {
+	p, err := s.Authenticate(ctx, http.Header{"Authorization": {"Bearer " + token}})
+	if err != nil {
+		return err
+	}
+	if p == nil || p.Token == nil {
+		return ErrInvalidAccessToken
+	}
+	return nil
+}
+
 // Login verifies email and password with per-account and per-address
 // throttling.
 func (s *Service) Login(ctx context.Context, email, password string, ip netip.Addr) (*store.User, error) {

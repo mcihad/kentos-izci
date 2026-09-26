@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io/fs"
 	"log/slog"
+	"net/http"
 	"os"
 	"sync"
 	"time"
@@ -27,11 +28,13 @@ import (
 	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/ingest/sentry"
 	"github.com/mcihad/kentos-izci/internal/jobs"
+	"github.com/mcihad/kentos-izci/internal/mcp"
 	"github.com/mcihad/kentos-izci/internal/realtime"
 	"github.com/mcihad/kentos-izci/internal/secret"
 	"github.com/mcihad/kentos-izci/internal/server"
 	"github.com/mcihad/kentos-izci/internal/store"
 	"github.com/mcihad/kentos-izci/internal/telegram"
+	"github.com/mcihad/kentos-izci/internal/version"
 	"github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1/ingestv1connect"
 )
 
@@ -147,8 +150,18 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	if a.Bot != nil {
 		deps.Notifier = a.Bot
 	}
-	if a.API, err = api.Mount(a.Server.Handle, deps); err != nil {
+	// The API is also mounted on a private mux that MCP calls in-process.
+	apiMux := http.NewServeMux()
+	mount := func(pattern string, h http.Handler) {
+		a.Server.Handle(pattern, h)
+		apiMux.Handle(pattern, h)
+	}
+	if a.API, err = api.Mount(mount, deps); err != nil {
 		return nil, err
+	}
+	if cfg.MCP.Enabled {
+		m := mcp.New(mcp.Options{API: mcp.NewAPI(mcp.InProcess(apiMux), "http://izci.internal"), Version: version.Version})
+		a.Server.Handle("/mcp", m.Handler(a.Auth.VerifyAccessToken, log))
 	}
 	a.AI.OnIssueChange = a.API.Issue.PublishIssueUpdates
 	if a.Bot != nil {
@@ -192,6 +205,25 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 		}},
 	)
 	return a, nil
+}
+
+// APIHandler mounts izci.api.v1 on a new handler for in-process clients such
+// as `izci mcp`; background work (ingest, AI execution, Telegram) is not
+// started.
+func APIHandler(cfg *config.Config, log *slog.Logger, database *db.DB) (http.Handler, error) {
+	box, err := secret.NewBox(cfg.SecretKey)
+	if err != nil {
+		return nil, err
+	}
+	access, err := NewGitHubAccess(cfg, box)
+	if err != nil {
+		return nil, err
+	}
+	runner := ai.New(database, log, ai.Options{Config: cfg.AI, DataDir: cfg.DataDir, PublicURL: cfg.PublicURL, GitHub: access})
+	mux := http.NewServeMux()
+	_, err = api.Mount(mux.Handle, api.Deps{DB: database, Auth: auth.NewService(database, cfg, box, log), Config: cfg, Log: log,
+		AI: runner, GitHub: access})
+	return mux, err
 }
 
 // NewGitHubAccess builds repository access from the GitHub settings: tokens

@@ -82,9 +82,9 @@ var templates = []template{
 			return fmt.Sprintf("23505: duplicate key value violates unique constraint \"citizens_tckn_key\" (row %d)", r.IntN(9000)+1000)
 		},
 		frames: []*ingestv1.Frame{
-			f("Npgsql", "NpgsqlConnector.ReadMessageLong", "", 0, false, ""),
-			f("KentOS.Kalem.Data.Repositories", "CitizenRepository.InsertAsync", "src/KentOS.Kalem.Data/Repositories/CitizenRepository.cs", 57, true, "        await conn.ExecuteAsync(InsertSql, citizen);"),
 			f("KentOS.Kalem.Application.Services", "CitizenService.RegisterAsync", "src/KentOS.Kalem.Application/Services/CitizenService.cs", 31, true, "        await _citizens.InsertAsync(entity);"),
+			f("KentOS.Kalem.Data.Repositories", "CitizenRepository.InsertAsync", "src/KentOS.Kalem.Data/Repositories/CitizenRepository.cs", 57, true, "        await conn.ExecuteAsync(InsertSql, citizen);"),
+			f("Npgsql", "NpgsqlConnector.ReadMessageLong", "", 0, false, ""),
 		},
 		db: &ingestv1.DatabaseContext{System: "postgresql", Name: "kalem", Operation: "INSERT", ErrorCode: "23505",
 			Statement: "INSERT INTO citizens (tckn, name, district_id) VALUES ($1, $2, $3)", DurationMs: 4.2},
@@ -96,9 +96,9 @@ var templates = []template{
 			return fmt.Sprintf("dial tcp 10.0.%d.%d:443: i/o timeout", r.IntN(4), r.IntN(250))
 		},
 		frames: []*ingestv1.Frame{
-			f("net/http", "(*Client).Do", "net/http/client.go", 590, false, ""),
-			f("github.com/kentos/bildirim/internal/sms", "(*Provider).Send", "internal/sms/provider.go", 118, true, "\tresp, err := p.client.Do(req)"),
 			f("github.com/kentos/bildirim/internal/sms", "(*Dispatcher).dispatch.func1", "internal/sms/dispatcher.go", 64, true, "\t\tif err := p.Send(ctx, msg); err != nil {"),
+			f("github.com/kentos/bildirim/internal/sms", "(*Provider).Send", "internal/sms/provider.go", 118, true, "\tresp, err := p.client.Do(req)"),
+			f("net/http", "(*Client).Do", "net/http/client.go", 590, false, ""),
 		},
 	},
 	{
@@ -107,8 +107,8 @@ var templates = []template{
 		value: func(*rand.Rand) string { return "Cannot read properties of undefined (reading 'columns')" },
 		frames: []*ingestv1.Frame{
 			f("", "processTicksAndRejections", "node:internal/process/task_queues", 95, false, ""),
-			f("", "ReportService.render", "backend/src/modules/rapor/report.service.ts", 211, true, "    const cols = definition.layout.columns.map(toColumn);"),
 			f("", "ReportController.get", "backend/src/modules/rapor/report.controller.ts", 48, true, "    return this.reports.render(id, query);"),
+			f("", "ReportService.render", "backend/src/modules/rapor/report.service.ts", 211, true, "    const cols = definition.layout.columns.map(toColumn);"),
 		},
 	},
 	{

@@ -55,6 +55,7 @@ type Config struct {
 	Telegram  TelegramConfig
 	GitHub    GitHubConfig
 	AI        AIConfig
+	MCP       MCPConfig
 	// OIDC holds the configured OpenID Connect providers (from
 	// OIDC_PROVIDERS and OIDC_<ID>_* variables).
 	OIDC []OIDCProvider `env:"-"`
@@ -198,6 +199,12 @@ type AIConfig struct {
 	// Git identity of commits made for AI fixes.
 	GitAuthorName  string `env:"AI_GIT_AUTHOR_NAME" envDefault:"izci-bot"`
 	GitAuthorEmail string `env:"AI_GIT_AUTHOR_EMAIL" envDefault:"izci-bot@users.noreply.github.com"`
+}
+
+// MCPConfig configures the Model Context Protocol endpoint.
+type MCPConfig struct {
+	// Enabled serves MCP at /mcp for personal access tokens.
+	Enabled bool `env:"MCP_ENABLED" envDefault:"true"`
 }
 
 // Secret is a string that is never printed: String returns a placeholder so

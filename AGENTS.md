@@ -71,6 +71,7 @@ commit message and the phase table in `docs/mimari.md` (once written).
 | `internal/alert` | alert rules evaluated inside the ingest transaction (savepoint) → transactional notification outbox |
 | `internal/telegram` | Bot API client, outbox dispatcher (edit-in-place, flood control), chat/account linking, signed triage buttons, polling or webhook |
 | `internal/github` | GitHub REST client (no go-github), GitHub App JWT + cached installation tokens, OAuth check of who installed the app, sealed personal access tokens (`Access`) |
+| `internal/mcp` | MCP server (official Go SDK): tools, resources and prompts as a thin adapter over izci.api.v1 — called in-process with the caller's personal access token (`/mcp`, `izci mcp`) or over HTTPS (`izci mcp --url`), so authorization, scopes and RLS are the API's |
 | `internal/ai` | AI runs: bare mirror + per-run worktree, context files and prompt, the opencode process (JSON events → run log), results and diff, publishing branches/pull requests, `Doctor` |
 | `internal/ingest` | normalize → scrub → in-app → grouping → group-commit writer; `IngestService` |
 | `internal/clientip`, `internal/secret`, `internal/slug` | client address, tokens/AES-GCM/HMAC, slugs |
