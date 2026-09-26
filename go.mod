@@ -14,9 +14,13 @@ require (
 
 require (
 	connectrpc.com/cors v0.1.0 // indirect
+	github.com/andybalholm/brotli v1.2.5 // indirect
 	github.com/boyter/go-string v1.0.5 // indirect
+	github.com/getsentry/sentry-go v0.49.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
+	github.com/klauspost/compress v1.20.1 // indirect
 	github.com/medama-io/go-useragent v1.2.5 // indirect
+	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260921155816-b14227669459 // indirect
 )

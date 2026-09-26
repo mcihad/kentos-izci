@@ -820,11 +820,16 @@ func describe(ev *ingestv1.Event, p *Processed) {
 			p.Location.Filename = top.GetAbsPath()
 		}
 		file := normalizeDisplayFile(p.Location.Filename)
+		fn := top.GetFunction()
+		switch fn {
+		case "?", "<anonymous>", "<unknown>", "Object.<anonymous>":
+			fn = "" // top-level module code: the file says more
+		}
 		switch {
-		case top.GetFunction() != "" && file != "":
-			p.Culprit = top.GetFunction() + " in " + file
-		case top.GetFunction() != "":
-			p.Culprit = top.GetFunction()
+		case fn != "" && file != "":
+			p.Culprit = fn + " in " + file
+		case fn != "":
+			p.Culprit = fn
 		default:
 			p.Culprit = file
 		}

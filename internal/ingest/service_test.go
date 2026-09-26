@@ -4,104 +4,39 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"net/http"
-	"net/http/httptest"
 	"testing"
-	"time"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 
-	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
-	"github.com/mcihad/kentos-izci/internal/db"
-	"github.com/mcihad/kentos-izci/internal/ingest"
-	"github.com/mcihad/kentos-izci/internal/store"
-	"github.com/mcihad/kentos-izci/internal/testutil"
+	"github.com/mcihad/kentos-izci/internal/ingest/ingesttest"
 	ingestv1 "github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1"
 	"github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1/ingestv1connect"
 )
 
 type fixture struct {
-	db        *db.DB
-	org       *store.Organization
-	project   *store.Project
-	key       string
-	keyID     uuid.UUID
-	server    *httptest.Server
-	connect   ingestv1connect.IngestServiceClient
-	grpc      ingestv1connect.IngestServiceClient
-	pipeline  *ingest.Pipeline
-	committed chan *ingest.Batch
+	*ingesttest.Env
+	connect ingestv1connect.IngestServiceClient
+	grpc    ingestv1connect.IngestServiceClient
 }
 
 func newFixture(t *testing.T, keyRate int32) *fixture {
 	t.Helper()
-	ctx := context.Background()
-	database := testutil.NewDB(t)
-	if _, err := database.EnsureEventPartitions(ctx, time.Now().AddDate(0, 0, -2), time.Now().AddDate(0, 0, 2)); err != nil {
-		t.Fatal(err)
-	}
-	f := &fixture{db: database, committed: make(chan *ingest.Batch, 100)}
-	err := database.InSystem(ctx, func(tx pgx.Tx) error {
-		var err error
-		if f.org, err = store.CreateOrganization(ctx, tx, "kentos", "KentOS"); err != nil {
-			return err
-		}
-		if f.project, err = store.CreateProject(ctx, tx, f.org.ID, "kalem", "KentOS Kalem", "dotnet"); err != nil {
-			return err
-		}
-		k, secret, err := store.CreateAPIKey(ctx, tx, store.NewAPIKeyInput{
-			OrgID: f.org.ID, ProjectID: f.project.ID, Name: "test",
-			Scopes:             []apiv1.ApiKeyScope{apiv1.ApiKeyScope_API_KEY_SCOPE_INGEST, apiv1.ApiKeyScope_API_KEY_SCOPE_RELEASES},
-			AllowedOrigins:     []string{"https://kalem.example.com"},
-			RateLimitPerMinute: keyRate,
-		})
-		f.key, f.keyID = secret, k.ID
-		return err
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	log := slog.New(slog.DiscardHandler)
-	f.pipeline = ingest.NewPipeline(database, log, ingest.PipelineConfig{Shards: 2, BatchSize: 200, PublicURL: "https://izci.test"},
-		ingest.Hooks{AfterCommit: func(b *ingest.Batch) {
-			select {
-			case f.committed <- b:
-			default:
-			}
-		}})
-	f.pipeline.Start()
-	t.Cleanup(func() { _ = f.pipeline.Close(context.Background()) })
-
-	svc := ingest.NewService(ingest.ServiceConfig{Durable: true, Retention: 90 * 24 * time.Hour}, database, log,
-		ingest.NewKeyResolver(database, time.Minute), ingest.NewRateLimiter(100000), ingest.NewQuotaTracker(database),
-		ingest.NewUsageRecorder(), ingest.NewDedupe(1000, time.Hour), f.pipeline)
-	path, handler := ingestv1connect.NewIngestServiceHandler(svc)
-	mux := http.NewServeMux()
-	mux.Handle(path, ingest.CORS(handler))
-
-	srv := httptest.NewUnstartedServer(mux)
-	srv.Config.Protocols = new(http.Protocols)
-	srv.Config.Protocols.SetHTTP1(true)
-	srv.Config.Protocols.SetUnencryptedHTTP2(true)
-	srv.Start()
-	t.Cleanup(srv.Close)
-	f.server = srv
-
-	f.connect = ingestv1connect.NewIngestServiceClient(http.DefaultClient, srv.URL)
+	env := ingesttest.New(t, ingesttest.Options{KeyRateLimit: keyRate, AllowedOrigins: []string{"https://kalem.example.com"}})
+	f := &fixture{Env: env}
+	f.connect = ingestv1connect.NewIngestServiceClient(http.DefaultClient, env.Server.URL)
 	h2c := &http.Transport{Protocols: new(http.Protocols)}
 	h2c.Protocols.SetUnencryptedHTTP2(true)
-	f.grpc = ingestv1connect.NewIngestServiceClient(&http.Client{Transport: h2c}, srv.URL, connect.WithGRPC())
+	f.grpc = ingestv1connect.NewIngestServiceClient(&http.Client{Transport: h2c}, env.Server.URL, connect.WithGRPC())
 	return f
 }
 
 func (f *fixture) authed(msg *ingestv1.SendEventRequest) *connect.Request[ingestv1.SendEventRequest] {
 	req := connect.NewRequest(msg)
-	req.Header().Set("Authorization", "Bearer "+f.key)
+	req.Header().Set("Authorization", "Bearer "+f.Key)
 	return req
 }
 
@@ -172,7 +107,7 @@ func TestSendEventGroupsAndCounts(t *testing.T) {
 		events = append(events, e)
 	}
 	breq := connect.NewRequest(&ingestv1.SendEventsRequest{Events: events})
-	breq.Header().Set("X-Izci-Key", f.key)
+	breq.Header().Set("X-Izci-Key", f.Key)
 	bresp, err := f.connect.SendEvents(ctx, breq)
 	if err != nil {
 		t.Fatalf("SendEvents: %v", err)
@@ -189,7 +124,7 @@ func TestSendEventGroupsAndCounts(t *testing.T) {
 	}
 
 	// Verify what was stored.
-	err = f.db.InOrg(ctx, f.org.ID, func(tx pgx.Tx) error {
+	err = f.DB.InOrg(ctx, f.Org.ID, func(tx pgx.Tx) error {
 		var times, users, customers int64
 		if err := tx.QueryRow(ctx, `SELECT times_seen, users_count, customers_count FROM issues WHERE short_seq = 1`).Scan(&times, &users, &customers); err != nil {
 			return err
@@ -260,14 +195,14 @@ func TestRegressionAndSnooze(t *testing.T) {
 	first := send()
 	exec := func(sql string, args ...any) {
 		t.Helper()
-		if err := f.db.InOrg(ctx, f.org.ID, func(tx pgx.Tx) error { _, err := tx.Exec(ctx, sql, args...); return err }); err != nil {
+		if err := f.DB.InOrg(ctx, f.Org.ID, func(tx pgx.Tx) error { _, err := tx.Exec(ctx, sql, args...); return err }); err != nil {
 			t.Fatal(err)
 		}
 	}
 	status := func() (int16, int16) {
 		t.Helper()
 		var s, ss int16
-		if err := f.db.InOrg(ctx, f.org.ID, func(tx pgx.Tx) error {
+		if err := f.DB.InOrg(ctx, f.Org.ID, func(tx pgx.Tx) error {
 			return tx.QueryRow(ctx, `SELECT status, substatus FROM issues WHERE id = $1`, first.GetIssueId()).Scan(&s, &ss)
 		}); err != nil {
 			t.Fatal(err)
@@ -330,7 +265,7 @@ func TestAuthAndValidation(t *testing.T) {
 	}
 
 	// Preflight requests are answered for any origin.
-	pre, _ := http.NewRequest(http.MethodOptions, f.server.URL+"/izci.ingest.v1.IngestService/SendEvent", nil)
+	pre, _ := http.NewRequest(http.MethodOptions, f.Server.URL+"/izci.ingest.v1.IngestService/SendEvent", nil)
 	pre.Header.Set("Origin", "https://kalem.example.com")
 	pre.Header.Set("Access-Control-Request-Method", "POST")
 	pre.Header.Set("Access-Control-Request-Headers", "authorization,content-type")
@@ -344,14 +279,14 @@ func TestAuthAndValidation(t *testing.T) {
 	}
 
 	rel := connect.NewRequest(&ingestv1.RegisterReleaseRequest{Version: "1.5.0", CommitSha: "ABCDEF0123", Environment: "Production"})
-	rel.Header().Set("Authorization", "Bearer "+f.key)
+	rel.Header().Set("Authorization", "Bearer "+f.Key)
 	rresp, err := f.connect.RegisterRelease(ctx, rel)
 	if err != nil || !rresp.Msg.GetCreated() {
 		t.Fatalf("register release: %v %v", rresp, err)
 	}
 
 	cfgReq := connect.NewRequest(&ingestv1.GetClientConfigRequest{})
-	cfgReq.Header().Set("Authorization", "Bearer "+f.key)
+	cfgReq.Header().Set("Authorization", "Bearer "+f.Key)
 	cfg, err := f.connect.GetClientConfig(ctx, cfgReq)
 	if err != nil || cfg.Msg.GetProjectSlug() != "kalem" || cfg.Msg.GetMaxBatchSize() != 100 {
 		t.Fatalf("client config: %v %v", cfg, err)
