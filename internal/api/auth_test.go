@@ -99,6 +99,7 @@ type client struct {
 	feedback  apiv1connect.FeedbackServiceClient
 	monitor   apiv1connect.MonitorServiceClient
 	symbol    apiv1connect.SymbolServiceClient
+	ownership apiv1connect.OwnershipServiceClient
 	hc        *http.Client
 	hdr       map[string]string
 }
@@ -123,6 +124,7 @@ func (e *env) client(hdr map[string]string) *client {
 		feedback:  apiv1connect.NewFeedbackServiceClient(hc, e.srv.URL, opt),
 		monitor:   apiv1connect.NewMonitorServiceClient(hc, e.srv.URL, opt),
 		symbol:    apiv1connect.NewSymbolServiceClient(hc, e.srv.URL, opt),
+		ownership: apiv1connect.NewOwnershipServiceClient(hc, e.srv.URL, opt),
 		hc:        hc,
 		hdr:       hdr,
 	}

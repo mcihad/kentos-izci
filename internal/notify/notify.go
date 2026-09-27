@@ -64,6 +64,8 @@ type IssueView struct {
 	User        string
 	// StatusBy names who resolved or ignored the issue.
 	StatusBy string
+	// Assignee names who the issue is assigned to.
+	Assignee string
 }
 
 // Notification is one delivery: an outbox row, its channel and, unless it
@@ -443,14 +445,15 @@ func LoadIssueView(ctx context.Context, database *db.DB, issueID uuid.UUID, payl
 		err := tx.QueryRow(ctx, `
 			SELECT coalesce(i.short_seq, 0), p.slug, p.name, o.slug, o.name, i.title, i.type, i.value, i.culprit, i.metadata, i.level,
 			       i.status, i.unhandled, i.times_seen, i.users_count, i.customers_count, i.first_seen, i.last_seen,
-			       nullif(coalesce(u.name, u.email), '')
+			       nullif(coalesce(u.name, u.email), ''), coalesce(nullif(a.name, ''), a.email, '')
 			FROM issues i
 			JOIN projects p ON p.id = i.project_id
 			JOIN organizations o ON o.id = i.org_id
 			LEFT JOIN users u ON u.id = i.resolved_by
+			LEFT JOIN users a ON a.id = i.assignee_id
 			WHERE i.id = $1`, issueID).Scan(&seq, &v.ProjectSlug, &v.ProjectName, &v.OrgSlug, &v.OrgName, &v.Title, &v.Type,
 			&v.Value, &v.Culprit, &meta, &v.Level, &v.Status, &v.Unhandled, &v.TimesSeen, &v.Users, &v.Customers, &v.FirstSeen,
-			&v.LastSeen, &resolvedBy)
+			&v.LastSeen, &resolvedBy, &v.Assignee)
 		if errors.Is(err, pgx.ErrNoRows) {
 			return store.ErrNotFound
 		}

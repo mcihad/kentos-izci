@@ -264,6 +264,25 @@ type getIssueOut struct {
 	Tags              []TagSummary   `json:"tags,omitempty" jsonschema:"most common values of tags such as customer, release, environment, browser"`
 	RecommendedEvent  *Event         `json:"recommended_event,omitempty" jsonschema:"the most informative recent event, with its stack trace"`
 	PullRequests      []*PullRequest `json:"pull_requests,omitempty"`
+	Owners            []IssueOwner   `json:"owners,omitempty" jsonschema:"members owning the issue by the project's ownership rules and CODEOWNERS; the first one is whom automatic assignment picks"`
+	SuspectCommit     *SuspectCommit `json:"suspect_commit,omitempty" jsonschema:"the commit that last changed the failing lines (git blame), when it was found"`
+}
+
+// IssueOwner is a member who owns an issue.
+type IssueOwner struct {
+	Email string   `json:"email"`
+	Name  string   `json:"name,omitempty"`
+	Rules []string `json:"rules" jsonschema:"ownership rules naming the member, e.g. path:src/billing/*"`
+}
+
+// SuspectCommit is the commit that last changed an issue's failing lines.
+type SuspectCommit struct {
+	SHA         string `json:"sha"`
+	Message     string `json:"message"`
+	URL         string `json:"url,omitempty"`
+	Author      string `json:"author" jsonschema:"author name and e-mail address as in the commit"`
+	CommittedAt string `json:"committed_at,omitempty"`
+	Location    string `json:"location" jsonschema:"repository file and line the commit changed"`
 }
 
 func (s *server) getIssue(ctx context.Context, req *mcpsdk.CallToolRequest, in getIssueIn) (*mcpsdk.CallToolResult, getIssueOut, error) {
@@ -303,6 +322,16 @@ func (s *server) issueDetail(ctx context.Context, ref string) (getIssueOut, erro
 	if err == nil {
 		v := eventView(ev.Msg.GetEvent())
 		out.RecommendedEvent = &v
+	}
+	if own, err := s.api.ownership.GetIssueOwners(ctx, connect.NewRequest(&apiv1.GetIssueOwnersRequest{IssueId: id})); err == nil {
+		for _, o := range own.Msg.GetOwners() {
+			out.Owners = append(out.Owners, IssueOwner{Email: o.GetUser().GetEmail(), Name: o.GetUser().GetName(), Rules: o.GetRules()})
+		}
+		if sc := own.Msg.GetSuspectCommit(); sc.GetState() == apiv1.SuspectCommitState_SUSPECT_COMMIT_STATE_FOUND {
+			out.SuspectCommit = &SuspectCommit{SHA: sc.GetSha(), Message: sc.GetMessage(), URL: sc.GetUrl(),
+				Author: strings.TrimSpace(sc.GetAuthorName() + " <" + sc.GetAuthorEmail() + ">"), CommittedAt: ts(sc.GetCommittedAt()),
+				Location: fmt.Sprintf("%s:%d", sc.GetPath(), sc.GetLine())}
+		}
 	}
 	return out, nil
 }
@@ -877,7 +906,8 @@ func (s *server) registerTools(m *mcpsdk.Server) {
 			"Returns short ids, titles, levels, status, event/user/customer counts and links. Use get_issue for details."},
 		s.searchIssues)
 	mcpsdk.AddTool(m, &mcpsdk.Tool{Name: "get_issue", Annotations: readOnly,
-		Description: "Get one issue by short id (e.g. KALEM-1A): status, releases, grouping, tag distributions (customers, releases, browsers…), pull requests " +
+		Description: "Get one issue by short id (e.g. KALEM-1A): status, releases, grouping, tag distributions (customers, releases, browsers…), pull requests, " +
+			"owners by ownership rules and CODEOWNERS, the suspect commit (last change of the failing lines) when found, " +
 			"and the most informative recent event with its exception chain, stack trace (most recent call first), breadcrumbs, request and runtime."},
 		s.getIssue)
 	mcpsdk.AddTool(m, &mcpsdk.Tool{Name: "list_issue_events", Annotations: readOnly,

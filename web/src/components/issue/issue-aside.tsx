@@ -8,6 +8,7 @@ import { formatCompact, formatDateTime, formatNumber } from "@/lib/format";
 import { levels } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
 import { seriesPoints, seriesStep } from "@/lib/series";
+import { IssueOwners } from "./owners";
 import { IssueTickets } from "./tickets";
 
 const strategyLabels: Record<string, string> = {
@@ -127,6 +128,8 @@ export function IssueAside({
           </>
         ) : null}
       </dl>
+
+      <IssueOwners issue={issue} writable={writable} />
 
       <IssueTickets issue={issue} writable={writable} />
 

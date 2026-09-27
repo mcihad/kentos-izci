@@ -171,7 +171,9 @@ const (
 	ActivityKind_ACTIVITY_KIND_COMMENT ActivityKind = 2
 	// The status changed.
 	ActivityKind_ACTIVITY_KIND_STATUS_CHANGED ActivityKind = 3
-	// The assignee changed.
+	// The assignee changed; data carries "assignee" (an e-mail address,
+	// empty when unassigned). Automatic assignment has no actor and adds
+	// "auto" ("rule" or "suspect_commit") with "rule" or "commit".
 	ActivityKind_ACTIVITY_KIND_ASSIGNED ActivityKind = 4
 	// The priority changed.
 	ActivityKind_ACTIVITY_KIND_PRIORITY_CHANGED ActivityKind = 5

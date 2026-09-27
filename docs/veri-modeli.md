@@ -47,7 +47,9 @@
 | `issue_hourly`, `project_hourly`, `customer_hourly` | Grafikler, eğilimler ve sıklık kuralları için saatlik sayaçlar. |
 | `issue_tags` | Etiket dağılımları (müşteri, sürüm, tarayıcı…); aramanın ve **Etki** sekmesinin kaynağı. |
 | `issue_users` | Etkilenen tekil kullanıcılar (kimliğin 8 baytlık özeti). |
-| `issue_activity` | Etkinlik akışı: durum değişiklikleri, yorumlar, bildirimler, yapay zekâ, çekme istekleri. |
+| `issue_activity` | Etkinlik akışı: durum değişiklikleri, yorumlar, atamalar (otomatik olanlar kuralı ya da commit'iyle), bildirimler, yapay zekâ, çekme istekleri. |
+| `project_ownership`, `owner_aliases` | [Sahiplik](sahiplik.md) kuralları, CODEOWNERS metni ve otomatik atama; `@ad` ve `#ekip` sahiplerinin üye eşlemeleri. |
+| `issue_suspect_commits` | Hataların şüpheli commit'i (git blame sonucu) ya da neden bulunamadığı. |
 | `alert_rules`, `notification_channels` | Uyarı kuralları ve bildirim kanalları (Telegram, e-posta, Slack, Teams, webhook, Jira); kanal ayarlarındaki adres ve anahtarlar şifreli saklanır. |
 | `notification_outbox`, `notification_threads` | Gönderilecek bildirimler (işlem içi kuyruk) ve gönderilen mesajlar. |
 | `integrations`, `project_repositories` | GitHub bağlantıları (şifreli anahtarlar) ve proje-depo eşlemesi. |

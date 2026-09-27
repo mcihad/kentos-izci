@@ -382,7 +382,9 @@ enum ActivityKind {
   ACTIVITY_KIND_COMMENT = 2;
   // The status changed.
   ACTIVITY_KIND_STATUS_CHANGED = 3;
-  // The assignee changed.
+  // The assignee changed; data carries "assignee" (an e-mail address,
+  // empty when unassigned). Automatic assignment has no actor and adds
+  // "auto" ("rule" or "suspect_commit") with "rule" or "commit".
   ACTIVITY_KIND_ASSIGNED = 4;
   // The priority changed.
   ACTIVITY_KIND_PRIORITY_CHANGED = 5;

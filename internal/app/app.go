@@ -35,6 +35,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/metrics"
 	"github.com/mcihad/kentos-izci/internal/monitor"
 	"github.com/mcihad/kentos-izci/internal/notify"
+	"github.com/mcihad/kentos-izci/internal/ownership"
 	"github.com/mcihad/kentos-izci/internal/realtime"
 	"github.com/mcihad/kentos-izci/internal/secret"
 	"github.com/mcihad/kentos-izci/internal/sentryapi"
@@ -74,6 +75,9 @@ type App struct {
 	// Symbols resolves stack traces with uploaded source maps and debug
 	// files and assembles those uploads.
 	Symbols *symbols.Service
+	// Ownership assigns new issues to their owners and finds suspect
+	// commits.
+	Ownership *ownership.Service
 
 	jobs  *jobs.Runner
 	usage *ingest.UsageRecorder
@@ -120,6 +124,7 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 		return nil, err
 	}
 	a.AI = ai.New(database, log, ai.Options{Config: cfg.AI, DataDir: cfg.DataDir, PublicURL: cfg.PublicURL, GitHub: a.GitHub})
+	a.Ownership = ownership.NewService(database, log, a.GitHub)
 
 	a.Pipeline = ingest.NewPipeline(database, log, ingest.PipelineConfig{
 		Shards:    cfg.Ingest.Shards,
@@ -129,6 +134,21 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 		PublicURL: cfg.PublicURL,
 	}, ingest.Hooks{
 		InTx: func(ctx context.Context, tx pgx.Tx, b *ingest.Batch) error {
+			// Automatic assignment of new issues comes first so that
+			// notifications name the assignee; like alerting, it runs in a
+			// savepoint.
+			if ownership.HasNewIssues(b) {
+				own, err := tx.Begin(ctx)
+				if err != nil {
+					return err
+				}
+				if err := a.Ownership.AssignNew(ctx, own, b); err != nil {
+					_ = own.Rollback(ctx)
+					log.Error("automatic assignment failed; batch stored without it", slog.Any("err", err))
+				} else if err := own.Commit(ctx); err != nil {
+					return err
+				}
+			}
 			// Alerting runs in a savepoint: if it fails, the events are
 			// still stored, only without notifications.
 			sp, err := tx.Begin(ctx)
@@ -209,7 +229,7 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	deps := api.Deps{
 		DB: database, Auth: a.Auth, Config: cfg, Log: log,
 		Hub: a.Hub, Pipeline: a.Pipeline, Keys: a.keys, StreamsDone: a.Server.StreamsDone(), Alerts: a.Alerts,
-		AI: a.AI, GitHub: a.GitHub, Symbols: a.Symbols, Delivery: a.Notify, Jira: jira, Email: email,
+		AI: a.AI, GitHub: a.GitHub, Symbols: a.Symbols, Delivery: a.Notify, Jira: jira, Email: email, Ownership: a.Ownership,
 	}
 	if a.Bot != nil {
 		deps.Notifier = a.Bot
@@ -378,6 +398,7 @@ func (a *App) Run(ctx context.Context) error {
 	}
 	// Every instance delivers; outbox rows are claimed with SKIP LOCKED.
 	bot.Go(func() { a.Notify.Run(jobCtx) })
+	bot.Go(func() { a.Ownership.Run(jobCtx) })
 	bot.Go(func() {
 		if err := a.AI.Run(jobCtx); err != nil {
 			a.Log.Error("AI runner stopped", slog.Any("err", err))

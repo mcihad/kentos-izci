@@ -1614,7 +1614,9 @@ export enum ActivityKind {
   STATUS_CHANGED = 3,
 
   /**
-   * The assignee changed.
+   * The assignee changed; data carries "assignee" (an e-mail address,
+   * empty when unassigned). Automatic assignment has no actor and adds
+   * "auto" ("rule" or "suspect_commit") with "rule" or "commit".
    *
    * @generated from enum value: ACTIVITY_KIND_ASSIGNED = 4;
    */

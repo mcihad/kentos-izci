@@ -39,7 +39,7 @@ Her mesaj, alan, enum değeri ve RPC belgelenmek zorundadır; `buf lint` bunu de
 5. **Normalize:** Varsayılanlar, saat düzeltmeleri, boyut sınırları (kırpma), [maskeleme](guvenlik.md#maskeleme), User-Agent ve istemci IP'si, uygulama kodu sınıflandırması, başlık ve culprit.
 6. **[Gruplama](gruplama.md):** Parmak izi.
 7. **Tekrar eleme:** Son alınan olay kimlikleri.
-8. **Toplu yazım:** Olaylar proje başına bir yazıcıya gider. Her yazıcı birikenleri tek işlemde yazar: hatalar (PostgreSQL 18 `RETURNING old/new` ile yeni ve geri dönenler ayrılır), olaylar, sayaçlar, etiketler ve aynı işlemde uyarı kuralları ile bildirim kuyruğu. `INGEST_ACK=durable` iken istemciye işlem tamamlanınca yanıt verilir.
+8. **Toplu yazım:** Olaylar proje başına bir yazıcıya gider. Her yazıcı birikenleri tek işlemde yazar: hatalar (PostgreSQL 18 `RETURNING old/new` ile yeni ve geri dönenler ayrılır), olaylar, sayaçlar, etiketler ve aynı işlemde yeni hataların [sahiplik kurallarıyla](sahiplik.md) atanması, uyarı kuralları ile bildirim kuyruğu. `INGEST_ACK=durable` iken istemciye işlem tamamlanınca yanıt verilir.
 9. **Yayın:** Canlı akışa ve yeni hatalar için otomatik yapay zekâ analizine.
 
 Kuyruk dolarsa istemci hemen `UNAVAILABLE` alır; SDK'lar bu geri baskıyla yavaşlar.

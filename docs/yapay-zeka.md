@@ -38,6 +38,8 @@ GitHub Enterprise Server için `GITHUB_API_URL` ve `GITHUB_WEB_URL` değerlerini
 - **Depo:** `sahip/depo` yazın ya da listeden seçin. Varsayılan dal GitHub'dan otomatik alınır.
 - **Yol eşlemeleri:** uygulamanın bildirdiği yolu depodaki yola çevirir. Örneğin konteynerde `/app/src/Kalem.Web/…` olan dosya depoda `src/Kalem.Web/…` ise `/app/` → boş.
 
+Aynı bağlantı, CODEOWNERS'ı içe aktarmak ve hatanın [şüpheli commit](sahiplik.md#şüpheli-commit)'ini bulmak için de kullanılır.
+
 CI'da `RegisterRelease` ile sürüm-commit eşleşmesini kaydederseniz yapay zekâ, hatanın oluştuğu **sürümün** kodunu inceler (bkz. [Hata gönderme](ingest.md#sürüm-kaydetme)). Kayıt yoksa varsayılan dalın son hâli kullanılır.
 
 ## 3. Sunucuda opencode'u hazırlayın

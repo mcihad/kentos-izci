@@ -39,6 +39,8 @@ type Options struct {
 	QueueSize int
 	// Stopped leaves the writers stopped, so queued events stay queued.
 	Stopped bool
+	// InTx runs inside every batch transaction (see ingest.Hooks).
+	InTx func(ctx context.Context, tx pgx.Tx, b *ingest.Batch) error
 }
 
 // Env is a running ingest environment.
@@ -96,7 +98,7 @@ func New(t testing.TB, opts Options) *Env {
 
 	log := slog.New(slog.DiscardHandler)
 	e.Pipeline = ingest.NewPipeline(database, log, ingest.PipelineConfig{Shards: 2, QueueSize: opts.QueueSize, BatchSize: 200, PublicURL: "https://izci.test"},
-		ingest.Hooks{AfterCommit: func(b *ingest.Batch) {
+		ingest.Hooks{InTx: opts.InTx, AfterCommit: func(b *ingest.Batch) {
 			select {
 			case e.Batches <- b:
 			default:

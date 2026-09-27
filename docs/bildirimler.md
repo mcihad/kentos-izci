@@ -19,6 +19,8 @@ Kurallar kanal türünden bağımsızdır: bir kural, seçilen bütün kanallara
 
 Kurallar olay kaydıyla aynı veritabanı işleminde değerlendirilir ve bildirim kuyruğuna yazılır; sunucu yeniden başlasa bile bildirim kaybolmaz. Birden çok İzci sunucusu varsa kuyruğu birlikte boşaltırlar.
 
+Bildirimler proje, müşteri, kiracı, ortam, sürüm ve kullanıcının yanında hatanın **atandığı kişiyi** de yazar; yeni hatalar [sahiplik kurallarıyla](sahiplik.md#otomatik-atama) bildirim gitmeden atanabilir.
+
 Her kanalın yanındaki **Test** düğmesi, gerçek bir hata beklemeden kurulumu sınar. Jira'da test yalnız bağlantıyı ve projeyi kontrol eder, iş kaydı açmaz.
 
 ## E-posta

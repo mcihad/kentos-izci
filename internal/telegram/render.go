@@ -70,6 +70,7 @@ func RenderIssue(kind int16, payload map[string]any, v IssueView, issueURL strin
 	line("Ortam", v.Environment)
 	line("Sürüm", v.Release)
 	line("Kullanıcı", v.User)
+	line("Atanan", v.Assignee)
 	fmt.Fprintf(&b, "\n%d olay, %d kullanıcı, %d müşteri", v.TimesSeen, v.Users, v.Customers)
 	if v.Unhandled {
 		b.WriteString(", işlenmemiş istisna")

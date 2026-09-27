@@ -34,6 +34,10 @@ function describe(a: IssueActivity): string {
         return "Zamanlanmış görev yeniden başarıyla çalıştı; hata kendiliğinden çözüldü";
       return `${statusText[a.data.to ?? ""] ?? "durumu değiştirdi"}${a.data.release ? ` (${a.data.release} sürümünde)` : ""}`;
     case ActivityKind.ASSIGNED:
+      if (a.data.auto === "rule")
+        return `${a.data.rule ? `${a.data.rule} sahiplik kuralıyla` : "Sahiplik kuralıyla"} ${a.data.assignee} kişisine otomatik atandı`;
+      if (a.data.auto === "suspect_commit")
+        return `Şüpheli commit'in (${(a.data.commit ?? "").slice(0, 7)}) yazarı ${a.data.assignee} kişisine otomatik atandı`;
       return a.data.assignee ? `hatayı ${a.data.assignee} kişisine atadı` : "atamayı kaldırdı";
     case ActivityKind.PRIORITY_CHANGED:
       return `önceliği ${priorityText[a.data.to ?? ""] ?? a.data.to} yaptı`;

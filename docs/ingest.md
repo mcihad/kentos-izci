@@ -145,7 +145,7 @@ IZCI_URL=http://localhost:5300 IZCI_KEY=izk_… python3 examples/python/send_eve
 
 ## Sürüm kaydetme
 
-CI'da her dağıtımdan sonra sürümü kaydedin. Yapay zekâ analizi hatayı bu commit'te inceler, arayüz de hangi sürümün hangi hataları getirdiğini gösterir:
+CI'da her dağıtımdan sonra sürümü kaydedin. Yapay zekâ analizi hatayı bu commit'te inceler, [şüpheli commit](sahiplik.md#şüpheli-commit) aramasında bu commit'in satırlarına bakılır, arayüz de hangi sürümün hangi hataları getirdiğini gösterir:
 
 ```bash
 curl -sS https://izci.example.com/izci.ingest.v1.IngestService/RegisterRelease \

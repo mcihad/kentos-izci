@@ -8,6 +8,7 @@ import { ProjectAi } from "@/components/project/ai";
 import { ProjectFilters } from "@/components/project/filters";
 import { ProjectGeneral } from "@/components/project/general";
 import { ProjectKeys } from "@/components/project/keys";
+import { ProjectOwnership } from "@/components/project/ownership";
 import { ProjectPrivacy } from "@/components/project/privacy";
 import { ProjectReleases } from "@/components/project/releases";
 import { ProjectRepository } from "@/components/project/repository";
@@ -27,6 +28,7 @@ const tabs = [
   { id: "releases", label: "Sürümler" },
   { id: "symbols", label: "Kaynak eşlemeleri" },
   { id: "repository", label: "Depo" },
+  { id: "ownership", label: "Sahiplik" },
   { id: "filters", label: "Filtreler" },
   { id: "privacy", label: "Gizlilik" },
   { id: "ai", label: "Yapay zekâ" },
@@ -114,6 +116,7 @@ function ProjectPage() {
           {tab === "releases" ? <ProjectReleases project={project} /> : null}
           {tab === "symbols" ? <ProjectSymbols project={project} /> : null}
           {tab === "repository" ? <ProjectRepository project={project} /> : null}
+          {tab === "ownership" ? <ProjectOwnership project={project} /> : null}
           {tab === "filters" ? <ProjectFilters project={project} /> : null}
           {tab === "privacy" ? <ProjectPrivacy project={project} /> : null}
           {tab === "ai" ? <ProjectAi project={project} /> : null}

@@ -70,7 +70,7 @@ Birden fazla organizasyonunuz varsa varsayılanı `Izci-Org: <kısa-ad>` başlı
 | `list_projects` | Projeler, açık hata sayıları, son 24 saatteki olaylar, bağlı depo. | read |
 | `get_project_setup` | Olay gönderme adresleri ve Sentry DSN şablonu. | read |
 | `search_issues` | [Arama dili](arama.md) ile hata arama; sıralama, dönem, sayfalama. | read |
-| `get_issue` | Hata ayrıntısı, etiket dağılımları, çekme istekleri ve en bilgilendirici olayın yığın izi. | read |
+| `get_issue` | Hata ayrıntısı, etiket dağılımları, çekme istekleri, [sahipler ve şüpheli commit](sahiplik.md) ve en bilgilendirici olayın yığın izi. | read |
 | `list_issue_events` | Bir hatanın olayları (filtrelenebilir). | read |
 | `get_event` | Olay ayrıntısı; `raw=true` saklanan JSON'u döner. | read |
 | `get_issue_stats` | Olay sayılarının zaman içindeki dağılımı. | read |

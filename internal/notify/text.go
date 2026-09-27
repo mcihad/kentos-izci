@@ -136,7 +136,7 @@ func Facts(v *IssueView) []Fact {
 	var out []Fact
 	for _, f := range []Fact{
 		{"Proje", v.ProjectName}, {"Müşteri", v.Customer}, {"Kiracı", v.Tenant}, {"Ortam", v.Environment},
-		{"Sürüm", v.Release}, {"Kullanıcı", v.User},
+		{"Sürüm", v.Release}, {"Kullanıcı", v.User}, {"Atanan", v.Assignee},
 	} {
 		if f.Value != "" {
 			out = append(out, f)

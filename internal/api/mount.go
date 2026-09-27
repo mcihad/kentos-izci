@@ -15,6 +15,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/github"
 	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/notify"
+	"github.com/mcihad/kentos-izci/internal/ownership"
 	"github.com/mcihad/kentos-izci/internal/realtime"
 	"github.com/mcihad/kentos-izci/internal/symbols"
 )
@@ -52,6 +53,9 @@ type Deps struct {
 	// Jira creates tickets from issues; Email is nil without SMTP.
 	Jira  *notify.Jira
 	Email *notify.Email
+	// Ownership evaluates ownership rules and finds suspect commits
+	// (optional in tests: one without a worker is created).
+	Ownership *ownership.Service
 }
 
 // Servers exposes the service implementations so that other subsystems
@@ -72,6 +76,7 @@ type Servers struct {
 	Feedback     *FeedbackServer
 	Monitor      *MonitorServer
 	Symbol       *SymbolServer
+	Ownership    *OwnershipServer
 	// Hub is the live update hub the services publish to.
 	Hub *realtime.Hub
 }
@@ -83,6 +88,7 @@ var ServiceNames = []string{
 	apiv1connect.CustomerServiceName, apiv1connect.DashboardServiceName, apiv1connect.AlertServiceName,
 	apiv1connect.IntegrationServiceName, apiv1connect.AiServiceName, apiv1connect.AdminServiceName,
 	apiv1connect.FeedbackServiceName, apiv1connect.MonitorServiceName, apiv1connect.SymbolServiceName,
+	apiv1connect.OwnershipServiceName,
 }
 
 // Mount registers every izci.api.v1 service on handle. Services that are
@@ -112,6 +118,9 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 	if b.github == nil {
 		b.github = github.NewAccess(d.Config.GitHub.APIURL, d.Config.GitHub.WebURL, nil, d.Auth.Box(), nil)
 	}
+	if d.Ownership == nil {
+		d.Ownership = ownership.NewService(d.DB, d.Log, b.github)
+	}
 	s := &Servers{
 		Auth:         &AuthServer{base: b},
 		User:         &UserServer{base: b},
@@ -128,6 +137,7 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 		Feedback:     &FeedbackServer{base: b},
 		Monitor:      &MonitorServer{base: b},
 		Symbol:       &SymbolServer{base: b, symbols: d.Symbols},
+		Ownership:    &OwnershipServer{base: b, ownership: d.Ownership},
 		Hub:          d.Hub,
 	}
 	if d.Notifier != nil {
@@ -147,6 +157,7 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 	handle(apiv1connect.NewFeedbackServiceHandler(s.Feedback, opts...))
 	handle(apiv1connect.NewMonitorServiceHandler(s.Monitor, opts...))
 	handle(apiv1connect.NewSymbolServiceHandler(s.Symbol, opts...))
+	handle(apiv1connect.NewOwnershipServiceHandler(s.Ownership, opts...))
 	handle("GET /attachments/{org}/{id}", http.HandlerFunc(s.Event.ServeAttachment))
 	handle("GET /integrations/github/callback", http.HandlerFunc(s.Integration.GitHubCallback))
 	handle(apiv1connect.NewAdminServiceHandler(s.Admin, opts...))
