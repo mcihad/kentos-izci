@@ -11,7 +11,6 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"sync/atomic"
 
 	"connectrpc.com/connect"
 	"github.com/andybalholm/brotli"
@@ -20,6 +19,7 @@ import (
 	"github.com/klauspost/compress/zlib"
 
 	"github.com/mcihad/kentos-izci/internal/ingest"
+	"github.com/mcihad/kentos-izci/internal/metrics"
 	ingestv1 "github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1"
 )
 
@@ -29,17 +29,10 @@ const (
 	maxEventsPerRequest = 100
 )
 
-// Stats counts envelope items for metrics.
-type Stats struct {
-	Events  atomic.Int64
-	Dropped atomic.Int64
-}
-
 // Handler serves the Sentry-compatible endpoints.
 type Handler struct {
-	svc   *ingest.Service
-	log   *slog.Logger
-	stats Stats
+	svc *ingest.Service
+	log *slog.Logger
 }
 
 // NewHandler creates the handler.
@@ -47,8 +40,6 @@ func NewHandler(svc *ingest.Service, log *slog.Logger) *Handler {
 	return &Handler{svc: svc, log: log}
 }
 
-// Stats exposes counters.
-func (h *Handler) Stats() *Stats { return &h.stats }
 
 // Register mounts the envelope and store endpoints (with and without the
 // trailing slash Sentry SDKs use).
@@ -105,7 +96,7 @@ func (h *Handler) envelope(w http.ResponseWriter, r *http.Request) {
 		default:
 			// transaction, session(s), attachment, client_report, check_in,
 			// log, profile, replay_*, user_report, feedback, span, statsd …
-			h.stats.Dropped.Add(1)
+			metrics.SentryItemDropped(it.typ)
 		}
 	}
 	if len(events) > maxEventsPerRequest {
@@ -156,7 +147,6 @@ func (h *Handler) store(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) accept(w http.ResponseWriter, r *http.Request, caller *ingest.Caller, events []*ingestv1.Event, id string) {
 	results, retry := h.svc.Accept(r.Context(), caller, events)
-	h.stats.Events.Add(int64(len(events)))
 	for _, res := range results {
 		switch res.GetOutcome() {
 		case ingestv1.EventOutcome_EVENT_OUTCOME_RATE_LIMITED:

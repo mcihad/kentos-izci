@@ -32,6 +32,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/ingest/sentry"
 	"github.com/mcihad/kentos-izci/internal/jobs"
 	"github.com/mcihad/kentos-izci/internal/mcp"
+	"github.com/mcihad/kentos-izci/internal/metrics"
 	"github.com/mcihad/kentos-izci/internal/realtime"
 	"github.com/mcihad/kentos-izci/internal/secret"
 	"github.com/mcihad/kentos-izci/internal/server"
@@ -148,6 +149,15 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	a.Server.Handle(grpcreflect.NewHandlerV1(reflector))
 	a.Server.Handle(grpcreflect.NewHandlerV1Alpha(reflector))
 	a.Server.Handle(grpchealth.NewHandler(grpchealth.NewStaticChecker(ingestv1connect.IngestServiceName)))
+	if cfg.Metrics.Enabled {
+		m := metrics.NewInstance()
+		m.Gauge("izci_ingest_queue_depth", func() float64 { return float64(a.Pipeline.QueueDepth()) })
+		m.Gauge("izci_ingest_queue_capacity", func() float64 { return float64(a.Pipeline.QueueCapacity()) })
+		m.Gauge("izci_live_subscribers", func() float64 { return float64(a.Hub.Subscribers()) })
+		m.Gauge("izci_ai_runs_running", func() float64 { return float64(a.AI.Running()) })
+		m.Pool(database.Pool)
+		a.Server.Handle("GET /metrics", m.Handler(cfg.Metrics.Token.Value()))
+	}
 
 	docs.Register(a.Server.Handle, cfg.PublicURL)
 	a.Auth = auth.NewService(database, cfg, box, log)

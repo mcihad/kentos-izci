@@ -24,6 +24,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
 	"github.com/mcihad/kentos-izci/internal/ingest"
+	"github.com/mcihad/kentos-izci/internal/metrics"
 	"github.com/mcihad/kentos-izci/internal/secret"
 	"github.com/mcihad/kentos-izci/internal/store"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -330,6 +331,11 @@ func (b *Bot) saveThread(ctx context.Context, orgID uuid.UUID, t store.Thread) {
 // finish marks a notification handled; with a channel it also records the
 // delivery on the channel and the issue.
 func (b *Bot) finish(ctx context.Context, it store.OutboxItem, ch *store.Channel, note string) {
+	if ch == nil {
+		metrics.NotificationsSkipped.Inc()
+	} else {
+		metrics.NotificationsDelivered.Inc()
+	}
 	err := b.db.InSystem(ctx, func(tx pgx.Tx) error {
 		if err := store.MarkNotificationSent(ctx, tx, it.ID); err != nil {
 			return err
@@ -356,6 +362,7 @@ func (b *Bot) finish(ctx context.Context, it store.OutboxItem, ch *store.Channel
 }
 
 func (b *Bot) retry(ctx context.Context, it store.OutboxItem, at time.Time, msg string) {
+	metrics.NotificationsRetried.Inc()
 	if err := b.db.InSystem(ctx, func(tx pgx.Tx) error { return store.MarkNotificationFailed(ctx, tx, it.ID, &at, msg) }); err != nil {
 		b.log.Error("reschedule notification", slog.Any("err", err))
 	}
@@ -385,6 +392,7 @@ func (b *Bot) fail(ctx context.Context, it store.OutboxItem, ch *store.Channel, 
 }
 
 func (b *Bot) giveUp(ctx context.Context, it store.OutboxItem, ch *store.Channel, msg string) {
+	metrics.NotificationsDropped.Inc()
 	b.log.Warn("notification dropped", slog.String("channel", ch.Name), slog.String("reason", msg))
 	err := b.db.InSystem(ctx, func(tx pgx.Tx) error {
 		if err := store.MarkNotificationFailed(ctx, tx, it.ID, nil, msg); err != nil {

@@ -56,6 +56,8 @@ type Config struct {
 	GitHub    GitHubConfig
 	AI        AIConfig
 	MCP       MCPConfig
+	Metrics   MetricsConfig
+	Self      SelfConfig
 	// OIDC holds the configured OpenID Connect providers (from
 	// OIDC_PROVIDERS and OIDC_<ID>_* variables).
 	OIDC []OIDCProvider `env:"-"`
@@ -207,6 +209,30 @@ type MCPConfig struct {
 	Enabled bool `env:"MCP_ENABLED" envDefault:"true"`
 }
 
+// MetricsConfig configures the Prometheus endpoint.
+type MetricsConfig struct {
+	// Enabled serves Prometheus metrics at /metrics.
+	Enabled bool `env:"METRICS_ENABLED" envDefault:"true"`
+	// Token, when set, must be sent as "Authorization: Bearer <token>".
+	// Without a token only direct requests from loopback and private
+	// addresses are answered.
+	Token Secret `env:"METRICS_TOKEN"`
+}
+
+// SelfConfig makes izci report its own errors to an izci server with the Go
+// SDK: to a separate monitoring instance or to a project on itself.
+type SelfConfig struct {
+	// URL is the base URL of the izci server receiving the events.
+	URL string `env:"IZCI_SELF_URL"`
+	// Key is the ingest key ("izk_…") of the project collecting the errors.
+	Key Secret `env:"IZCI_SELF_KEY"`
+	// Environment of the reported events; defaults to IZCI_ENV.
+	Environment string `env:"IZCI_SELF_ENVIRONMENT"`
+}
+
+// Enabled reports whether self-monitoring is configured.
+func (s SelfConfig) Enabled() bool { return s.URL != "" && s.Key != "" }
+
 // Secret is a string that is never printed: String returns a placeholder so
 // secrets do not leak through logs or error messages.
 type Secret string
@@ -354,6 +380,21 @@ func (c *Config) finalize() error {
 	}
 	if c.AI.Timeout < time.Minute {
 		errs = append(errs, fmt.Errorf("AI_TIMEOUT must be at least 1m (got %s)", c.AI.Timeout))
+	}
+
+	c.Self.URL = strings.TrimRight(strings.TrimSpace(c.Self.URL), "/")
+	if (c.Self.URL == "") != (c.Self.Key == "") {
+		errs = append(errs, errors.New("IZCI_SELF_URL and IZCI_SELF_KEY must be set together"))
+	} else if c.Self.Enabled() {
+		if u, err := url.Parse(c.Self.URL); err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
+			errs = append(errs, fmt.Errorf("IZCI_SELF_URL must be an absolute http(s) URL (got %q)", c.Self.URL))
+		}
+		if !strings.HasPrefix(c.Self.Key.Value(), "izk_") {
+			errs = append(errs, errors.New("IZCI_SELF_KEY must be a project ingest key (izk_…)"))
+		}
+	}
+	if c.Self.Environment == "" {
+		c.Self.Environment = string(c.Env)
 	}
 
 	if c.Ingest.Ack != "durable" && c.Ingest.Ack != "async" {

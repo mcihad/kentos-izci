@@ -1,10 +1,13 @@
 package server
 
 import (
+	"context"
+	"errors"
 	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"runtime"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -145,5 +148,51 @@ func TestSPAPlaceholderWithoutUI(t *testing.T) {
 	rec := do(t, s.Handler(), http.MethodGet, "/", nil)
 	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), "make web") {
 		t.Fatalf("placeholder expected, got %d %s", rec.Code, rec.Body)
+	}
+}
+
+type recordHandler struct {
+	slog.Handler
+	records *[]slog.Record
+}
+
+func (h recordHandler) Enabled(context.Context, slog.Level) bool { return true }
+
+func (h recordHandler) Handle(_ context.Context, r slog.Record) error {
+	*h.records = append(*h.records, r)
+	return nil
+}
+
+func explode(xs []int, i int) int { return xs[i] }
+
+func TestPanicIsLoggedWithItsStack(t *testing.T) {
+	var records []slog.Record
+	s := New(Options{Config: testConfig(), Logger: slog.New(recordHandler{slog.DiscardHandler, &records}), UI: testUI()})
+	s.Handle("GET /boom", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = explode(nil, 3)
+	}))
+	if rec := do(t, s.Handler(), http.MethodGet, "/boom", nil); rec.Code != http.StatusInternalServerError {
+		t.Fatalf("status %d", rec.Code)
+	}
+	var pe *PanicError
+	for _, r := range records {
+		r.Attrs(func(a slog.Attr) bool {
+			if a.Key == "err" {
+				pe, _ = a.Value.Any().(*PanicError)
+			}
+			return true
+		})
+	}
+	if pe == nil {
+		t.Fatal("the panic was not logged as a *PanicError")
+	}
+	var rt runtime.Error
+	if !errors.As(pe, &rt) || !strings.Contains(pe.Error(), "index out of range") {
+		t.Fatalf("panic error %q does not wrap the runtime error", pe)
+	}
+	frames := runtime.CallersFrames(pe.Callers())
+	top, _ := frames.Next()
+	if !strings.HasSuffix(top.Function, ".explode") {
+		t.Fatalf("innermost frame is %s, want the function that panicked", top.Function)
 	}
 }

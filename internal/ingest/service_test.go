@@ -323,3 +323,23 @@ func TestRateLimit(t *testing.T) {
 		t.Fatalf("expected most of the events beyond the burst to be limited, got %d", limited)
 	}
 }
+
+// TestAsyncFullQueue: with INGEST_ACK=async an event the full queue refused
+// must not be reported as accepted.
+func TestAsyncFullQueue(t *testing.T) {
+	env := ingesttest.New(t, ingesttest.Options{Async: true, QueueSize: 1, Stopped: true})
+	client := ingestv1connect.NewIngestServiceClient(http.DefaultClient, env.Server.URL)
+	req := connect.NewRequest(&ingestv1.SendEventsRequest{Events: []*ingestv1.Event{orderEvent(1, "sivas"), orderEvent(2, "sivas")}})
+	req.Header().Set("Authorization", "Bearer "+env.Key)
+	resp, err := client.SendEvents(context.Background(), req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res := resp.Msg.GetResults()
+	if res[0].GetOutcome() != ingestv1.EventOutcome_EVENT_OUTCOME_ACCEPTED {
+		t.Errorf("queued event: %v %q", res[0].GetOutcome(), res[0].GetError())
+	}
+	if res[1].GetOutcome() != ingestv1.EventOutcome_EVENT_OUTCOME_INVALID || res[1].GetError() != "temporarily unavailable: server busy" {
+		t.Errorf("refused event: %v %q", res[1].GetOutcome(), res[1].GetError())
+	}
+}

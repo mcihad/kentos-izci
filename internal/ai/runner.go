@@ -28,6 +28,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/db"
 	"github.com/mcihad/kentos-izci/internal/github"
 	"github.com/mcihad/kentos-izci/internal/ingest"
+	"github.com/mcihad/kentos-izci/internal/metrics"
 	"github.com/mcihad/kentos-izci/internal/store"
 	ingestv1 "github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1"
 )
@@ -185,7 +186,8 @@ func (r *Runner) recover(ctx context.Context) {
 	}
 }
 
-func (r *Runner) running() int {
+// Running returns the number of runs executing on this instance.
+func (r *Runner) Running() int {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	return len(r.active)
@@ -193,7 +195,7 @@ func (r *Runner) running() int {
 
 // claim starts queued runs while slots are free.
 func (r *Runner) claim(ctx context.Context) {
-	free := r.opts.Config.MaxConcurrent - r.running()
+	free := r.opts.Config.MaxConcurrent - r.Running()
 	if free <= 0 || ctx.Err() != nil {
 		return
 	}
@@ -394,6 +396,7 @@ func (r *Runner) tryLockMirror(projectID uuid.UUID) (func(), bool) {
 
 // execute runs one claimed run to completion.
 func (r *Runner) execute(ctx context.Context, cancel context.CancelCauseFunc, run *store.AiRun) {
+	started := time.Now()
 	defer func() {
 		r.mu.Lock()
 		delete(r.active, run.ID)
@@ -481,6 +484,14 @@ func (r *Runner) execute(ctx context.Context, cancel context.CancelCauseFunc, ru
 	}
 	r.ping(run.ID)
 	r.issueChanged(save, run.OrgID, run.IssueID)
+	outcome := "failed"
+	switch run.Status {
+	case store.AiSucceeded:
+		outcome = "succeeded"
+	case store.AiCancelled:
+		outcome = "cancelled"
+	}
+	metrics.AIRunFinished(outcome, time.Since(started), run.Usage.InputTokens, run.Usage.OutputTokens, run.Usage.CostUSD)
 	log.Info("AI run finished", slog.Int("status", int(run.Status)), slog.Int("files", len(run.Files)),
 		slog.Int64("input_tokens", run.Usage.InputTokens), slog.Int64("output_tokens", run.Usage.OutputTokens))
 

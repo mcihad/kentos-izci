@@ -185,7 +185,9 @@
   samp,
   .font-mono {
     font-variant-ligatures: none;
-    font-feature-settings: "calt" 0, "liga" 0;
+    font-feature-settings:
+      "calt" 0,
+      "liga" 0;
   }
   ::selection {
     background: color-mix(in oklch, var(--primary) 30%, transparent);

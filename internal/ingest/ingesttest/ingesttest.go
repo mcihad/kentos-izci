@@ -31,6 +31,12 @@ type Options struct {
 	AllowedOrigins []string
 	// Mount registers extra handlers (e.g. the Sentry endpoints) on the mux.
 	Mount func(mux *http.ServeMux, svc *ingest.Service)
+	// Async answers once events are queued (INGEST_ACK=async).
+	Async bool
+	// QueueSize of each writer queue (default: the pipeline's).
+	QueueSize int
+	// Stopped leaves the writers stopped, so queued events stay queued.
+	Stopped bool
 }
 
 // Env is a running ingest environment.
@@ -78,17 +84,19 @@ func New(t testing.TB, opts Options) *Env {
 	}
 
 	log := slog.New(slog.DiscardHandler)
-	e.Pipeline = ingest.NewPipeline(database, log, ingest.PipelineConfig{Shards: 2, BatchSize: 200, PublicURL: "https://izci.test"},
+	e.Pipeline = ingest.NewPipeline(database, log, ingest.PipelineConfig{Shards: 2, QueueSize: opts.QueueSize, BatchSize: 200, PublicURL: "https://izci.test"},
 		ingest.Hooks{AfterCommit: func(b *ingest.Batch) {
 			select {
 			case e.Batches <- b:
 			default:
 			}
 		}})
-	e.Pipeline.Start()
-	t.Cleanup(func() { _ = e.Pipeline.Close(context.Background()) })
+	if !opts.Stopped {
+		e.Pipeline.Start()
+		t.Cleanup(func() { _ = e.Pipeline.Close(context.Background()) })
+	}
 
-	e.Service = ingest.NewService(ingest.ServiceConfig{Durable: true, Retention: 90 * 24 * time.Hour}, database, log,
+	e.Service = ingest.NewService(ingest.ServiceConfig{Durable: !opts.Async, Retention: 90 * 24 * time.Hour}, database, log,
 		ingest.NewKeyResolver(database, time.Minute), ingest.NewRateLimiter(1_000_000), ingest.NewQuotaTracker(database),
 		ingest.NewUsageRecorder(), ingest.NewDedupe(10000, time.Hour), e.Pipeline)
 	path, handler := ingestv1connect.NewIngestServiceHandler(e.Service)

@@ -22,6 +22,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/clientip"
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
+	"github.com/mcihad/kentos-izci/internal/metrics"
 	"github.com/mcihad/kentos-izci/internal/store"
 	ingestv1 "github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1"
 	"github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1/ingestv1connect"
@@ -165,6 +166,7 @@ const unavailablePrefix = "temporarily unavailable"
 func (s *Service) Accept(ctx context.Context, c *Caller, events []*ingestv1.Event) ([]*ingestv1.EventResult, time.Duration) {
 	rk := c.Key
 	results := make([]*ingestv1.EventResult, len(events))
+	defer countOutcomes(results)
 	var retry time.Duration
 	project := ProjectContext{
 		OrgID: rk.Key.OrgID, OrgSlug: rk.OrgSlug, ProjectID: rk.Key.ProjectID, ProjectSlug: rk.ProjectSlug,
@@ -231,8 +233,22 @@ func (s *Service) Accept(ctx context.Context, c *Caller, events []*ingestv1.Even
 
 	if !s.cfg.Durable {
 		for k, i := range pendingIdx {
-			results[i].Outcome = ingestv1.EventOutcome_EVENT_OUTCOME_ACCEPTED
 			p, ch := pending[k], chans[k]
+			select {
+			case r := <-ch:
+				// Already resolved: the queue was full, or the batch was
+				// written in the meantime.
+				if r.Err != nil {
+					results[i].Outcome, results[i].Error = ingestv1.EventOutcome_EVENT_OUTCOME_INVALID, unavailablePrefix+": "+publicError(r.Err)
+					continue
+				}
+				s.dedupe.Remember(p.ProjectID, p.EventID, r)
+				results[i].Outcome = ingestv1.EventOutcome_EVENT_OUTCOME_ACCEPTED
+				fillIssue(results[i], r)
+				continue
+			default:
+			}
+			results[i].Outcome = ingestv1.EventOutcome_EVENT_OUTCOME_ACCEPTED
 			go func() {
 				if r := <-ch; r.Err == nil {
 					s.dedupe.Remember(p.ProjectID, p.EventID, r)
@@ -264,6 +280,28 @@ func (s *Service) Accept(ctx context.Context, c *Caller, events []*ingestv1.Even
 		}
 	}
 	return results, retry
+}
+
+// countOutcomes adds the answered events to izci_ingest_events_total.
+func countOutcomes(results []*ingestv1.EventResult) {
+	for _, r := range results {
+		switch r.GetOutcome() {
+		case ingestv1.EventOutcome_EVENT_OUTCOME_ACCEPTED:
+			metrics.EventsAccepted.Inc()
+		case ingestv1.EventOutcome_EVENT_OUTCOME_DUPLICATE:
+			metrics.EventsDuplicate.Inc()
+		case ingestv1.EventOutcome_EVENT_OUTCOME_FILTERED:
+			metrics.EventsFiltered.Inc()
+		case ingestv1.EventOutcome_EVENT_OUTCOME_RATE_LIMITED:
+			metrics.EventsRateLimited.Inc()
+		default:
+			if strings.HasPrefix(r.GetError(), unavailablePrefix) {
+				metrics.EventsUnavailable.Inc()
+			} else {
+				metrics.EventsInvalid.Inc()
+			}
+		}
+	}
 }
 
 func fillIssue(res *ingestv1.EventResult, r Result) {

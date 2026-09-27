@@ -3,6 +3,9 @@ package main
 
 import (
 	"os"
+	// Organization time zones must resolve on hosts and images without a
+	// zoneinfo database.
+	_ "time/tzdata"
 
 	"github.com/mcihad/kentos-izci/internal/cli"
 )

@@ -3,39 +3,47 @@ module github.com/mcihad/kentos-izci
 go 1.26.1
 
 require (
+	buf.build/go/protovalidate v1.4.0
+	connectrpc.com/cors v0.1.0
+	connectrpc.com/grpchealth v1.5.0
+	connectrpc.com/grpcreflect v1.3.0
+	github.com/VictoriaMetrics/metrics v1.44.0
+	github.com/andybalholm/brotli v1.2.5
 	github.com/caarlos0/env/v11 v11.4.1
+	github.com/coreos/go-oidc/v3 v3.21.0
+	github.com/getsentry/sentry-go v0.49.0
+	github.com/go-jose/go-jose/v4 v4.1.4
 	github.com/google/uuid v1.6.0
+	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/joho/godotenv v1.5.1
+	github.com/klauspost/compress v1.20.1
+	github.com/medama-io/go-useragent v1.2.5
+	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/pressly/goose/v3 v3.28.0
 	github.com/spf13/cobra v1.10.2
 	github.com/vgarvardt/pgx-google-uuid/v5 v5.6.0
+	golang.org/x/crypto v0.57.0
+	golang.org/x/oauth2 v0.37.0
+	golang.org/x/time v0.16.0
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260921155816-b14227669459
 )
 
 require (
-	buf.build/go/protovalidate v1.4.0 // indirect
 	cel.dev/cel-go v0.32.0 // indirect
 	cel.dev/expr v0.25.3 // indirect
-	connectrpc.com/cors v0.1.0 // indirect
-	connectrpc.com/grpchealth v1.5.0 // indirect
-	connectrpc.com/grpcreflect v1.3.0 // indirect
-	github.com/andybalholm/brotli v1.2.5 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/boyter/go-string v1.0.5 // indirect
-	github.com/coreos/go-oidc/v3 v3.21.0 // indirect
-	github.com/getsentry/sentry-go v0.49.0 // indirect
-	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
-	github.com/klauspost/compress v1.20.1 // indirect
-	github.com/medama-io/go-useragent v1.2.5 // indirect
-	github.com/modelcontextprotocol/go-sdk v1.8.0 // indirect
+	github.com/google/jsonschema-go v0.4.3 // indirect
+	github.com/segmentio/asm v1.2.1 // indirect
+	github.com/segmentio/encoding v0.5.4 // indirect
+	github.com/valyala/fastrand v1.1.0 // indirect
+	github.com/valyala/histogram v1.2.0 // indirect
+	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/crypto v0.57.0 // indirect
 	golang.org/x/exp v0.0.0-20260824195058-e88cd73687aa // indirect
-	golang.org/x/oauth2 v0.37.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
-	golang.org/x/time v0.16.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260819154853-08b0e4226688 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260921155816-b14227669459 // indirect
 )
 
 require (

@@ -1,0 +1,94 @@
+# Quality gate for every push to main and every pull request: generated code
+# must be current, `make check` must pass against a real PostgreSQL 18 and
+# the binary and the container image must build.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, test and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      # A throwaway database of this job; `make db-setup` creates the
+      # non-superuser izci role from DATABASE_URL.
+      DB_ADMIN_URL: postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
+      DATABASE_URL: postgres://izci:izci-ci@localhost:5432/izci?sslmode=disable
+      IZCI_TEST_DATABASE_URL: postgres://izci:izci-ci@localhost:5432/izci_test?sslmode=disable
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: |
+            go.sum
+            sdk/go/go.sum
+            sdk/go/izcipgx/go.sum
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.17.0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - uses: bufbuild/buf-action@v1
+        with:
+          setup_only: true
+      - name: Install dependencies
+        run: make setup
+      - name: Create the database role and databases
+        run: make db-setup
+      - name: Generated code is up to date
+        run: |
+          make gen
+          git diff --exit-code || { echo "::error::run 'make gen' and commit the result"; exit 1; }
+      - name: Quality gate
+        run: make check
+      - name: Build
+        run: make build
+
+  docker:
+    name: Container image
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: izci:ci
+          build-args: |
+            VERSION=ci-${{ github.sha }}
+            COMMIT=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke test
+        run: |
+          docker run --rm izci:ci version
+          docker run --rm --entrypoint id izci:ci | grep -q 'uid=10001(izci)'

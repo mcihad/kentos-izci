@@ -1,0 +1,28 @@
+# Keep the build context small and free of secrets. Everything the image
+# needs is rebuilt inside the Dockerfile stages.
+.git
+.github
+.claude
+.env
+.env.*
+!.env.example
+Dockerfile
+.dockerignore
+
+bin/
+data/
+coverage/
+*.test
+*.out
+
+**/node_modules/
+web/dist/
+web/.tanstack/
+
+examples/csharp/*/bin/
+examples/csharp/*/obj/
+examples/dart/.dart_tool/
+
+.DS_Store
+.idea/
+.vscode/

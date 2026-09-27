@@ -141,6 +141,27 @@ Kurulumu `izci ai doctor` denetler; bu komut modele istek göndermez.
 
 Ayrıntılar: [MCP ile yapay zekâ asistanları](mcp.md).
 
+## Metrikler
+
+| Değişken | Varsayılan | Açıklama |
+|---|---|---|
+| `METRICS_ENABLED` | `true` | `/metrics` adresinde Prometheus metrikleri sunar. |
+| `METRICS_TOKEN` | (boş) | Verilirse her istek `Authorization: Bearer <token>` taşımalıdır. Boşsa yalnız loopback ve özel ağ adreslerinden doğrudan (vekilsiz) gelen istekler yanıtlanır. |
+
+Metrik listesi ve erişim kuralları: [İşletim](operasyon.md#metrikler).
+
+## Öz-izleme
+
+İzci'nin kendi hatalarını bir İzci projesine göndermesi için:
+
+| Değişken | Varsayılan | Açıklama |
+|---|---|---|
+| `IZCI_SELF_URL` | (boş) | Olayları alacak İzci sunucusunun taban adresi; kendi adresi de olabilir. |
+| `IZCI_SELF_KEY` | (boş) | O sunucudaki projenin ingest anahtarı (`izk_…`). İki değişken birlikte verilmelidir. |
+| `IZCI_SELF_ENVIRONMENT` | `IZCI_ENV` değeri | Raporlanan olayların ortamı. |
+
+Ayrıntılar: [İşletim](operasyon.md#öz-izleme).
+
 ## Komut satırı istemcileri
 
 Bunlar sunucu değil, `izci` komutları tarafından okunur:

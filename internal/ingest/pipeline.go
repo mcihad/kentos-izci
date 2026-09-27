@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/mcihad/kentos-izci/internal/db"
+	"github.com/mcihad/kentos-izci/internal/metrics"
 )
 
 // PipelineConfig tunes batching.
@@ -76,17 +76,6 @@ type Pipeline struct {
 	wg     sync.WaitGroup
 	mu     sync.RWMutex
 	closed bool
-
-	stats PipelineStats
-}
-
-// PipelineStats are cumulative counters (exported as metrics).
-type PipelineStats struct {
-	Batches     atomic.Int64
-	Events      atomic.Int64
-	Failed      atomic.Int64
-	Overloaded  atomic.Int64
-	LastBatchMs atomic.Int64
 }
 
 // NewPipeline creates a pipeline; call Start to run it.
@@ -107,9 +96,6 @@ func NewPipeline(database *db.DB, log *slog.Logger, cfg PipelineConfig, hooks Ho
 	return pl
 }
 
-// Stats exposes counters.
-func (pl *Pipeline) Stats() *PipelineStats { return &pl.stats }
-
 // QueueDepth returns the number of queued events across shards.
 func (pl *Pipeline) QueueDepth() int {
 	n := 0
@@ -118,6 +104,9 @@ func (pl *Pipeline) QueueDepth() int {
 	}
 	return n
 }
+
+// QueueCapacity returns how many events the shard queues hold together.
+func (pl *Pipeline) QueueCapacity() int { return len(pl.shards) * pl.cfg.QueueSize }
 
 // Start launches the shard writers.
 func (pl *Pipeline) Start() {
@@ -164,7 +153,7 @@ func (pl *Pipeline) Submit(ps ...*Processed) ([]<-chan Result, error) {
 		case pl.shards[pl.shardOf(p.ProjectID)] <- j:
 			out[i] = j.done
 		default:
-			pl.stats.Overloaded.Add(1)
+			metrics.QueueFull.Inc()
 			// Resolve the rest immediately so callers never wait forever.
 			for k := i; k < len(ps); k++ {
 				ch := make(chan Result, 1)
@@ -226,17 +215,24 @@ func (pl *Pipeline) flush(shard int, jobs []*job) {
 		}
 		return
 	}
-	pl.stats.LastBatchMs.Store(time.Since(start).Milliseconds())
+	metrics.BatchDuration.UpdateDuration(start)
 	if err != nil {
-		pl.stats.Failed.Add(int64(len(jobs)))
+		metrics.EventsFailed.Add(len(jobs))
 		pl.log.Error("ingest batch failed", slog.Int("shard", shard), slog.Int("events", len(jobs)), slog.Any("err", err))
 		for _, j := range jobs {
 			j.done <- Result{Err: err}
 		}
 		return
 	}
-	pl.stats.Batches.Add(1)
-	pl.stats.Events.Add(int64(len(jobs)))
+	metrics.BatchesStored.Inc()
+	metrics.EventsStored.Add(len(jobs))
+	for _, o := range b.Issues {
+		if o.Created {
+			metrics.IssuesCreated.Inc()
+		} else if o.Regressed {
+			metrics.IssuesRegressed.Inc()
+		}
+	}
 	for _, j := range jobs {
 		o := b.Issues[issueKeyOf(j.p)]
 		res := Result{IssueID: o.ID, IssueShortID: o.ShortID, IssueNew: o.Created, IssueRegressed: o.Regressed}

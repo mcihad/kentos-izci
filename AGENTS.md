@@ -58,7 +58,7 @@ commit message and the phase table in `docs/mimari.md` (once written).
 | Path | What lives there |
 |---|---|
 | `cmd/izci` | `main` — calls `internal/cli` |
-| `internal/cli` | cobra commands (`serve`, `migrate`, `db bootstrap`, `version`, …) |
+| `internal/cli` | cobra commands (`serve`, `migrate`, `db bootstrap`, `healthcheck`, `version`, …) |
 | `internal/config` | `.env` + environment → typed, validated `Config` |
 | `internal/server` | the single `http.Server` (h2c/TLS), middleware, SPA handler, health |
 | `internal/app` | wires everything (DB, ingest pipeline, services, jobs, HTTP server) |
@@ -78,6 +78,8 @@ commit message and the phase table in `docs/mimari.md` (once written).
 | `internal/jobs` | periodic background tasks (usage flush, partitions, retention, project purge) |
 | `internal/sample` | realistic sample events (demo, bench, test events) |
 | `internal/testutil` | per-test PostgreSQL schemas (`NewDB`) |
+| `internal/metrics` | Prometheus metrics (VictoriaMetrics/metrics): process-wide counters updated on hot paths, per-instance gauges (queue, pool, live streams), `/metrics` with its access rule; labels never carry tenant data |
+| `internal/selfmon` | self-monitoring: the Go SDK with `izcislog` wraps the server logger when `IZCI_SELF_*` is set, rate limited against feedback loops |
 | `internal/logging`, `internal/version` | slog setup, build metadata |
 | `tools/protoc-gen-izcidoc` | protoc plugin rendering `docs/api` from proto comments |
 | `proto/izci/ingest/v1` | public ingest contract (Event model, IngestService) |
@@ -87,6 +89,7 @@ commit message and the phase table in `docs/mimari.md` (once written).
 | `docs` | Turkish user guides (embedded by `docs/embed.go`: in-app docs, `/llms.txt`, MCP resources; `go test ./docs` checks every link and heading anchor); `docs/api` English reference generated from proto |
 | `examples` | Dependency-free clients (curl, .NET, Node, Python, Dart) and Sentry SDK samples; each must keep working against a local server |
 | `scripts` | build helpers (`make-help.awk`) |
+| `Dockerfile`, `.github/workflows/ci.yml` | multi-stage image (`make docker`, optional opencode, non-root, `izci healthcheck`); CI: generated code current, `make check` on PostgreSQL 18, binary and image build |
 
 ## Commands
 
@@ -96,6 +99,7 @@ make setup                # install Go + web dependencies
 make db-setup             # create the izci role + izci/izci_test databases
 make dev                  # Go server :5300 + Vite HMR :5301 (open :5301)
 make build && make run    # static binary with the UI embedded
+make docker               # container image (WITH_OPENCODE=true adds opencode)
 make check                # the full gate: help-check, lint, typecheck, tests
 ```
 

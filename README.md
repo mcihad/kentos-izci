@@ -27,7 +27,7 @@ cp .env.example .env                         # DATABASE_URL, DB_ADMIN_URL…
 IZCI_KEY=izk_… ./examples/curl/send-event.sh
 ```
 
-Ayrıntılar: [Kurulum ve ilk çalıştırma](docs/kurulum.md).
+Ayrıntılar: [Kurulum ve ilk çalıştırma](docs/kurulum.md). Docker imajı (`make docker`), Prometheus metrikleri (`/metrics`) ve öz-izleme için: [İşletim](docs/operasyon.md).
 
 ## Belgeler
 

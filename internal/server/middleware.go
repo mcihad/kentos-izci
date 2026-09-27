@@ -4,11 +4,15 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"log/slog"
 	"net/http"
+	"runtime"
 	"runtime/debug"
 	"strings"
 	"time"
+
+	"github.com/mcihad/kentos-izci/internal/metrics"
 )
 
 type ctxKey int
@@ -21,10 +25,12 @@ func RequestID(ctx context.Context) string {
 	return id
 }
 
-// middleware wraps the mux with panic recovery, request ids and access logs.
+// middleware wraps the mux with panic recovery, request ids, metrics and
+// access logs.
 func (s *Server) middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
+		metrics.RequestStarted()
 
 		id := r.Header.Get("X-Request-Id")
 		if !validRequestID(id) {
@@ -37,12 +43,21 @@ func (s *Server) middleware(next http.Handler) http.Handler {
 
 		sw := &statusWriter{ResponseWriter: w}
 		defer func() {
-			if rec := recover(); rec != nil {
+			rec := recover()
+			status := sw.status
+			if rec != nil && !sw.wroteHeader {
+				status = http.StatusInternalServerError
+			}
+			if status == 0 {
+				status = http.StatusOK
+			}
+			metrics.RequestFinished(r.URL.Path, status, time.Since(start))
+			if rec != nil {
 				if rec == http.ErrAbortHandler {
 					panic(rec)
 				}
 				s.log.Error("panic while serving request",
-					slog.Any("panic", rec),
+					slog.Any("err", &PanicError{Value: rec, pcs: panicStack()}),
 					slog.String("method", r.Method),
 					slog.String("path", r.URL.Path),
 					slog.String("request_id", id),
@@ -53,10 +68,6 @@ func (s *Server) middleware(next http.Handler) http.Handler {
 			}
 			if skipAccessLog(r.URL.Path) {
 				return
-			}
-			status := sw.status
-			if status == 0 {
-				status = http.StatusOK
 			}
 			level := slog.LevelDebug
 			if status >= 500 {
@@ -73,6 +84,50 @@ func (s *Server) middleware(next http.Handler) http.Handler {
 		}()
 		next.ServeHTTP(sw, r)
 	})
+}
+
+// PanicError is a panic recovered while serving a request. It keeps the
+// stack of the panicking goroutine cut at the panic, so that error reports
+// (self-monitoring reads Callers) point at the code that panicked instead
+// of at the recovery.
+type PanicError struct {
+	Value any
+	pcs   []uintptr
+}
+
+func (e *PanicError) Error() string { return fmt.Sprintf("panic: %v", e.Value) }
+
+// Unwrap returns the panic value when it is an error.
+func (e *PanicError) Unwrap() error {
+	err, _ := e.Value.(error)
+	return err
+}
+
+// Callers returns the program counters of the panic, innermost first.
+func (e *PanicError) Callers() []uintptr { return e.pcs }
+
+// panicStack captures the stack inside a deferred recover and drops the
+// frames of the recovery: everything up to runtime.gopanic and the runtime
+// helpers that raised the panic (sigpanic, panicIndex, …).
+func panicStack() []uintptr {
+	pcs := make([]uintptr, 64)
+	pcs = pcs[:runtime.Callers(2, pcs)]
+	name := func(pc uintptr) string {
+		if f := runtime.FuncForPC(pc - 1); f != nil {
+			return f.Name()
+		}
+		return ""
+	}
+	for i, pc := range pcs {
+		if name(pc) == "runtime.gopanic" {
+			pcs = pcs[i+1:]
+			for len(pcs) > 1 && strings.HasPrefix(name(pcs[0]), "runtime.") {
+				pcs = pcs[1:]
+			}
+			break
+		}
+	}
+	return pcs
 }
 
 func skipAccessLog(path string) bool {

@@ -23,7 +23,7 @@ LDFLAGS := -s -w \
 	-X $(PKG)/internal/version.Commit=$(COMMIT) \
 	-X $(PKG)/internal/version.Date=$(DATE)
 
-.PHONY: help help-check setup db-setup db-reset migrate demo gen lint-proto web build run dev test test-go test-web lint typecheck check clean
+.PHONY: help help-check setup db-setup db-reset migrate demo gen lint-proto web build docker run dev test test-go test-web lint typecheck check clean
 
 #? Lists every target with a one-line summary. With T=<target> prints that
 #? target's full description, variables and examples.
@@ -96,6 +96,20 @@ web: ## Build the web UI
 #> make build VERSION=v1.0.0 BIN=/tmp/izci
 build: web ## Build bin/izci with the UI embedded
 	CGO_ENABLED=0 $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $(BIN) ./cmd/izci
+
+#? Builds the container image: web UI and static binary in build stages, a
+#? Debian slim runtime with git, running as the non-root `izci` user with
+#? /var/lib/izci as data volume and `izci healthcheck` as HEALTHCHECK.
+#? WITH_OPENCODE=true also installs the opencode CLI for AI analyses.
+#= IMAGE          image reference (default: izci:$(VERSION))
+#= WITH_OPENCODE  true to include opencode (default: false)
+#> make docker
+#> make docker IMAGE=registry.example.com/izci:v1.0.0 WITH_OPENCODE=true
+docker: ## Build the Docker image
+	docker build \
+		--build-arg VERSION=$(VERSION) --build-arg COMMIT=$(COMMIT) --build-arg DATE=$(DATE) \
+		--build-arg WITH_OPENCODE=$(or $(WITH_OPENCODE),false) \
+		--tag $(or $(IMAGE),izci:$(VERSION)) .
 
 #? Builds and starts the server with the local .env.
 #> make run

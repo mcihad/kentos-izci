@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/base64"
+	"fmt"
 	"net/netip"
 	"strings"
 	"testing"
@@ -90,5 +91,41 @@ func TestLoadDefaultsAndValidation(t *testing.T) {
 	t.Setenv("IZCI_ENV", "staging")
 	if _, err = Load(""); err == nil {
 		t.Fatal("unknown IZCI_ENV must fail")
+	}
+}
+
+func TestMetricsAndSelfMonitoring(t *testing.T) {
+	t.Setenv("IZCI_ENV", "development")
+	t.Setenv("IZCI_SECRET_KEY", "")
+	cfg, err := Load("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !cfg.Metrics.Enabled || cfg.Metrics.Token != "" || cfg.Self.Enabled() || cfg.Self.Environment != "development" {
+		t.Fatalf("defaults: %+v %+v", cfg.Metrics, cfg.Self)
+	}
+
+	t.Setenv("IZCI_SELF_URL", "https://izci.example.com/")
+	if _, err := Load(""); err == nil || !strings.Contains(err.Error(), "set together") {
+		t.Fatalf("a URL without a key must fail, got %v", err)
+	}
+	t.Setenv("IZCI_SELF_KEY", "izp_personal_token")
+	if _, err := Load(""); err == nil || !strings.Contains(err.Error(), "ingest key") {
+		t.Fatalf("a personal access token must be refused, got %v", err)
+	}
+	t.Setenv("IZCI_SELF_KEY", "izk_project_key")
+	t.Setenv("IZCI_SELF_ENVIRONMENT", "izci-production")
+	if cfg, err = Load(""); err != nil {
+		t.Fatal(err)
+	}
+	if !cfg.Self.Enabled() || cfg.Self.URL != "https://izci.example.com" || cfg.Self.Environment != "izci-production" {
+		t.Fatalf("self: %+v", cfg.Self)
+	}
+	if s := fmt.Sprint(cfg.Self.Key); s != "[redacted]" {
+		t.Errorf("the key must not print, got %q", s)
+	}
+	t.Setenv("IZCI_SELF_URL", "izci.example.com")
+	if _, err := Load(""); err == nil || !strings.Contains(err.Error(), "IZCI_SELF_URL") {
+		t.Fatalf("a URL without scheme must fail, got %v", err)
 	}
 }
