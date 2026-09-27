@@ -284,3 +284,20 @@ func Group(path string) string {
 	}
 	return "ui"
 }
+
+// filteredSeries counts events inbound filters dropped, by reason.
+var filteredSeries = func() map[string]*vm.Counter {
+	out := map[string]*vm.Counter{}
+	for _, r := range []string{"environment", "browser_extension", "web_crawler", "legacy_browser", "localhost",
+		"error_message", "ip_address", "release"} {
+		out[r] = shared.NewCounter(fmt.Sprintf(`izci_ingest_filtered_total{reason=%q}`, r))
+	}
+	return out
+}()
+
+// EventFiltered counts an event an inbound filter dropped.
+func EventFiltered(reason string) {
+	if c := filteredSeries[reason]; c != nil {
+		c.Inc()
+	}
+}

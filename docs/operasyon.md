@@ -237,6 +237,7 @@ scrape_configs:
 | Metrik | Tür | Açıklama |
 |---|---|---|
 | `izci_ingest_events_total{outcome}` | sayaç | Yanıtlanan olaylar: `accepted`, `duplicate`, `filtered`, `rate_limited`, `invalid`, `unavailable` (kuyruk dolu ya da yazılamadı; istemci yeniden dener). |
+| `izci_ingest_filtered_total{reason}` | sayaç | [Gelen veri filtrelerinin](filtreler.md) attığı olaylar: `environment`, `browser_extension`, `web_crawler`, `legacy_browser`, `localhost`, `error_message`, `ip_address`, `release`. |
 | `izci_ingest_stored_events_total`, `izci_ingest_batches_total` | sayaç | Veritabanına yazılan olaylar ve toplu yazma işlemleri. |
 | `izci_ingest_failed_events_total` | sayaç | Yeniden denemelere rağmen yazılamayan olaylar. |
 | `izci_ingest_batch_duration_seconds` | histogram | Bir toplu yazmanın süresi (yeniden denemeler dahil). |

@@ -60,6 +60,12 @@ service ProjectService {
     option idempotency_level = NO_SIDE_EFFECTS;
   }
 
+  // GetFilterStats counts the events the project's inbound filters dropped
+  // per reason and day, for the last 30 days. Requires ROLE_VIEWER.
+  rpc GetFilterStats(GetFilterStatsRequest) returns (GetFilterStatsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
   // SendTestEvent sends a sample event through the full ingest pipeline so
   // the setup can be verified end to end. Requires ROLE_MEMBER.
   rpc SendTestEvent(SendTestEventRequest) returns (SendTestEventResponse);
@@ -145,6 +151,91 @@ message ProjectSettings {
 
   // AI analysis automation.
   AiSettings ai = 5;
+
+  // Inbound filters that drop unwanted events before they are stored.
+  InboundFilters filters = 6;
+}
+
+// InboundFilters drop events at ingest, before rate limits and quotas: a
+// filtered event is answered as FILTERED and counts toward nothing but the
+// filter statistics.
+message InboundFilters {
+  // Errors of browser extensions: scripts loaded from chrome-extension://,
+  // moz-extension://, safari-web-extension:// and similar, and the error
+  // messages extensions are known for.
+  bool browser_extensions = 1;
+
+  // Events whose User-Agent is a web crawler, a link preview or an uptime
+  // checker (Googlebot, Bingbot, Pingdom, Lighthouse, …).
+  bool web_crawlers = 2;
+
+  // Events from old browsers: Internet Explorer, Edge before 79 (EdgeHTML),
+  // Safari before 12, Chrome before 80, Firefox before 78, Opera before 67,
+  // Opera Mini and the old Android browser.
+  bool legacy_browsers = 3;
+
+  // Events from local development: requests to localhost, 127.0.0.1 or ::1
+  // and events whose client address is a loopback address.
+  bool localhost = 4;
+
+  // Glob patterns matched case-insensitively against the error message
+  // ("Type: value", the value alone or the log message); "*" matches
+  // anything, e.g. "*ResizeObserver loop*". At most 50.
+  repeated string error_messages = 5 [(buf.validate.field).repeated = {
+    max_items: 50
+    items: {
+      string: {
+        min_len: 1
+        max_len: 200
+      }
+    }
+  }];
+
+  // IP addresses or CIDR ranges, e.g. "10.0.0.0/8", matched against the
+  // event's client (the end user) and the host that sent it. At most 50.
+  repeated string ip_addresses = 6 [(buf.validate.field).repeated = {
+    max_items: 50
+    items: {
+      string: {
+        min_len: 1
+        max_len: 50
+      }
+    }
+  }];
+
+  // Glob patterns matched case-insensitively against the release, e.g.
+  // "*-dev" or "kalem@1.2.*". At most 50.
+  repeated string releases = 7 [(buf.validate.field).repeated = {
+    max_items: 50
+    items: {
+      string: {
+        min_len: 1
+        max_len: 200
+      }
+    }
+  }];
+}
+
+// FilterReason is why an event was filtered at ingest.
+enum FilterReason {
+  // Not set.
+  FILTER_REASON_UNSPECIFIED = 0;
+  // Its environment is ignored.
+  FILTER_REASON_ENVIRONMENT = 1;
+  // It came from a browser extension.
+  FILTER_REASON_BROWSER_EXTENSION = 2;
+  // A web crawler sent it.
+  FILTER_REASON_WEB_CRAWLER = 3;
+  // An old browser sent it.
+  FILTER_REASON_LEGACY_BROWSER = 4;
+  // It came from local development.
+  FILTER_REASON_LOCALHOST = 5;
+  // Its message matched a pattern.
+  FILTER_REASON_ERROR_MESSAGE = 6;
+  // Its client address matched.
+  FILTER_REASON_IP_ADDRESS = 7;
+  // Its release matched a pattern.
+  FILTER_REASON_RELEASE = 8;
 }
 
 // PrivacySettings control what personal data is stored.
@@ -754,3 +845,43 @@ message UnlinkRepositoryRequest {
 
 // UnlinkRepositoryResponse has no fields.
 message UnlinkRepositoryResponse {}
+
+// GetFilterStatsRequest names a project.
+message GetFilterStatsRequest {
+  // Project slug.
+  string project = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+}
+
+// GetFilterStatsResponse counts filtered events.
+message GetFilterStatsResponse {
+  // Events dropped in the last 30 days per reason, largest first.
+  repeated FilterStat reasons = 1;
+
+  // Events dropped per day (UTC) in the last 30 days, oldest first;
+  // missing days had none.
+  repeated FilterDay days = 2;
+
+  // All events dropped in the last 30 days.
+  uint64 total = 3;
+}
+
+// FilterStat is a count per reason.
+message FilterStat {
+  // Why the events were dropped.
+  FilterReason reason = 1;
+
+  // How many.
+  uint64 count = 2;
+}
+
+// FilterDay is a count per day.
+message FilterDay {
+  // Day in UTC, "2026-09-27".
+  string day = 1;
+
+  // Events dropped that day.
+  uint64 count = 2;
+}

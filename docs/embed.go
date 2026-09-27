@@ -29,6 +29,7 @@ var Guides = []Guide{
 	{"ingest", "Hata gönderme", "gRPC, Connect ve JSON ile olay gönderme; C#, TypeScript, Dart, Python ve Go örnekleri.", "Veri gönderme"},
 	{"go-sdk", "Go SDK", "Go uygulamalarında hataları, panikleri ve bağlamı yakalama.", "Veri gönderme"},
 	{"sentry", "Sentry SDK'larıyla kullanım", "Mevcut Sentry SDK'larını DSN değiştirerek İzci'ye bağlama.", "Veri gönderme"},
+	{"filtreler", "Gelen veri filtreleri", "Botlar, tarayıcı eklentileri, eski tarayıcılar, yerel geliştirme; mesaj, IP ve sürüm desenleriyle olay atma.", "Kullanım"},
 	{"arama", "Arama dili", "is:, level:, customer:, release: ve diğer anahtarlarla hata arama.", "Kullanım"},
 	{"gruplama", "Gruplama", "Olayların hangi kurallarla aynı hataya toplandığı.", "Kullanım"},
 	{"kaynak-eslemeleri", "Kaynak eşlemeleri ve semboller", "Küçültülmüş JavaScript ve karıştırılmış Flutter yığın izlerini özgün koda çevirme; Vite, webpack, sentry-cli ve sentry_dart_plugin ile yükleme.", "Veri gönderme"},

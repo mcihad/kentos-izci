@@ -142,7 +142,7 @@ Saklanmayan öğeler için SDK hata almaz. Ağ trafiğini azaltmak için örnekl
 - Ekler olaylarla aynı süre saklanır (`RETENTION_DAYS`).
 - Ekran görüntüleri ve dosyalar gizleme kurallarından **geçmez**. Kişisel veri içerebilirler; gerekmiyorsa **Projeler › proje › Gizlilik** sayfasında "Olay eklerini sakla" seçeneğini kapatın.
 - Ekler izci arayüzünde oturum açmış organizasyon üyelerine sunulur. HTML, SVG ve betikler tarayıcıda çalıştırılmaz, yalnız indirilir.
-- Oran sınırına takılan ya da ortam filtresiyle atılan olayların ekleri de atılır.
+- Oran sınırına ya da [gelen veri filtrelerine](filtreler.md) takılan olayların ekleri de atılır.
 
 ### Kullanıcı geri bildirimi
 

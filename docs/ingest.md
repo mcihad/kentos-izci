@@ -161,7 +161,7 @@ curl -sS https://izci.example.com/izci.ingest.v1.IngestService/RegisterRelease \
 |---|---|
 | `EVENT_OUTCOME_ACCEPTED` | Saklandı. |
 | `EVENT_OUTCOME_DUPLICATE` | Aynı `eventId` kısa süre önce alınmıştı; tekrar saklanmadı. |
-| `EVENT_OUTCOME_FILTERED` | Proje ayarları gereği atlandı (ör. yok sayılan ortam ya da örnekleme). |
+| `EVENT_OUTCOME_FILTERED` | Projenin [gelen veri filtrelerine](filtreler.md) takıldı (ör. kayıt dışı ortam, bot, eski tarayıcı); saklanmadı, sınırlara da sayılmadı. |
 | `EVENT_OUTCOME_RATE_LIMITED` | Hız ya da aylık kota aşıldı. |
 | `EVENT_OUTCOME_INVALID` | Olay kullanılamaz (ör. ne mesaj ne istisna var); `error` alanı nedenini söyler. |
 

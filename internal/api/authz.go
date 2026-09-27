@@ -87,6 +87,7 @@ var rules = map[string]rule{
 	c.ProjectServiceUpdateApiKeyProcedure:       orgRule(admin, write),
 	c.ProjectServiceRevokeApiKeyProcedure:       orgRule(admin, write),
 	c.ProjectServiceGetIngestEndpointsProcedure: orgRule(viewer, read),
+	c.ProjectServiceGetFilterStatsProcedure:     orgRule(viewer, read),
 	c.ProjectServiceSendTestEventProcedure:      orgRule(member, write),
 	c.ProjectServiceListEnvironmentsProcedure:   orgRule(viewer, read),
 	c.ProjectServiceListReleasesProcedure:       orgRule(viewer, read),

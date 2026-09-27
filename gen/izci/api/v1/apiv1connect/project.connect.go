@@ -63,6 +63,9 @@ const (
 	// ProjectServiceGetIngestEndpointsProcedure is the fully-qualified name of the ProjectService's
 	// GetIngestEndpoints RPC.
 	ProjectServiceGetIngestEndpointsProcedure = "/izci.api.v1.ProjectService/GetIngestEndpoints"
+	// ProjectServiceGetFilterStatsProcedure is the fully-qualified name of the ProjectService's
+	// GetFilterStats RPC.
+	ProjectServiceGetFilterStatsProcedure = "/izci.api.v1.ProjectService/GetFilterStats"
 	// ProjectServiceSendTestEventProcedure is the fully-qualified name of the ProjectService's
 	// SendTestEvent RPC.
 	ProjectServiceSendTestEventProcedure = "/izci.api.v1.ProjectService/SendTestEvent"
@@ -110,6 +113,9 @@ type ProjectServiceClient interface {
 	// GetIngestEndpoints returns the addresses applications use to send events
 	// (gRPC target, Connect URL, Sentry DSN template). Requires ROLE_VIEWER.
 	GetIngestEndpoints(context.Context, *connect.Request[v1.GetIngestEndpointsRequest]) (*connect.Response[v1.GetIngestEndpointsResponse], error)
+	// GetFilterStats counts the events the project's inbound filters dropped
+	// per reason and day, for the last 30 days. Requires ROLE_VIEWER.
+	GetFilterStats(context.Context, *connect.Request[v1.GetFilterStatsRequest]) (*connect.Response[v1.GetFilterStatsResponse], error)
 	// SendTestEvent sends a sample event through the full ingest pipeline so
 	// the setup can be verified end to end. Requires ROLE_MEMBER.
 	SendTestEvent(context.Context, *connect.Request[v1.SendTestEventRequest]) (*connect.Response[v1.SendTestEventResponse], error)
@@ -200,6 +206,13 @@ func NewProjectServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getFilterStats: connect.NewClient[v1.GetFilterStatsRequest, v1.GetFilterStatsResponse](
+			httpClient,
+			baseURL+ProjectServiceGetFilterStatsProcedure,
+			connect.WithSchema(projectServiceMethods.ByName("GetFilterStats")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		sendTestEvent: connect.NewClient[v1.SendTestEventRequest, v1.SendTestEventResponse](
 			httpClient,
 			baseURL+ProjectServiceSendTestEventProcedure,
@@ -247,6 +260,7 @@ type projectServiceClient struct {
 	updateApiKey       *connect.Client[v1.UpdateApiKeyRequest, v1.UpdateApiKeyResponse]
 	revokeApiKey       *connect.Client[v1.RevokeApiKeyRequest, v1.RevokeApiKeyResponse]
 	getIngestEndpoints *connect.Client[v1.GetIngestEndpointsRequest, v1.GetIngestEndpointsResponse]
+	getFilterStats     *connect.Client[v1.GetFilterStatsRequest, v1.GetFilterStatsResponse]
 	sendTestEvent      *connect.Client[v1.SendTestEventRequest, v1.SendTestEventResponse]
 	listEnvironments   *connect.Client[v1.ListEnvironmentsRequest, v1.ListEnvironmentsResponse]
 	listReleases       *connect.Client[v1.ListReleasesRequest, v1.ListReleasesResponse]
@@ -304,6 +318,11 @@ func (c *projectServiceClient) GetIngestEndpoints(ctx context.Context, req *conn
 	return c.getIngestEndpoints.CallUnary(ctx, req)
 }
 
+// GetFilterStats calls izci.api.v1.ProjectService.GetFilterStats.
+func (c *projectServiceClient) GetFilterStats(ctx context.Context, req *connect.Request[v1.GetFilterStatsRequest]) (*connect.Response[v1.GetFilterStatsResponse], error) {
+	return c.getFilterStats.CallUnary(ctx, req)
+}
+
 // SendTestEvent calls izci.api.v1.ProjectService.SendTestEvent.
 func (c *projectServiceClient) SendTestEvent(ctx context.Context, req *connect.Request[v1.SendTestEventRequest]) (*connect.Response[v1.SendTestEventResponse], error) {
 	return c.sendTestEvent.CallUnary(ctx, req)
@@ -359,6 +378,9 @@ type ProjectServiceHandler interface {
 	// GetIngestEndpoints returns the addresses applications use to send events
 	// (gRPC target, Connect URL, Sentry DSN template). Requires ROLE_VIEWER.
 	GetIngestEndpoints(context.Context, *connect.Request[v1.GetIngestEndpointsRequest]) (*connect.Response[v1.GetIngestEndpointsResponse], error)
+	// GetFilterStats counts the events the project's inbound filters dropped
+	// per reason and day, for the last 30 days. Requires ROLE_VIEWER.
+	GetFilterStats(context.Context, *connect.Request[v1.GetFilterStatsRequest]) (*connect.Response[v1.GetFilterStatsResponse], error)
 	// SendTestEvent sends a sample event through the full ingest pipeline so
 	// the setup can be verified end to end. Requires ROLE_MEMBER.
 	SendTestEvent(context.Context, *connect.Request[v1.SendTestEventRequest]) (*connect.Response[v1.SendTestEventResponse], error)
@@ -445,6 +467,13 @@ func NewProjectServiceHandler(svc ProjectServiceHandler, opts ...connect.Handler
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	projectServiceGetFilterStatsHandler := connect.NewUnaryHandler(
+		ProjectServiceGetFilterStatsProcedure,
+		svc.GetFilterStats,
+		connect.WithSchema(projectServiceMethods.ByName("GetFilterStats")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	projectServiceSendTestEventHandler := connect.NewUnaryHandler(
 		ProjectServiceSendTestEventProcedure,
 		svc.SendTestEvent,
@@ -499,6 +528,8 @@ func NewProjectServiceHandler(svc ProjectServiceHandler, opts ...connect.Handler
 			projectServiceRevokeApiKeyHandler.ServeHTTP(w, r)
 		case ProjectServiceGetIngestEndpointsProcedure:
 			projectServiceGetIngestEndpointsHandler.ServeHTTP(w, r)
+		case ProjectServiceGetFilterStatsProcedure:
+			projectServiceGetFilterStatsHandler.ServeHTTP(w, r)
 		case ProjectServiceSendTestEventProcedure:
 			projectServiceSendTestEventHandler.ServeHTTP(w, r)
 		case ProjectServiceListEnvironmentsProcedure:
@@ -556,6 +587,10 @@ func (UnimplementedProjectServiceHandler) RevokeApiKey(context.Context, *connect
 
 func (UnimplementedProjectServiceHandler) GetIngestEndpoints(context.Context, *connect.Request[v1.GetIngestEndpointsRequest]) (*connect.Response[v1.GetIngestEndpointsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.ProjectService.GetIngestEndpoints is not implemented"))
+}
+
+func (UnimplementedProjectServiceHandler) GetFilterStats(context.Context, *connect.Request[v1.GetFilterStatsRequest]) (*connect.Response[v1.GetFilterStatsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.ProjectService.GetFilterStats is not implemented"))
 }
 
 func (UnimplementedProjectServiceHandler) SendTestEvent(context.Context, *connect.Request[v1.SendTestEventRequest]) (*connect.Response[v1.SendTestEventResponse], error) {

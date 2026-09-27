@@ -5,6 +5,7 @@ import { gutter, useDocumentTitle } from "@/components/app/page";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { TabbedCard, TabStrip, tabActiveOptions, tabClass } from "@/components/common/tab-nav";
 import { ProjectAi } from "@/components/project/ai";
+import { ProjectFilters } from "@/components/project/filters";
 import { ProjectGeneral } from "@/components/project/general";
 import { ProjectKeys } from "@/components/project/keys";
 import { ProjectPrivacy } from "@/components/project/privacy";
@@ -26,6 +27,7 @@ const tabs = [
   { id: "releases", label: "Sürümler" },
   { id: "symbols", label: "Kaynak eşlemeleri" },
   { id: "repository", label: "Depo" },
+  { id: "filters", label: "Filtreler" },
   { id: "privacy", label: "Gizlilik" },
   { id: "ai", label: "Yapay zekâ" },
 ] as const;
@@ -112,6 +114,7 @@ function ProjectPage() {
           {tab === "releases" ? <ProjectReleases project={project} /> : null}
           {tab === "symbols" ? <ProjectSymbols project={project} /> : null}
           {tab === "repository" ? <ProjectRepository project={project} /> : null}
+          {tab === "filters" ? <ProjectFilters project={project} /> : null}
           {tab === "privacy" ? <ProjectPrivacy project={project} /> : null}
           {tab === "ai" ? <ProjectAi project={project} /> : null}
         </TabbedCard>

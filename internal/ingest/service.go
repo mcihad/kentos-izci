@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -192,7 +191,7 @@ func (s *Service) Accept(ctx context.Context, c *Caller, events []*ingestv1.Even
 		Settings: rk.ProjectSettings,
 	}
 	transport := parseAddrLoose(c.TransportIP)
-	ignored := rk.ProjectSettings.GetIgnoredEnvironments()
+	filters := FiltersOf(rk.ProjectSettings)
 
 	var pending []*Processed
 	var pendingIdx []int
@@ -202,13 +201,12 @@ func (s *Service) Accept(ctx context.Context, c *Caller, events []*ingestv1.Even
 			results[i].Outcome, results[i].Error = ingestv1.EventOutcome_EVENT_OUTCOME_INVALID, "event is empty"
 			continue
 		}
-		env := strings.ToLower(strings.TrimSpace(ev.GetEnvironment()))
-		if env == "" {
-			env = "production"
-		}
-		if slices.Contains(ignored, env) {
+		// Inbound filters run first: filtered events count toward neither
+		// rate limits nor quotas.
+		if reason := filters.Match(ev, transport, ""); reason != FilterNone {
 			results[i].Outcome = ingestv1.EventOutcome_EVENT_OUTCOME_FILTERED
-			s.usage.Filtered(rk.Key.OrgID, 1)
+			s.usage.FilteredBy(rk.Key.OrgID, rk.Key.ProjectID, reason)
+			metrics.EventFiltered(reason.Name())
 			continue
 		}
 		if ok, d := s.limits.Allow(rk, 1); !ok {

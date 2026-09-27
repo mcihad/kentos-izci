@@ -34,6 +34,7 @@
 | `events` | Olaylar; **günlük bölümlere** ayrılmıştır (aşağıya bakın). |
 | `event_attachments` | Olay ekleri (ekran görüntüsü, günlük dosyası); istemci olay kimliğiyle olaya bağlanır, içerik `bytea` olarak lz4 ile sıkıştırılır. |
 | `user_feedback` | Kullanıcı geri bildirimleri; ilgili olay saklandığında hataya bağlanır. |
+| `project_filtered_daily` | [Gelen veri filtrelerinin](filtreler.md) attığı olaylar; proje, gün ve neden başına. |
 | `artifact_bundles`, `artifact_files` | Yüklenen kaynak eşleme paketleri ve dosyaları (betik, eşleme; debug kimliği, sürüm, adres); içerik `bytea`, lz4 ile sıkıştırılır. |
 | `debug_files` | Flutter ve Dart sembol dosyaları (ELF, Mach-O) ve karıştırma haritaları; debug kimliğiyle aranır. |
 | `upload_chunks` | Birleştirilmeyi bekleyen yükleme parçaları; en çok bir saat tutulur. |

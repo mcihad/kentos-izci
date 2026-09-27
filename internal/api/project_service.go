@@ -7,6 +7,7 @@ import (
 	"math/rand/v2"
 	"net/http"
 	"net/url"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -255,6 +256,9 @@ func (s *ProjectServer) UpdateProject(ctx context.Context, req *connect.Request[
 		}
 		if m.GetSettings() != nil {
 			settings = normalizeProjectSettings(m.GetSettings())
+			if err := validateFilters(settings.GetFilters()); err != nil {
+				return err
+			}
 		}
 		p, err = store.UpdateProject(ctx, tx, p.ID, name, platform, settings)
 		if err != nil {
@@ -306,7 +310,40 @@ func normalizeProjectSettings(in *apiv1.ProjectSettings) *apiv1.ProjectSettings 
 		}
 	}
 	in.IgnoredEnvironments = envs
+	if in.Filters == nil {
+		in.Filters = &apiv1.InboundFilters{}
+	}
+	f := in.Filters
+	f.ErrorMessages, f.IpAddresses, f.Releases = cleanList(f.ErrorMessages), cleanList(f.IpAddresses), cleanList(f.Releases)
 	return in
+}
+
+// cleanList trims entries and drops empty and repeated ones.
+func cleanList(in []string) []string {
+	out := make([]string, 0, len(in))
+	for _, s := range in {
+		if s = strings.TrimSpace(s); s != "" && !slices.Contains(out, s) {
+			out = append(out, s)
+		}
+	}
+	return out
+}
+
+// validateFilters rejects IP entries that are not addresses or ranges.
+func validateFilters(f *apiv1.InboundFilters) error {
+	for _, s := range f.GetIpAddresses() {
+		if _, err := ingest.ParseIPFilter(s); err != nil {
+			return fieldError("settings.filters.ip_addresses", "not an IP address or CIDR range: "+s)
+		}
+	}
+	for _, list := range [][]string{f.GetErrorMessages(), f.GetReleases()} {
+		for _, s := range list {
+			if _, err := ingest.Glob(s); err != nil {
+				return fieldError("settings.filters", "invalid pattern: "+s)
+			}
+		}
+	}
+	return nil
 }
 
 func (s *ProjectServer) invalidateKeys() {

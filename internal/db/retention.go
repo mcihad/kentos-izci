@@ -47,6 +47,7 @@ func (d *DB) ApplyRetention(ctx context.Context, cutoff time.Time) (RetentionRes
 		{"upload_chunks", `DELETE FROM upload_chunks WHERE created_at < greatest($1, now() - interval '1 hour')`},
 		{"release_session_users", `DELETE FROM release_session_users WHERE day < $1::date`},
 		{"usage_daily", `DELETE FROM usage_daily WHERE day < ($1::timestamptz - interval '400 days')::date`},
+		{"project_filtered_daily", `DELETE FROM project_filtered_daily WHERE day < least($1::timestamptz, now() - interval '31 days')::date`},
 	}
 	err = d.InSystem(ctx, func(tx pgx.Tx) error {
 		for _, s := range stmts {

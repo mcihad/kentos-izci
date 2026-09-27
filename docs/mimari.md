@@ -33,13 +33,14 @@ Her mesaj, alan, enum değeri ve RPC belgelenmek zorundadır; `buf lint` bunu de
 ## Ingest boru hattı
 
 1. **Kimlik:** Anahtarın SHA-256 özeti önbellekte aranır; geçersiz anahtarlar da kısa süre önbelleğe alınır. Kapsam ve tarayıcı kökeni denetlenir.
-2. **Hız ve kota:** Anahtar ve proje başına token kovası, organizasyonun aylık kotası.
-3. **[Sembol çözme](kaynak-eslemeleri.md):** Küçültülmüş JavaScript ve karıştırılmış Flutter çerçeveleri, yüklenen kaynak eşlemeleri ve sembol dosyalarıyla özgün koda çevrilir. Çözülmüş dosyalar bellekte önbelleğe alınır (`INGEST_SYMBOL_CACHE_MB`); hiç yükleme yapmamış projeler bu adımı atlar.
-4. **Normalize:** Varsayılanlar, saat düzeltmeleri, boyut sınırları (kırpma), [maskeleme](guvenlik.md#maskeleme), User-Agent ve istemci IP'si, uygulama kodu sınıflandırması, başlık ve culprit.
-5. **[Gruplama](gruplama.md):** Parmak izi.
-6. **Tekrar eleme:** Son alınan olay kimlikleri.
-7. **Toplu yazım:** Olaylar proje başına bir yazıcıya gider. Her yazıcı birikenleri tek işlemde yazar: hatalar (PostgreSQL 18 `RETURNING old/new` ile yeni ve geri dönenler ayrılır), olaylar, sayaçlar, etiketler ve aynı işlemde uyarı kuralları ile bildirim kuyruğu. `INGEST_ACK=durable` iken istemciye işlem tamamlanınca yanıt verilir.
-8. **Yayın:** Canlı akışa ve yeni hatalar için otomatik yapay zekâ analizine.
+2. **[Filtreler](filtreler.md):** Kayıt dışı ortamlar, botlar, tarayıcı eklentileri, eski tarayıcılar, yerel geliştirme; mesaj, IP ve sürüm desenleri. Atılan olaylar sınırlara sayılmaz.
+3. **Hız ve kota:** Anahtar ve proje başına token kovası, organizasyonun aylık kotası.
+4. **[Sembol çözme](kaynak-eslemeleri.md):** Küçültülmüş JavaScript ve karıştırılmış Flutter çerçeveleri, yüklenen kaynak eşlemeleri ve sembol dosyalarıyla özgün koda çevrilir. Çözülmüş dosyalar bellekte önbelleğe alınır (`INGEST_SYMBOL_CACHE_MB`); hiç yükleme yapmamış projeler bu adımı atlar.
+5. **Normalize:** Varsayılanlar, saat düzeltmeleri, boyut sınırları (kırpma), [maskeleme](guvenlik.md#maskeleme), User-Agent ve istemci IP'si, uygulama kodu sınıflandırması, başlık ve culprit.
+6. **[Gruplama](gruplama.md):** Parmak izi.
+7. **Tekrar eleme:** Son alınan olay kimlikleri.
+8. **Toplu yazım:** Olaylar proje başına bir yazıcıya gider. Her yazıcı birikenleri tek işlemde yazar: hatalar (PostgreSQL 18 `RETURNING old/new` ile yeni ve geri dönenler ayrılır), olaylar, sayaçlar, etiketler ve aynı işlemde uyarı kuralları ile bildirim kuyruğu. `INGEST_ACK=durable` iken istemciye işlem tamamlanınca yanıt verilir.
+9. **Yayın:** Canlı akışa ve yeni hatalar için otomatik yapay zekâ analizine.
 
 Kuyruk dolarsa istemci hemen `UNAVAILABLE` alır; SDK'lar bu geri baskıyla yavaşlar.
 

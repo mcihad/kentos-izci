@@ -154,6 +154,15 @@ func (q *QuotaTracker) Allow(ctx context.Context, org uuid.UUID, limit uint64, n
 type UsageRecorder struct {
 	mu      sync.Mutex
 	pending map[usageKey]*usageDelta
+	// reasons counts filtered events per project, day and reason for the
+	// filter statistics.
+	reasons map[reasonKey]int64
+}
+
+type reasonKey struct {
+	org, project uuid.UUID
+	day          string
+	reason       FilterReason
 }
 
 type usageKey struct {
@@ -168,7 +177,17 @@ type usageDelta struct {
 
 // NewUsageRecorder creates a recorder.
 func NewUsageRecorder() *UsageRecorder {
-	return &UsageRecorder{pending: map[usageKey]*usageDelta{}}
+	return &UsageRecorder{pending: map[usageKey]*usageDelta{}, reasons: map[reasonKey]int64{}}
+}
+
+// FilteredBy counts an event an inbound filter dropped, for the
+// organization's usage and the project's filter statistics.
+func (u *UsageRecorder) FilteredBy(org, project uuid.UUID, reason FilterReason) {
+	u.add(org, 0, 1)
+	k := reasonKey{org, project, time.Now().UTC().Format("2006-01-02"), reason}
+	u.mu.Lock()
+	u.reasons[k]++
+	u.mu.Unlock()
 }
 
 // RateLimited counts events dropped by rate limits or quota.
@@ -193,10 +212,10 @@ func (u *UsageRecorder) add(org uuid.UUID, limited, filtered int) {
 // Flush writes accumulated counts.
 func (u *UsageRecorder) Flush(ctx context.Context, database *db.DB, log *slog.Logger) {
 	u.mu.Lock()
-	pending := u.pending
-	u.pending = map[usageKey]*usageDelta{}
+	pending, reasons := u.pending, u.reasons
+	u.pending, u.reasons = map[usageKey]*usageDelta{}, map[reasonKey]int64{}
 	u.mu.Unlock()
-	if len(pending) == 0 {
+	if len(pending) == 0 && len(reasons) == 0 {
 		return
 	}
 	err := database.InSystem(ctx, func(tx pgx.Tx) error {
@@ -205,6 +224,14 @@ func (u *UsageRecorder) Flush(ctx context.Context, database *db.DB, log *slog.Lo
 				INSERT INTO usage_daily AS u (org_id, day, rate_limited, filtered) VALUES ($1, $2::date, $3, $4)
 				ON CONFLICT (org_id, day) DO UPDATE SET rate_limited = u.rate_limited + excluded.rate_limited,
 				  filtered = u.filtered + excluded.filtered`, k.org, k.day, d.rateLimited, d.filtered); err != nil {
+				return err
+			}
+		}
+		for k, n := range reasons {
+			if _, err := tx.Exec(ctx, `
+				INSERT INTO project_filtered_daily AS f (org_id, project_id, day, reason, count) VALUES ($1, $2, $3::date, $4, $5)
+				ON CONFLICT (project_id, day, reason) DO UPDATE SET count = f.count + excluded.count`,
+				k.org, k.project, k.day, int16(k.reason), n); err != nil {
 				return err
 			}
 		}
@@ -243,3 +270,7 @@ func (d *Dedupe) Seen(project, event uuid.UUID) (Result, bool) {
 func (d *Dedupe) Remember(project, event uuid.UUID, r Result) {
 	d.cache.Add(dedupeKey{project, event}, r)
 }
+
+// FlushUsage writes the rejected-event counts gathered so far (the usage
+// job does this periodically).
+func (s *Service) FlushUsage(ctx context.Context) { s.usage.Flush(ctx, s.db, s.log) }

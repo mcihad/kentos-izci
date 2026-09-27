@@ -29,7 +29,6 @@ export function ProjectGeneral({ project }: { project: Project }) {
   const update = useUpdateProject();
   const [name, setName] = useState(project.name);
   const [platform, setPlatform] = useState(project.platform || "other");
-  const [ignored, setIgnored] = useState(project.settings?.ignoredEnvironments.join(", ") ?? "");
   const [rate, setRate] = useState(
     project.settings?.rateLimitPerMinute ? String(project.settings.rateLimitPerMinute) : "",
   );
@@ -42,10 +41,6 @@ export function ProjectGeneral({ project }: { project: Project }) {
         onSubmit={(e) => {
           e.preventDefault();
           const settings = clone(ProjectSettingsSchema, project.settings ?? create(ProjectSettingsSchema));
-          settings.ignoredEnvironments = ignored
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean);
           settings.rateLimitPerMinute = Number(rate) || 0;
           update.mutate({
             slug: project.slug,
@@ -80,18 +75,6 @@ export function ProjectGeneral({ project }: { project: Project }) {
               ))}
             </SelectContent>
           </Select>
-        </Field>
-        <Field
-          label="Kayıt dışı ortamlar"
-          htmlFor="p-ignored"
-          hint="Virgülle ayırın. Bu ortamlardan gelen olaylar sayılır ama saklanmaz, örneğin: development, test"
-        >
-          <Input
-            id="p-ignored"
-            value={ignored}
-            onChange={(e) => setIgnored(e.target.value)}
-            disabled={!admin}
-          />
         </Field>
         <Field
           label="Dakikalık olay sınırı"
