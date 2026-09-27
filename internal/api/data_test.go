@@ -74,6 +74,9 @@ func TestIssuesAndEvents(t *testing.T) {
 			{"times_seen:>10", func(i *apiv1.IssueSummary) bool { return i.GetTimesSeen() > 10 }},
 			{`"reference not set"`, func(i *apiv1.IssueSummary) bool { return strings.Contains(i.GetTitle(), "reference not set") }},
 			{"is:unhandled", func(i *apiv1.IssueSummary) bool { return i.GetUnhandled() }},
+			// Wildcards on tag keys (release, browser, …) and on other keys.
+			{"release:*.* !release:0.*", func(*apiv1.IssueSummary) bool { return true }},
+			{`environment:"prod*"`, func(*apiv1.IssueSummary) bool { return true }},
 		} {
 			got := listIssues(t, owner, tc.query)
 			if len(got) == 0 {

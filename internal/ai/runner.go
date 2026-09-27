@@ -6,6 +6,8 @@ package ai
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -90,14 +92,17 @@ type Runner struct {
 
 // New creates a runner.
 func New(database *db.DB, log *slog.Logger, opts Options) *Runner {
-	if opts.Worker == "" {
-		opts.Worker, _ = os.Hostname()
-	}
 	// Paths are absolute: opencode resolves --dir against its own working
 	// directory, which is the checkout.
 	root := filepath.Join(opts.DataDir, "ai")
 	if abs, err := filepath.Abs(root); err == nil {
 		root = abs
+	}
+	if opts.Worker == "" {
+		// Stable across restarts, distinct for installations sharing a host.
+		host, _ := os.Hostname()
+		sum := sha256.Sum256([]byte(root))
+		opts.Worker = host + ":" + hex.EncodeToString(sum[:4])
 	}
 	return &Runner{
 		db:       database,

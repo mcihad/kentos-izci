@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { SearchIcon, SettingsIcon, ShieldCheckIcon } from "lucide-react";
+import { BookOpenIcon, SearchIcon, SettingsIcon, ShieldCheckIcon } from "lucide-react";
 import { Kbd } from "@/components/common/kbd";
 import { useOrg } from "@/lib/org";
 import { canAdmin, useSession } from "@/lib/session";
@@ -47,6 +47,16 @@ export function SidebarContent({ onNavigate, onSearch }: { onNavigate?: () => vo
         ))}
       </nav>
       <div className="mt-auto grid gap-0.5">
+        <Link
+          to="/o/$org/docs"
+          params={{ org: org.slug }}
+          className={itemClass}
+          activeProps={{ className: activeClass }}
+          onClick={onNavigate}
+        >
+          <BookOpenIcon className="size-4 shrink-0" />
+          Belgeler
+        </Link>
         {canAdmin(org.role) ? (
           <Link
             to="/o/$org/settings"

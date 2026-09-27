@@ -1,0 +1,46 @@
+{
+  "event": {
+    "level": "LEVEL_ERROR",
+    "platform": "dotnet",
+    "environment": "production",
+    "release": "kalem@1.4.2",
+    "serverName": "kalem-api-1",
+    "transaction": "POST /api/basvurular/{id}/onay",
+    "customer": { "id": "sivas-belediyesi", "name": "Sivas Belediyesi" },
+    "tenant": { "id": "sivas", "name": "Sivas" },
+    "user": { "id": "3310", "email": "ayse@example.com" },
+    "exceptions": [
+      {
+        "type": "System.InvalidOperationException",
+        "value": "Başvuru zaten onaylanmış",
+        "module": "KentOS.Kalem.Application",
+        "mechanism": { "type": "aspnetcore", "handled": false },
+        "stacktrace": {
+          "frames": [
+            {
+              "function": "BasvuruController.Onayla",
+              "module": "KentOS.Kalem.Web.Controllers",
+              "filename": "src/KentOS.Kalem.Web/Controllers/BasvuruController.cs",
+              "lineno": 42,
+              "inApp": true
+            },
+            {
+              "function": "BasvuruService.OnaylaAsync",
+              "module": "KentOS.Kalem.Application.Services",
+              "filename": "src/KentOS.Kalem.Application/Services/BasvuruService.cs",
+              "lineno": 88,
+              "inApp": true,
+              "contextLine": "        throw new InvalidOperationException(\"Başvuru zaten onaylanmış\");"
+            }
+          ]
+        }
+      }
+    ],
+    "request": {
+      "method": "POST",
+      "url": "https://kalem.example.com/api/basvurular/77/onay",
+      "headers": [{ "name": "User-Agent", "value": "Mozilla/5.0" }]
+    },
+    "tags": { "modul": "basvuru" }
+  }
+}

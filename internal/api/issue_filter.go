@@ -169,9 +169,11 @@ func issueTerm(b *sqlb, t search.Term, orgID, userID uuid.UUID, now time.Time) (
 	if key == "customer" {
 		values = lower(values)
 	}
-	valueCond := "t.value = ANY(" + b.arg(values) + ")"
+	var valueCond string
 	if hasStar(values) {
 		valueCond = anyLike(b, "t.value", values)
+	} else {
+		valueCond = "t.value = ANY(" + b.arg(values) + ")"
 	}
 	return "EXISTS (SELECT 1 FROM issue_tags t WHERE t.issue_id = i.id AND t.key = " + b.arg(key) + " AND " + valueCond + ")", nil
 }

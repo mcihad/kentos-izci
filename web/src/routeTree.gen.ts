@@ -20,10 +20,13 @@ import { Route as OOrgAccountRouteImport } from "./routes/o.$org.account";
 import { Route as OOrgAdminRouteImport } from "./routes/o.$org.admin";
 import { Route as OOrgAiRouteImport } from "./routes/o.$org.ai";
 import { Route as OOrgAlertsRouteImport } from "./routes/o.$org.alerts";
+import { Route as OOrgDocsRouteImport } from "./routes/o.$org.docs";
 import { Route as OOrgLiveRouteImport } from "./routes/o.$org.live";
 import { Route as OOrgSettingsRouteImport } from "./routes/o.$org.settings";
 import { Route as OOrgCustomersIndexRouteImport } from "./routes/o.$org.customers.index";
 import { Route as OOrgCustomersKeyRouteImport } from "./routes/o.$org.customers.$key";
+import { Route as OOrgDocsIndexRouteImport } from "./routes/o.$org.docs.index";
+import { Route as OOrgDocsSplatRouteImport } from "./routes/o.$org.docs.$";
 import { Route as OOrgIssuesIndexRouteImport } from "./routes/o.$org.issues.index";
 import { Route as OOrgIssuesIssueIdRouteImport } from "./routes/o.$org.issues.$issueId";
 import { Route as OOrgProjectsIndexRouteImport } from "./routes/o.$org.projects.index";
@@ -84,6 +87,11 @@ const OOrgAlertsRoute = OOrgAlertsRouteImport.update({
   path: "/alerts",
   getParentRoute: () => OOrgRoute,
 } as any);
+const OOrgDocsRoute = OOrgDocsRouteImport.update({
+  id: "/docs",
+  path: "/docs",
+  getParentRoute: () => OOrgRoute,
+} as any);
 const OOrgLiveRoute = OOrgLiveRouteImport.update({
   id: "/live",
   path: "/live",
@@ -103,6 +111,16 @@ const OOrgCustomersKeyRoute = OOrgCustomersKeyRouteImport.update({
   id: "/customers/$key",
   path: "/customers/$key",
   getParentRoute: () => OOrgRoute,
+} as any);
+const OOrgDocsIndexRoute = OOrgDocsIndexRouteImport.update({
+  id: "/",
+  path: "/",
+  getParentRoute: () => OOrgDocsRoute,
+} as any);
+const OOrgDocsSplatRoute = OOrgDocsSplatRouteImport.update({
+  id: "/$",
+  path: "/$",
+  getParentRoute: () => OOrgDocsRoute,
 } as any);
 const OOrgIssuesIndexRoute = OOrgIssuesIndexRouteImport.update({
   id: "/issues/",
@@ -136,13 +154,16 @@ export interface FileRoutesByFullPath {
   "/o/$org/admin": typeof OOrgAdminRoute;
   "/o/$org/ai": typeof OOrgAiRoute;
   "/o/$org/alerts": typeof OOrgAlertsRoute;
+  "/o/$org/docs": typeof OOrgDocsRouteWithChildren;
   "/o/$org/live": typeof OOrgLiveRoute;
   "/o/$org/settings": typeof OOrgSettingsRoute;
   "/o/$org/": typeof OOrgIndexRoute;
   "/o/$org/customers/$key": typeof OOrgCustomersKeyRoute;
+  "/o/$org/docs/$": typeof OOrgDocsSplatRoute;
   "/o/$org/issues/$issueId": typeof OOrgIssuesIssueIdRoute;
   "/o/$org/projects/$slug": typeof OOrgProjectsSlugRoute;
   "/o/$org/customers/": typeof OOrgCustomersIndexRoute;
+  "/o/$org/docs/": typeof OOrgDocsIndexRoute;
   "/o/$org/issues/": typeof OOrgIssuesIndexRoute;
   "/o/$org/projects/": typeof OOrgProjectsIndexRoute;
 }
@@ -160,9 +181,11 @@ export interface FileRoutesByTo {
   "/o/$org/settings": typeof OOrgSettingsRoute;
   "/o/$org": typeof OOrgIndexRoute;
   "/o/$org/customers/$key": typeof OOrgCustomersKeyRoute;
+  "/o/$org/docs/$": typeof OOrgDocsSplatRoute;
   "/o/$org/issues/$issueId": typeof OOrgIssuesIssueIdRoute;
   "/o/$org/projects/$slug": typeof OOrgProjectsSlugRoute;
   "/o/$org/customers": typeof OOrgCustomersIndexRoute;
+  "/o/$org/docs": typeof OOrgDocsIndexRoute;
   "/o/$org/issues": typeof OOrgIssuesIndexRoute;
   "/o/$org/projects": typeof OOrgProjectsIndexRoute;
 }
@@ -178,13 +201,16 @@ export interface FileRoutesById {
   "/o/$org/admin": typeof OOrgAdminRoute;
   "/o/$org/ai": typeof OOrgAiRoute;
   "/o/$org/alerts": typeof OOrgAlertsRoute;
+  "/o/$org/docs": typeof OOrgDocsRouteWithChildren;
   "/o/$org/live": typeof OOrgLiveRoute;
   "/o/$org/settings": typeof OOrgSettingsRoute;
   "/o/$org/": typeof OOrgIndexRoute;
   "/o/$org/customers/$key": typeof OOrgCustomersKeyRoute;
+  "/o/$org/docs/$": typeof OOrgDocsSplatRoute;
   "/o/$org/issues/$issueId": typeof OOrgIssuesIssueIdRoute;
   "/o/$org/projects/$slug": typeof OOrgProjectsSlugRoute;
   "/o/$org/customers/": typeof OOrgCustomersIndexRoute;
+  "/o/$org/docs/": typeof OOrgDocsIndexRoute;
   "/o/$org/issues/": typeof OOrgIssuesIndexRoute;
   "/o/$org/projects/": typeof OOrgProjectsIndexRoute;
 }
@@ -201,13 +227,16 @@ export interface FileRouteTypes {
     | "/o/$org/admin"
     | "/o/$org/ai"
     | "/o/$org/alerts"
+    | "/o/$org/docs"
     | "/o/$org/live"
     | "/o/$org/settings"
     | "/o/$org/"
     | "/o/$org/customers/$key"
+    | "/o/$org/docs/$"
     | "/o/$org/issues/$issueId"
     | "/o/$org/projects/$slug"
     | "/o/$org/customers/"
+    | "/o/$org/docs/"
     | "/o/$org/issues/"
     | "/o/$org/projects/";
   fileRoutesByTo: FileRoutesByTo;
@@ -225,9 +254,11 @@ export interface FileRouteTypes {
     | "/o/$org/settings"
     | "/o/$org"
     | "/o/$org/customers/$key"
+    | "/o/$org/docs/$"
     | "/o/$org/issues/$issueId"
     | "/o/$org/projects/$slug"
     | "/o/$org/customers"
+    | "/o/$org/docs"
     | "/o/$org/issues"
     | "/o/$org/projects";
   id:
@@ -242,13 +273,16 @@ export interface FileRouteTypes {
     | "/o/$org/admin"
     | "/o/$org/ai"
     | "/o/$org/alerts"
+    | "/o/$org/docs"
     | "/o/$org/live"
     | "/o/$org/settings"
     | "/o/$org/"
     | "/o/$org/customers/$key"
+    | "/o/$org/docs/$"
     | "/o/$org/issues/$issueId"
     | "/o/$org/projects/$slug"
     | "/o/$org/customers/"
+    | "/o/$org/docs/"
     | "/o/$org/issues/"
     | "/o/$org/projects/";
   fileRoutesById: FileRoutesById;
@@ -341,6 +375,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof OOrgAlertsRouteImport;
       parentRoute: typeof OOrgRoute;
     };
+    "/o/$org/docs": {
+      id: "/o/$org/docs";
+      path: "/docs";
+      fullPath: "/o/$org/docs";
+      preLoaderRoute: typeof OOrgDocsRouteImport;
+      parentRoute: typeof OOrgRoute;
+    };
     "/o/$org/live": {
       id: "/o/$org/live";
       path: "/live";
@@ -368,6 +409,20 @@ declare module "@tanstack/react-router" {
       fullPath: "/o/$org/customers/$key";
       preLoaderRoute: typeof OOrgCustomersKeyRouteImport;
       parentRoute: typeof OOrgRoute;
+    };
+    "/o/$org/docs/": {
+      id: "/o/$org/docs/";
+      path: "/";
+      fullPath: "/o/$org/docs/";
+      preLoaderRoute: typeof OOrgDocsIndexRouteImport;
+      parentRoute: typeof OOrgDocsRoute;
+    };
+    "/o/$org/docs/$": {
+      id: "/o/$org/docs/$";
+      path: "/$";
+      fullPath: "/o/$org/docs/$";
+      preLoaderRoute: typeof OOrgDocsSplatRouteImport;
+      parentRoute: typeof OOrgDocsRoute;
     };
     "/o/$org/issues/": {
       id: "/o/$org/issues/";
@@ -400,11 +455,26 @@ declare module "@tanstack/react-router" {
   }
 }
 
+interface OOrgDocsRouteChildren {
+  OOrgDocsSplatRoute: typeof OOrgDocsSplatRoute;
+  OOrgDocsIndexRoute: typeof OOrgDocsIndexRoute;
+}
+
+const OOrgDocsRouteChildren: OOrgDocsRouteChildren = {
+  OOrgDocsSplatRoute: OOrgDocsSplatRoute,
+  OOrgDocsIndexRoute: OOrgDocsIndexRoute,
+};
+
+const OOrgDocsRouteWithChildren = OOrgDocsRoute._addFileChildren(
+  OOrgDocsRouteChildren,
+);
+
 interface OOrgRouteChildren {
   OOrgAccountRoute: typeof OOrgAccountRoute;
   OOrgAdminRoute: typeof OOrgAdminRoute;
   OOrgAiRoute: typeof OOrgAiRoute;
   OOrgAlertsRoute: typeof OOrgAlertsRoute;
+  OOrgDocsRoute: typeof OOrgDocsRouteWithChildren;
   OOrgLiveRoute: typeof OOrgLiveRoute;
   OOrgSettingsRoute: typeof OOrgSettingsRoute;
   OOrgIndexRoute: typeof OOrgIndexRoute;
@@ -421,6 +491,7 @@ const OOrgRouteChildren: OOrgRouteChildren = {
   OOrgAdminRoute: OOrgAdminRoute,
   OOrgAiRoute: OOrgAiRoute,
   OOrgAlertsRoute: OOrgAlertsRoute,
+  OOrgDocsRoute: OOrgDocsRouteWithChildren,
   OOrgLiveRoute: OOrgLiveRoute,
   OOrgSettingsRoute: OOrgSettingsRoute,
   OOrgIndexRoute: OOrgIndexRoute,

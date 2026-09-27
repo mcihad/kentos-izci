@@ -15,9 +15,12 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"connectrpc.com/grpchealth"
+	"connectrpc.com/grpcreflect"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
+	"github.com/mcihad/kentos-izci/docs"
 	"github.com/mcihad/kentos-izci/internal/ai"
 	"github.com/mcihad/kentos-izci/internal/alert"
 	"github.com/mcihad/kentos-izci/internal/api"
@@ -139,7 +142,14 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	)
 	a.Server.Handle(path, ingest.CORS(handler))
 	sentry.NewHandler(a.Ingest, log).Register(a.Server.Handle)
+	// Server reflection lets grpcurl and buf curl call izci without proto
+	// files; the standard health service serves load balancer checks.
+	reflector := grpcreflect.NewStaticReflector(append([]string{ingestv1connect.IngestServiceName}, api.ServiceNames...)...)
+	a.Server.Handle(grpcreflect.NewHandlerV1(reflector))
+	a.Server.Handle(grpcreflect.NewHandlerV1Alpha(reflector))
+	a.Server.Handle(grpchealth.NewHandler(grpchealth.NewStaticChecker(ingestv1connect.IngestServiceName)))
 
+	docs.Register(a.Server.Handle, cfg.PublicURL)
 	a.Auth = auth.NewService(database, cfg, box, log)
 	a.Auth.RegisterRoutes(a.Server.Handle)
 	deps := api.Deps{

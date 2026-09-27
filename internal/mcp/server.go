@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	mcpsdk "github.com/modelcontextprotocol/go-sdk/mcp"
+
+	"github.com/mcihad/kentos-izci/docs"
 )
 
 // instructions are sent to clients when they connect.
@@ -99,6 +101,14 @@ func (s *Server) RunStdio(ctx context.Context) error {
 // ── Resources ──────────────────────────────────────────────────────────────
 
 func (s *server) registerResources(m *mcpsdk.Server) {
+	for _, g := range docs.Guides {
+		uri := "izci://docs/" + g.Slug
+		m.AddResource(&mcpsdk.Resource{URI: uri, Name: "docs/" + g.Slug, Title: g.Title, Description: g.Description,
+			MIMEType: "text/markdown"}, func(context.Context, *mcpsdk.ReadResourceRequest) (*mcpsdk.ReadResourceResult, error) {
+			text, _ := docs.Read(g.Slug)
+			return &mcpsdk.ReadResourceResult{Contents: []*mcpsdk.ResourceContents{{URI: uri, MIMEType: "text/markdown", Text: text}}}, nil
+		})
+	}
 	m.AddResourceTemplate(&mcpsdk.ResourceTemplate{
 		Name: "issue", URITemplate: "izci://issues/{issue}", MIMEType: "application/json",
 		Description: "An issue by short id (e.g. izci://issues/KALEM-1A): summary, releases, tag distributions and its most informative recent event.",

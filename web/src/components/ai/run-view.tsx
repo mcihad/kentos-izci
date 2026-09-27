@@ -31,7 +31,7 @@ import { changeStats, formatCost, isActive, riskLabels, runDuration, runStatus, 
 import { RunLog } from "./run-log";
 import { useInvalidateRuns, useRunWatch } from "./use-run-watch";
 
-const Markdown = lazy(() => import("./markdown"));
+const Markdown = lazy(() => import("@/components/common/markdown"));
 
 /** Status name with a pulse while the run works. */
 export function RunStatusPill({ run, className }: { run: AiRun; className?: string }) {

@@ -84,7 +84,8 @@ commit message and the phase table in `docs/mimari.md` (once written).
 | `proto/izci/api/v1` | UI / external API contract |
 | `sdk/go` | separate Go module: Go SDK + generated ingest code (the server imports it) |
 | `web` | Vite + React + TypeScript UI; `web/embed.go` embeds `web/dist` |
-| `docs` | Turkish user guides; `docs/api` English reference generated from proto |
+| `docs` | Turkish user guides (embedded by `docs/embed.go`: in-app docs, `/llms.txt`, MCP resources; `go test ./docs` checks every link and heading anchor); `docs/api` English reference generated from proto |
+| `examples` | Dependency-free clients (curl, .NET, Node, Python, Dart) and Sentry SDK samples; each must keep working against a local server |
 | `scripts` | build helpers (`make-help.awk`) |
 
 ## Commands

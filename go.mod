@@ -17,6 +17,8 @@ require (
 	cel.dev/cel-go v0.32.0 // indirect
 	cel.dev/expr v0.25.3 // indirect
 	connectrpc.com/cors v0.1.0 // indirect
+	connectrpc.com/grpchealth v1.5.0 // indirect
+	connectrpc.com/grpcreflect v1.3.0 // indirect
 	github.com/andybalholm/brotli v1.2.5 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/boyter/go-string v1.0.5 // indirect

@@ -27,3 +27,8 @@ web/node_modules/.tmp/
 !.vscode/extensions.json
 *.swp
 /.claude/launch.json
+
+# Example build output
+/examples/csharp/*/bin/
+/examples/csharp/*/obj/
+/examples/dart/.dart_tool/

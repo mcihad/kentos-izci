@@ -1,0 +1,81 @@
+# Güvenlik ve KVKK
+
+Hata kayıtları kişisel veri içerebilir: kullanıcı kimlikleri, e-postalar, IP adresleri, istek gövdeleri. İzci bu verileri **toplamadan önce maskeler**, saklarken **kiracılar arasında yalıtır** ve yapay zekâya **göndermeden önce ayıklar**. Bu sayfa hangi korumaların olduğunu ve neyin sizin elinizde olduğunu anlatır.
+
+## Maskeleme
+
+Olaylar saklanmadan önce sunucuda maskelenir. SDK'lar ayrıca kendi taraflarında da maskeler; sunucudaki maskeleme, eski ya da yanlış ayarlanmış istemcilere karşı son savunma hattıdır. Maskelenen değerin yerine `[Filtered]` yazılır.
+
+**Her zaman maskelenen başlıklar:** `Authorization`, `Proxy-Authorization`, `Cookie`, `Set-Cookie`, `X-Api-Key`, `X-Izci-Key`, `X-Sentry-Auth`, `X-Auth-Token`, `X-CSRF-Token`, `X-XSRF-Token`, `X-Amz-Security-Token`.
+
+**Adı şunları içeren alanlar** (başlıklar, sorgu parametreleri, JSON ve form alanları, çerezler, yığın değişkenleri, ek veri):
+
+```
+password passwd parola sifre şifre secret token apikey api_key api-key authorization credential
+private_key privatekey cookie session csrf xsrf card_number cardnumber kart_no cvv cvc iban
+tckn tc_kimlik kimlik_no ssn otp pin_code
+```
+
+**Değerde aranan desenler** (mesajlar, breadcrumb'lar, gövdeler ve diğer serbest metin):
+
+- `Bearer …`, `Basic …`, `token …` biçimindeki kimlik bilgileri;
+- URL içindeki parolalar (`https://kullanici:parola@…`);
+- `password=…`, `api_key: …` gibi anahtar–değer sırları;
+- Türk IBAN'ları;
+- kredi kartı numaraları (Luhn doğrulamasıyla);
+- T.C. kimlik numaraları (sağlama algoritmasıyla; rastgele 11 haneli sayılar maskelenmez).
+
+Projeye özel ayarlar **Projeler › proje › Gizlilik** bölümündedir:
+
+| Ayar | Açıklama |
+|---|---|
+| Ek olarak gizlenecek alanlar | Yukarıdaki listeye eklenen alan adları (ör. `vergi_no`). |
+| Gizlenmeyecek alanlar | Yanlışlıkla eşleşen alanlar (ör. `token_type`); tam adla yazılır. |
+| IP adresleri | **Tam**, **anonimleştirilmiş** (IPv4 /24, IPv6 /48) ya da **hiç saklanmaz**. |
+| Çerez değerleri | Kapalıysa yalnız çerez adları saklanır. |
+| İstek gövdeleri | Kapalıysa gövde hiç saklanmaz. |
+
+## Saklama ve silme
+
+- Olaylar `RETENTION_DAYS` gün (varsayılan 90) saklanır. Günlük bölümler bütünüyle silinir; silinen olay geri getirilemez.
+- Silinen bir projenin bütün verisi arka planda temizlenir.
+- Son olayı bu süreden eski olan hatalar da; saatlik sayaçları, etiket dağılımları ve etkilenen kullanıcı kayıtlarıyla birlikte silinir. Organizasyonların kullanım istatistikleri (günlük olay sayıları) 400 gün tutulur.
+
+## Kimlik doğrulama
+
+- Parolalar **argon2id** ile özetlenir; en az 10 karakter olmalıdır. Başarısız girişler hesap ve IP başına yavaşlatılır.
+- Oturum çerezi `HttpOnly`, `SameSite=Lax` ve `https` adreslerde `Secure`'dur. Veritabanında yalnız çerezin özeti tutulur; oturumlar **Hesabım › Oturumlar** bölümünden kapatılabilir.
+- OpenID Connect akışı PKCE, `state` ve `nonce` kullanır.
+- Yönetim API'si tarayıcıdan yalnızca aynı kökenden çağrılabilir: her istek `Connect-Protocol-Version` başlığını taşımak zorundadır ve CORS izni verilmez. Bu, CSRF'ye karşı korur.
+- Ingest ve kişisel erişim anahtarları veritabanında SHA-256 özeti olarak saklanır.
+
+## Şifreleme
+
+- GitHub erişim anahtarları gibi üçüncü taraf sırları `IZCI_SECRET_KEY`'den türetilen anahtarla **AES-256-GCM** ile şifrelenir. Şifreli metin kaydın kimliğine bağlıdır; başka bir kayda kopyalanırsa çözülmez.
+- Telegram düğmeleri ve GitHub App kurulum dönüşü HMAC ile imzalanır.
+- Aktarım şifrelemesi için İzci'yi TLS ile (`IZCI_TLS_*`) ya da TLS sonlandıran bir ters vekilin arkasında çalıştırın.
+
+## Kiracı yalıtımı
+
+Organizasyonlar arası yalıtım PostgreSQL satır düzeyi güvenliğiyle sağlanır; ayrıntılar [Organizasyonlar ve roller](cok-kiracilik.md#yalıtım-nasıl-sağlanır) sayfasında.
+
+## Yapay zekâ
+
+- Ajan kabuk, web ve çalışma dizini dışındaki dosyalara erişemez. İzci'nin sırlarını ve GitHub anahtarını göremez.
+- Olaydaki e-posta, IP, ad, çerez ve yönlendirme başlıkları model sağlayıcısına **gönderilmez**. Yığın izi, mesaj, istek yolu ve gövdesi (maskelenmiş hâliyle) gönderilir.
+- Hangi model sağlayıcısının kullanıldığını ve verinin nerede işlendiğini siz seçersiniz (`AI_OPENCODE_MODEL`, `AI_OPENCODE_CONFIG`). Kurum içi bir model de kullanılabilir.
+
+Ayrıntılar: [GitHub ve yapay zekâ analizi](yapay-zeka.md#güvenlik).
+
+## KVKK için kontrol listesi
+
+- [ ] IP saklamayı ihtiyacınıza göre **anonimleştirilmiş** ya da **hiç** olarak ayarlayın.
+- [ ] Uygulamalarınızın özel alan adlarını **ek olarak gizlenecek alanlara** ekleyin.
+- [ ] İstek gövdelerine gerçekten ihtiyacınız yoksa saklamayı kapatın.
+- [ ] `RETENTION_DAYS` değerini veri envanterinizdeki süreyle eşleyin.
+- [ ] Yapay zekâ kullanıyorsanız model sağlayıcısını aydınlatma metninize ekleyin ya da kurum içi model kullanın.
+- [ ] Veritabanı yedeklerini şifreli saklayın (bkz. [İşletim](operasyon.md)).
+
+## Güvenlik açığı bildirimi
+
+Bir açık bulduğunuzu düşünüyorsanız herkese açık bir kanala yazmak yerine KentOS güvenlik ekibine doğrudan bildirin.

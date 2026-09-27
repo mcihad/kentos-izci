@@ -62,6 +62,14 @@ type Servers struct {
 	Hub *realtime.Hub
 }
 
+// ServiceNames lists the fully qualified names of the izci.api.v1 services.
+var ServiceNames = []string{
+	apiv1connect.AuthServiceName, apiv1connect.UserServiceName, apiv1connect.OrganizationServiceName,
+	apiv1connect.ProjectServiceName, apiv1connect.IssueServiceName, apiv1connect.EventServiceName,
+	apiv1connect.CustomerServiceName, apiv1connect.DashboardServiceName, apiv1connect.AlertServiceName,
+	apiv1connect.IntegrationServiceName, apiv1connect.AiServiceName, apiv1connect.AdminServiceName,
+}
+
 // Mount registers every izci.api.v1 service on handle. Services that are
 // not implemented yet answer UNIMPLEMENTED.
 func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {

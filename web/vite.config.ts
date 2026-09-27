@@ -21,7 +21,20 @@ function keepGitkeep(): Plugin {
 
 // Paths served by the Go server during development (Vite runs on :5301).
 const backend = "http://localhost:5300";
-const proxied = ["/izci.", "/auth/", "/api/", "/mcp", "/healthz", "/readyz", "/llms.txt", "/llms-full.txt"];
+const proxied = [
+  "/izci.",
+  "/grpc.",
+  "/auth/",
+  "/api/",
+  "/mcp",
+  "/healthz",
+  "/readyz",
+  "/llms.txt",
+  "/llms-full.txt",
+  "/docs/raw/",
+  "/docs/index.json",
+  "/integrations/",
+];
 
 export default defineConfig({
   plugins: [

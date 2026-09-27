@@ -32,7 +32,7 @@ export function ProjectAi({ project }: { project: Project }) {
   const [auto, setAuto] = useState<AutoAnalyze>(ai?.autoAnalyze || AutoAnalyze.OFF);
   const [minLevel, setMinLevel] = useState<Level>(ai?.minLevel || Level.ERROR);
   const [action, setAction] = useState<AutoAction>(ai?.autoAction || AutoAction.NONE);
-  const [budget, setBudget] = useState(ai?.dailyBudget ? String(ai.dailyBudget) : "");
+  const [budget, setBudget] = useState(ai?.dailyBudget ? String(ai.dailyBudget) : "10");
   const [model, setModel] = useState(ai?.model ?? "");
   const [commands, setCommands] = useState(ai?.allowedCommands.join("\n") ?? "");
   const [instructions, setInstructions] = useState(ai?.instructions ?? "");
@@ -113,7 +113,11 @@ export function ProjectAi({ project }: { project: Project }) {
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Günlük analiz sınırı" htmlFor="ai-budget" hint="Boş ya da 0: sınırsız.">
+          <Field
+            label="Günlük analiz sınırı"
+            htmlFor="ai-budget"
+            hint="Günde en çok bu kadar otomatik analiz başlatılır; 0 ise otomatik analiz yapılmaz."
+          >
             <Input
               id="ai-budget"
               type="number"

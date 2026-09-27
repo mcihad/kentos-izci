@@ -36,3 +36,20 @@ func TestEveryProcedureHasARule(t *testing.T) {
 		}
 	}
 }
+
+// TestServiceNamesAreComplete keeps the reflection list in sync with the
+// services defined in proto/izci/api/v1.
+func TestServiceNamesAreComplete(t *testing.T) {
+	listed := map[string]bool{}
+	for _, n := range ServiceNames {
+		listed[n] = true
+	}
+	protoregistry.GlobalFiles.RangeFilesByPackage("izci.api.v1", func(fd protoreflect.FileDescriptor) bool {
+		for i := 0; i < fd.Services().Len(); i++ {
+			if name := string(fd.Services().Get(i).FullName()); !listed[name] {
+				t.Errorf("%s is missing from ServiceNames", name)
+			}
+		}
+		return true
+	})
+}
