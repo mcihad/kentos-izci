@@ -536,6 +536,10 @@ type PrivacySettings struct {
 	StoreCookieValues bool `protobuf:"varint,4,opt,name=store_cookie_values,json=storeCookieValues,proto3" json:"store_cookie_values,omitempty"`
 	// Whether request bodies are stored.
 	StoreRequestBodies bool `protobuf:"varint,5,opt,name=store_request_bodies,json=storeRequestBodies,proto3" json:"store_request_bodies,omitempty"`
+	// Files sent with events (screenshots, log files, view hierarchies) are
+	// dropped instead of stored. Off by default: SDKs send attachments only
+	// when the application turns them on.
+	DiscardAttachments bool `protobuf:"varint,6,opt,name=discard_attachments,json=discardAttachments,proto3" json:"discard_attachments,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -601,6 +605,13 @@ func (x *PrivacySettings) GetStoreCookieValues() bool {
 func (x *PrivacySettings) GetStoreRequestBodies() bool {
 	if x != nil {
 		return x.StoreRequestBodies
+	}
+	return false
+}
+
+func (x *PrivacySettings) GetDiscardAttachments() bool {
+	if x != nil {
+		return x.DiscardAttachments
 	}
 	return false
 }
@@ -1149,7 +1160,10 @@ type Release struct {
 	// Deployments of this release.
 	Deploys []*Deploy `protobuf:"bytes,9,rep,name=deploys,proto3" json:"deploys,omitempty"`
 	// Issues first seen in this release.
-	NewIssues     uint32 `protobuf:"varint,10,opt,name=new_issues,json=newIssues,proto3" json:"new_issues,omitempty"`
+	NewIssues uint32 `protobuf:"varint,10,opt,name=new_issues,json=newIssues,proto3" json:"new_issues,omitempty"`
+	// Session-based health over ListReleasesRequest.health_period; unset when
+	// the release reported no sessions in that window.
+	Health        *ReleaseHealth `protobuf:"bytes,11,opt,name=health,proto3" json:"health,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1254,6 +1268,127 @@ func (x *Release) GetNewIssues() uint32 {
 	return 0
 }
 
+func (x *Release) GetHealth() *ReleaseHealth {
+	if x != nil {
+		return x.Health
+	}
+	return nil
+}
+
+// ReleaseHealth summarizes the sessions Sentry SDKs report for a release
+// (release health). A session is one run of a mobile or desktop
+// application, one page visit of a browser application or one request of a
+// server.
+type ReleaseHealth struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Sessions started in the window.
+	Sessions uint64 `protobuf:"varint,1,opt,name=sessions,proto3" json:"sessions,omitempty"`
+	// Sessions that had at least one error, crashes included.
+	ErroredSessions uint64 `protobuf:"varint,2,opt,name=errored_sessions,json=erroredSessions,proto3" json:"errored_sessions,omitempty"`
+	// Sessions that ended in a crash (an unhandled error).
+	CrashedSessions uint64 `protobuf:"varint,3,opt,name=crashed_sessions,json=crashedSessions,proto3" json:"crashed_sessions,omitempty"`
+	// Sessions that ended abnormally (e.g. the app was killed or hung).
+	AbnormalSessions uint64 `protobuf:"varint,4,opt,name=abnormal_sessions,json=abnormalSessions,proto3" json:"abnormal_sessions,omitempty"`
+	// Percentage of sessions without a crash, 0-100.
+	CrashFreeSessions float64 `protobuf:"fixed64,5,opt,name=crash_free_sessions,json=crashFreeSessions,proto3" json:"crash_free_sessions,omitempty"`
+	// Distinct users (session distinct ids) in the window.
+	Users uint64 `protobuf:"varint,6,opt,name=users,proto3" json:"users,omitempty"`
+	// Percentage of users who had no crash, 0-100; 0 when no user ids were
+	// reported.
+	CrashFreeUsers float64 `protobuf:"fixed64,7,opt,name=crash_free_users,json=crashFreeUsers,proto3" json:"crash_free_users,omitempty"`
+	// Share of the project's sessions in the window that came from this
+	// release, 0-100.
+	Adoption      float64 `protobuf:"fixed64,8,opt,name=adoption,proto3" json:"adoption,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReleaseHealth) Reset() {
+	*x = ReleaseHealth{}
+	mi := &file_izci_api_v1_project_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReleaseHealth) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReleaseHealth) ProtoMessage() {}
+
+func (x *ReleaseHealth) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_project_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReleaseHealth.ProtoReflect.Descriptor instead.
+func (*ReleaseHealth) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ReleaseHealth) GetSessions() uint64 {
+	if x != nil {
+		return x.Sessions
+	}
+	return 0
+}
+
+func (x *ReleaseHealth) GetErroredSessions() uint64 {
+	if x != nil {
+		return x.ErroredSessions
+	}
+	return 0
+}
+
+func (x *ReleaseHealth) GetCrashedSessions() uint64 {
+	if x != nil {
+		return x.CrashedSessions
+	}
+	return 0
+}
+
+func (x *ReleaseHealth) GetAbnormalSessions() uint64 {
+	if x != nil {
+		return x.AbnormalSessions
+	}
+	return 0
+}
+
+func (x *ReleaseHealth) GetCrashFreeSessions() float64 {
+	if x != nil {
+		return x.CrashFreeSessions
+	}
+	return 0
+}
+
+func (x *ReleaseHealth) GetUsers() uint64 {
+	if x != nil {
+		return x.Users
+	}
+	return 0
+}
+
+func (x *ReleaseHealth) GetCrashFreeUsers() float64 {
+	if x != nil {
+		return x.CrashFreeUsers
+	}
+	return 0
+}
+
+func (x *ReleaseHealth) GetAdoption() float64 {
+	if x != nil {
+		return x.Adoption
+	}
+	return 0
+}
+
 // Deploy is a deployment of a release to an environment.
 type Deploy struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1269,7 +1404,7 @@ type Deploy struct {
 
 func (x *Deploy) Reset() {
 	*x = Deploy{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[11]
+	mi := &file_izci_api_v1_project_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1281,7 +1416,7 @@ func (x *Deploy) String() string {
 func (*Deploy) ProtoMessage() {}
 
 func (x *Deploy) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[11]
+	mi := &file_izci_api_v1_project_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1294,7 +1429,7 @@ func (x *Deploy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Deploy.ProtoReflect.Descriptor instead.
 func (*Deploy) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{11}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *Deploy) GetEnvironment() string {
@@ -1327,7 +1462,7 @@ type ListProjectsRequest struct {
 
 func (x *ListProjectsRequest) Reset() {
 	*x = ListProjectsRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[12]
+	mi := &file_izci_api_v1_project_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1339,7 +1474,7 @@ func (x *ListProjectsRequest) String() string {
 func (*ListProjectsRequest) ProtoMessage() {}
 
 func (x *ListProjectsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[12]
+	mi := &file_izci_api_v1_project_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1352,7 +1487,7 @@ func (x *ListProjectsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListProjectsRequest.ProtoReflect.Descriptor instead.
 func (*ListProjectsRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{12}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{13}
 }
 
 // ListProjectsResponse lists projects.
@@ -1366,7 +1501,7 @@ type ListProjectsResponse struct {
 
 func (x *ListProjectsResponse) Reset() {
 	*x = ListProjectsResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[13]
+	mi := &file_izci_api_v1_project_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1378,7 +1513,7 @@ func (x *ListProjectsResponse) String() string {
 func (*ListProjectsResponse) ProtoMessage() {}
 
 func (x *ListProjectsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[13]
+	mi := &file_izci_api_v1_project_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1391,7 +1526,7 @@ func (x *ListProjectsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListProjectsResponse.ProtoReflect.Descriptor instead.
 func (*ListProjectsResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{13}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListProjectsResponse) GetProjects() []*Project {
@@ -1412,7 +1547,7 @@ type GetProjectRequest struct {
 
 func (x *GetProjectRequest) Reset() {
 	*x = GetProjectRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[14]
+	mi := &file_izci_api_v1_project_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1424,7 +1559,7 @@ func (x *GetProjectRequest) String() string {
 func (*GetProjectRequest) ProtoMessage() {}
 
 func (x *GetProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[14]
+	mi := &file_izci_api_v1_project_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1437,7 +1572,7 @@ func (x *GetProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectRequest.ProtoReflect.Descriptor instead.
 func (*GetProjectRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{14}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetProjectRequest) GetSlug() string {
@@ -1458,7 +1593,7 @@ type GetProjectResponse struct {
 
 func (x *GetProjectResponse) Reset() {
 	*x = GetProjectResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[15]
+	mi := &file_izci_api_v1_project_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1470,7 +1605,7 @@ func (x *GetProjectResponse) String() string {
 func (*GetProjectResponse) ProtoMessage() {}
 
 func (x *GetProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[15]
+	mi := &file_izci_api_v1_project_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1483,7 +1618,7 @@ func (x *GetProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectResponse.ProtoReflect.Descriptor instead.
 func (*GetProjectResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{15}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetProjectResponse) GetProject() *Project {
@@ -1509,7 +1644,7 @@ type CreateProjectRequest struct {
 
 func (x *CreateProjectRequest) Reset() {
 	*x = CreateProjectRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[16]
+	mi := &file_izci_api_v1_project_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1521,7 +1656,7 @@ func (x *CreateProjectRequest) String() string {
 func (*CreateProjectRequest) ProtoMessage() {}
 
 func (x *CreateProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[16]
+	mi := &file_izci_api_v1_project_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1534,7 +1669,7 @@ func (x *CreateProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateProjectRequest.ProtoReflect.Descriptor instead.
 func (*CreateProjectRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{16}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *CreateProjectRequest) GetName() string {
@@ -1573,7 +1708,7 @@ type CreateProjectResponse struct {
 
 func (x *CreateProjectResponse) Reset() {
 	*x = CreateProjectResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[17]
+	mi := &file_izci_api_v1_project_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1585,7 +1720,7 @@ func (x *CreateProjectResponse) String() string {
 func (*CreateProjectResponse) ProtoMessage() {}
 
 func (x *CreateProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[17]
+	mi := &file_izci_api_v1_project_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1598,7 +1733,7 @@ func (x *CreateProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateProjectResponse.ProtoReflect.Descriptor instead.
 func (*CreateProjectResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{17}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *CreateProjectResponse) GetProject() *Project {
@@ -1639,7 +1774,7 @@ type UpdateProjectRequest struct {
 
 func (x *UpdateProjectRequest) Reset() {
 	*x = UpdateProjectRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[18]
+	mi := &file_izci_api_v1_project_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1651,7 +1786,7 @@ func (x *UpdateProjectRequest) String() string {
 func (*UpdateProjectRequest) ProtoMessage() {}
 
 func (x *UpdateProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[18]
+	mi := &file_izci_api_v1_project_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1664,7 +1799,7 @@ func (x *UpdateProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProjectRequest.ProtoReflect.Descriptor instead.
 func (*UpdateProjectRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{18}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *UpdateProjectRequest) GetSlug() string {
@@ -1706,7 +1841,7 @@ type UpdateProjectResponse struct {
 
 func (x *UpdateProjectResponse) Reset() {
 	*x = UpdateProjectResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[19]
+	mi := &file_izci_api_v1_project_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1718,7 +1853,7 @@ func (x *UpdateProjectResponse) String() string {
 func (*UpdateProjectResponse) ProtoMessage() {}
 
 func (x *UpdateProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[19]
+	mi := &file_izci_api_v1_project_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1731,7 +1866,7 @@ func (x *UpdateProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProjectResponse.ProtoReflect.Descriptor instead.
 func (*UpdateProjectResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{19}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *UpdateProjectResponse) GetProject() *Project {
@@ -1754,7 +1889,7 @@ type DeleteProjectRequest struct {
 
 func (x *DeleteProjectRequest) Reset() {
 	*x = DeleteProjectRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[20]
+	mi := &file_izci_api_v1_project_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1766,7 +1901,7 @@ func (x *DeleteProjectRequest) String() string {
 func (*DeleteProjectRequest) ProtoMessage() {}
 
 func (x *DeleteProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[20]
+	mi := &file_izci_api_v1_project_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1779,7 +1914,7 @@ func (x *DeleteProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteProjectRequest.ProtoReflect.Descriptor instead.
 func (*DeleteProjectRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{20}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *DeleteProjectRequest) GetSlug() string {
@@ -1805,7 +1940,7 @@ type DeleteProjectResponse struct {
 
 func (x *DeleteProjectResponse) Reset() {
 	*x = DeleteProjectResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[21]
+	mi := &file_izci_api_v1_project_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1817,7 +1952,7 @@ func (x *DeleteProjectResponse) String() string {
 func (*DeleteProjectResponse) ProtoMessage() {}
 
 func (x *DeleteProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[21]
+	mi := &file_izci_api_v1_project_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1830,7 +1965,7 @@ func (x *DeleteProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteProjectResponse.ProtoReflect.Descriptor instead.
 func (*DeleteProjectResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{21}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{22}
 }
 
 // ListApiKeysRequest identifies the project.
@@ -1846,7 +1981,7 @@ type ListApiKeysRequest struct {
 
 func (x *ListApiKeysRequest) Reset() {
 	*x = ListApiKeysRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[22]
+	mi := &file_izci_api_v1_project_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1858,7 +1993,7 @@ func (x *ListApiKeysRequest) String() string {
 func (*ListApiKeysRequest) ProtoMessage() {}
 
 func (x *ListApiKeysRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[22]
+	mi := &file_izci_api_v1_project_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1871,7 +2006,7 @@ func (x *ListApiKeysRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListApiKeysRequest.ProtoReflect.Descriptor instead.
 func (*ListApiKeysRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{22}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ListApiKeysRequest) GetProject() string {
@@ -1899,7 +2034,7 @@ type ListApiKeysResponse struct {
 
 func (x *ListApiKeysResponse) Reset() {
 	*x = ListApiKeysResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[23]
+	mi := &file_izci_api_v1_project_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1911,7 +2046,7 @@ func (x *ListApiKeysResponse) String() string {
 func (*ListApiKeysResponse) ProtoMessage() {}
 
 func (x *ListApiKeysResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[23]
+	mi := &file_izci_api_v1_project_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1924,7 +2059,7 @@ func (x *ListApiKeysResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListApiKeysResponse.ProtoReflect.Descriptor instead.
 func (*ListApiKeysResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{23}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ListApiKeysResponse) GetKeys() []*ApiKey {
@@ -1953,7 +2088,7 @@ type CreateApiKeyRequest struct {
 
 func (x *CreateApiKeyRequest) Reset() {
 	*x = CreateApiKeyRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[24]
+	mi := &file_izci_api_v1_project_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1965,7 +2100,7 @@ func (x *CreateApiKeyRequest) String() string {
 func (*CreateApiKeyRequest) ProtoMessage() {}
 
 func (x *CreateApiKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[24]
+	mi := &file_izci_api_v1_project_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1978,7 +2113,7 @@ func (x *CreateApiKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateApiKeyRequest.ProtoReflect.Descriptor instead.
 func (*CreateApiKeyRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{24}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *CreateApiKeyRequest) GetProject() string {
@@ -2031,7 +2166,7 @@ type CreateApiKeyResponse struct {
 
 func (x *CreateApiKeyResponse) Reset() {
 	*x = CreateApiKeyResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[25]
+	mi := &file_izci_api_v1_project_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2043,7 +2178,7 @@ func (x *CreateApiKeyResponse) String() string {
 func (*CreateApiKeyResponse) ProtoMessage() {}
 
 func (x *CreateApiKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[25]
+	mi := &file_izci_api_v1_project_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2056,7 +2191,7 @@ func (x *CreateApiKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateApiKeyResponse.ProtoReflect.Descriptor instead.
 func (*CreateApiKeyResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{25}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *CreateApiKeyResponse) GetKey() *ApiKey {
@@ -2101,7 +2236,7 @@ type UpdateApiKeyRequest struct {
 
 func (x *UpdateApiKeyRequest) Reset() {
 	*x = UpdateApiKeyRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[26]
+	mi := &file_izci_api_v1_project_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2113,7 +2248,7 @@ func (x *UpdateApiKeyRequest) String() string {
 func (*UpdateApiKeyRequest) ProtoMessage() {}
 
 func (x *UpdateApiKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[26]
+	mi := &file_izci_api_v1_project_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2126,7 +2261,7 @@ func (x *UpdateApiKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateApiKeyRequest.ProtoReflect.Descriptor instead.
 func (*UpdateApiKeyRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{26}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *UpdateApiKeyRequest) GetProject() string {
@@ -2182,7 +2317,7 @@ type UpdateApiKeyResponse struct {
 
 func (x *UpdateApiKeyResponse) Reset() {
 	*x = UpdateApiKeyResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[27]
+	mi := &file_izci_api_v1_project_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2194,7 +2329,7 @@ func (x *UpdateApiKeyResponse) String() string {
 func (*UpdateApiKeyResponse) ProtoMessage() {}
 
 func (x *UpdateApiKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[27]
+	mi := &file_izci_api_v1_project_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2207,7 +2342,7 @@ func (x *UpdateApiKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateApiKeyResponse.ProtoReflect.Descriptor instead.
 func (*UpdateApiKeyResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{27}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *UpdateApiKeyResponse) GetKey() *ApiKey {
@@ -2230,7 +2365,7 @@ type RevokeApiKeyRequest struct {
 
 func (x *RevokeApiKeyRequest) Reset() {
 	*x = RevokeApiKeyRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[28]
+	mi := &file_izci_api_v1_project_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2242,7 +2377,7 @@ func (x *RevokeApiKeyRequest) String() string {
 func (*RevokeApiKeyRequest) ProtoMessage() {}
 
 func (x *RevokeApiKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[28]
+	mi := &file_izci_api_v1_project_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2255,7 +2390,7 @@ func (x *RevokeApiKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeApiKeyRequest.ProtoReflect.Descriptor instead.
 func (*RevokeApiKeyRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{28}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *RevokeApiKeyRequest) GetProject() string {
@@ -2281,7 +2416,7 @@ type RevokeApiKeyResponse struct {
 
 func (x *RevokeApiKeyResponse) Reset() {
 	*x = RevokeApiKeyResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[29]
+	mi := &file_izci_api_v1_project_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2293,7 +2428,7 @@ func (x *RevokeApiKeyResponse) String() string {
 func (*RevokeApiKeyResponse) ProtoMessage() {}
 
 func (x *RevokeApiKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[29]
+	mi := &file_izci_api_v1_project_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2306,7 +2441,7 @@ func (x *RevokeApiKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeApiKeyResponse.ProtoReflect.Descriptor instead.
 func (*RevokeApiKeyResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{29}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{30}
 }
 
 // GetIngestEndpointsRequest identifies the project.
@@ -2320,7 +2455,7 @@ type GetIngestEndpointsRequest struct {
 
 func (x *GetIngestEndpointsRequest) Reset() {
 	*x = GetIngestEndpointsRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[30]
+	mi := &file_izci_api_v1_project_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2332,7 +2467,7 @@ func (x *GetIngestEndpointsRequest) String() string {
 func (*GetIngestEndpointsRequest) ProtoMessage() {}
 
 func (x *GetIngestEndpointsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[30]
+	mi := &file_izci_api_v1_project_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2345,7 +2480,7 @@ func (x *GetIngestEndpointsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIngestEndpointsRequest.ProtoReflect.Descriptor instead.
 func (*GetIngestEndpointsRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{30}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *GetIngestEndpointsRequest) GetProject() string {
@@ -2376,7 +2511,7 @@ type GetIngestEndpointsResponse struct {
 
 func (x *GetIngestEndpointsResponse) Reset() {
 	*x = GetIngestEndpointsResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[31]
+	mi := &file_izci_api_v1_project_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2388,7 +2523,7 @@ func (x *GetIngestEndpointsResponse) String() string {
 func (*GetIngestEndpointsResponse) ProtoMessage() {}
 
 func (x *GetIngestEndpointsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[31]
+	mi := &file_izci_api_v1_project_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2401,7 +2536,7 @@ func (x *GetIngestEndpointsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIngestEndpointsResponse.ProtoReflect.Descriptor instead.
 func (*GetIngestEndpointsResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{31}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GetIngestEndpointsResponse) GetBaseUrl() string {
@@ -2450,7 +2585,7 @@ type SendTestEventRequest struct {
 
 func (x *SendTestEventRequest) Reset() {
 	*x = SendTestEventRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[32]
+	mi := &file_izci_api_v1_project_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2462,7 +2597,7 @@ func (x *SendTestEventRequest) String() string {
 func (*SendTestEventRequest) ProtoMessage() {}
 
 func (x *SendTestEventRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[32]
+	mi := &file_izci_api_v1_project_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2475,7 +2610,7 @@ func (x *SendTestEventRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendTestEventRequest.ProtoReflect.Descriptor instead.
 func (*SendTestEventRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{32}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *SendTestEventRequest) GetProject() string {
@@ -2500,7 +2635,7 @@ type SendTestEventResponse struct {
 
 func (x *SendTestEventResponse) Reset() {
 	*x = SendTestEventResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[33]
+	mi := &file_izci_api_v1_project_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2512,7 +2647,7 @@ func (x *SendTestEventResponse) String() string {
 func (*SendTestEventResponse) ProtoMessage() {}
 
 func (x *SendTestEventResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[33]
+	mi := &file_izci_api_v1_project_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2525,7 +2660,7 @@ func (x *SendTestEventResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendTestEventResponse.ProtoReflect.Descriptor instead.
 func (*SendTestEventResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{33}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *SendTestEventResponse) GetEventId() string {
@@ -2560,7 +2695,7 @@ type ListEnvironmentsRequest struct {
 
 func (x *ListEnvironmentsRequest) Reset() {
 	*x = ListEnvironmentsRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[34]
+	mi := &file_izci_api_v1_project_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2572,7 +2707,7 @@ func (x *ListEnvironmentsRequest) String() string {
 func (*ListEnvironmentsRequest) ProtoMessage() {}
 
 func (x *ListEnvironmentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[34]
+	mi := &file_izci_api_v1_project_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2585,7 +2720,7 @@ func (x *ListEnvironmentsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEnvironmentsRequest.ProtoReflect.Descriptor instead.
 func (*ListEnvironmentsRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{34}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *ListEnvironmentsRequest) GetProject() string {
@@ -2606,7 +2741,7 @@ type ListEnvironmentsResponse struct {
 
 func (x *ListEnvironmentsResponse) Reset() {
 	*x = ListEnvironmentsResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[35]
+	mi := &file_izci_api_v1_project_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2618,7 +2753,7 @@ func (x *ListEnvironmentsResponse) String() string {
 func (*ListEnvironmentsResponse) ProtoMessage() {}
 
 func (x *ListEnvironmentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[35]
+	mi := &file_izci_api_v1_project_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2631,7 +2766,7 @@ func (x *ListEnvironmentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEnvironmentsResponse.ProtoReflect.Descriptor instead.
 func (*ListEnvironmentsResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{35}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *ListEnvironmentsResponse) GetEnvironments() []*Environment {
@@ -2649,14 +2784,16 @@ type ListReleasesRequest struct {
 	// Maximum releases to return (default 50, max 100).
 	PageSize uint32 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// Token from a previous response.
-	PageToken     string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// Window of Release.health (default: last 14 days).
+	HealthPeriod  StatsPeriod `protobuf:"varint,4,opt,name=health_period,json=healthPeriod,proto3,enum=izci.api.v1.StatsPeriod" json:"health_period,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListReleasesRequest) Reset() {
 	*x = ListReleasesRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[36]
+	mi := &file_izci_api_v1_project_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2668,7 +2805,7 @@ func (x *ListReleasesRequest) String() string {
 func (*ListReleasesRequest) ProtoMessage() {}
 
 func (x *ListReleasesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[36]
+	mi := &file_izci_api_v1_project_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2681,7 +2818,7 @@ func (x *ListReleasesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListReleasesRequest.ProtoReflect.Descriptor instead.
 func (*ListReleasesRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{36}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *ListReleasesRequest) GetProject() string {
@@ -2705,6 +2842,13 @@ func (x *ListReleasesRequest) GetPageToken() string {
 	return ""
 }
 
+func (x *ListReleasesRequest) GetHealthPeriod() StatsPeriod {
+	if x != nil {
+		return x.HealthPeriod
+	}
+	return StatsPeriod_STATS_PERIOD_UNSPECIFIED
+}
+
 // ListReleasesResponse is a page of releases.
 type ListReleasesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -2718,7 +2862,7 @@ type ListReleasesResponse struct {
 
 func (x *ListReleasesResponse) Reset() {
 	*x = ListReleasesResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[37]
+	mi := &file_izci_api_v1_project_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2730,7 +2874,7 @@ func (x *ListReleasesResponse) String() string {
 func (*ListReleasesResponse) ProtoMessage() {}
 
 func (x *ListReleasesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[37]
+	mi := &file_izci_api_v1_project_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2743,7 +2887,7 @@ func (x *ListReleasesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListReleasesResponse.ProtoReflect.Descriptor instead.
 func (*ListReleasesResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{37}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ListReleasesResponse) GetReleases() []*Release {
@@ -2780,7 +2924,7 @@ type LinkRepositoryRequest struct {
 
 func (x *LinkRepositoryRequest) Reset() {
 	*x = LinkRepositoryRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[38]
+	mi := &file_izci_api_v1_project_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2792,7 +2936,7 @@ func (x *LinkRepositoryRequest) String() string {
 func (*LinkRepositoryRequest) ProtoMessage() {}
 
 func (x *LinkRepositoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[38]
+	mi := &file_izci_api_v1_project_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2805,7 +2949,7 @@ func (x *LinkRepositoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LinkRepositoryRequest.ProtoReflect.Descriptor instead.
 func (*LinkRepositoryRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{38}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *LinkRepositoryRequest) GetProject() string {
@@ -2854,7 +2998,7 @@ type LinkRepositoryResponse struct {
 
 func (x *LinkRepositoryResponse) Reset() {
 	*x = LinkRepositoryResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[39]
+	mi := &file_izci_api_v1_project_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2866,7 +3010,7 @@ func (x *LinkRepositoryResponse) String() string {
 func (*LinkRepositoryResponse) ProtoMessage() {}
 
 func (x *LinkRepositoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[39]
+	mi := &file_izci_api_v1_project_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2879,7 +3023,7 @@ func (x *LinkRepositoryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LinkRepositoryResponse.ProtoReflect.Descriptor instead.
 func (*LinkRepositoryResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{39}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *LinkRepositoryResponse) GetRepository() *ProjectRepository {
@@ -2900,7 +3044,7 @@ type UnlinkRepositoryRequest struct {
 
 func (x *UnlinkRepositoryRequest) Reset() {
 	*x = UnlinkRepositoryRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[40]
+	mi := &file_izci_api_v1_project_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2912,7 +3056,7 @@ func (x *UnlinkRepositoryRequest) String() string {
 func (*UnlinkRepositoryRequest) ProtoMessage() {}
 
 func (x *UnlinkRepositoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[40]
+	mi := &file_izci_api_v1_project_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2925,7 +3069,7 @@ func (x *UnlinkRepositoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnlinkRepositoryRequest.ProtoReflect.Descriptor instead.
 func (*UnlinkRepositoryRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{40}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *UnlinkRepositoryRequest) GetProject() string {
@@ -2944,7 +3088,7 @@ type UnlinkRepositoryResponse struct {
 
 func (x *UnlinkRepositoryResponse) Reset() {
 	*x = UnlinkRepositoryResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[41]
+	mi := &file_izci_api_v1_project_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2956,7 +3100,7 @@ func (x *UnlinkRepositoryResponse) String() string {
 func (*UnlinkRepositoryResponse) ProtoMessage() {}
 
 func (x *UnlinkRepositoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[41]
+	mi := &file_izci_api_v1_project_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2969,7 +3113,7 @@ func (x *UnlinkRepositoryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnlinkRepositoryResponse.ProtoReflect.Descriptor instead.
 func (*UnlinkRepositoryResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{41}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{42}
 }
 
 var File_izci_api_v1_project_proto protoreflect.FileDescriptor
@@ -3002,7 +3146,7 @@ const file_izci_api_v1_project_proto_rawDesc = "" +
 	"\x06in_app\x18\x02 \x01(\v2\x17.izci.api.v1.InAppRulesR\x05inApp\x121\n" +
 	"\x15rate_limit_per_minute\x18\x03 \x01(\rR\x12rateLimitPerMinute\x12;\n" +
 	"\x14ignored_environments\x18\x04 \x03(\tB\b\xbaH\x05\x92\x01\x02\x10\x14R\x13ignoredEnvironments\x12'\n" +
-	"\x02ai\x18\x05 \x01(\v2\x17.izci.api.v1.AiSettingsR\x02ai\"\x82\x02\n" +
+	"\x02ai\x18\x05 \x01(\v2\x17.izci.api.v1.AiSettingsR\x02ai\"\xb3\x02\n" +
 	"\x0fPrivacySettings\x125\n" +
 	"\n" +
 	"ip_storage\x18\x01 \x01(\x0e2\x16.izci.api.v1.IpStorageR\tipStorage\x12+\n" +
@@ -3010,7 +3154,8 @@ const file_izci_api_v1_project_proto_rawDesc = "" +
 	"\vsafe_fields\x18\x03 \x03(\tB\b\xbaH\x05\x92\x01\x02\x10dR\n" +
 	"safeFields\x12.\n" +
 	"\x13store_cookie_values\x18\x04 \x01(\bR\x11storeCookieValues\x120\n" +
-	"\x14store_request_bodies\x18\x05 \x01(\bR\x12storeRequestBodies\"T\n" +
+	"\x14store_request_bodies\x18\x05 \x01(\bR\x12storeRequestBodies\x12/\n" +
+	"\x13discard_attachments\x18\x06 \x01(\bR\x12discardAttachments\"T\n" +
 	"\n" +
 	"InAppRules\x12\"\n" +
 	"\ainclude\x18\x01 \x03(\tB\b\xbaH\x05\x92\x01\x02\x102R\ainclude\x12\"\n" +
@@ -3058,7 +3203,7 @@ const file_izci_api_v1_project_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x129\n" +
 	"\n" +
 	"first_seen\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tfirstSeen\x127\n" +
-	"\tlast_seen\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\blastSeen\"\xd8\x02\n" +
+	"\tlast_seen\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\blastSeen\"\x8c\x03\n" +
 	"\aRelease\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\tR\aversion\x12\x1d\n" +
@@ -3075,7 +3220,17 @@ const file_izci_api_v1_project_proto_rawDesc = "" +
 	"\adeploys\x18\t \x03(\v2\x13.izci.api.v1.DeployR\adeploys\x12\x1d\n" +
 	"\n" +
 	"new_issues\x18\n" +
-	" \x01(\rR\tnewIssues\"\x88\x01\n" +
+	" \x01(\rR\tnewIssues\x122\n" +
+	"\x06health\x18\v \x01(\v2\x1a.izci.api.v1.ReleaseHealthR\x06health\"\xba\x02\n" +
+	"\rReleaseHealth\x12\x1a\n" +
+	"\bsessions\x18\x01 \x01(\x04R\bsessions\x12)\n" +
+	"\x10errored_sessions\x18\x02 \x01(\x04R\x0ferroredSessions\x12)\n" +
+	"\x10crashed_sessions\x18\x03 \x01(\x04R\x0fcrashedSessions\x12+\n" +
+	"\x11abnormal_sessions\x18\x04 \x01(\x04R\x10abnormalSessions\x12.\n" +
+	"\x13crash_free_sessions\x18\x05 \x01(\x01R\x11crashFreeSessions\x12\x14\n" +
+	"\x05users\x18\x06 \x01(\x04R\x05users\x12(\n" +
+	"\x10crash_free_users\x18\a \x01(\x01R\x0ecrashFreeUsers\x12\x1a\n" +
+	"\badoption\x18\b \x01(\x01R\badoption\"\x88\x01\n" +
 	"\x06Deploy\x12 \n" +
 	"\venvironment\x18\x01 \x01(\tR\venvironment\x12;\n" +
 	"\vdeployed_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
@@ -3155,12 +3310,13 @@ const file_izci_api_v1_project_proto_rawDesc = "" +
 	"\x17ListEnvironmentsRequest\x12!\n" +
 	"\aproject\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x182R\aproject\"X\n" +
 	"\x18ListEnvironmentsResponse\x12<\n" +
-	"\fenvironments\x18\x01 \x03(\v2\x18.izci.api.v1.EnvironmentR\fenvironments\"\x7f\n" +
+	"\fenvironments\x18\x01 \x03(\v2\x18.izci.api.v1.EnvironmentR\fenvironments\"\xbe\x01\n" +
 	"\x13ListReleasesRequest\x12#\n" +
 	"\aproject\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x182R\aproject\x12$\n" +
 	"\tpage_size\x18\x02 \x01(\rB\a\xbaH\x04*\x02\x18dR\bpageSize\x12\x1d\n" +
 	"\n" +
-	"page_token\x18\x03 \x01(\tR\tpageToken\"p\n" +
+	"page_token\x18\x03 \x01(\tR\tpageToken\x12=\n" +
+	"\rhealth_period\x18\x04 \x01(\x0e2\x18.izci.api.v1.StatsPeriodR\fhealthPeriod\"p\n" +
 	"\x14ListReleasesResponse\x120\n" +
 	"\breleases\x18\x01 \x03(\v2\x14.izci.api.v1.ReleaseR\breleases\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x89\x02\n" +
@@ -3233,7 +3389,7 @@ func file_izci_api_v1_project_proto_rawDescGZIP() []byte {
 }
 
 var file_izci_api_v1_project_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_izci_api_v1_project_proto_msgTypes = make([]protoimpl.MessageInfo, 42)
+var file_izci_api_v1_project_proto_msgTypes = make([]protoimpl.MessageInfo, 43)
 var file_izci_api_v1_project_proto_goTypes = []any{
 	(IpStorage)(0),                     // 0: izci.api.v1.IpStorage
 	(AutoAnalyze)(0),                   // 1: izci.api.v1.AutoAnalyze
@@ -3250,117 +3406,121 @@ var file_izci_api_v1_project_proto_goTypes = []any{
 	(*ApiKey)(nil),                     // 12: izci.api.v1.ApiKey
 	(*Environment)(nil),                // 13: izci.api.v1.Environment
 	(*Release)(nil),                    // 14: izci.api.v1.Release
-	(*Deploy)(nil),                     // 15: izci.api.v1.Deploy
-	(*ListProjectsRequest)(nil),        // 16: izci.api.v1.ListProjectsRequest
-	(*ListProjectsResponse)(nil),       // 17: izci.api.v1.ListProjectsResponse
-	(*GetProjectRequest)(nil),          // 18: izci.api.v1.GetProjectRequest
-	(*GetProjectResponse)(nil),         // 19: izci.api.v1.GetProjectResponse
-	(*CreateProjectRequest)(nil),       // 20: izci.api.v1.CreateProjectRequest
-	(*CreateProjectResponse)(nil),      // 21: izci.api.v1.CreateProjectResponse
-	(*UpdateProjectRequest)(nil),       // 22: izci.api.v1.UpdateProjectRequest
-	(*UpdateProjectResponse)(nil),      // 23: izci.api.v1.UpdateProjectResponse
-	(*DeleteProjectRequest)(nil),       // 24: izci.api.v1.DeleteProjectRequest
-	(*DeleteProjectResponse)(nil),      // 25: izci.api.v1.DeleteProjectResponse
-	(*ListApiKeysRequest)(nil),         // 26: izci.api.v1.ListApiKeysRequest
-	(*ListApiKeysResponse)(nil),        // 27: izci.api.v1.ListApiKeysResponse
-	(*CreateApiKeyRequest)(nil),        // 28: izci.api.v1.CreateApiKeyRequest
-	(*CreateApiKeyResponse)(nil),       // 29: izci.api.v1.CreateApiKeyResponse
-	(*UpdateApiKeyRequest)(nil),        // 30: izci.api.v1.UpdateApiKeyRequest
-	(*UpdateApiKeyResponse)(nil),       // 31: izci.api.v1.UpdateApiKeyResponse
-	(*RevokeApiKeyRequest)(nil),        // 32: izci.api.v1.RevokeApiKeyRequest
-	(*RevokeApiKeyResponse)(nil),       // 33: izci.api.v1.RevokeApiKeyResponse
-	(*GetIngestEndpointsRequest)(nil),  // 34: izci.api.v1.GetIngestEndpointsRequest
-	(*GetIngestEndpointsResponse)(nil), // 35: izci.api.v1.GetIngestEndpointsResponse
-	(*SendTestEventRequest)(nil),       // 36: izci.api.v1.SendTestEventRequest
-	(*SendTestEventResponse)(nil),      // 37: izci.api.v1.SendTestEventResponse
-	(*ListEnvironmentsRequest)(nil),    // 38: izci.api.v1.ListEnvironmentsRequest
-	(*ListEnvironmentsResponse)(nil),   // 39: izci.api.v1.ListEnvironmentsResponse
-	(*ListReleasesRequest)(nil),        // 40: izci.api.v1.ListReleasesRequest
-	(*ListReleasesResponse)(nil),       // 41: izci.api.v1.ListReleasesResponse
-	(*LinkRepositoryRequest)(nil),      // 42: izci.api.v1.LinkRepositoryRequest
-	(*LinkRepositoryResponse)(nil),     // 43: izci.api.v1.LinkRepositoryResponse
-	(*UnlinkRepositoryRequest)(nil),    // 44: izci.api.v1.UnlinkRepositoryRequest
-	(*UnlinkRepositoryResponse)(nil),   // 45: izci.api.v1.UnlinkRepositoryResponse
-	(*timestamppb.Timestamp)(nil),      // 46: google.protobuf.Timestamp
-	(*Series)(nil),                     // 47: izci.api.v1.Series
-	(v1.Level)(0),                      // 48: izci.ingest.v1.Level
-	(*UserRef)(nil),                    // 49: izci.api.v1.UserRef
+	(*ReleaseHealth)(nil),              // 15: izci.api.v1.ReleaseHealth
+	(*Deploy)(nil),                     // 16: izci.api.v1.Deploy
+	(*ListProjectsRequest)(nil),        // 17: izci.api.v1.ListProjectsRequest
+	(*ListProjectsResponse)(nil),       // 18: izci.api.v1.ListProjectsResponse
+	(*GetProjectRequest)(nil),          // 19: izci.api.v1.GetProjectRequest
+	(*GetProjectResponse)(nil),         // 20: izci.api.v1.GetProjectResponse
+	(*CreateProjectRequest)(nil),       // 21: izci.api.v1.CreateProjectRequest
+	(*CreateProjectResponse)(nil),      // 22: izci.api.v1.CreateProjectResponse
+	(*UpdateProjectRequest)(nil),       // 23: izci.api.v1.UpdateProjectRequest
+	(*UpdateProjectResponse)(nil),      // 24: izci.api.v1.UpdateProjectResponse
+	(*DeleteProjectRequest)(nil),       // 25: izci.api.v1.DeleteProjectRequest
+	(*DeleteProjectResponse)(nil),      // 26: izci.api.v1.DeleteProjectResponse
+	(*ListApiKeysRequest)(nil),         // 27: izci.api.v1.ListApiKeysRequest
+	(*ListApiKeysResponse)(nil),        // 28: izci.api.v1.ListApiKeysResponse
+	(*CreateApiKeyRequest)(nil),        // 29: izci.api.v1.CreateApiKeyRequest
+	(*CreateApiKeyResponse)(nil),       // 30: izci.api.v1.CreateApiKeyResponse
+	(*UpdateApiKeyRequest)(nil),        // 31: izci.api.v1.UpdateApiKeyRequest
+	(*UpdateApiKeyResponse)(nil),       // 32: izci.api.v1.UpdateApiKeyResponse
+	(*RevokeApiKeyRequest)(nil),        // 33: izci.api.v1.RevokeApiKeyRequest
+	(*RevokeApiKeyResponse)(nil),       // 34: izci.api.v1.RevokeApiKeyResponse
+	(*GetIngestEndpointsRequest)(nil),  // 35: izci.api.v1.GetIngestEndpointsRequest
+	(*GetIngestEndpointsResponse)(nil), // 36: izci.api.v1.GetIngestEndpointsResponse
+	(*SendTestEventRequest)(nil),       // 37: izci.api.v1.SendTestEventRequest
+	(*SendTestEventResponse)(nil),      // 38: izci.api.v1.SendTestEventResponse
+	(*ListEnvironmentsRequest)(nil),    // 39: izci.api.v1.ListEnvironmentsRequest
+	(*ListEnvironmentsResponse)(nil),   // 40: izci.api.v1.ListEnvironmentsResponse
+	(*ListReleasesRequest)(nil),        // 41: izci.api.v1.ListReleasesRequest
+	(*ListReleasesResponse)(nil),       // 42: izci.api.v1.ListReleasesResponse
+	(*LinkRepositoryRequest)(nil),      // 43: izci.api.v1.LinkRepositoryRequest
+	(*LinkRepositoryResponse)(nil),     // 44: izci.api.v1.LinkRepositoryResponse
+	(*UnlinkRepositoryRequest)(nil),    // 45: izci.api.v1.UnlinkRepositoryRequest
+	(*UnlinkRepositoryResponse)(nil),   // 46: izci.api.v1.UnlinkRepositoryResponse
+	(*timestamppb.Timestamp)(nil),      // 47: google.protobuf.Timestamp
+	(*Series)(nil),                     // 48: izci.api.v1.Series
+	(v1.Level)(0),                      // 49: izci.ingest.v1.Level
+	(*UserRef)(nil),                    // 50: izci.api.v1.UserRef
+	(StatsPeriod)(0),                   // 51: izci.api.v1.StatsPeriod
 }
 var file_izci_api_v1_project_proto_depIdxs = []int32{
 	6,  // 0: izci.api.v1.Project.settings:type_name -> izci.api.v1.ProjectSettings
 	10, // 1: izci.api.v1.Project.repository:type_name -> izci.api.v1.ProjectRepository
 	5,  // 2: izci.api.v1.Project.stats:type_name -> izci.api.v1.ProjectStats
-	46, // 3: izci.api.v1.Project.created_at:type_name -> google.protobuf.Timestamp
-	47, // 4: izci.api.v1.ProjectStats.series_24h:type_name -> izci.api.v1.Series
-	46, // 5: izci.api.v1.ProjectStats.last_event_at:type_name -> google.protobuf.Timestamp
+	47, // 3: izci.api.v1.Project.created_at:type_name -> google.protobuf.Timestamp
+	48, // 4: izci.api.v1.ProjectStats.series_24h:type_name -> izci.api.v1.Series
+	47, // 5: izci.api.v1.ProjectStats.last_event_at:type_name -> google.protobuf.Timestamp
 	7,  // 6: izci.api.v1.ProjectSettings.privacy:type_name -> izci.api.v1.PrivacySettings
 	8,  // 7: izci.api.v1.ProjectSettings.in_app:type_name -> izci.api.v1.InAppRules
 	9,  // 8: izci.api.v1.ProjectSettings.ai:type_name -> izci.api.v1.AiSettings
 	0,  // 9: izci.api.v1.PrivacySettings.ip_storage:type_name -> izci.api.v1.IpStorage
 	1,  // 10: izci.api.v1.AiSettings.auto_analyze:type_name -> izci.api.v1.AutoAnalyze
-	48, // 11: izci.api.v1.AiSettings.min_level:type_name -> izci.ingest.v1.Level
+	49, // 11: izci.api.v1.AiSettings.min_level:type_name -> izci.ingest.v1.Level
 	2,  // 12: izci.api.v1.AiSettings.auto_action:type_name -> izci.api.v1.AutoAction
 	11, // 13: izci.api.v1.ProjectRepository.path_mappings:type_name -> izci.api.v1.PathMapping
-	46, // 14: izci.api.v1.ProjectRepository.linked_at:type_name -> google.protobuf.Timestamp
+	47, // 14: izci.api.v1.ProjectRepository.linked_at:type_name -> google.protobuf.Timestamp
 	3,  // 15: izci.api.v1.ApiKey.scopes:type_name -> izci.api.v1.ApiKeyScope
-	49, // 16: izci.api.v1.ApiKey.created_by:type_name -> izci.api.v1.UserRef
-	46, // 17: izci.api.v1.ApiKey.created_at:type_name -> google.protobuf.Timestamp
-	46, // 18: izci.api.v1.ApiKey.last_used_at:type_name -> google.protobuf.Timestamp
-	46, // 19: izci.api.v1.Environment.first_seen:type_name -> google.protobuf.Timestamp
-	46, // 20: izci.api.v1.Environment.last_seen:type_name -> google.protobuf.Timestamp
-	46, // 21: izci.api.v1.Release.first_seen:type_name -> google.protobuf.Timestamp
-	46, // 22: izci.api.v1.Release.last_seen:type_name -> google.protobuf.Timestamp
-	15, // 23: izci.api.v1.Release.deploys:type_name -> izci.api.v1.Deploy
-	46, // 24: izci.api.v1.Deploy.deployed_at:type_name -> google.protobuf.Timestamp
-	4,  // 25: izci.api.v1.ListProjectsResponse.projects:type_name -> izci.api.v1.Project
-	4,  // 26: izci.api.v1.GetProjectResponse.project:type_name -> izci.api.v1.Project
-	4,  // 27: izci.api.v1.CreateProjectResponse.project:type_name -> izci.api.v1.Project
-	12, // 28: izci.api.v1.CreateProjectResponse.api_key:type_name -> izci.api.v1.ApiKey
-	6,  // 29: izci.api.v1.UpdateProjectRequest.settings:type_name -> izci.api.v1.ProjectSettings
-	4,  // 30: izci.api.v1.UpdateProjectResponse.project:type_name -> izci.api.v1.Project
-	12, // 31: izci.api.v1.ListApiKeysResponse.keys:type_name -> izci.api.v1.ApiKey
-	3,  // 32: izci.api.v1.CreateApiKeyRequest.scopes:type_name -> izci.api.v1.ApiKeyScope
-	12, // 33: izci.api.v1.CreateApiKeyResponse.key:type_name -> izci.api.v1.ApiKey
-	12, // 34: izci.api.v1.UpdateApiKeyResponse.key:type_name -> izci.api.v1.ApiKey
-	13, // 35: izci.api.v1.ListEnvironmentsResponse.environments:type_name -> izci.api.v1.Environment
-	14, // 36: izci.api.v1.ListReleasesResponse.releases:type_name -> izci.api.v1.Release
-	11, // 37: izci.api.v1.LinkRepositoryRequest.path_mappings:type_name -> izci.api.v1.PathMapping
-	10, // 38: izci.api.v1.LinkRepositoryResponse.repository:type_name -> izci.api.v1.ProjectRepository
-	16, // 39: izci.api.v1.ProjectService.ListProjects:input_type -> izci.api.v1.ListProjectsRequest
-	18, // 40: izci.api.v1.ProjectService.GetProject:input_type -> izci.api.v1.GetProjectRequest
-	20, // 41: izci.api.v1.ProjectService.CreateProject:input_type -> izci.api.v1.CreateProjectRequest
-	22, // 42: izci.api.v1.ProjectService.UpdateProject:input_type -> izci.api.v1.UpdateProjectRequest
-	24, // 43: izci.api.v1.ProjectService.DeleteProject:input_type -> izci.api.v1.DeleteProjectRequest
-	26, // 44: izci.api.v1.ProjectService.ListApiKeys:input_type -> izci.api.v1.ListApiKeysRequest
-	28, // 45: izci.api.v1.ProjectService.CreateApiKey:input_type -> izci.api.v1.CreateApiKeyRequest
-	30, // 46: izci.api.v1.ProjectService.UpdateApiKey:input_type -> izci.api.v1.UpdateApiKeyRequest
-	32, // 47: izci.api.v1.ProjectService.RevokeApiKey:input_type -> izci.api.v1.RevokeApiKeyRequest
-	34, // 48: izci.api.v1.ProjectService.GetIngestEndpoints:input_type -> izci.api.v1.GetIngestEndpointsRequest
-	36, // 49: izci.api.v1.ProjectService.SendTestEvent:input_type -> izci.api.v1.SendTestEventRequest
-	38, // 50: izci.api.v1.ProjectService.ListEnvironments:input_type -> izci.api.v1.ListEnvironmentsRequest
-	40, // 51: izci.api.v1.ProjectService.ListReleases:input_type -> izci.api.v1.ListReleasesRequest
-	42, // 52: izci.api.v1.ProjectService.LinkRepository:input_type -> izci.api.v1.LinkRepositoryRequest
-	44, // 53: izci.api.v1.ProjectService.UnlinkRepository:input_type -> izci.api.v1.UnlinkRepositoryRequest
-	17, // 54: izci.api.v1.ProjectService.ListProjects:output_type -> izci.api.v1.ListProjectsResponse
-	19, // 55: izci.api.v1.ProjectService.GetProject:output_type -> izci.api.v1.GetProjectResponse
-	21, // 56: izci.api.v1.ProjectService.CreateProject:output_type -> izci.api.v1.CreateProjectResponse
-	23, // 57: izci.api.v1.ProjectService.UpdateProject:output_type -> izci.api.v1.UpdateProjectResponse
-	25, // 58: izci.api.v1.ProjectService.DeleteProject:output_type -> izci.api.v1.DeleteProjectResponse
-	27, // 59: izci.api.v1.ProjectService.ListApiKeys:output_type -> izci.api.v1.ListApiKeysResponse
-	29, // 60: izci.api.v1.ProjectService.CreateApiKey:output_type -> izci.api.v1.CreateApiKeyResponse
-	31, // 61: izci.api.v1.ProjectService.UpdateApiKey:output_type -> izci.api.v1.UpdateApiKeyResponse
-	33, // 62: izci.api.v1.ProjectService.RevokeApiKey:output_type -> izci.api.v1.RevokeApiKeyResponse
-	35, // 63: izci.api.v1.ProjectService.GetIngestEndpoints:output_type -> izci.api.v1.GetIngestEndpointsResponse
-	37, // 64: izci.api.v1.ProjectService.SendTestEvent:output_type -> izci.api.v1.SendTestEventResponse
-	39, // 65: izci.api.v1.ProjectService.ListEnvironments:output_type -> izci.api.v1.ListEnvironmentsResponse
-	41, // 66: izci.api.v1.ProjectService.ListReleases:output_type -> izci.api.v1.ListReleasesResponse
-	43, // 67: izci.api.v1.ProjectService.LinkRepository:output_type -> izci.api.v1.LinkRepositoryResponse
-	45, // 68: izci.api.v1.ProjectService.UnlinkRepository:output_type -> izci.api.v1.UnlinkRepositoryResponse
-	54, // [54:69] is the sub-list for method output_type
-	39, // [39:54] is the sub-list for method input_type
-	39, // [39:39] is the sub-list for extension type_name
-	39, // [39:39] is the sub-list for extension extendee
-	0,  // [0:39] is the sub-list for field type_name
+	50, // 16: izci.api.v1.ApiKey.created_by:type_name -> izci.api.v1.UserRef
+	47, // 17: izci.api.v1.ApiKey.created_at:type_name -> google.protobuf.Timestamp
+	47, // 18: izci.api.v1.ApiKey.last_used_at:type_name -> google.protobuf.Timestamp
+	47, // 19: izci.api.v1.Environment.first_seen:type_name -> google.protobuf.Timestamp
+	47, // 20: izci.api.v1.Environment.last_seen:type_name -> google.protobuf.Timestamp
+	47, // 21: izci.api.v1.Release.first_seen:type_name -> google.protobuf.Timestamp
+	47, // 22: izci.api.v1.Release.last_seen:type_name -> google.protobuf.Timestamp
+	16, // 23: izci.api.v1.Release.deploys:type_name -> izci.api.v1.Deploy
+	15, // 24: izci.api.v1.Release.health:type_name -> izci.api.v1.ReleaseHealth
+	47, // 25: izci.api.v1.Deploy.deployed_at:type_name -> google.protobuf.Timestamp
+	4,  // 26: izci.api.v1.ListProjectsResponse.projects:type_name -> izci.api.v1.Project
+	4,  // 27: izci.api.v1.GetProjectResponse.project:type_name -> izci.api.v1.Project
+	4,  // 28: izci.api.v1.CreateProjectResponse.project:type_name -> izci.api.v1.Project
+	12, // 29: izci.api.v1.CreateProjectResponse.api_key:type_name -> izci.api.v1.ApiKey
+	6,  // 30: izci.api.v1.UpdateProjectRequest.settings:type_name -> izci.api.v1.ProjectSettings
+	4,  // 31: izci.api.v1.UpdateProjectResponse.project:type_name -> izci.api.v1.Project
+	12, // 32: izci.api.v1.ListApiKeysResponse.keys:type_name -> izci.api.v1.ApiKey
+	3,  // 33: izci.api.v1.CreateApiKeyRequest.scopes:type_name -> izci.api.v1.ApiKeyScope
+	12, // 34: izci.api.v1.CreateApiKeyResponse.key:type_name -> izci.api.v1.ApiKey
+	12, // 35: izci.api.v1.UpdateApiKeyResponse.key:type_name -> izci.api.v1.ApiKey
+	13, // 36: izci.api.v1.ListEnvironmentsResponse.environments:type_name -> izci.api.v1.Environment
+	51, // 37: izci.api.v1.ListReleasesRequest.health_period:type_name -> izci.api.v1.StatsPeriod
+	14, // 38: izci.api.v1.ListReleasesResponse.releases:type_name -> izci.api.v1.Release
+	11, // 39: izci.api.v1.LinkRepositoryRequest.path_mappings:type_name -> izci.api.v1.PathMapping
+	10, // 40: izci.api.v1.LinkRepositoryResponse.repository:type_name -> izci.api.v1.ProjectRepository
+	17, // 41: izci.api.v1.ProjectService.ListProjects:input_type -> izci.api.v1.ListProjectsRequest
+	19, // 42: izci.api.v1.ProjectService.GetProject:input_type -> izci.api.v1.GetProjectRequest
+	21, // 43: izci.api.v1.ProjectService.CreateProject:input_type -> izci.api.v1.CreateProjectRequest
+	23, // 44: izci.api.v1.ProjectService.UpdateProject:input_type -> izci.api.v1.UpdateProjectRequest
+	25, // 45: izci.api.v1.ProjectService.DeleteProject:input_type -> izci.api.v1.DeleteProjectRequest
+	27, // 46: izci.api.v1.ProjectService.ListApiKeys:input_type -> izci.api.v1.ListApiKeysRequest
+	29, // 47: izci.api.v1.ProjectService.CreateApiKey:input_type -> izci.api.v1.CreateApiKeyRequest
+	31, // 48: izci.api.v1.ProjectService.UpdateApiKey:input_type -> izci.api.v1.UpdateApiKeyRequest
+	33, // 49: izci.api.v1.ProjectService.RevokeApiKey:input_type -> izci.api.v1.RevokeApiKeyRequest
+	35, // 50: izci.api.v1.ProjectService.GetIngestEndpoints:input_type -> izci.api.v1.GetIngestEndpointsRequest
+	37, // 51: izci.api.v1.ProjectService.SendTestEvent:input_type -> izci.api.v1.SendTestEventRequest
+	39, // 52: izci.api.v1.ProjectService.ListEnvironments:input_type -> izci.api.v1.ListEnvironmentsRequest
+	41, // 53: izci.api.v1.ProjectService.ListReleases:input_type -> izci.api.v1.ListReleasesRequest
+	43, // 54: izci.api.v1.ProjectService.LinkRepository:input_type -> izci.api.v1.LinkRepositoryRequest
+	45, // 55: izci.api.v1.ProjectService.UnlinkRepository:input_type -> izci.api.v1.UnlinkRepositoryRequest
+	18, // 56: izci.api.v1.ProjectService.ListProjects:output_type -> izci.api.v1.ListProjectsResponse
+	20, // 57: izci.api.v1.ProjectService.GetProject:output_type -> izci.api.v1.GetProjectResponse
+	22, // 58: izci.api.v1.ProjectService.CreateProject:output_type -> izci.api.v1.CreateProjectResponse
+	24, // 59: izci.api.v1.ProjectService.UpdateProject:output_type -> izci.api.v1.UpdateProjectResponse
+	26, // 60: izci.api.v1.ProjectService.DeleteProject:output_type -> izci.api.v1.DeleteProjectResponse
+	28, // 61: izci.api.v1.ProjectService.ListApiKeys:output_type -> izci.api.v1.ListApiKeysResponse
+	30, // 62: izci.api.v1.ProjectService.CreateApiKey:output_type -> izci.api.v1.CreateApiKeyResponse
+	32, // 63: izci.api.v1.ProjectService.UpdateApiKey:output_type -> izci.api.v1.UpdateApiKeyResponse
+	34, // 64: izci.api.v1.ProjectService.RevokeApiKey:output_type -> izci.api.v1.RevokeApiKeyResponse
+	36, // 65: izci.api.v1.ProjectService.GetIngestEndpoints:output_type -> izci.api.v1.GetIngestEndpointsResponse
+	38, // 66: izci.api.v1.ProjectService.SendTestEvent:output_type -> izci.api.v1.SendTestEventResponse
+	40, // 67: izci.api.v1.ProjectService.ListEnvironments:output_type -> izci.api.v1.ListEnvironmentsResponse
+	42, // 68: izci.api.v1.ProjectService.ListReleases:output_type -> izci.api.v1.ListReleasesResponse
+	44, // 69: izci.api.v1.ProjectService.LinkRepository:output_type -> izci.api.v1.LinkRepositoryResponse
+	46, // 70: izci.api.v1.ProjectService.UnlinkRepository:output_type -> izci.api.v1.UnlinkRepositoryResponse
+	56, // [56:71] is the sub-list for method output_type
+	41, // [41:56] is the sub-list for method input_type
+	41, // [41:41] is the sub-list for extension type_name
+	41, // [41:41] is the sub-list for extension extendee
+	0,  // [0:41] is the sub-list for field type_name
 }
 
 func init() { file_izci_api_v1_project_proto_init() }
@@ -3375,7 +3535,7 @@ func file_izci_api_v1_project_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_api_v1_project_proto_rawDesc), len(file_izci_api_v1_project_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   42,
+			NumMessages:   43,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

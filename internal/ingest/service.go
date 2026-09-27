@@ -37,6 +37,10 @@ type ServiceConfig struct {
 	Retention      time.Duration
 	TrustedProxies config.PrefixList
 	MaxBatch       int
+	// MaxAttachmentBytes bounds one stored attachment (default 10 MiB).
+	MaxAttachmentBytes int
+	// SessionKey keys the hashes of session distinct ids (release health).
+	SessionKey []byte
 }
 
 // Service implements izci.ingest.v1.IngestService and is shared by the
@@ -51,6 +55,7 @@ type Service struct {
 	usage    *UsageRecorder
 	dedupe   *Dedupe
 	pipeline *Pipeline
+	sessions *SessionRecorder
 }
 
 var _ ingestv1connect.IngestServiceHandler = (*Service)(nil)
@@ -64,7 +69,8 @@ func NewService(cfg ServiceConfig, database *db.DB, log *slog.Logger, keys *KeyR
 	if cfg.MaxBatch <= 0 {
 		cfg.MaxBatch = 100
 	}
-	return &Service{cfg: cfg, db: database, log: log, keys: keys, limits: limits, quota: quota, usage: usage, dedupe: dedupe, pipeline: pipeline}
+	return &Service{cfg: cfg, db: database, log: log, keys: keys, limits: limits, quota: quota, usage: usage, dedupe: dedupe,
+		pipeline: pipeline, sessions: NewSessionRecorder(cfg.SessionKey)}
 }
 
 // Keys exposes the key resolver (used by the Sentry endpoints and admin

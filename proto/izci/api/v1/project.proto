@@ -164,6 +164,11 @@ message PrivacySettings {
 
   // Whether request bodies are stored.
   bool store_request_bodies = 5;
+
+  // Files sent with events (screenshots, log files, view hierarchies) are
+  // dropped instead of stored. Off by default: SDKs send attachments only
+  // when the application turns them on.
+  bool discard_attachments = 6;
 }
 
 // IpStorage selects how IP addresses are stored.
@@ -372,6 +377,42 @@ message Release {
 
   // Issues first seen in this release.
   uint32 new_issues = 10;
+
+  // Session-based health over ListReleasesRequest.health_period; unset when
+  // the release reported no sessions in that window.
+  ReleaseHealth health = 11;
+}
+
+// ReleaseHealth summarizes the sessions Sentry SDKs report for a release
+// (release health). A session is one run of a mobile or desktop
+// application, one page visit of a browser application or one request of a
+// server.
+message ReleaseHealth {
+  // Sessions started in the window.
+  uint64 sessions = 1;
+
+  // Sessions that had at least one error, crashes included.
+  uint64 errored_sessions = 2;
+
+  // Sessions that ended in a crash (an unhandled error).
+  uint64 crashed_sessions = 3;
+
+  // Sessions that ended abnormally (e.g. the app was killed or hung).
+  uint64 abnormal_sessions = 4;
+
+  // Percentage of sessions without a crash, 0-100.
+  double crash_free_sessions = 5;
+
+  // Distinct users (session distinct ids) in the window.
+  uint64 users = 6;
+
+  // Percentage of users who had no crash, 0-100; 0 when no user ids were
+  // reported.
+  double crash_free_users = 7;
+
+  // Share of the project's sessions in the window that came from this
+  // release, 0-100.
+  double adoption = 8;
 }
 
 // Deploy is a deployment of a release to an environment.
@@ -654,6 +695,9 @@ message ListReleasesRequest {
 
   // Token from a previous response.
   string page_token = 3;
+
+  // Window of Release.health (default: last 14 days).
+  StatsPeriod health_period = 4;
 }
 
 // ListReleasesResponse is a page of releases.

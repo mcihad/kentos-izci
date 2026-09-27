@@ -34,6 +34,7 @@ const proxied = [
   "/docs/raw/",
   "/docs/index.json",
   "/integrations/",
+  "/attachments/",
 ];
 
 export default defineConfig({

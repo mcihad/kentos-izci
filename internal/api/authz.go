@@ -95,6 +95,9 @@ var rules = map[string]rule{
 	c.EventServiceGetEventProcedure:    orgRule(viewer, read),
 	c.EventServiceGetRawEventProcedure: orgRule(viewer, read),
 
+	// FeedbackService
+	c.FeedbackServiceListFeedbackProcedure: orgRule(viewer, read),
+
 	// CustomerService
 	c.CustomerServiceListCustomersProcedure:  orgRule(viewer, read),
 	c.CustomerServiceGetCustomerProcedure:    orgRule(viewer, read),

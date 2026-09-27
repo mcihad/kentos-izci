@@ -30,7 +30,9 @@ func NewAccess(apiURL, webURL string, app *App, box *secret.Box, hc *http.Client
 func TokenAAD(id uuid.UUID) []byte { return []byte("integration:" + id.String()) }
 
 // SealToken encrypts a personal access token for storage.
-func (a *Access) SealToken(id uuid.UUID, token string) []byte { return a.box.Seal([]byte(token), TokenAAD(id)) }
+func (a *Access) SealToken(id uuid.UUID, token string) []byte {
+	return a.box.Seal([]byte(token), TokenAAD(id))
+}
 
 // ErrAppNotConfigured means an App integration exists but the server has no
 // GitHub App configured any more.

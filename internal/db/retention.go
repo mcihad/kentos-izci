@@ -35,6 +35,10 @@ func (d *DB) ApplyRetention(ctx context.Context, cutoff time.Time) (RetentionRes
 		{"issue_users", `DELETE FROM issue_users u WHERE NOT EXISTS (SELECT 1 FROM issues i WHERE i.id = u.issue_id AND i.last_seen >= $1)`},
 		{"issues", `DELETE FROM issues WHERE last_seen < $1`},
 		{"notification_outbox", `DELETE FROM notification_outbox WHERE created_at < $1 AND (sent_at IS NOT NULL OR next_attempt_at = 'infinity')`},
+		{"event_attachments", `DELETE FROM event_attachments WHERE created_at < $1`},
+		{"user_feedback", `DELETE FROM user_feedback WHERE created_at < $1`},
+		{"release_sessions", `DELETE FROM release_sessions WHERE hour < $1`},
+		{"release_session_users", `DELETE FROM release_session_users WHERE day < $1::date`},
 		{"usage_daily", `DELETE FROM usage_daily WHERE day < ($1::timestamptz - interval '400 days')::date`},
 	}
 	err = d.InSystem(ctx, func(tx pgx.Tx) error {

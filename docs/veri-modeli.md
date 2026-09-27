@@ -32,6 +32,9 @@
 | `environments`, `releases`, `deploys` | Ortamlar, sürümler ve dağıtımlar. |
 | `issues` | Hatalar: parmak izi, başlık, culprit, seviye, durum, sayaçlar, ilk ve son görülme, atanan kişi, yapay zekâ durumu. |
 | `events` | Olaylar; **günlük bölümlere** ayrılmıştır (aşağıya bakın). |
+| `event_attachments` | Olay ekleri (ekran görüntüsü, günlük dosyası); istemci olay kimliğiyle olaya bağlanır, içerik `bytea` olarak lz4 ile sıkıştırılır. |
+| `user_feedback` | Kullanıcı geri bildirimleri; ilgili olay saklandığında hataya bağlanır. |
+| `release_sessions`, `release_session_users` | Sürüm sağlığı: saatlik oturum sayaçları ve günlük tekil kullanıcılar (kimliğin anahtarlı özeti). |
 | `issue_hourly`, `project_hourly`, `customer_hourly` | Grafikler, eğilimler ve sıklık kuralları için saatlik sayaçlar. |
 | `issue_tags` | Etiket dağılımları (müşteri, sürüm, tarayıcı…); aramanın ve **Etki** sekmesinin kaynağı. |
 | `issue_users` | Etkilenen tekil kullanıcılar (kimliğin 8 baytlık özeti). |

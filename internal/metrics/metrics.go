@@ -10,6 +10,7 @@ package metrics
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -86,6 +87,50 @@ func SentryItemDropped(itemType string) {
 		c = sentryDropped["other"]
 	}
 	c.Inc()
+}
+
+// Sentry items other than events.
+var (
+	SessionsAccepted = shared.NewCounter(`izci_sentry_sessions_total{outcome="accepted"}`)
+	SessionsInvalid  = shared.NewCounter(`izci_sentry_sessions_total{outcome="invalid"}`)
+	SessionsFiltered = shared.NewCounter(`izci_sentry_sessions_total{outcome="filtered"}`)
+
+	AttachmentsStored = shared.NewCounter(`izci_sentry_attachments_total{outcome="stored"}`)
+	// AttachmentsDiscarded counts files of projects that discard attachments
+	// or of events that were not accepted.
+	AttachmentsDiscarded = shared.NewCounter(`izci_sentry_attachments_total{outcome="discarded"}`)
+	AttachmentsTooLarge  = shared.NewCounter(`izci_sentry_attachments_total{outcome="too_large"}`)
+	AttachmentBytes      = shared.NewCounter("izci_sentry_attachment_bytes_total")
+
+	FeedbackStored    = shared.NewCounter(`izci_sentry_feedback_total{outcome="stored"}`)
+	FeedbackDuplicate = shared.NewCounter(`izci_sentry_feedback_total{outcome="duplicate"}`)
+	FeedbackRejected  = shared.NewCounter(`izci_sentry_feedback_total{outcome="rejected"}`)
+)
+
+var (
+	clientReasons = []string{"queue_overflow", "cache_overflow", "buffer_overflow", "ratelimit_backoff", "network_error",
+		"sample_rate", "before_send", "event_processor", "send_error", "internal_sdk_error", "insufficient_data",
+		"backpressure", "other"}
+	clientCategories = []string{"error", "default", "transaction", "span", "session", "attachment", "profile",
+		"profile_chunk", "replay", "monitor", "feedback", "log_item", "log_byte", "security", "other"}
+)
+
+// ClientDiscarded counts items an SDK reports (client reports) as dropped
+// before sending: sampled out, filtered by before_send, lost to a full
+// queue …
+func ClientDiscarded(reason, category string, n int) {
+	if n <= 0 {
+		return
+	}
+	if !slices.Contains(clientReasons, reason) {
+		reason = "other"
+	}
+	if !slices.Contains(clientCategories, category) {
+		category = "other"
+	}
+	// Both labels come from fixed lists, so series are bounded; client
+	// reports are rare enough to format the name on each call.
+	shared.GetOrCreateCounter(fmt.Sprintf(`izci_sentry_client_discarded_total{reason=%q,category=%q}`, reason, category)).Add(n)
 }
 
 // Notifications, by outcome: delivered (posted or updated), skipped (the

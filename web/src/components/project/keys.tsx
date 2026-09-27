@@ -279,7 +279,7 @@ function CreateKeyDialog({
                 label="İzin verilen tarayıcı kaynakları"
                 htmlFor="key-origins"
                 error={fieldError("allowed_origins")}
-                hint="Tarayıcıdan gönderim yapılacaksa her satıra bir adres yazın. Boş bırakırsanız tarayıcı istekleri reddedilir."
+                hint="Her satıra bir adres yazın; yalnız bu sitelerdeki tarayıcılar gönderebilir. Boş bırakırsanız her siteden kabul edilir (Sentry ile aynı). Sunucu uygulamaları bu listeden etkilenmez."
               >
                 <Textarea
                   id="key-origins"

@@ -1,0 +1,3 @@
+{"sent_at":"2026-09-27T02:09:28.058Z","sdk":{"name":"sentry.javascript.browser","version":"11.0.0"}}
+{"type":"session"}
+{"sid":"8220e409dc934e5ea9fddb98672680d3","init":false,"started":"2026-09-27T02:09:28.056Z","timestamp":"2026-09-27T02:09:28.058Z","status":"ok","errors":0,"did":"1001","attrs":{"release":"kalem-web@5.0.0","environment":"production","ip_address":"{{auto}}","user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.7977.130 Safari/537.36"}}

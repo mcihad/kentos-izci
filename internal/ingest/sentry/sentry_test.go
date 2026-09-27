@@ -359,7 +359,7 @@ func TestAuthAndRateLimits(t *testing.T) {
 	if limited == nil {
 		t.Fatal("expected 429 after the burst")
 	}
-	if limited.Header.Get("Retry-After") == "" || !strings.Contains(limited.Header.Get("X-Sentry-Rate-Limits"), ":error;default:project") {
+	if limited.Header.Get("Retry-After") == "" || !strings.Contains(limited.Header.Get("X-Sentry-Rate-Limits"), ":error;default;attachment:project") {
 		t.Errorf("rate limit headers: %v", limited.Header)
 	}
 

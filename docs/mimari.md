@@ -64,7 +64,7 @@ React, TypeScript, Vite, Tailwind, shadcn/ui ve TanStack Router ile yazılmışt
 |---|---|
 | `cmd/izci`, `internal/cli` | Komut satırı |
 | `internal/server`, `internal/app` | HTTP sunucusu ve uygulamanın kurulması |
-| `internal/ingest`, `internal/ingest/sentry` | Ingest boru hattı ve Sentry uyumluluğu |
+| `internal/ingest`, `internal/ingest/sentry` | Ingest boru hattı ve Sentry uyumluluğu: olaylar, ekler, kullanıcı geri bildirimi, sürüm sağlığı oturumları |
 | `internal/api`, `internal/auth` | Yönetim API'si, kimlik doğrulama ve yetki |
 | `internal/db`, `internal/store` | Veritabanı, göçler, SQL |
 | `internal/alert`, `internal/telegram` | Uyarı kuralları ve Telegram |

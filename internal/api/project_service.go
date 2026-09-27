@@ -719,6 +719,9 @@ func (s *ProjectServer) ListReleases(ctx context.Context, req *connect.Request[a
 		if len(ids) == 0 {
 			return nil
 		}
+		if err := releaseHealth(ctx, tx, p.ID, out.Releases, req.Msg.GetHealthPeriod()); err != nil {
+			return err
+		}
 		rows, err = tx.Query(ctx, `
 			SELECT release_id, environment, deployed_at, deployed_by FROM (
 			  SELECT d.*, row_number() OVER (PARTITION BY release_id ORDER BY deployed_at DESC) AS n
@@ -744,6 +747,51 @@ func (s *ProjectServer) ListReleases(ctx context.Context, req *connect.Request[a
 		return nil, internal(ctx, s.log, "list releases", err)
 	}
 	return connect.NewResponse(&out), nil
+}
+
+// healthWindows are the lengths of release health periods.
+var healthWindows = map[apiv1.StatsPeriod]time.Duration{
+	apiv1.StatsPeriod_STATS_PERIOD_LAST_HOUR:     time.Hour,
+	apiv1.StatsPeriod_STATS_PERIOD_LAST_24_HOURS: 24 * time.Hour,
+	apiv1.StatsPeriod_STATS_PERIOD_LAST_7_DAYS:   7 * 24 * time.Hour,
+	apiv1.StatsPeriod_STATS_PERIOD_LAST_14_DAYS:  14 * 24 * time.Hour,
+	apiv1.StatsPeriod_STATS_PERIOD_LAST_30_DAYS:  30 * 24 * time.Hour,
+	apiv1.StatsPeriod_STATS_PERIOD_LAST_90_DAYS:  90 * 24 * time.Hour,
+}
+
+// releaseHealth fills Release.health from session counters.
+func releaseHealth(ctx context.Context, tx pgx.Tx, projectID uuid.UUID, releases []*apiv1.Release, period apiv1.StatsPeriod) error {
+	window, ok := healthWindows[period]
+	if !ok {
+		window = healthWindows[apiv1.StatsPeriod_STATS_PERIOD_LAST_14_DAYS]
+	}
+	versions := make([]string, len(releases))
+	for i, r := range releases {
+		versions[i] = r.Version
+	}
+	health, total, err := store.ReleaseHealth(ctx, tx, projectID, versions, time.Now().Add(-window).Truncate(time.Hour))
+	if err != nil {
+		return err
+	}
+	for _, r := range releases {
+		h := health[r.Version]
+		if h == nil || h.Sessions == 0 {
+			continue
+		}
+		rh := &apiv1.ReleaseHealth{
+			Sessions: uint64(h.Sessions), ErroredSessions: uint64(h.Errored), CrashedSessions: uint64(h.Crashed),
+			AbnormalSessions: uint64(h.Abnormal), Users: uint64(h.Users),
+			CrashFreeSessions: 100 * (1 - float64(min(h.Crashed, h.Sessions))/float64(h.Sessions)),
+		}
+		if h.Users > 0 {
+			rh.CrashFreeUsers = 100 * (1 - float64(h.CrashedUsers)/float64(h.Users))
+		}
+		if total > 0 {
+			rh.Adoption = 100 * float64(h.Sessions) / float64(total)
+		}
+		r.Health = rh
+	}
+	return nil
 }
 
 // parseRepository accepts "owner/name", "github.com/owner/name" or a URL.

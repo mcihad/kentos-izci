@@ -5,6 +5,7 @@ import {
   Building2Icon,
   CompassIcon,
   type LucideIcon,
+  MessageSquareTextIcon,
   RadioIcon,
   SparklesIcon,
 } from "lucide-react";
@@ -14,6 +15,7 @@ export type NavItem = {
   to:
     | "/o/$org"
     | "/o/$org/issues"
+    | "/o/$org/feedback"
     | "/o/$org/customers"
     | "/o/$org/live"
     | "/o/$org/projects"
@@ -27,6 +29,7 @@ export type NavItem = {
 export const primaryNav: NavItem[] = [
   { label: "Genel bakış", to: "/o/$org", icon: CompassIcon, exact: true },
   { label: "Hatalar", to: "/o/$org/issues", icon: BugIcon },
+  { label: "Geri bildirim", to: "/o/$org/feedback", icon: MessageSquareTextIcon },
   { label: "Müşteriler", to: "/o/$org/customers", icon: Building2Icon },
   { label: "Canlı akış", to: "/o/$org/live", icon: RadioIcon },
   { label: "Projeler", to: "/o/$org/projects", icon: BoxesIcon },

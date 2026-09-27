@@ -5,6 +5,7 @@ package izci.api.v1;
 import "buf/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
 import "izci/api/v1/common.proto";
+import "izci/api/v1/feedback.proto";
 import "izci/ingest/v1/event.proto";
 
 // EventService reads individual events of the current organization.
@@ -119,6 +120,40 @@ message EventDetail {
   // Path rewrites of the linked repository, to turn frame paths into
   // repository paths.
   repeated PathRewrite path_rewrites = 13;
+
+  // Files sent with the event (screenshots, logs, view hierarchies).
+  repeated EventAttachment attachments = 14;
+
+  // What end users wrote about this event (user feedback).
+  repeated UserFeedback feedback = 15;
+}
+
+// EventAttachment describes a file sent with an event. The content is served
+// by GET {url}, with the same authentication as the API (session cookie or
+// Bearer personal access token).
+message EventAttachment {
+  // Attachment id (UUIDv7).
+  string id = 1;
+
+  // File name as sent by the SDK, e.g. "screenshot.png".
+  string name = 2;
+
+  // Media type as sent by the SDK, e.g. "image/png".
+  string content_type = 3;
+
+  // Sentry attachment type: "event.attachment" (default),
+  // "event.view_hierarchy", "event.minidump", "event.applecrashreport" …
+  string attachment_type = 4;
+
+  // Size in bytes.
+  uint32 size_bytes = 5;
+
+  // When izci received it.
+  google.protobuf.Timestamp created_at = 6;
+
+  // Path of the content, e.g. "/attachments/kentos/0192…"; relative to the
+  // izci base URL.
+  string url = 7;
 }
 
 // PathRewrite maps a frame path prefix to a repository path prefix.

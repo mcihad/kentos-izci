@@ -1,0 +1,7 @@
+{"event_id":"ec72e448d97445fe8a16f98741b6d745","sent_at":"2026-09-27T02:26:11.324150Z","trace":{"trace_id":"e58c9a908d0f4e379b03a7fff56a3fc9","environment":"production","release":"tahsilat@3.0.2","public_key":"izk_testkey","sample_rate":"1.0"}}
+{"type":"event","content_type":"application/json","length":1092}
+{"message":"Tahsilat raporu eksik","level":"warning","event_id":"ec72e448d97445fe8a16f98741b6d745","timestamp":"2026-09-27T02:26:11.324048Z","contexts":{"trace":{"trace_id":"e58c9a908d0f4e379b03a7fff56a3fc9","span_id":"a303a38ed9978fa7","parent_span_id":null},"runtime":{"name":"CPython","version":"3.14.7","build":"3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]"}},"user":{"id":"77","email":"zeynep@example.com","ip_address":"{{auto}}"},"transaction_info":{},"tags":{"customer":"sivas"},"breadcrumbs":{"values":[{"category":"db","message":"SELECT 1","level":"debug","timestamp":"2026-09-27T02:26:11.320742Z","type":"default"}]},"extra":{"sys.argv":["/src/py_full.py"]},"modules":{"pip":"26.2.1","sentry-sdk":"2.70.0","urllib3":"2.8.0","certifi":"2026.7.22"},"release":"tahsilat@3.0.2","environment":"production","server_name":"dev-machine","sdk":{"name":"sentry.python","version":"2.70.0","packages":[{"name":"pypi:sentry-sdk","version":"2.70.0"}],"integrations":["argv","atexit","dedupe","excepthook","logging","modules","stdlib","threading"]},"platform":"python"}
+{"filename":"tahsilat.log","type":"attachment","content_type":"text/plain","length":16}
+satir 1
+satir 2
+

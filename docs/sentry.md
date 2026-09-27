@@ -1,6 +1,22 @@
 # Sentry SDK'larıyla kullanım
 
-İzci, Sentry'nin olay gönderme protokolünü anlar. Sentry SDK'sı kullanan bir uygulamayı İzci'ye bağlamak için **yalnız DSN'i değiştirmek** yeter; kod değişmez. Sentry olayları İzci olay modeline çevrilir ve gRPC ile gelen olaylarla aynı yoldan geçer: aynı gruplama, uyarılar, müşteri analizi ve yapay zekâ.
+İzci, Sentry SDK'larının kullandığı protokolü anlar. Sentry SDK'sı kullanan bir uygulamayı İzci'ye bağlamak için **yalnız DSN'i değiştirmek** yeter; kod değişmez. Sentry olayları İzci olay modeline çevrilir ve gRPC ile gelen olaylarla aynı yoldan geçer: aynı gruplama, uyarılar, müşteri analizi ve yapay zekâ.
+
+Hatalar dışında SDK'ların hata izleme için gönderdikleri de saklanır: **ekler** (ekran görüntüsü, günlük dosyası), **kullanıcı geri bildirimi** ve **oturumlar** (sürüm sağlığı).
+
+## Denenmiş SDK'lar
+
+Uyumluluk, gerçek SDK'ların gönderdiği zarflarla denenir. Bu zarflar depoda test verisi olarak durur ve her değişiklikte yeniden işlenir (`internal/ingest/sentry/testdata/sdk`).
+
+| SDK | Sürüm | Denenenler |
+|---|---|---|
+| Sentry .NET (konsol, ASP.NET Core) | 6.11.1 | istisna zinciri, `ILogger` hataları, istek bilgisi, ek, geri bildirim, oturum, yakalanmamış çökme |
+| `@sentry/browser` | 11.0.0 | yakalanan ve yakalanmamış hata, reddedilen promise, geri bildirim, oturum |
+| `@sentry/node` | 11.0.0 | hata, ek, geri bildirim, oturum, span |
+| `sentry-python` | 2.70.0 | hata (kod bağlamı ve yerel değişkenlerle), ek, işlem |
+| `sentry` (Dart, Flutter'ın temeli) | 9.30.1 | hata, ek, geri bildirim |
+| `sentry` (Rust) | 0.49.3 | hata, mesaj, panic |
+| `sentry-go` | 0.49.0 | hata, mesaj, panic |
 
 ## DSN
 
@@ -23,7 +39,8 @@ builder.WebHost.UseSentry(o =>
     o.Dsn = "https://izk_…@izci.example.com/1";
     o.Environment = "production";
     o.Release = "kalem@1.4.2";
-    o.TracesSampleRate = 0; // İzci işlem (transaction) kaydı tutmaz
+    o.SendDefaultPii = true;   // kullanıcı IP'si ve istek başlıkları
+    o.TracesSampleRate = 0;    // İzci performans verisi saklamaz
 });
 
 // İstek boyunca müşteri ve tenant:
@@ -35,6 +52,8 @@ SentrySdk.ConfigureScope(s =>
 });
 ```
 
+`ILogger` ile yazılan `Error` ve üstü kayıtlar olay olur; şablon ve parametreleri (`"Ödeme {Provider} tarafından reddedildi"`) ayrı saklanır. .NET yığın izlerinde satır numarası, uygulamayla birlikte dağıtılan PDB dosyalarından okunur (portable PDB, yayın klasöründe varsayılan olarak bulunur).
+
 **Tarayıcı (JavaScript, React)**
 
 ```ts
@@ -44,11 +63,10 @@ Sentry.init({
   dsn: "https://izk_…@izci.example.com/4",
   environment: "production",
   release: "kalem-web@2.3.0",
+  integrations: [Sentry.feedbackIntegration()], // isteğe bağlı: geri bildirim düğmesi
 });
 Sentry.setTag("customer", musteri.kod);
 ```
-
-Tarayıcıdan gönderen anahtara izinli kökeni (ör. `https://kalem.example.com`) ekleyin. Anahtar sayfada göründüğü için yalnız olay göndermeye yetkilidir.
 
 **Node.js (NestJS, Express)**
 
@@ -72,8 +90,18 @@ sentry_sdk.set_tag("customer", "sivas-belediyesi")
 await SentryFlutter.init((o) {
   o.dsn = 'https://izk_…@izci.example.com/6';
   o.environment = 'production';
+  o.attachScreenshot = true; // hata anının ekran görüntüsü, olayın eki olarak
 }, appRunner: () => runApp(const App()));
 Sentry.configureScope((s) => s.setTag('customer', 'yozgat-belediyesi'));
+```
+
+**Rust**
+
+```rust
+let mut options = sentry::ClientOptions::default();
+options.release = sentry::release_name!();
+options.environment = Some("production".into());
+let _guard = sentry::init(("https://izk_…@izci.example.com/7", options));
 ```
 
 **Go:** `sentry-go` da çalışır, ancak İzci'nin kendi [Go SDK'sı](go-sdk.md) CPU, bellek ve müşteri bilgisini ek ayar gerektirmeden gönderir.
@@ -93,22 +121,59 @@ Sentry.configureScope((s) => s.setTag('customer', 'yozgat-belediyesi'));
 | `izci.` önekli aynı etiketler | aynı alanlar |
 | `izci` adlı context (`{"customer": …, "tenant": …}`) | aynı alanlar (etiket yoksa) |
 
+## Hangi veri ne olur
+
+| SDK'nın gönderdiği | İzci'de |
+|---|---|
+| Hata ve mesaj (`event`) | Hata olarak gruplanır; uyarı, müşteri analizi ve yapay zekâ analizine girer. |
+| Ek (`attachment`): `AddAttachment`, ekran görüntüsü, görünüm hiyerarşisi | Olay sayfasında **Ekler** bölümü: görseller önizlenir, metinler açılır, diğerleri indirilir. |
+| Kullanıcı geri bildirimi (`feedback`; eski SDK'larda `user_report`) | **Geri bildirim** sayfası ve hatanın **Geri bildirim** sekmesi; ilgili olay biliniyorsa hataya bağlanır. |
+| Oturum (`session`, sunucu SDK'larında `sessions`) | **Projeler › Sürümler**: çökmesiz oturum ve kullanıcı oranı, oturum sayısı, benimsenme. |
+| İstemci raporu (`client_report`) | SDK'nın göndermeden attığı verinin sayısı, [metrik](operasyon.md#metrikler) olarak. |
+| Performans işlemleri ve span'ler, profiller, oturum kayıtları (replay), cron kontrolleri, loglar | Kabul edilir, saklanmaz. Bunlar Sentry'nin hata izleme dışındaki ürünleridir. |
+
+Saklanmayan öğeler için SDK hata almaz. Ağ trafiğini azaltmak için örneklemeyi kapatın (`TracesSampleRate = 0`, `replaysSessionSampleRate: 0` gibi).
+
+### Ekler
+
+- Bir ekin boyutu `INGEST_ATTACHMENT_MAX_BYTES` (varsayılan 10 MiB) ile sınırlıdır; daha büyük dosyalar atılır.
+- Ekler olaylarla aynı süre saklanır (`RETENTION_DAYS`).
+- Ekran görüntüleri ve dosyalar gizleme kurallarından **geçmez**. Kişisel veri içerebilirler; gerekmiyorsa **Projeler › proje › Gizlilik** sayfasında "Olay eklerini sakla" seçeneğini kapatın.
+- Ekler izci arayüzünde oturum açmış organizasyon üyelerine sunulur. HTML, SVG ve betikler tarayıcıda çalıştırılmaz, yalnız indirilir.
+- Oran sınırına takılan ya da ortam filtresiyle atılan olayların ekleri de atılır.
+
+### Kullanıcı geri bildirimi
+
+Geri bildirim metni olaylardaki gibi maskelenir (kart numarası, TCKN, parola vb.). Ad ve e-posta, kullanıcının kendisinin yazdığı iletişim bilgisidir ve olduğu gibi saklanır. Geri bildirimler projenin oran sınırına sayılır.
+
+### Sürüm sağlığı
+
+Bir oturum; mobil ya da masaüstü uygulamanın bir çalışması, tarayıcıda bir sayfa ziyareti ya da sunucuda bir istektir. İzci her sürüm ve ortam için saatlik olarak başlayan, hata içeren, çöken ve anormal biten oturumları sayar:
+
+- **Çökmesiz oturum:** çökmeyen oturumların oranı.
+- **Çökmesiz kullanıcı:** hiç çökme yaşamayan kullanıcıların oranı. Kullanıcı, oturumun `did` değeridir (kullanıcı kimliği ya da kurulum kimliği) ve yalnız anahtarlı özeti saklanır.
+- **Benimsenme:** projenin dönem içindeki oturumlarının bu sürümden gelen payı.
+
+`release` değeri olmayan oturumlar sayılmaz. Beş günden eski oturum güncellemeleri atılır. Hiç hata göndermemiş ama oturum bildiren sürümler de listede görünür.
+
 ## Eşleme
 
 | Sentry | İzci |
 |---|---|
 | `exception.values[]` | `exceptions[]` (sıra aynı: kök neden ilk) |
 | `stacktrace.frames[]` | `frames[]` (sıra aynı: en eski çağrı ilk) |
-| `threads` | `threads` |
+| `threads` | `threads`; istisnanın yığın izi yoksa mevcut iş parçacığının yığını gösterilir |
 | `breadcrumbs` (dizi ya da `values`) | `breadcrumbs` |
 | `message`, `logentry` | `message.formatted`, `message.template` |
 | `request` | `request` (başlıklar sunucuda da maskelenir) |
-| `user` | `user` |
-| `contexts.device`, `os`, `runtime`, `browser`, `app`, `gpu`, `culture`, `trace`, `cloud_resource` | aynı adlı İzci bağlamları |
+| `user` | `user`; `ip_address: "{{auto}}"` isteği gönderen adres olur |
+| `contexts.device`, `os`, `runtime`, `browser`, `app`, `gpu`, `culture`, `trace`, `cloud_resource` | aynı adlı İzci bağlamları; İzci'nin ayrı alan olarak tutmadığı bilgiler (ör. .NET'in `device.timezone`) kaybolmaz, ilgili kartta gösterilir |
+| .NET `contexts["Current Culture"]` | `culture` |
 | `contexts.response` | `response.status_code` |
 | diğer `contexts.*` | `contexts.custom` |
 | `tags`, `extra`, `fingerprint`, `sdk`, `modules` | aynı alanlar |
 | `level`: `fatal`/`critical`, `error`, `warning`, `info`/`log`, `debug` | `LEVEL_*` karşılıkları |
+| `platform: "other"` ya da `"native"` | SDK adından: Dart, Rust, .NET … |
 
 ## Uç noktalar
 
@@ -117,14 +182,19 @@ Sentry.configureScope((s) => s.setTag('customer', 'yozgat-belediyesi'));
 | `POST /api/{proje}/envelope/` | Güncel SDK'ların kullandığı zarf (envelope) biçimi. |
 | `POST /api/{proje}/store/` | Eski SDK'ların tek olay biçimi. |
 
-Anahtar şu sırayla aranır: `X-Sentry-Auth` başlığındaki `sentry_key`, `Authorization`, `?sentry_key=` sorgu parametresi, zarf başlığındaki `dsn`. Gövde `gzip`, `deflate` ya da `br` ile sıkıştırılabilir; sıkıştırılmış gövde 20 MiB, açılmış hâli 40 MiB ile sınırlıdır. Bir zarf en çok 100 olay taşır.
+Anahtar şu sırayla aranır: `X-Sentry-Auth` başlığındaki `sentry_key`, `Authorization`, `?sentry_key=` sorgu parametresi, zarf başlığındaki `dsn`. Gövde `gzip`, `deflate`, `br` ya da `zstd` ile sıkıştırılabilir; sıkıştırılmış gövde 20 MiB, açılmış hâli 40 MiB ile sınırlıdır. Bir zarf en çok 100 olay taşır.
 
-Zarftaki `event` dışındaki öğeler (`transaction`, `session`, `attachment`, `client_report`, `check_in`, `log`, `profile`, `replay_*` ve benzerleri) kabul edilir ama saklanmaz. Böylece SDK hata vermez; İzci yalnızca hataları tutar. İşlem örneklemesini (`TracesSampleRate`) sıfırlamanız ağ trafiğini de azaltır.
+**Tarayıcılar:** Anahtarın izinli kökenleri boşsa her siteden gelen istek kabul edilir (Sentry'deki gibi). Anahtar zaten sayfa kaynağında göründüğünden bu liste yalnız başka sitelerin tarayıcılarını engeller. Tarayıcı uygulamalarında kendi adreslerinizi yazmanız önerilir (bkz. [Hata gönderme](ingest.md)).
+
+**Cihaz saati:** Zarf, SDK'nın gönderme anını (`sent_at`) taşır. Cihaz saati sunucudan 55 dakikadan fazla sapıyorsa olayın, izlerin ve oturumların zamanları bu farka göre düzeltilir. Yanlış saatli telefonlardan gelen hatalar böylece doğru zamanda görünür.
 
 ## Hız sınırı
 
-Sınır aşılırsa İzci `429` ile birlikte Sentry SDK'larının anladığı başlıkları döner: `Retry-After` ve `X-Sentry-Rate-Limits`. SDK'lar bu süre boyunca gönderimi kendiliğinden erteler.
+Sınır aşılırsa İzci `429` ile birlikte Sentry SDK'larının anladığı başlıkları döner: `Retry-After` ve `X-Sentry-Rate-Limits`. Başlık hata ve ek kategorilerini kapsar; SDK'lar bu süre boyunca gönderimi kendiliğinden erteler.
 
-## Sınırlama
+## Sınırlamalar
 
-Kaynak eşlemeleri (source map) ve yerel sembol dosyaları henüz işlenmez. Küçültülmüş tarayıcı kodunun yığın izi, gönderildiği biçimde görünür.
+- **Sembol çözme yok:** Kaynak eşlemeleri (source map), .NET PDB yüklemeleri (`SentryUploadSymbols`, `sentry-cli debug-files upload`) ve yerel sembol dosyaları işlenmez. Küçültülmüş tarayıcı kodunun yığın izi gönderildiği biçimde görünür. PDB'leri uygulamayla dağıtmayan .NET uygulamalarında satır numarası olmaz.
+- **Ek uç noktalar yok:** CSP raporları (`/api/{proje}/security/`), minidump (`/api/{proje}/minidump/`), Unreal ve OTLP uç noktaları sunulmaz.
+- **Eski rapor penceresi yok:** JavaScript SDK'sının `showReportDialog()` penceresi Sentry'nin sunduğu bir sayfayı yükler; İzci'de çalışmaz. Yerine geri bildirim düğmesini (`feedbackIntegration`) ya da `captureFeedback` çağrısını kullanın.
+- **Sentry'nin web API'si yok:** `sentry-cli` ile sürüm kaydı yerine [RegisterRelease](ingest.md) kullanılır.

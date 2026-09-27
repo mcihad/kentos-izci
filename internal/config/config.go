@@ -125,6 +125,9 @@ type IngestConfig struct {
 	RateLimitPerMinute int `env:"INGEST_RATE_LIMIT_PER_MINUTE" envDefault:"6000"`
 	// DedupeSize is how many recent event ids are remembered for retries.
 	DedupeSize int `env:"INGEST_DEDUPE_SIZE" envDefault:"200000"`
+	// MaxAttachmentBytes bounds one file sent with an event (screenshots,
+	// logs); larger files are dropped.
+	MaxAttachmentBytes int `env:"INGEST_ATTACHMENT_MAX_BYTES" envDefault:"10485760"`
 }
 
 // AuthConfig configures sign-in.
@@ -402,6 +405,9 @@ func (c *Config) finalize() error {
 	}
 	if c.Ingest.Shards < 1 || c.Ingest.Shards > 64 {
 		errs = append(errs, fmt.Errorf("INGEST_SHARDS must be between 1 and 64 (got %d)", c.Ingest.Shards))
+	}
+	if c.Ingest.MaxAttachmentBytes < 1 || c.Ingest.MaxAttachmentBytes > 40<<20 {
+		errs = append(errs, fmt.Errorf("INGEST_ATTACHMENT_MAX_BYTES must be between 1 and 41943040 (got %d)", c.Ingest.MaxAttachmentBytes))
 	}
 	if c.Ingest.BatchSize < 1 || c.Ingest.BatchSize > 5000 {
 		errs = append(errs, fmt.Errorf("INGEST_BATCH_SIZE must be between 1 and 5000 (got %d)", c.Ingest.BatchSize))

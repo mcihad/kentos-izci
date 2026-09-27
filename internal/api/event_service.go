@@ -151,6 +151,9 @@ func (s *EventServer) GetEvent(ctx context.Context, req *connect.Request[apiv1.G
 		if err := s.sourceLinks(ctx, tx, projectID, release, d); err != nil {
 			return err
 		}
+		if err := s.eventExtras(ctx, tx, t, projectID, eventID, d); err != nil {
+			return err
+		}
 		out.Event = d
 		// Neighbours within the issue.
 		var prev, next uuid.UUID

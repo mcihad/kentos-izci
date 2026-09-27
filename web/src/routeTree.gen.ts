@@ -21,6 +21,7 @@ import { Route as OOrgAdminRouteImport } from "./routes/o.$org.admin";
 import { Route as OOrgAiRouteImport } from "./routes/o.$org.ai";
 import { Route as OOrgAlertsRouteImport } from "./routes/o.$org.alerts";
 import { Route as OOrgDocsRouteImport } from "./routes/o.$org.docs";
+import { Route as OOrgFeedbackRouteImport } from "./routes/o.$org.feedback";
 import { Route as OOrgLiveRouteImport } from "./routes/o.$org.live";
 import { Route as OOrgSettingsRouteImport } from "./routes/o.$org.settings";
 import { Route as OOrgCustomersIndexRouteImport } from "./routes/o.$org.customers.index";
@@ -92,6 +93,11 @@ const OOrgDocsRoute = OOrgDocsRouteImport.update({
   path: "/docs",
   getParentRoute: () => OOrgRoute,
 } as any);
+const OOrgFeedbackRoute = OOrgFeedbackRouteImport.update({
+  id: "/feedback",
+  path: "/feedback",
+  getParentRoute: () => OOrgRoute,
+} as any);
 const OOrgLiveRoute = OOrgLiveRouteImport.update({
   id: "/live",
   path: "/live",
@@ -155,6 +161,7 @@ export interface FileRoutesByFullPath {
   "/o/$org/ai": typeof OOrgAiRoute;
   "/o/$org/alerts": typeof OOrgAlertsRoute;
   "/o/$org/docs": typeof OOrgDocsRouteWithChildren;
+  "/o/$org/feedback": typeof OOrgFeedbackRoute;
   "/o/$org/live": typeof OOrgLiveRoute;
   "/o/$org/settings": typeof OOrgSettingsRoute;
   "/o/$org/": typeof OOrgIndexRoute;
@@ -177,6 +184,7 @@ export interface FileRoutesByTo {
   "/o/$org/admin": typeof OOrgAdminRoute;
   "/o/$org/ai": typeof OOrgAiRoute;
   "/o/$org/alerts": typeof OOrgAlertsRoute;
+  "/o/$org/feedback": typeof OOrgFeedbackRoute;
   "/o/$org/live": typeof OOrgLiveRoute;
   "/o/$org/settings": typeof OOrgSettingsRoute;
   "/o/$org": typeof OOrgIndexRoute;
@@ -202,6 +210,7 @@ export interface FileRoutesById {
   "/o/$org/ai": typeof OOrgAiRoute;
   "/o/$org/alerts": typeof OOrgAlertsRoute;
   "/o/$org/docs": typeof OOrgDocsRouteWithChildren;
+  "/o/$org/feedback": typeof OOrgFeedbackRoute;
   "/o/$org/live": typeof OOrgLiveRoute;
   "/o/$org/settings": typeof OOrgSettingsRoute;
   "/o/$org/": typeof OOrgIndexRoute;
@@ -228,6 +237,7 @@ export interface FileRouteTypes {
     | "/o/$org/ai"
     | "/o/$org/alerts"
     | "/o/$org/docs"
+    | "/o/$org/feedback"
     | "/o/$org/live"
     | "/o/$org/settings"
     | "/o/$org/"
@@ -250,6 +260,7 @@ export interface FileRouteTypes {
     | "/o/$org/admin"
     | "/o/$org/ai"
     | "/o/$org/alerts"
+    | "/o/$org/feedback"
     | "/o/$org/live"
     | "/o/$org/settings"
     | "/o/$org"
@@ -274,6 +285,7 @@ export interface FileRouteTypes {
     | "/o/$org/ai"
     | "/o/$org/alerts"
     | "/o/$org/docs"
+    | "/o/$org/feedback"
     | "/o/$org/live"
     | "/o/$org/settings"
     | "/o/$org/"
@@ -382,6 +394,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof OOrgDocsRouteImport;
       parentRoute: typeof OOrgRoute;
     };
+    "/o/$org/feedback": {
+      id: "/o/$org/feedback";
+      path: "/feedback";
+      fullPath: "/o/$org/feedback";
+      preLoaderRoute: typeof OOrgFeedbackRouteImport;
+      parentRoute: typeof OOrgRoute;
+    };
     "/o/$org/live": {
       id: "/o/$org/live";
       path: "/live";
@@ -475,6 +494,7 @@ interface OOrgRouteChildren {
   OOrgAiRoute: typeof OOrgAiRoute;
   OOrgAlertsRoute: typeof OOrgAlertsRoute;
   OOrgDocsRoute: typeof OOrgDocsRouteWithChildren;
+  OOrgFeedbackRoute: typeof OOrgFeedbackRoute;
   OOrgLiveRoute: typeof OOrgLiveRoute;
   OOrgSettingsRoute: typeof OOrgSettingsRoute;
   OOrgIndexRoute: typeof OOrgIndexRoute;
@@ -492,6 +512,7 @@ const OOrgRouteChildren: OOrgRouteChildren = {
   OOrgAiRoute: OOrgAiRoute,
   OOrgAlertsRoute: OOrgAlertsRoute,
   OOrgDocsRoute: OOrgDocsRouteWithChildren,
+  OOrgFeedbackRoute: OOrgFeedbackRoute,
   OOrgLiveRoute: OOrgLiveRoute,
   OOrgSettingsRoute: OOrgSettingsRoute,
   OOrgIndexRoute: OOrgIndexRoute,

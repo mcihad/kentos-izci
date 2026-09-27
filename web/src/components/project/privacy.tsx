@@ -33,6 +33,7 @@ export function ProjectPrivacy({ project }: { project: Project }) {
   const [safe, setSafe] = useState(s?.privacy?.safeFields.join("\n") ?? "");
   const [cookies, setCookies] = useState(s?.privacy?.storeCookieValues ?? false);
   const [bodies, setBodies] = useState(s?.privacy?.storeRequestBodies ?? true);
+  const [attachments, setAttachments] = useState(!(s?.privacy?.discardAttachments ?? false));
   const [include, setInclude] = useState(s?.inApp?.include.join("\n") ?? "");
   const [exclude, setExclude] = useState(s?.inApp?.exclude.join("\n") ?? "");
 
@@ -48,6 +49,7 @@ export function ProjectPrivacy({ project }: { project: Project }) {
           safeFields: lines(safe),
           storeCookieValues: cookies,
           storeRequestBodies: bodies,
+          discardAttachments: !attachments,
         });
         settings.inApp = create(InAppRulesSchema, { include: lines(include), exclude: lines(exclude) });
         update.mutate({ slug: project.slug, settings });
@@ -119,6 +121,22 @@ export function ProjectPrivacy({ project }: { project: Project }) {
           <Switch id="bodies" checked={bodies} onCheckedChange={setBodies} disabled={!admin} />
           <Label htmlFor="bodies" className="font-normal text-[13px]">
             İstek gövdelerini sakla (gizlenmiş alanlarla)
+          </Label>
+        </div>
+        <div className="flex items-start gap-2.5">
+          <Switch
+            id="attachments"
+            checked={attachments}
+            onCheckedChange={setAttachments}
+            disabled={!admin}
+            className="mt-0.5"
+          />
+          <Label htmlFor="attachments" className="grid gap-0.5 font-normal text-[13px]">
+            <span>Olay eklerini sakla</span>
+            <span className="text-[12.5px] text-muted-foreground">
+              Ekran görüntüleri ve günlük dosyaları gizleme kurallarından geçmeden saklanır. Uygulama
+              göndermiyorsa bu ayarın etkisi yoktur.
+            </span>
           </Label>
         </div>
       </section>

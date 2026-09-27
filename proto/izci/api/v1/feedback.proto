@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "izci/api/v1/common.proto";
+
+// FeedbackService reads what end users wrote about problems (user feedback).
+// Feedback arrives from Sentry SDKs: the feedback widget, captureFeedback
+// calls and the legacy user report API.
+service FeedbackService {
+  // ListFeedback returns feedback of the current organization, newest first,
+  // optionally limited to a project or an issue. Requires ROLE_VIEWER.
+  rpc ListFeedback(ListFeedbackRequest) returns (ListFeedbackResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+}
+
+// UserFeedback is one message from an end user.
+message UserFeedback {
+  // Feedback id (UUIDv7).
+  string id = 1;
+
+  // Project that received the feedback.
+  ProjectRef project = 2;
+
+  // Issue of the event the feedback is about; unset when the feedback is
+  // not tied to an event or the event is not stored.
+  IssueRef issue = 3;
+
+  // Client-side id of the event the feedback is about, empty when none.
+  string event_id = 4;
+
+  // Name the user gave, e.g. "Ayşe Yılmaz"; empty when anonymous.
+  string name = 5;
+
+  // Contact email the user gave; empty when anonymous.
+  string email = 6;
+
+  // What the user wrote (scrubbed like event data).
+  string message = 7;
+
+  // Page or screen the feedback was sent from.
+  string url = 8;
+
+  // Environment of the reporting application, e.g. "production".
+  string environment = 9;
+
+  // Release of the reporting application, e.g. "kalem-web@5.0.0".
+  string release = 10;
+
+  // Where it came from: "widget" (feedback widget), "api"
+  // (captureFeedback), "user_report" (legacy SDK call) or what the SDK sent.
+  string source = 11;
+
+  // Customer of the reporting application, when reported.
+  CustomerRef customer = 12;
+
+  // Best label of the application user: email, username or id.
+  string user = 13;
+
+  // Browser name and version, e.g. "Chrome 140", when known.
+  string browser = 14;
+
+  // Operating system name and version, e.g. "Android 16", when known.
+  string os = 15;
+
+  // When izci received the feedback.
+  google.protobuf.Timestamp created_at = 16;
+}
+
+// ListFeedbackRequest filters and pages feedback.
+message ListFeedbackRequest {
+  // Project slug; empty for every project of the organization.
+  string project = 1 [(buf.validate.field).string.max_len = 50];
+
+  // Issue id (UUID); empty for all feedback.
+  string issue_id = 2 [(buf.validate.field).string.max_len = 36];
+
+  // Case-insensitive text to find in the message, name or email.
+  string query = 3 [(buf.validate.field).string.max_len = 200];
+
+  // Maximum items to return (default 50, max 100).
+  uint32 page_size = 4 [(buf.validate.field).uint32.lte = 100];
+
+  // Token from a previous response.
+  string page_token = 5;
+}
+
+// ListFeedbackResponse is a page of feedback.
+message ListFeedbackResponse {
+  // Feedback, newest first.
+  repeated UserFeedback feedback = 1;
+
+  // Token for the next page, empty on the last one.
+  string next_page_token = 2;
+}

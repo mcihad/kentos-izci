@@ -34,6 +34,9 @@ Projeye özel ayarlar **Projeler › proje › Gizlilik** bölümündedir:
 | IP adresleri | **Tam**, **anonimleştirilmiş** (IPv4 /24, IPv6 /48) ya da **hiç saklanmaz**. |
 | Çerez değerleri | Kapalıysa yalnız çerez adları saklanır. |
 | İstek gövdeleri | Kapalıysa gövde hiç saklanmaz. |
+| Olay ekleri | Kapalıysa SDK'ların gönderdiği ekran görüntüleri ve dosyalar saklanmaz. |
+
+**Maskelenmeyenler:** Olay ekleri (ekran görüntüleri, günlük dosyaları) ikili dosya olarak olduğu gibi saklanır; içlerindeki kişisel veri ayıklanmaz. Kullanıcı geri bildirimlerinin metni maskelenir, kullanıcının kendi yazdığı ad ve e-posta ise iletişim için olduğu gibi saklanır. Oturumlardaki kullanıcı kimlikleri (sürüm sağlığı) yalnız anahtarlı özet olarak tutulur.
 
 ## Saklama ve silme
 
@@ -72,6 +75,7 @@ Ayrıntılar: [GitHub ve yapay zekâ analizi](yapay-zeka.md#güvenlik).
 - [ ] IP saklamayı ihtiyacınıza göre **anonimleştirilmiş** ya da **hiç** olarak ayarlayın.
 - [ ] Uygulamalarınızın özel alan adlarını **ek olarak gizlenecek alanlara** ekleyin.
 - [ ] İstek gövdelerine gerçekten ihtiyacınız yoksa saklamayı kapatın.
+- [ ] Mobil uygulamalar ekran görüntüsü gönderiyorsa (`attachScreenshot`) bunun aydınlatma metninizde yer aldığından emin olun ya da **olay eklerini** kapatın.
 - [ ] `RETENTION_DAYS` değerini veri envanterinizdeki süreyle eşleyin.
 - [ ] Yapay zekâ kullanıyorsanız model sağlayıcısını aydınlatma metninize ekleyin ya da kurum içi model kullanın.
 - [ ] Veritabanı yedeklerini şifreli saklayın (bkz. [İşletim](operasyon.md)).

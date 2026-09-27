@@ -22,7 +22,7 @@ Authorization: Bearer izk_…
 
 İstemci `Authorization` başlığını kullanamıyorsa `x-izci-key: izk_…` da kabul edilir. Anahtarlar **Projeler › proje › Anahtarlar** bölümünden ya da `izci key create` ile oluşturulur. Anahtar yalnız olay göndermeye (ve izin verilmişse sürüm kaydetmeye) yetkilidir, başka hiçbir veriyi okuyamaz.
 
-Tarayıcıdan gönderilecekse anahtara **izinli kökenler** (ör. `https://kalem.example.com`) tanımlayın. Başka kökenlerden gelen istekler reddedilir.
+Anahtarın **izinli kökenleri** (ör. `https://kalem.example.com`) tarayıcılardan gelen istekleri sınırlar: liste doluysa yalnız bu sitelerdeki sayfalar gönderebilir, boşsa her siteden kabul edilir (Sentry'deki gibi). Sunucu uygulamaları `Origin` başlığı göndermediği için bu listeden etkilenmez. Anahtar tarayıcı kodunda göründüğünden, tarayıcı uygulamalarında listeyi doldurmanız önerilir.
 
 ## Metotlar
 

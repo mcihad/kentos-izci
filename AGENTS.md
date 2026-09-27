@@ -73,7 +73,8 @@ commit message and the phase table in `docs/mimari.md` (once written).
 | `internal/github` | GitHub REST client (no go-github), GitHub App JWT + cached installation tokens, OAuth check of who installed the app, sealed personal access tokens (`Access`) |
 | `internal/mcp` | MCP server (official Go SDK): tools, resources and prompts as a thin adapter over izci.api.v1 — called in-process with the caller's personal access token (`/mcp`, `izci mcp`) or over HTTPS (`izci mcp --url`), so authorization, scopes and RLS are the API's |
 | `internal/ai` | AI runs: bare mirror + per-run worktree, context files and prompt, the opencode process (JSON events → run log), results and diff, publishing branches/pull requests, `Doctor` |
-| `internal/ingest` | normalize → scrub → in-app → grouping → group-commit writer; `IngestService` |
+| `internal/ingest` | normalize → scrub → in-app → grouping → group-commit writer; `IngestService`; attachments, user feedback and release-health sessions (`items.go`, `sessions.go`) |
+| `internal/ingest/sentry` | Sentry envelope/store endpoints and the Sentry → izci mapping; `testdata/sdk` holds envelopes recorded from real Sentry SDKs — when changing the mapping, re-run them (`go test ./internal/ingest/sentry`) rather than hand-writing payloads |
 | `internal/clientip`, `internal/secret`, `internal/slug` | client address, tokens/AES-GCM/HMAC, slugs |
 | `internal/jobs` | periodic background tasks (usage flush, partitions, retention, project purge) |
 | `internal/sample` | realistic sample events (demo, bench, test events) |

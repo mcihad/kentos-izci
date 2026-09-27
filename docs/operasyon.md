@@ -241,7 +241,11 @@ scrape_configs:
 | `izci_ingest_queue_depth`, `izci_ingest_queue_capacity` | gösterge | Kuyruktaki olaylar ve toplam kuyruk kapasitesi. |
 | `izci_ingest_queue_full_total` | sayaç | Kuyruk dolu olduğu için geri çevrilen gönderimler. |
 | `izci_issues_created_total`, `izci_issues_regressed_total` | sayaç | Yeni açılan ve geri dönen hatalar. |
-| `izci_sentry_items_dropped_total{type}` | sayaç | İşlenmeden atılan Sentry öğeleri (`transaction`, `session`, `attachment`, …). |
+| `izci_sentry_items_dropped_total{type}` | sayaç | İşlenmeden atılan Sentry öğeleri (`transaction`, `span`, `profile`, `replay_event`, …). |
+| `izci_sentry_attachments_total{outcome}`, `izci_sentry_attachment_bytes_total` | sayaç | Olay ekleri: `stored`, `discarded` (proje ayarı ya da kabul edilmeyen olay), `too_large`; saklanan bayt. |
+| `izci_sentry_feedback_total{outcome}` | sayaç | Kullanıcı geri bildirimleri: `stored`, `duplicate`, `rejected`. |
+| `izci_sentry_sessions_total{outcome}` | sayaç | Sürüm sağlığı oturum güncellemeleri: `accepted`, `invalid` (sürümsüz, çok eski), `filtered` (yok sayılan ortam). |
+| `izci_sentry_client_discarded_total{reason,category}` | sayaç | SDK'ların istemci raporlarında bildirdiği, göndermeden attıkları (ör. `sample_rate`, `queue_overflow`, `ratelimit_backoff`). |
 | `izci_http_requests_total{handler,code}` | sayaç | HTTP istekleri; `handler`: `ingest`, `sentry`, `api`, `stream`, `mcp`, `auth`, `docs`, `grpc`, `health`, `metrics`, `telegram`, `integrations`, `ui`. |
 | `izci_http_request_duration_seconds{handler}` | histogram | İstek süreleri; uzun ömürlü akışlar (`stream`) dahil değildir. |
 | `izci_http_requests_in_flight` | gösterge | Süren istekler (açık akışlar dahil). |

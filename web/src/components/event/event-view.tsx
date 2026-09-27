@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { InfoIcon } from "lucide-react";
 import { useState } from "react";
+import { FeedbackItem } from "@/components/feedback/feedback-list";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import type { EventDetail } from "@/gen/izci/api/v1/event_pb";
@@ -8,6 +9,7 @@ import type { Exception, Thread } from "@/gen/izci/ingest/v1/event_pb";
 import { toDate } from "@/lib/format";
 import { levels } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
+import { Attachments } from "./attachments";
 import { BreadcrumbTrail } from "./breadcrumbs";
 import { ContextGrid } from "./contexts";
 import { EventSection, JsonTree, KVList } from "./parts";
@@ -18,15 +20,22 @@ import { StackTrail } from "./stack-trail";
 export function EventView({ detail }: { detail: EventDetail }) {
   const org = useOrg();
   const ev = detail.event;
-  const hasApp = !!ev?.exceptions.some((e) => e.stacktrace?.frames.some((f) => f.inApp === true));
+  const hasApp = !!(
+    ev?.exceptions.some((e) => e.stacktrace?.frames.some((f) => f.inApp === true)) ||
+    ev?.threads.some((t) => t.stacktrace?.frames.some((f) => f.inApp === true))
+  );
   const [appOnly, setAppOnly] = useState(true);
   const [newestFirst, setNewestFirst] = useState(true);
   if (!ev) return null;
   const color = levels[ev.level].color;
   const chain = [...ev.exceptions].reverse();
-  const crashed =
-    ev.exceptions.length === 0 ? ev.threads.find((t) => t.crashed && t.stacktrace?.frames.length) : undefined;
-  const otherThreads = ev.threads.filter((t) => t !== crashed && t.stacktrace?.frames.length);
+  // Without exception frames, the crashed thread (or the capturing thread of
+  // a message or of an error without a trace) is the stack to show.
+  const framed = (t: Thread) => (t.stacktrace?.frames.length ?? 0) > 0;
+  const primaryThread = ev.exceptions.some((e) => e.stacktrace?.frames.length)
+    ? undefined
+    : (ev.threads.find((t) => t.crashed && framed(t)) ?? ev.threads.find((t) => t.current && framed(t)));
+  const otherThreads = ev.threads.filter((t) => t !== primaryThread && framed(t));
   const extra = ev.extra ?? null;
   const tags = Object.entries(ev.tags).sort(([a], [b]) => a.localeCompare(b));
   const title = chain[0] ? `${chain[0].type}: ${chain[0].value}` : ev.message?.formatted || "";
@@ -87,19 +96,39 @@ export function EventView({ detail }: { detail: EventDetail }) {
         </EventSection>
       ) : null}
 
-      {crashed ? (
+      {primaryThread ? (
         <EventSection
-          title={`Çöken iş parçacığı${crashed.name ? `: ${crashed.name}` : ""}`}
+          title={
+            primaryThread.crashed
+              ? `Çöken iş parçacığı${primaryThread.name ? `: ${primaryThread.name}` : ""}`
+              : "Yığın izi"
+          }
           aside={trailToggles}
         >
           <StackTrail
-            frames={crashed.stacktrace?.frames ?? []}
+            frames={primaryThread.stacktrace?.frames ?? []}
             detail={detail}
             platform={ev.platform}
             levelColor={color}
             appOnly={appOnly}
             newestFirst={newestFirst}
           />
+        </EventSection>
+      ) : null}
+
+      {detail.feedback.length > 0 ? (
+        <EventSection title="Kullanıcı geri bildirimi">
+          <ul className="-my-4 divide-y">
+            {detail.feedback.map((fb) => (
+              <FeedbackItem key={fb.id} fb={fb} showIssue={false} />
+            ))}
+          </ul>
+        </EventSection>
+      ) : null}
+
+      {detail.attachments.length > 0 ? (
+        <EventSection title={`Ekler (${detail.attachments.length})`}>
+          <Attachments files={detail.attachments} />
         </EventSection>
       ) : null}
 

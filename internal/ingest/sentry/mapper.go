@@ -14,10 +14,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
 
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -199,7 +201,9 @@ func convert(se *sentryEvent) *ingestv1.Event {
 		ev.Breadcrumbs = append(ev.Breadcrumbs, bc)
 	}
 	if se.Request != nil {
-		ev.Request = convertRequest(se.Request)
+		if req := convertRequest(se.Request); !proto.Equal(req, &ingestv1.Request{}) {
+			ev.Request = req
+		}
 	}
 	if len(se.User) > 0 {
 		ev.User = convertUser(se.User)
@@ -384,6 +388,42 @@ func convertUser(u map[string]any) *ingestv1.User {
 	return out
 }
 
+// knownContextFields lists the fields izci models for each well-known
+// context type; anything else an SDK sends is kept under Contexts.custom with
+// the context's name, so that no reported detail is lost.
+var knownContextFields = map[string][]string{
+	"device": {"name", "family", "model", "model_id", "manufacturer", "brand", "arch", "device_type", "orientation",
+		"simulator", "charging", "online", "battery_level", "processor_count", "cpu_description", "processor_frequency",
+		"memory_size", "free_memory", "usable_memory", "low_memory", "storage_size", "free_storage", "screen_resolution",
+		"screen_width_pixels", "screen_height_pixels", "screen_density", "screen_dpi", "boot_time"},
+	"os":             {"name", "version", "build", "kernel_version", "raw_description", "rooted"},
+	"client_os":      {"name", "version", "build", "kernel_version", "raw_description", "rooted"},
+	"runtime":        {"name", "version", "build", "raw_description"},
+	"browser":        {"name", "version"},
+	"app":            {"app_identifier", "app_name", "app_version", "app_build", "app_memory", "in_foreground", "app_start_time"},
+	"gpu":            {"name", "vendor_name", "memory_size", "api_type", "driver_version"},
+	"culture":        {"locale", "timezone", "calendar", "is_24_hour_format"},
+	"trace":          {"trace_id", "span_id", "parent_span_id", "op", "status"},
+	"response":       {"status_code", "body_size"},
+	"cloud_resource": {"cloud.provider", "cloud.region", "cloud.availability_zone", "cloud.account.id", "host.id", "cloud.platform"},
+	// .NET reports CultureInfo.CurrentCulture as "Current Culture".
+	"current culture": {"name", "calendar"},
+}
+
+// leftover returns the fields of m that the context type does not model,
+// without empty values.
+func leftover(typ string, m map[string]any) map[string]any {
+	known := knownContextFields[typ]
+	out := map[string]any{}
+	for k, v := range m {
+		if k == "type" || slices.Contains(known, k) || v == nil || v == "" {
+			continue
+		}
+		out[k] = v
+	}
+	return out
+}
+
 func convertContexts(ctxs map[string]json.RawMessage, ev *ingestv1.Event) *ingestv1.Contexts {
 	if len(ctxs) == 0 {
 		return nil
@@ -400,6 +440,16 @@ func convertContexts(ctxs map[string]json.RawMessage, ev *ingestv1.Event) *inges
 		typ := strings.ToLower(anyString(m["type"]))
 		if typ == "" {
 			typ = strings.ToLower(name)
+		}
+		if len(leftover("", m)) == 0 {
+			continue // {} or only a type
+		}
+		if _, known := knownContextFields[typ]; known {
+			if rest := leftover(typ, m); len(rest) > 0 {
+				if st, err := structpb.NewStruct(jsonSafe(rest)); err == nil {
+					custom[name] = st
+				}
+			}
 		}
 		switch typ {
 		case "device":
@@ -424,8 +474,22 @@ func convertContexts(ctxs map[string]json.RawMessage, ev *ingestv1.Event) *inges
 			out.Gpu = &ingestv1.GpuContext{Name: str(m, "name"), VendorName: str(m, "vendor_name"),
 				MemoryBytes: uint64(num(m, "memory_size")) << 20, ApiType: str(m, "api_type"), DriverVersion: str(m, "driver_version")}
 		case "culture":
-			out.Culture = &ingestv1.CultureContext{Locale: str(m, "locale"), Timezone: str(m, "timezone"), Calendar: str(m, "calendar"),
+			c := &ingestv1.CultureContext{Locale: str(m, "locale"), Timezone: str(m, "timezone"), Calendar: str(m, "calendar"),
 				Is_24HourFormat: boolPtr(m, "is_24_hour_format")}
+			if out.Culture != nil && c.Timezone == "" {
+				c.Timezone = out.Culture.Timezone
+			}
+			out.Culture = c
+		case "current culture":
+			if out.Culture == nil {
+				out.Culture = &ingestv1.CultureContext{}
+			}
+			if out.Culture.Locale == "" {
+				out.Culture.Locale = str(m, "name")
+			}
+			if out.Culture.Calendar == "" {
+				out.Culture.Calendar = str(m, "calendar")
+			}
 		case "trace":
 			out.Trace = &ingestv1.TraceContext{TraceId: str(m, "trace_id"), SpanId: str(m, "span_id"),
 				ParentSpanId: str(m, "parent_span_id"), Op: str(m, "op"), Status: str(m, "status")}
@@ -450,6 +514,9 @@ func convertContexts(ctxs map[string]json.RawMessage, ev *ingestv1.Event) *inges
 	}
 	if len(custom) > 0 {
 		out.Custom = custom
+	}
+	if proto.Equal(out, &ingestv1.Contexts{}) {
+		return nil
 	}
 	return out
 }
@@ -677,9 +744,33 @@ func level(s string) ingestv1.Level {
 	return ingestv1.Level_LEVEL_UNSPECIFIED
 }
 
+// sdkPlatforms maps Sentry SDK name prefixes to platforms, for SDKs that
+// report a generic platform ("other", "native").
+var sdkPlatforms = []struct{ prefix, platform string }{
+	{"sentry.dart", "dart"},
+	{"sentry.rust", "rust"},
+	{"sentry.dotnet", "dotnet"},
+	{"sentry.unity", "dotnet"},
+	{"sentry.java", "java"},
+	{"sentry.kotlin", "kotlin"},
+	{"sentry.cocoa", "cocoa"},
+	{"sentry.python", "python"},
+	{"sentry.go", "go"},
+	{"sentry.php", "php"},
+	{"sentry.ruby", "ruby"},
+	{"sentry.elixir", "elixir"},
+}
+
 // platform maps Sentry platform names onto izci's well-known values.
 func platform(p string, sdk *sdkInfo) string {
 	p = strings.ToLower(p)
+	if (p == "" || p == "other" || p == "native") && sdk != nil {
+		for _, sp := range sdkPlatforms {
+			if strings.HasPrefix(strings.ToLower(sdk.Name), sp.prefix) {
+				return sp.platform
+			}
+		}
+	}
 	switch p {
 	case "csharp", "dotnet":
 		return "dotnet"

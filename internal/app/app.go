@@ -129,10 +129,12 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	a.keys = ingest.NewKeyResolver(database, 30*time.Second)
 	a.usage = ingest.NewUsageRecorder()
 	a.Ingest = ingest.NewService(ingest.ServiceConfig{
-		Durable:        cfg.Ingest.Ack == "durable",
-		AckTimeout:     cfg.Ingest.AckTimeout,
-		Retention:      time.Duration(cfg.Retention.Days) * 24 * time.Hour,
-		TrustedProxies: cfg.HTTP.TrustedProxies,
+		Durable:            cfg.Ingest.Ack == "durable",
+		AckTimeout:         cfg.Ingest.AckTimeout,
+		Retention:          time.Duration(cfg.Retention.Days) * 24 * time.Hour,
+		TrustedProxies:     cfg.HTTP.TrustedProxies,
+		MaxAttachmentBytes: cfg.Ingest.MaxAttachmentBytes,
+		SessionKey:         cfg.SecretKey,
 	}, database, log, a.keys, ingest.NewRateLimiter(cfg.Ingest.RateLimitPerMinute),
 		ingest.NewQuotaTracker(database), a.usage, ingest.NewDedupe(cfg.Ingest.DedupeSize, time.Hour), a.Pipeline)
 
@@ -198,7 +200,15 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 		jobs.Task{Name: "flush-usage", Interval: 15 * time.Second, Run: func(ctx context.Context) error {
 			a.usage.Flush(ctx, database, log)
 			a.keys.FlushUsage(ctx, log)
+			a.Ingest.SessionRecorder().Flush(ctx, database, log)
 			return nil
+		}},
+		jobs.Task{Name: "link-feedback", Interval: time.Minute, Run: func(ctx context.Context) error {
+			// Feedback can arrive before its event is stored.
+			return database.InSystem(ctx, func(tx pgx.Tx) error {
+				_, err := store.LinkFeedback(ctx, tx, time.Now().Add(-24*time.Hour))
+				return err
+			})
 		}},
 		jobs.Task{Name: "event-partitions", Interval: time.Hour, Run: func(ctx context.Context) error {
 			now := time.Now()
@@ -342,6 +352,7 @@ func (a *App) Run(ctx context.Context) error {
 	// Final flush of counters gathered since the last tick.
 	a.usage.Flush(drainCtx, a.DB, a.Log)
 	a.keys.FlushUsage(drainCtx, a.Log)
+	a.Ingest.SessionRecorder().Flush(drainCtx, a.DB, a.Log)
 	if serveErr != nil && !errors.Is(serveErr, context.Canceled) {
 		return serveErr
 	}

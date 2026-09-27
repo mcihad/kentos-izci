@@ -147,11 +147,13 @@ func (r *KeyResolver) FlushUsage(ctx context.Context, log *slog.Logger) {
 	}
 }
 
-// originAllowed checks a browser Origin against the key's allowed origins.
-// Keys without allowed origins accept only requests without an Origin
-// header (server-side applications). "*" allows every origin.
+// originAllowed checks a browser Origin against the key's allowed origins:
+// exact origins, "https://*.example.com" subdomain wildcards or "*".
 func originAllowed(allowed []string, origin string) bool {
-	if origin == "" {
+	// No list means any origin, as for Sentry DSNs: the key is public in
+	// browser code anyway, and requests without an Origin header (servers,
+	// curl) are never restricted.
+	if origin == "" || len(allowed) == 0 {
 		return true
 	}
 	o := strings.TrimRight(strings.ToLower(origin), "/")

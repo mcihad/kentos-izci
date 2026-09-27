@@ -303,7 +303,11 @@ type EventDetail struct {
 	RepositoryUrl string `protobuf:"bytes,12,opt,name=repository_url,json=repositoryUrl,proto3" json:"repository_url,omitempty"`
 	// Path rewrites of the linked repository, to turn frame paths into
 	// repository paths.
-	PathRewrites  []*PathRewrite `protobuf:"bytes,13,rep,name=path_rewrites,json=pathRewrites,proto3" json:"path_rewrites,omitempty"`
+	PathRewrites []*PathRewrite `protobuf:"bytes,13,rep,name=path_rewrites,json=pathRewrites,proto3" json:"path_rewrites,omitempty"`
+	// Files sent with the event (screenshots, logs, view hierarchies).
+	Attachments []*EventAttachment `protobuf:"bytes,14,rep,name=attachments,proto3" json:"attachments,omitempty"`
+	// What end users wrote about this event (user feedback).
+	Feedback      []*UserFeedback `protobuf:"bytes,15,rep,name=feedback,proto3" json:"feedback,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -429,6 +433,124 @@ func (x *EventDetail) GetPathRewrites() []*PathRewrite {
 	return nil
 }
 
+func (x *EventDetail) GetAttachments() []*EventAttachment {
+	if x != nil {
+		return x.Attachments
+	}
+	return nil
+}
+
+func (x *EventDetail) GetFeedback() []*UserFeedback {
+	if x != nil {
+		return x.Feedback
+	}
+	return nil
+}
+
+// EventAttachment describes a file sent with an event. The content is served
+// by GET {url}, with the same authentication as the API (session cookie or
+// Bearer personal access token).
+type EventAttachment struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Attachment id (UUIDv7).
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// File name as sent by the SDK, e.g. "screenshot.png".
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Media type as sent by the SDK, e.g. "image/png".
+	ContentType string `protobuf:"bytes,3,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
+	// Sentry attachment type: "event.attachment" (default),
+	// "event.view_hierarchy", "event.minidump", "event.applecrashreport" …
+	AttachmentType string `protobuf:"bytes,4,opt,name=attachment_type,json=attachmentType,proto3" json:"attachment_type,omitempty"`
+	// Size in bytes.
+	SizeBytes uint32 `protobuf:"varint,5,opt,name=size_bytes,json=sizeBytes,proto3" json:"size_bytes,omitempty"`
+	// When izci received it.
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// Path of the content, e.g. "/attachments/kentos/0192…"; relative to the
+	// izci base URL.
+	Url           string `protobuf:"bytes,7,opt,name=url,proto3" json:"url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EventAttachment) Reset() {
+	*x = EventAttachment{}
+	mi := &file_izci_api_v1_event_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EventAttachment) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EventAttachment) ProtoMessage() {}
+
+func (x *EventAttachment) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_event_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EventAttachment.ProtoReflect.Descriptor instead.
+func (*EventAttachment) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_event_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *EventAttachment) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *EventAttachment) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *EventAttachment) GetContentType() string {
+	if x != nil {
+		return x.ContentType
+	}
+	return ""
+}
+
+func (x *EventAttachment) GetAttachmentType() string {
+	if x != nil {
+		return x.AttachmentType
+	}
+	return ""
+}
+
+func (x *EventAttachment) GetSizeBytes() uint32 {
+	if x != nil {
+		return x.SizeBytes
+	}
+	return 0
+}
+
+func (x *EventAttachment) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *EventAttachment) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
 // PathRewrite maps a frame path prefix to a repository path prefix.
 type PathRewrite struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -442,7 +564,7 @@ type PathRewrite struct {
 
 func (x *PathRewrite) Reset() {
 	*x = PathRewrite{}
-	mi := &file_izci_api_v1_event_proto_msgTypes[2]
+	mi := &file_izci_api_v1_event_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -454,7 +576,7 @@ func (x *PathRewrite) String() string {
 func (*PathRewrite) ProtoMessage() {}
 
 func (x *PathRewrite) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_event_proto_msgTypes[2]
+	mi := &file_izci_api_v1_event_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -467,7 +589,7 @@ func (x *PathRewrite) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PathRewrite.ProtoReflect.Descriptor instead.
 func (*PathRewrite) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_event_proto_rawDescGZIP(), []int{2}
+	return file_izci_api_v1_event_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *PathRewrite) GetFromPrefix() string {
@@ -509,7 +631,7 @@ type UserAgentInfo struct {
 
 func (x *UserAgentInfo) Reset() {
 	*x = UserAgentInfo{}
-	mi := &file_izci_api_v1_event_proto_msgTypes[3]
+	mi := &file_izci_api_v1_event_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -521,7 +643,7 @@ func (x *UserAgentInfo) String() string {
 func (*UserAgentInfo) ProtoMessage() {}
 
 func (x *UserAgentInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_event_proto_msgTypes[3]
+	mi := &file_izci_api_v1_event_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -534,7 +656,7 @@ func (x *UserAgentInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserAgentInfo.ProtoReflect.Descriptor instead.
 func (*UserAgentInfo) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_event_proto_rawDescGZIP(), []int{3}
+	return file_izci_api_v1_event_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UserAgentInfo) GetBrowser() string {
@@ -612,7 +734,7 @@ type GetEventRequest struct {
 
 func (x *GetEventRequest) Reset() {
 	*x = GetEventRequest{}
-	mi := &file_izci_api_v1_event_proto_msgTypes[4]
+	mi := &file_izci_api_v1_event_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -624,7 +746,7 @@ func (x *GetEventRequest) String() string {
 func (*GetEventRequest) ProtoMessage() {}
 
 func (x *GetEventRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_event_proto_msgTypes[4]
+	mi := &file_izci_api_v1_event_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -637,7 +759,7 @@ func (x *GetEventRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetEventRequest.ProtoReflect.Descriptor instead.
 func (*GetEventRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_event_proto_rawDescGZIP(), []int{4}
+	return file_izci_api_v1_event_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetEventRequest) GetId() string {
@@ -683,7 +805,7 @@ type GetEventResponse struct {
 
 func (x *GetEventResponse) Reset() {
 	*x = GetEventResponse{}
-	mi := &file_izci_api_v1_event_proto_msgTypes[5]
+	mi := &file_izci_api_v1_event_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -695,7 +817,7 @@ func (x *GetEventResponse) String() string {
 func (*GetEventResponse) ProtoMessage() {}
 
 func (x *GetEventResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_event_proto_msgTypes[5]
+	mi := &file_izci_api_v1_event_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -708,7 +830,7 @@ func (x *GetEventResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetEventResponse.ProtoReflect.Descriptor instead.
 func (*GetEventResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_event_proto_rawDescGZIP(), []int{5}
+	return file_izci_api_v1_event_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetEventResponse) GetEvent() *EventDetail {
@@ -743,7 +865,7 @@ type GetRawEventRequest struct {
 
 func (x *GetRawEventRequest) Reset() {
 	*x = GetRawEventRequest{}
-	mi := &file_izci_api_v1_event_proto_msgTypes[6]
+	mi := &file_izci_api_v1_event_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -755,7 +877,7 @@ func (x *GetRawEventRequest) String() string {
 func (*GetRawEventRequest) ProtoMessage() {}
 
 func (x *GetRawEventRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_event_proto_msgTypes[6]
+	mi := &file_izci_api_v1_event_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -768,7 +890,7 @@ func (x *GetRawEventRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRawEventRequest.ProtoReflect.Descriptor instead.
 func (*GetRawEventRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_event_proto_rawDescGZIP(), []int{6}
+	return file_izci_api_v1_event_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetRawEventRequest) GetId() string {
@@ -789,7 +911,7 @@ type GetRawEventResponse struct {
 
 func (x *GetRawEventResponse) Reset() {
 	*x = GetRawEventResponse{}
-	mi := &file_izci_api_v1_event_proto_msgTypes[7]
+	mi := &file_izci_api_v1_event_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -801,7 +923,7 @@ func (x *GetRawEventResponse) String() string {
 func (*GetRawEventResponse) ProtoMessage() {}
 
 func (x *GetRawEventResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_event_proto_msgTypes[7]
+	mi := &file_izci_api_v1_event_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -814,7 +936,7 @@ func (x *GetRawEventResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRawEventResponse.ProtoReflect.Descriptor instead.
 func (*GetRawEventResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_event_proto_rawDescGZIP(), []int{7}
+	return file_izci_api_v1_event_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetRawEventResponse) GetJson() string {
@@ -828,7 +950,7 @@ var File_izci_api_v1_event_proto protoreflect.FileDescriptor
 
 const file_izci_api_v1_event_proto_rawDesc = "" +
 	"\n" +
-	"\x17izci/api/v1/event.proto\x12\vizci.api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x18izci/api/v1/common.proto\x1a\x1aizci/ingest/v1/event.proto\"\xa9\x04\n" +
+	"\x17izci/api/v1/event.proto\x12\vizci.api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x18izci/api/v1/common.proto\x1a\x1aizci/api/v1/feedback.proto\x1a\x1aizci/ingest/v1/event.proto\"\xa9\x04\n" +
 	"\fEventSummary\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\bevent_id\x18\x02 \x01(\tR\aeventId\x12\x19\n" +
@@ -850,7 +972,7 @@ const file_izci_api_v1_event_proto_rawDesc = "" +
 	"\x03url\x18\x0f \x01(\tR\x03url\x12\x1b\n" +
 	"\tclient_ip\x18\x10 \x01(\tR\bclientIp\x12\x1f\n" +
 	"\vserver_name\x18\x11 \x01(\tR\n" +
-	"serverName\"\x9a\x04\n" +
+	"serverName\"\x91\x05\n" +
 	"\vEventDetail\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\bevent_id\x18\x02 \x01(\tR\aeventId\x12+\n" +
@@ -869,7 +991,19 @@ const file_izci_api_v1_event_proto_rawDesc = "" +
 	"\n" +
 	"source_ref\x18\v \x01(\tR\tsourceRef\x12%\n" +
 	"\x0erepository_url\x18\f \x01(\tR\rrepositoryUrl\x12=\n" +
-	"\rpath_rewrites\x18\r \x03(\v2\x18.izci.api.v1.PathRewriteR\fpathRewrites\"K\n" +
+	"\rpath_rewrites\x18\r \x03(\v2\x18.izci.api.v1.PathRewriteR\fpathRewrites\x12>\n" +
+	"\vattachments\x18\x0e \x03(\v2\x1c.izci.api.v1.EventAttachmentR\vattachments\x125\n" +
+	"\bfeedback\x18\x0f \x03(\v2\x19.izci.api.v1.UserFeedbackR\bfeedback\"\xed\x01\n" +
+	"\x0fEventAttachment\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12!\n" +
+	"\fcontent_type\x18\x03 \x01(\tR\vcontentType\x12'\n" +
+	"\x0fattachment_type\x18\x04 \x01(\tR\x0eattachmentType\x12\x1d\n" +
+	"\n" +
+	"size_bytes\x18\x05 \x01(\rR\tsizeBytes\x129\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x10\n" +
+	"\x03url\x18\a \x01(\tR\x03url\"K\n" +
 	"\vPathRewrite\x12\x1f\n" +
 	"\vfrom_prefix\x18\x01 \x01(\tR\n" +
 	"fromPrefix\x12\x1b\n" +
@@ -923,46 +1057,51 @@ func file_izci_api_v1_event_proto_rawDescGZIP() []byte {
 }
 
 var file_izci_api_v1_event_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_izci_api_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_izci_api_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_izci_api_v1_event_proto_goTypes = []any{
 	(EventPick)(0),                // 0: izci.api.v1.EventPick
 	(*EventSummary)(nil),          // 1: izci.api.v1.EventSummary
 	(*EventDetail)(nil),           // 2: izci.api.v1.EventDetail
-	(*PathRewrite)(nil),           // 3: izci.api.v1.PathRewrite
-	(*UserAgentInfo)(nil),         // 4: izci.api.v1.UserAgentInfo
-	(*GetEventRequest)(nil),       // 5: izci.api.v1.GetEventRequest
-	(*GetEventResponse)(nil),      // 6: izci.api.v1.GetEventResponse
-	(*GetRawEventRequest)(nil),    // 7: izci.api.v1.GetRawEventRequest
-	(*GetRawEventResponse)(nil),   // 8: izci.api.v1.GetRawEventResponse
-	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
-	(v1.Level)(0),                 // 10: izci.ingest.v1.Level
-	(*CustomerRef)(nil),           // 11: izci.api.v1.CustomerRef
-	(*IssueRef)(nil),              // 12: izci.api.v1.IssueRef
-	(*ProjectRef)(nil),            // 13: izci.api.v1.ProjectRef
-	(*v1.Event)(nil),              // 14: izci.ingest.v1.Event
+	(*EventAttachment)(nil),       // 3: izci.api.v1.EventAttachment
+	(*PathRewrite)(nil),           // 4: izci.api.v1.PathRewrite
+	(*UserAgentInfo)(nil),         // 5: izci.api.v1.UserAgentInfo
+	(*GetEventRequest)(nil),       // 6: izci.api.v1.GetEventRequest
+	(*GetEventResponse)(nil),      // 7: izci.api.v1.GetEventResponse
+	(*GetRawEventRequest)(nil),    // 8: izci.api.v1.GetRawEventRequest
+	(*GetRawEventResponse)(nil),   // 9: izci.api.v1.GetRawEventResponse
+	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
+	(v1.Level)(0),                 // 11: izci.ingest.v1.Level
+	(*CustomerRef)(nil),           // 12: izci.api.v1.CustomerRef
+	(*IssueRef)(nil),              // 13: izci.api.v1.IssueRef
+	(*ProjectRef)(nil),            // 14: izci.api.v1.ProjectRef
+	(*v1.Event)(nil),              // 15: izci.ingest.v1.Event
+	(*UserFeedback)(nil),          // 16: izci.api.v1.UserFeedback
 }
 var file_izci_api_v1_event_proto_depIdxs = []int32{
-	9,  // 0: izci.api.v1.EventSummary.received_at:type_name -> google.protobuf.Timestamp
-	9,  // 1: izci.api.v1.EventSummary.occurred_at:type_name -> google.protobuf.Timestamp
-	10, // 2: izci.api.v1.EventSummary.level:type_name -> izci.ingest.v1.Level
-	11, // 3: izci.api.v1.EventSummary.customer:type_name -> izci.api.v1.CustomerRef
-	12, // 4: izci.api.v1.EventDetail.issue:type_name -> izci.api.v1.IssueRef
-	13, // 5: izci.api.v1.EventDetail.project:type_name -> izci.api.v1.ProjectRef
-	9,  // 6: izci.api.v1.EventDetail.received_at:type_name -> google.protobuf.Timestamp
-	14, // 7: izci.api.v1.EventDetail.event:type_name -> izci.ingest.v1.Event
-	4,  // 8: izci.api.v1.EventDetail.user_agent:type_name -> izci.api.v1.UserAgentInfo
-	3,  // 9: izci.api.v1.EventDetail.path_rewrites:type_name -> izci.api.v1.PathRewrite
-	0,  // 10: izci.api.v1.GetEventRequest.pick:type_name -> izci.api.v1.EventPick
-	2,  // 11: izci.api.v1.GetEventResponse.event:type_name -> izci.api.v1.EventDetail
-	5,  // 12: izci.api.v1.EventService.GetEvent:input_type -> izci.api.v1.GetEventRequest
-	7,  // 13: izci.api.v1.EventService.GetRawEvent:input_type -> izci.api.v1.GetRawEventRequest
-	6,  // 14: izci.api.v1.EventService.GetEvent:output_type -> izci.api.v1.GetEventResponse
-	8,  // 15: izci.api.v1.EventService.GetRawEvent:output_type -> izci.api.v1.GetRawEventResponse
-	14, // [14:16] is the sub-list for method output_type
-	12, // [12:14] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	10, // 0: izci.api.v1.EventSummary.received_at:type_name -> google.protobuf.Timestamp
+	10, // 1: izci.api.v1.EventSummary.occurred_at:type_name -> google.protobuf.Timestamp
+	11, // 2: izci.api.v1.EventSummary.level:type_name -> izci.ingest.v1.Level
+	12, // 3: izci.api.v1.EventSummary.customer:type_name -> izci.api.v1.CustomerRef
+	13, // 4: izci.api.v1.EventDetail.issue:type_name -> izci.api.v1.IssueRef
+	14, // 5: izci.api.v1.EventDetail.project:type_name -> izci.api.v1.ProjectRef
+	10, // 6: izci.api.v1.EventDetail.received_at:type_name -> google.protobuf.Timestamp
+	15, // 7: izci.api.v1.EventDetail.event:type_name -> izci.ingest.v1.Event
+	5,  // 8: izci.api.v1.EventDetail.user_agent:type_name -> izci.api.v1.UserAgentInfo
+	4,  // 9: izci.api.v1.EventDetail.path_rewrites:type_name -> izci.api.v1.PathRewrite
+	3,  // 10: izci.api.v1.EventDetail.attachments:type_name -> izci.api.v1.EventAttachment
+	16, // 11: izci.api.v1.EventDetail.feedback:type_name -> izci.api.v1.UserFeedback
+	10, // 12: izci.api.v1.EventAttachment.created_at:type_name -> google.protobuf.Timestamp
+	0,  // 13: izci.api.v1.GetEventRequest.pick:type_name -> izci.api.v1.EventPick
+	2,  // 14: izci.api.v1.GetEventResponse.event:type_name -> izci.api.v1.EventDetail
+	6,  // 15: izci.api.v1.EventService.GetEvent:input_type -> izci.api.v1.GetEventRequest
+	8,  // 16: izci.api.v1.EventService.GetRawEvent:input_type -> izci.api.v1.GetRawEventRequest
+	7,  // 17: izci.api.v1.EventService.GetEvent:output_type -> izci.api.v1.GetEventResponse
+	9,  // 18: izci.api.v1.EventService.GetRawEvent:output_type -> izci.api.v1.GetRawEventResponse
+	17, // [17:19] is the sub-list for method output_type
+	15, // [15:17] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_izci_api_v1_event_proto_init() }
@@ -971,13 +1110,14 @@ func file_izci_api_v1_event_proto_init() {
 		return
 	}
 	file_izci_api_v1_common_proto_init()
+	file_izci_api_v1_feedback_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_api_v1_event_proto_rawDesc), len(file_izci_api_v1_event_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

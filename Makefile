@@ -151,9 +151,11 @@ test-go: ## Run Go tests
 test-web: ## Run web tests
 	$(PNPM) -C web test --passWithNoTests
 
-#? Static analysis: go vet, staticcheck, Biome (web) and proto lint.
+#? Static analysis: gofmt, go vet, staticcheck, Biome (web) and proto lint.
 #> make lint
 lint: lint-proto ## Run all linters
+	@unformatted=$$(gofmt -l cmd internal docs sdk tools web/embed.go); \
+	if [ -n "$$unformatted" ]; then echo "gofmt -w needed for:"; echo "$$unformatted"; exit 1; fi
 	$(GO) vet ./... ./sdk/go/... ./sdk/go/izcipgx/...
 	$(GO) tool staticcheck ./... ./sdk/go/...
 	$(PNPM) -C web lint

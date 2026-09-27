@@ -11,12 +11,15 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"connectrpc.com/connect"
 	"github.com/andybalholm/brotli"
+	"github.com/google/uuid"
 	"github.com/klauspost/compress/flate"
 	"github.com/klauspost/compress/gzip"
 	"github.com/klauspost/compress/zlib"
+	"github.com/klauspost/compress/zstd"
 
 	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/metrics"
@@ -40,7 +43,6 @@ func NewHandler(svc *ingest.Service, log *slog.Logger) *Handler {
 	return &Handler{svc: svc, log: log}
 }
 
-
 // Register mounts the envelope and store endpoints (with and without the
 // trailing slash Sentry SDKs use).
 func (h *Handler) Register(handle func(pattern string, handler http.Handler)) {
@@ -54,9 +56,23 @@ func (h *Handler) Register(handle func(pattern string, handler http.Handler)) {
 
 type item struct {
 	typ     string
+	header  itemHeader
 	payload []byte
 }
 
+// itemHeader holds the item header fields izci reads.
+type itemHeader struct {
+	Type           string `json:"type"`
+	Length         *int   `json:"length"`
+	Filename       string `json:"filename"`
+	ContentType    string `json:"content_type"`
+	AttachmentType string `json:"attachment_type"`
+}
+
+// envelope serves POST /api/{project}/envelope/: errors, attachments, user
+// feedback, sessions and client reports are processed; other items
+// (transactions, spans, profiles, replays, check-ins, logs) are accepted and
+// dropped.
 func (h *Handler) envelope(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", "POST, OPTIONS")
@@ -82,8 +98,21 @@ func (h *Handler) envelope(w http.ResponseWriter, r *http.Request) {
 	if token == "" {
 		token = dsnKey(anyString(header["dsn"]))
 	}
+	caller, err := h.svc.AuthenticateForProject(r.Context(), token, projectID, r.Header, r.RemoteAddr)
+	if err != nil {
+		writeConnectError(w, err)
+		return
+	}
+	drift := clockDrift(header["sent_at"], time.Now())
+	id := strings.ReplaceAll(anyString(header["event_id"]), "-", "")
 
-	var events []*ingestv1.Event
+	var (
+		events     []*ingestv1.Event
+		files      []ingest.AttachmentFile
+		feedback   []ingest.FeedbackInput
+		sessions   []ingest.SessionUpdate
+		aggregates []ingest.SessionAggregate
+	)
 	for _, it := range items {
 		switch it.typ {
 		case "event":
@@ -92,10 +121,47 @@ func (h *Handler) envelope(w http.ResponseWriter, r *http.Request) {
 				writeError(w, http.StatusBadRequest, err.Error())
 				return
 			}
+			shiftEvent(ev, drift)
+			if ev.EventId == "" {
+				ev.EventId = id
+			}
 			events = append(events, ev)
+		case "attachment":
+			files = append(files, ingest.AttachmentFile{Name: it.header.Filename, ContentType: it.header.ContentType,
+				Type: it.header.AttachmentType, Data: it.payload})
+		case "feedback":
+			fb, err := DecodeFeedback(it.payload, drift)
+			if err != nil {
+				writeError(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			feedback = append(feedback, fb)
+		case "user_report":
+			fb, err := DecodeUserReport(it.payload)
+			if err != nil {
+				writeError(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			feedback = append(feedback, fb)
+		case "session":
+			u, err := DecodeSession(it.payload, drift)
+			if err != nil {
+				writeError(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			sessions = append(sessions, u)
+		case "sessions":
+			a, err := DecodeSessionAggregates(it.payload, drift)
+			if err != nil {
+				writeError(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			aggregates = append(aggregates, a...)
+		case "client_report":
+			recordClientReport(it.payload)
 		default:
-			// transaction, session(s), attachment, client_report, check_in,
-			// log, profile, replay_*, user_report, feedback, span, statsd …
+			// transaction, span, profile(_chunk), replay_*, check_in, log,
+			// statsd …: other Sentry products than error monitoring.
 			metrics.SentryItemDropped(it.typ)
 		}
 	}
@@ -103,17 +169,55 @@ func (h *Handler) envelope(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusRequestEntityTooLarge, "too many events in one envelope")
 		return
 	}
-	caller, err := h.svc.AuthenticateForProject(r.Context(), token, projectID, r.Header, r.RemoteAddr)
-	if err != nil {
-		writeConnectError(w, err)
+
+	h.svc.RecordSessions(caller, sessions, aggregates)
+	for _, fb := range feedback {
+		if err := h.svc.AcceptFeedback(r.Context(), caller, fb); err != nil && !errors.Is(err, ingest.ErrEmptyFeedback) {
+			h.log.Warn("store user feedback", slog.Any("err", err))
+		}
+	}
+
+	res := response{status: http.StatusOK, stored: true}
+	if len(events) > 0 {
+		res = h.acceptEvents(r, caller, events)
+		if id == "" {
+			id = res.id
+		}
+	}
+	// Attachments belong to the envelope's event (or feedback). They are
+	// kept when that event was stored, or when they arrive on their own for
+	// an event sent earlier.
+	if len(files) > 0 {
+		attachTo, err := uuid.Parse(id)
+		if err != nil || !res.stored {
+			metrics.AttachmentsDiscarded.Add(len(files))
+		} else if _, err := h.svc.StoreAttachments(r.Context(), caller, attachTo, files); err != nil {
+			h.log.Error("store attachments", slog.Any("err", err))
+		}
+	}
+	res.write(w, id)
+}
+
+// response is the outcome of an ingest request in Sentry's terms.
+type response struct {
+	status int
+	detail string
+	header http.Header
+	id     string
+	// stored reports that the events were stored (or were duplicates of
+	// stored ones), so their attachments may be kept.
+	stored bool
+}
+
+func (res response) write(w http.ResponseWriter, id string) {
+	for k, v := range res.header {
+		w.Header()[k] = v
+	}
+	if res.status != http.StatusOK {
+		writeError(w, res.status, res.detail)
 		return
 	}
-	id := strings.ReplaceAll(anyString(header["event_id"]), "-", "")
-	if len(events) == 0 {
-		writeJSON(w, http.StatusOK, map[string]string{"id": id})
-		return
-	}
-	h.accept(w, r, caller, events, id)
+	writeJSON(w, http.StatusOK, map[string]string{"id": id})
 }
 
 func (h *Handler) store(w http.ResponseWriter, r *http.Request) {
@@ -142,40 +246,47 @@ func (h *Handler) store(w http.ResponseWriter, r *http.Request) {
 		writeConnectError(w, err)
 		return
 	}
-	h.accept(w, r, caller, []*ingestv1.Event{ev}, "")
+	res := h.acceptEvents(r, caller, []*ingestv1.Event{ev})
+	res.write(w, res.id)
 }
 
-func (h *Handler) accept(w http.ResponseWriter, r *http.Request, caller *ingest.Caller, events []*ingestv1.Event, id string) {
+// acceptEvents runs events through the ingest service and maps the first
+// failure onto Sentry's status codes and rate limit headers.
+func (h *Handler) acceptEvents(r *http.Request, caller *ingest.Caller, events []*ingestv1.Event) response {
 	results, retry := h.svc.Accept(r.Context(), caller, events)
-	for _, res := range results {
-		switch res.GetOutcome() {
+	res := response{status: http.StatusOK, header: http.Header{}, stored: len(results) > 0}
+	if len(results) > 0 {
+		res.id = strings.ReplaceAll(results[0].GetEventId(), "-", "")
+	}
+	for _, er := range results {
+		switch er.GetOutcome() {
 		case ingestv1.EventOutcome_EVENT_OUTCOME_RATE_LIMITED:
 			scope := "project"
-			if strings.Contains(res.GetError(), "quota") {
+			if strings.Contains(er.GetError(), "quota") {
 				scope = "organization:usage_exceeded"
 			}
 			secs := int(retry.Seconds() + 0.999)
 			if secs < 1 {
 				secs = 1
 			}
-			w.Header().Set("Retry-After", strconv.Itoa(secs))
-			w.Header().Set("X-Sentry-Rate-Limits", fmt.Sprintf("%d:error;default:%s", secs, scope))
-			writeError(w, http.StatusTooManyRequests, res.GetError())
-			return
+			res.header.Set("Retry-After", strconv.Itoa(secs))
+			res.header.Set("X-Sentry-Rate-Limits", fmt.Sprintf("%d:error;default;attachment:%s", secs, scope))
+			res.status, res.detail = http.StatusTooManyRequests, er.GetError()
+			return res
 		case ingestv1.EventOutcome_EVENT_OUTCOME_INVALID:
-			if strings.HasPrefix(res.GetError(), "temporarily unavailable") {
-				w.Header().Set("Retry-After", "1")
-				writeError(w, http.StatusServiceUnavailable, res.GetError())
-				return
+			if strings.HasPrefix(er.GetError(), "temporarily unavailable") {
+				res.header.Set("Retry-After", "1")
+				res.status, res.detail = http.StatusServiceUnavailable, er.GetError()
+				return res
 			}
-			writeError(w, http.StatusBadRequest, res.GetError())
-			return
+			res.status, res.detail = http.StatusBadRequest, er.GetError()
+			return res
+		case ingestv1.EventOutcome_EVENT_OUTCOME_FILTERED:
+			// Accepted from the SDK's point of view; its files are not kept.
+			res.stored = false
 		}
 	}
-	if id == "" && len(results) > 0 {
-		id = strings.ReplaceAll(results[0].GetEventId(), "-", "")
-	}
-	writeJSON(w, http.StatusOK, map[string]string{"id": id})
+	return res
 }
 
 // readBody reads and decompresses the request body within size limits.
@@ -206,6 +317,13 @@ func readBody(w http.ResponseWriter, r *http.Request) ([]byte, int, error) {
 		}
 	case "br":
 		reader = brotli.NewReader(raw)
+	case "zstd":
+		zr, err := zstd.NewReader(raw, zstd.WithDecoderConcurrency(1), zstd.WithDecoderMaxMemory(maxDecompressedBody+1))
+		if err != nil {
+			return nil, http.StatusBadRequest, fmt.Errorf("invalid zstd body: %w", err)
+		}
+		defer zr.Close()
+		reader = zr
 	default:
 		return nil, http.StatusUnsupportedMediaType, fmt.Errorf("unsupported content encoding %q", enc)
 	}
@@ -241,10 +359,7 @@ func parseEnvelope(data []byte) (map[string]any, []item, error) {
 		if len(bytes.TrimSpace(hdrLine)) == 0 {
 			continue
 		}
-		var ih struct {
-			Type   string `json:"type"`
-			Length *int   `json:"length"`
-		}
+		var ih itemHeader
 		if err := json.Unmarshal(hdrLine, &ih); err != nil {
 			return nil, nil, fmt.Errorf("invalid envelope item header: %w", err)
 		}
@@ -261,7 +376,7 @@ func parseEnvelope(data []byte) (map[string]any, []item, error) {
 		} else {
 			payload, rest = cutLine(rest)
 		}
-		items = append(items, item{typ: ih.Type, payload: payload})
+		items = append(items, item{typ: ih.Type, header: ih, payload: payload})
 	}
 	return header, items, nil
 }

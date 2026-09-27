@@ -24,6 +24,24 @@ function yesNo(v: boolean | undefined): string | undefined {
   return v === undefined ? undefined : v ? "Evet" : "Hayır";
 }
 
+/**
+ * Custom context names whose fields belong to a typed panel: the server keeps
+ * fields it does not model under the context's original name.
+ */
+const panelOf: Record<string, string> = {
+  device: "device",
+  os: "os",
+  client_os: "os",
+  runtime: "runtime",
+  browser: "browser",
+  app: "app",
+  gpu: "gpu",
+  culture: "culture",
+  "Current Culture": "culture",
+  trace: "trace",
+  cloud_resource: "cloud",
+};
+
 /** Everything the application reported about where the error happened. */
 export function ContextGrid({
   contexts: c,
@@ -34,6 +52,19 @@ export function ContextGrid({
 }) {
   if (!c && !userAgent) return null;
   const panels: ReactNode[] = [];
+  const merged = new Set<string>();
+  // Other fields the SDK reported for a typed panel.
+  const extra = (panel: string) => {
+    const parts = Object.entries(c?.custom ?? {}).filter(([name]) => panelOf[name] === panel);
+    if (parts.length === 0) return null;
+    for (const [name] of parts) merged.add(name);
+    const value = Object.assign({}, ...parts.map(([, v]) => v));
+    return (
+      <div className="mt-2.5 border-t pt-2.5 font-mono text-[12px]">
+        <JsonTree value={value} />
+      </div>
+    );
+  };
   const dev = c?.device;
   if (dev) {
     const cpu = dev.cpu;
@@ -101,6 +132,7 @@ export function ContextGrid({
             ]}
           />
         </div>
+        {extra("device")}
       </Panel>,
     );
   }
@@ -116,6 +148,7 @@ export function ContextGrid({
             ["Root", yesNo(c.os.rooted)],
           ]}
         />
+        {extra("os")}
       </Panel>,
     );
   }
@@ -129,6 +162,7 @@ export function ContextGrid({
             ["Ayrıntı", c.runtime.rawDescription, { mono: true }],
           ]}
         />
+        {extra("runtime")}
       </Panel>,
     );
   }
@@ -147,6 +181,7 @@ export function ContextGrid({
             ["User-Agent", userAgent?.raw || c?.browser?.userAgent, { mono: true }],
           ]}
         />
+        {extra("browser")}
       </Panel>,
     );
   }
@@ -163,6 +198,7 @@ export function ContextGrid({
             ["Bellek", bytes(c.app.memoryBytes)],
           ]}
         />
+        {extra("app")}
       </Panel>,
     );
   }
@@ -240,6 +276,7 @@ export function ContextGrid({
             ["Durum", c.trace.status],
           ]}
         />
+        {extra("trace")}
       </Panel>,
     );
   }
@@ -259,6 +296,7 @@ export function ContextGrid({
             ["Düğüm", cl.node, { mono: true }],
           ]}
         />
+        {extra("cloud")}
       </Panel>,
     );
   }
@@ -274,6 +312,7 @@ export function ContextGrid({
             ["Sürücü", c.gpu.driverVersion, { mono: true }],
           ]}
         />
+        {extra("gpu")}
       </Panel>,
     );
   }
@@ -287,10 +326,12 @@ export function ContextGrid({
             ["Takvim", c.culture.calendar],
           ]}
         />
+        {extra("culture")}
       </Panel>,
     );
   }
   for (const [name, value] of Object.entries(c?.custom ?? {})) {
+    if (merged.has(name)) continue;
     panels.push(
       <Panel key={`custom-${name}`} title={name}>
         <div className="font-mono text-[12px]">

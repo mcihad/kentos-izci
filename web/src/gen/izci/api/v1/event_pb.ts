@@ -9,6 +9,8 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { CustomerRef, IssueRef, ProjectRef } from "./common_pb";
 import { file_izci_api_v1_common } from "./common_pb";
+import type { UserFeedback } from "./feedback_pb";
+import { file_izci_api_v1_feedback } from "./feedback_pb";
 import type { Event, Level } from "../../ingest/v1/event_pb";
 import { file_izci_ingest_v1_event } from "../../ingest/v1/event_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -17,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file izci/api/v1/event.proto.
  */
 export const file_izci_api_v1_event: GenFile = /*@__PURE__*/
-  fileDesc("ChdpemNpL2FwaS92MS9ldmVudC5wcm90bxILaXpjaS5hcGkudjEilwMKDEV2ZW50U3VtbWFyeRIKCgJpZBgBIAEoCRIQCghldmVudF9pZBgCIAEoCRIQCghpc3N1ZV9pZBgDIAEoCRIvCgtyZWNlaXZlZF9hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLb2NjdXJyZWRfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiQKBWxldmVsGAYgASgOMhUuaXpjaS5pbmdlc3QudjEuTGV2ZWwSDQoFdGl0bGUYByABKAkSEwoLZW52aXJvbm1lbnQYCCABKAkSDwoHcmVsZWFzZRgJIAEoCRIqCghjdXN0b21lchgKIAEoCzIYLml6Y2kuYXBpLnYxLkN1c3RvbWVyUmVmEg4KBnRlbmFudBgLIAEoCRIMCgR1c2VyGAwgASgJEg8KB2Jyb3dzZXIYDSABKAkSCgoCb3MYDiABKAkSCwoDdXJsGA8gASgJEhEKCWNsaWVudF9pcBgQIAEoCRITCgtzZXJ2ZXJfbmFtZRgRIAEoCSKYAwoLRXZlbnREZXRhaWwSCgoCaWQYASABKAkSEAoIZXZlbnRfaWQYAiABKAkSJAoFaXNzdWUYAyABKAsyFS5pemNpLmFwaS52MS5Jc3N1ZVJlZhIoCgdwcm9qZWN0GAQgASgLMhcuaXpjaS5hcGkudjEuUHJvamVjdFJlZhIvCgtyZWNlaXZlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASJAoFZXZlbnQYBiABKAsyFS5pemNpLmluZ2VzdC52MS5FdmVudBIRCgljbGllbnRfaXAYByABKAkSLgoKdXNlcl9hZ2VudBgIIAEoCzIaLml6Y2kuYXBpLnYxLlVzZXJBZ2VudEluZm8SEAoId2FybmluZ3MYCSADKAkSEgoKc2l6ZV9ieXRlcxgKIAEoDRISCgpzb3VyY2VfcmVmGAsgASgJEhYKDnJlcG9zaXRvcnlfdXJsGAwgASgJEi8KDXBhdGhfcmV3cml0ZXMYDSADKAsyGC5pemNpLmFwaS52MS5QYXRoUmV3cml0ZSI1CgtQYXRoUmV3cml0ZRITCgtmcm9tX3ByZWZpeBgBIAEoCRIRCgl0b19wcmVmaXgYAiABKAkimAEKDVVzZXJBZ2VudEluZm8SDwoHYnJvd3NlchgBIAEoCRIXCg9icm93c2VyX3ZlcnNpb24YAiABKAkSCgoCb3MYAyABKAkSEgoKb3NfdmVyc2lvbhgEIAEoCRIOCgZkZXZpY2UYBSABKAkSEwoLZGV2aWNlX3R5cGUYBiABKAkSCwoDYm90GAcgASgIEgsKA3JhdxgIIAEoCSJ3Cg9HZXRFdmVudFJlcXVlc3QSCgoCaWQYASABKAkSEAoIaXNzdWVfaWQYAiABKAkSJAoEcGljaxgDIAEoDjIWLml6Y2kuYXBpLnYxLkV2ZW50UGljaxIgCg9jbGllbnRfZXZlbnRfaWQYBCABKAlCB7pIBHICGEAiYQoQR2V0RXZlbnRSZXNwb25zZRInCgVldmVudBgBIAEoCzIYLml6Y2kuYXBpLnYxLkV2ZW50RGV0YWlsEhMKC3ByZXZpb3VzX2lkGAIgASgJEg8KB25leHRfaWQYAyABKAkiKgoSR2V0UmF3RXZlbnRSZXF1ZXN0EhQKAmlkGAEgASgJQgi6SAVyA7ABASIjChNHZXRSYXdFdmVudFJlc3BvbnNlEgwKBGpzb24YASABKAkqcQoJRXZlbnRQaWNrEhoKFkVWRU5UX1BJQ0tfVU5TUEVDSUZJRUQQABIVChFFVkVOVF9QSUNLX0xBVEVTVBABEhUKEUVWRU5UX1BJQ0tfT0xERVNUEAISGgoWRVZFTlRfUElDS19SRUNPTU1FTkRFRBADMrMBCgxFdmVudFNlcnZpY2USTAoIR2V0RXZlbnQSHC5pemNpLmFwaS52MS5HZXRFdmVudFJlcXVlc3QaHS5pemNpLmFwaS52MS5HZXRFdmVudFJlc3BvbnNlIgOQAgESVQoLR2V0UmF3RXZlbnQSHy5pemNpLmFwaS52MS5HZXRSYXdFdmVudFJlcXVlc3QaIC5pemNpLmFwaS52MS5HZXRSYXdFdmVudFJlc3BvbnNlIgOQAgFCoAEKD2NvbS5pemNpLmFwaS52MUIKRXZlbnRQcm90b1ABWjNnaXRodWIuY29tL21jaWhhZC9rZW50b3MtaXpjaS9nZW4vaXpjaS9hcGkvdjE7YXBpdjGiAgNJQViqAgtJemNpLkFwaS5WMcoCC0l6Y2lcQXBpXFYx4gIXSXpjaVxBcGlcVjFcR1BCTWV0YWRhdGHqAg1JemNpOjpBcGk6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_timestamp, file_izci_api_v1_common, file_izci_ingest_v1_event]);
+  fileDesc("ChdpemNpL2FwaS92MS9ldmVudC5wcm90bxILaXpjaS5hcGkudjEilwMKDEV2ZW50U3VtbWFyeRIKCgJpZBgBIAEoCRIQCghldmVudF9pZBgCIAEoCRIQCghpc3N1ZV9pZBgDIAEoCRIvCgtyZWNlaXZlZF9hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLb2NjdXJyZWRfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiQKBWxldmVsGAYgASgOMhUuaXpjaS5pbmdlc3QudjEuTGV2ZWwSDQoFdGl0bGUYByABKAkSEwoLZW52aXJvbm1lbnQYCCABKAkSDwoHcmVsZWFzZRgJIAEoCRIqCghjdXN0b21lchgKIAEoCzIYLml6Y2kuYXBpLnYxLkN1c3RvbWVyUmVmEg4KBnRlbmFudBgLIAEoCRIMCgR1c2VyGAwgASgJEg8KB2Jyb3dzZXIYDSABKAkSCgoCb3MYDiABKAkSCwoDdXJsGA8gASgJEhEKCWNsaWVudF9pcBgQIAEoCRITCgtzZXJ2ZXJfbmFtZRgRIAEoCSL4AwoLRXZlbnREZXRhaWwSCgoCaWQYASABKAkSEAoIZXZlbnRfaWQYAiABKAkSJAoFaXNzdWUYAyABKAsyFS5pemNpLmFwaS52MS5Jc3N1ZVJlZhIoCgdwcm9qZWN0GAQgASgLMhcuaXpjaS5hcGkudjEuUHJvamVjdFJlZhIvCgtyZWNlaXZlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASJAoFZXZlbnQYBiABKAsyFS5pemNpLmluZ2VzdC52MS5FdmVudBIRCgljbGllbnRfaXAYByABKAkSLgoKdXNlcl9hZ2VudBgIIAEoCzIaLml6Y2kuYXBpLnYxLlVzZXJBZ2VudEluZm8SEAoId2FybmluZ3MYCSADKAkSEgoKc2l6ZV9ieXRlcxgKIAEoDRISCgpzb3VyY2VfcmVmGAsgASgJEhYKDnJlcG9zaXRvcnlfdXJsGAwgASgJEi8KDXBhdGhfcmV3cml0ZXMYDSADKAsyGC5pemNpLmFwaS52MS5QYXRoUmV3cml0ZRIxCgthdHRhY2htZW50cxgOIAMoCzIcLml6Y2kuYXBpLnYxLkV2ZW50QXR0YWNobWVudBIrCghmZWVkYmFjaxgPIAMoCzIZLml6Y2kuYXBpLnYxLlVzZXJGZWVkYmFjayKrAQoPRXZlbnRBdHRhY2htZW50EgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSFAoMY29udGVudF90eXBlGAMgASgJEhcKD2F0dGFjaG1lbnRfdHlwZRgEIAEoCRISCgpzaXplX2J5dGVzGAUgASgNEi4KCmNyZWF0ZWRfYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEgsKA3VybBgHIAEoCSI1CgtQYXRoUmV3cml0ZRITCgtmcm9tX3ByZWZpeBgBIAEoCRIRCgl0b19wcmVmaXgYAiABKAkimAEKDVVzZXJBZ2VudEluZm8SDwoHYnJvd3NlchgBIAEoCRIXCg9icm93c2VyX3ZlcnNpb24YAiABKAkSCgoCb3MYAyABKAkSEgoKb3NfdmVyc2lvbhgEIAEoCRIOCgZkZXZpY2UYBSABKAkSEwoLZGV2aWNlX3R5cGUYBiABKAkSCwoDYm90GAcgASgIEgsKA3JhdxgIIAEoCSJ3Cg9HZXRFdmVudFJlcXVlc3QSCgoCaWQYASABKAkSEAoIaXNzdWVfaWQYAiABKAkSJAoEcGljaxgDIAEoDjIWLml6Y2kuYXBpLnYxLkV2ZW50UGljaxIgCg9jbGllbnRfZXZlbnRfaWQYBCABKAlCB7pIBHICGEAiYQoQR2V0RXZlbnRSZXNwb25zZRInCgVldmVudBgBIAEoCzIYLml6Y2kuYXBpLnYxLkV2ZW50RGV0YWlsEhMKC3ByZXZpb3VzX2lkGAIgASgJEg8KB25leHRfaWQYAyABKAkiKgoSR2V0UmF3RXZlbnRSZXF1ZXN0EhQKAmlkGAEgASgJQgi6SAVyA7ABASIjChNHZXRSYXdFdmVudFJlc3BvbnNlEgwKBGpzb24YASABKAkqcQoJRXZlbnRQaWNrEhoKFkVWRU5UX1BJQ0tfVU5TUEVDSUZJRUQQABIVChFFVkVOVF9QSUNLX0xBVEVTVBABEhUKEUVWRU5UX1BJQ0tfT0xERVNUEAISGgoWRVZFTlRfUElDS19SRUNPTU1FTkRFRBADMrMBCgxFdmVudFNlcnZpY2USTAoIR2V0RXZlbnQSHC5pemNpLmFwaS52MS5HZXRFdmVudFJlcXVlc3QaHS5pemNpLmFwaS52MS5HZXRFdmVudFJlc3BvbnNlIgOQAgESVQoLR2V0UmF3RXZlbnQSHy5pemNpLmFwaS52MS5HZXRSYXdFdmVudFJlcXVlc3QaIC5pemNpLmFwaS52MS5HZXRSYXdFdmVudFJlc3BvbnNlIgOQAgFCoAEKD2NvbS5pemNpLmFwaS52MUIKRXZlbnRQcm90b1ABWjNnaXRodWIuY29tL21jaWhhZC9rZW50b3MtaXpjaS9nZW4vaXpjaS9hcGkvdjE7YXBpdjGiAgNJQViqAgtJemNpLkFwaS5WMcoCC0l6Y2lcQXBpXFYx4gIXSXpjaVxBcGlcVjFcR1BCTWV0YWRhdGHqAg1JemNpOjpBcGk6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_timestamp, file_izci_api_v1_common, file_izci_api_v1_feedback, file_izci_ingest_v1_event]);
 
 /**
  * EventSummary is the compact form of an event used in lists.
@@ -251,6 +253,20 @@ export type EventDetail = Message<"izci.api.v1.EventDetail"> & {
    * @generated from field: repeated izci.api.v1.PathRewrite path_rewrites = 13;
    */
   pathRewrites: PathRewrite[];
+
+  /**
+   * Files sent with the event (screenshots, logs, view hierarchies).
+   *
+   * @generated from field: repeated izci.api.v1.EventAttachment attachments = 14;
+   */
+  attachments: EventAttachment[];
+
+  /**
+   * What end users wrote about this event (user feedback).
+   *
+   * @generated from field: repeated izci.api.v1.UserFeedback feedback = 15;
+   */
+  feedback: UserFeedback[];
 };
 
 /**
@@ -259,6 +275,73 @@ export type EventDetail = Message<"izci.api.v1.EventDetail"> & {
  */
 export const EventDetailSchema: GenMessage<EventDetail> = /*@__PURE__*/
   messageDesc(file_izci_api_v1_event, 1);
+
+/**
+ * EventAttachment describes a file sent with an event. The content is served
+ * by GET {url}, with the same authentication as the API (session cookie or
+ * Bearer personal access token).
+ *
+ * @generated from message izci.api.v1.EventAttachment
+ */
+export type EventAttachment = Message<"izci.api.v1.EventAttachment"> & {
+  /**
+   * Attachment id (UUIDv7).
+   *
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * File name as sent by the SDK, e.g. "screenshot.png".
+   *
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * Media type as sent by the SDK, e.g. "image/png".
+   *
+   * @generated from field: string content_type = 3;
+   */
+  contentType: string;
+
+  /**
+   * Sentry attachment type: "event.attachment" (default),
+   * "event.view_hierarchy", "event.minidump", "event.applecrashreport" …
+   *
+   * @generated from field: string attachment_type = 4;
+   */
+  attachmentType: string;
+
+  /**
+   * Size in bytes.
+   *
+   * @generated from field: uint32 size_bytes = 5;
+   */
+  sizeBytes: number;
+
+  /**
+   * When izci received it.
+   *
+   * @generated from field: google.protobuf.Timestamp created_at = 6;
+   */
+  createdAt?: Timestamp | undefined;
+
+  /**
+   * Path of the content, e.g. "/attachments/kentos/0192…"; relative to the
+   * izci base URL.
+   *
+   * @generated from field: string url = 7;
+   */
+  url: string;
+};
+
+/**
+ * Describes the message izci.api.v1.EventAttachment.
+ * Use `create(EventAttachmentSchema)` to create a new message.
+ */
+export const EventAttachmentSchema: GenMessage<EventAttachment> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_event, 2);
 
 /**
  * PathRewrite maps a frame path prefix to a repository path prefix.
@@ -286,7 +369,7 @@ export type PathRewrite = Message<"izci.api.v1.PathRewrite"> & {
  * Use `create(PathRewriteSchema)` to create a new message.
  */
 export const PathRewriteSchema: GenMessage<PathRewrite> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_event, 2);
+  messageDesc(file_izci_api_v1_event, 3);
 
 /**
  * UserAgentInfo is a parsed User-Agent header.
@@ -356,7 +439,7 @@ export type UserAgentInfo = Message<"izci.api.v1.UserAgentInfo"> & {
  * Use `create(UserAgentInfoSchema)` to create a new message.
  */
 export const UserAgentInfoSchema: GenMessage<UserAgentInfo> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_event, 3);
+  messageDesc(file_izci_api_v1_event, 4);
 
 /**
  * GetEventRequest selects an event by id, by client event id, or as an
@@ -400,7 +483,7 @@ export type GetEventRequest = Message<"izci.api.v1.GetEventRequest"> & {
  * Use `create(GetEventRequestSchema)` to create a new message.
  */
 export const GetEventRequestSchema: GenMessage<GetEventRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_event, 4);
+  messageDesc(file_izci_api_v1_event, 5);
 
 /**
  * GetEventResponse returns the event and its neighbours.
@@ -435,7 +518,7 @@ export type GetEventResponse = Message<"izci.api.v1.GetEventResponse"> & {
  * Use `create(GetEventResponseSchema)` to create a new message.
  */
 export const GetEventResponseSchema: GenMessage<GetEventResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_event, 5);
+  messageDesc(file_izci_api_v1_event, 6);
 
 /**
  * GetRawEventRequest identifies an event.
@@ -456,7 +539,7 @@ export type GetRawEventRequest = Message<"izci.api.v1.GetRawEventRequest"> & {
  * Use `create(GetRawEventRequestSchema)` to create a new message.
  */
 export const GetRawEventRequestSchema: GenMessage<GetRawEventRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_event, 6);
+  messageDesc(file_izci_api_v1_event, 7);
 
 /**
  * GetRawEventResponse returns the stored JSON.
@@ -477,7 +560,7 @@ export type GetRawEventResponse = Message<"izci.api.v1.GetRawEventResponse"> & {
  * Use `create(GetRawEventResponseSchema)` to create a new message.
  */
 export const GetRawEventResponseSchema: GenMessage<GetRawEventResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_event, 7);
+  messageDesc(file_izci_api_v1_event, 8);
 
 /**
  * EventPick selects an event of an issue.

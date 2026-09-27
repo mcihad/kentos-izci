@@ -9,6 +9,7 @@ import { CopyButton } from "@/components/common/copy-button";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { EventView } from "@/components/event/event-view";
+import { FeedbackList } from "@/components/feedback/feedback-list";
 import { Activity } from "@/components/issue/activity";
 import {
   IssueTitle,
@@ -34,6 +35,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { IssueStatus, StatsPeriod } from "@/gen/izci/api/v1/common_pb";
 import { type EventDetail, EventPick, EventService } from "@/gen/izci/api/v1/event_pb";
+import { FeedbackService } from "@/gen/izci/api/v1/feedback_pb";
 import { AiState, IssueService } from "@/gen/izci/api/v1/issue_pb";
 import { isNotFound } from "@/lib/errors";
 import { platformLabel } from "@/lib/labels";
@@ -43,13 +45,14 @@ import { useHotkeys } from "@/lib/shortcuts";
 import { useTriage } from "@/lib/triage";
 import { cn } from "@/lib/utils";
 
-type Tab = "event" | "events" | "impact" | "activity" | "ai";
+type Tab = "event" | "events" | "impact" | "feedback" | "activity" | "ai";
 type IssueSearch = { event?: string; tab?: Tab; run?: string };
 
 const tabs: { id: Tab; label: string }[] = [
   { id: "event", label: "Olay" },
   { id: "events", label: "Tüm olaylar" },
   { id: "impact", label: "Etki" },
+  { id: "feedback", label: "Geri bildirim" },
   { id: "activity", label: "Etkinlik" },
   { id: "ai", label: "Yapay zekâ" },
 ];
@@ -93,6 +96,14 @@ function IssuePage() {
   const facets = useQuery(IssueService.method.getIssueTagFacets, s ? { issueId: s.id } : skipToken, {
     staleTime: 60_000,
   });
+  const feedback = useQuery(
+    FeedbackService.method.listFeedback,
+    s ? { issueId: s.id, pageSize: 50 } : skipToken,
+    {
+      staleTime: 60_000,
+    },
+  );
+  const feedbackCount = feedback.data?.feedback.length ?? 0;
 
   useEffect(() => {
     if (s) document.title = `${s.shortId} ${s.type || s.title} — İzci`;
@@ -191,6 +202,11 @@ function IssuePage() {
               )}
             >
               {t.label}
+              {t.id === "feedback" && feedbackCount > 0 ? (
+                <span className="ml-1.5 rounded-full bg-muted px-1.5 py-px text-[11px] text-muted-foreground tabular">
+                  {feedbackCount >= 50 ? "50+" : feedbackCount}
+                </span>
+              ) : null}
               {t.id === "ai" && s.aiState === AiState.RUNNING ? (
                 <span className="ml-1.5 inline-block size-1.5 animate-pulse rounded-full bg-primary align-middle" />
               ) : null}
@@ -224,6 +240,10 @@ function IssuePage() {
             <IssueEvents issueId={s.id} shortId={s.shortId} />
           ) : tab === "impact" ? (
             <Impact facets={facets.data?.facets} />
+          ) : tab === "feedback" ? (
+            <div className="py-2">
+              <FeedbackList issueId={s.id} showIssue={false} />
+            </div>
           ) : tab === "ai" ? (
             <IssueAi
               issue={s}
