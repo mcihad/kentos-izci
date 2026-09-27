@@ -18,6 +18,7 @@ import (
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
 	"github.com/mcihad/kentos-izci/internal/db"
 	"github.com/mcihad/kentos-izci/internal/ingest"
+	"github.com/mcihad/kentos-izci/internal/monitor"
 	"github.com/mcihad/kentos-izci/internal/store"
 	"github.com/mcihad/kentos-izci/internal/testutil"
 	"github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1/ingestv1connect"
@@ -48,6 +49,8 @@ type Env struct {
 	KeyID    uuid.UUID
 	Service  *ingest.Service
 	Pipeline *ingest.Pipeline
+	// Monitors processes cron check-ins; its failures become issues.
+	Monitors *monitor.Service
 	Server   *httptest.Server
 	// Batches receives committed batches (buffered, best effort).
 	Batches chan *ingest.Batch
@@ -99,6 +102,8 @@ func New(t testing.TB, opts Options) *Env {
 	e.Service = ingest.NewService(ingest.ServiceConfig{Durable: !opts.Async, Retention: 90 * 24 * time.Hour}, database, log,
 		ingest.NewKeyResolver(database, time.Minute), ingest.NewRateLimiter(1_000_000), ingest.NewQuotaTracker(database),
 		ingest.NewUsageRecorder(), ingest.NewDedupe(10000, time.Hour), e.Pipeline)
+	e.Monitors = monitor.NewService(database, log, ingest.NewIncidentEmitter(database, e.Pipeline, 90*24*time.Hour))
+	e.Service.SetMonitors(e.Monitors)
 	path, handler := ingestv1connect.NewIngestServiceHandler(e.Service)
 	mux := http.NewServeMux()
 	mux.Handle(path, ingest.CORS(handler))

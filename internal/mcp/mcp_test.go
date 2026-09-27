@@ -31,6 +31,8 @@ type fixture struct {
 	readOnly string
 	log      *slog.Logger
 	endpoint string
+	// endpointAPI serves izci.api.v1.
+	endpointAPI string
 }
 
 func setup(t *testing.T) *fixture {
@@ -50,6 +52,7 @@ func setup(t *testing.T) *fixture {
 	}
 	web := httptest.NewServer(f.mux)
 	t.Cleanup(web.Close)
+	f.endpointAPI = web.URL
 
 	jar, _ := cookiejar.New(nil)
 	hc := &http.Client{Jar: jar}
@@ -164,7 +167,7 @@ func TestToolsOverHTTP(t *testing.T) {
 	}
 	for _, want := range []string{"list_organizations", "list_projects", "get_project_setup", "search_issues", "get_issue", "list_issue_events",
 		"get_event", "get_issue_stats", "list_customers", "get_customer_overview", "list_releases", "get_ai_run", "update_issue",
-		"add_comment", "start_ai_analysis", "create_fix_pull_request"} {
+		"add_comment", "start_ai_analysis", "create_fix_pull_request", "list_monitors"} {
 		if names[want] == nil {
 			t.Errorf("tool %s is missing", want)
 		}
@@ -233,6 +236,26 @@ func TestToolsOverHTTP(t *testing.T) {
 	call(t, cs, "get_project_setup", map[string]any{"project": "kalem"}, &setupOut)
 	if len(projects.Projects) == 0 || len(releases.Releases) == 0 || !strings.Contains(setupOut.SentryDSNTemplate, "/") {
 		t.Fatalf("projects %+v releases %+v setup %+v", projects, releases, setupOut)
+	}
+
+	// Cron monitors: one created through the API, listed and filtered.
+	monitors := apiv1connect.NewMonitorServiceClient(&http.Client{Transport: bearerTransport{f.full}}, f.endpointAPI)
+	create := connect.NewRequest(&apiv1.CreateMonitorRequest{Project: "kalem", Name: "Gece aktarımı",
+		Schedule: &apiv1.MonitorSchedule{Kind: &apiv1.MonitorSchedule_Interval{Interval: &apiv1.MonitorInterval{Value: 2,
+			Unit: apiv1.MonitorIntervalUnit_MONITOR_INTERVAL_UNIT_HOUR}}}, Timezone: "Europe/Istanbul"})
+	create.Header().Set("Izci-Org", "kentos")
+	if _, err := monitors.CreateMonitor(ctx, create); err != nil {
+		t.Fatal(err)
+	}
+	var mons listMonitorsOut
+	call(t, cs, "list_monitors", nil, &mons)
+	if len(mons.Monitors) != 1 || mons.Monitors[0].Slug != "gece-aktarimi" || mons.Monitors[0].Schedule != "every 2 hours" ||
+		mons.Monitors[0].Project != "kalem" {
+		t.Fatalf("monitors: %+v", mons)
+	}
+	call(t, cs, "list_monitors", map[string]any{"failing": true}, &mons)
+	if len(mons.Monitors) != 0 {
+		t.Fatalf("failing monitors: %+v", mons)
 	}
 
 	// Triage through MCP, then read it back.

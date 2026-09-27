@@ -33,6 +33,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/jobs"
 	"github.com/mcihad/kentos-izci/internal/mcp"
 	"github.com/mcihad/kentos-izci/internal/metrics"
+	"github.com/mcihad/kentos-izci/internal/monitor"
 	"github.com/mcihad/kentos-izci/internal/realtime"
 	"github.com/mcihad/kentos-izci/internal/secret"
 	"github.com/mcihad/kentos-izci/internal/server"
@@ -63,6 +64,8 @@ type App struct {
 	GitHub *github.Access
 	// AI runs AI analyses; it idles unless AI_ENABLED is set.
 	AI *ai.Runner
+	// Monitors processes cron check-ins and sweeps overdue runs.
+	Monitors *monitor.Service
 
 	jobs  *jobs.Runner
 	usage *ingest.UsageRecorder
@@ -137,6 +140,11 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 		SessionKey:         cfg.SecretKey,
 	}, database, log, a.keys, ingest.NewRateLimiter(cfg.Ingest.RateLimitPerMinute),
 		ingest.NewQuotaTracker(database), a.usage, ingest.NewDedupe(cfg.Ingest.DedupeSize, time.Hour), a.Pipeline)
+	// Cron monitoring: failing monitors become events of an issue per
+	// monitor and environment, so alert rules cover them.
+	a.Monitors = monitor.NewService(database, log,
+		ingest.NewIncidentEmitter(database, a.Pipeline, time.Duration(cfg.Retention.Days)*24*time.Hour))
+	a.Ingest.SetMonitors(a.Monitors)
 
 	a.Server = server.New(server.Options{Config: cfg, Logger: log, DB: database, UI: opts.UI})
 	path, handler := ingestv1connect.NewIngestServiceHandler(a.Ingest,
@@ -203,6 +211,7 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 			a.Ingest.SessionRecorder().Flush(ctx, database, log)
 			return nil
 		}},
+		jobs.Task{Name: "monitor-sweep", Interval: 30 * time.Second, Run: a.Monitors.Sweep},
 		jobs.Task{Name: "link-feedback", Interval: time.Minute, Run: func(ctx context.Context) error {
 			// Feedback can arrive before its event is stored.
 			return database.InSystem(ctx, func(tx pgx.Tx) error {

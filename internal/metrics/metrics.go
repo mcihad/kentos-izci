@@ -67,7 +67,7 @@ var (
 // sentryItemTypes are the envelope item types counted by name; anything
 // else is counted as "other" so clients cannot create new series.
 var sentryItemTypes = []string{
-	"transaction", "session", "sessions", "attachment", "client_report", "check_in", "log", "profile",
+	"transaction", "session", "sessions", "attachment", "client_report", "log", "profile",
 	"profile_chunk", "replay_event", "replay_recording", "replay_video", "span", "statsd", "user_report", "feedback",
 }
 
@@ -88,6 +88,23 @@ func SentryItemDropped(itemType string) {
 	}
 	c.Inc()
 }
+
+// Cron monitoring: check-ins by outcome, runs izci records itself, and the
+// issues raised and resolved for monitors.
+var (
+	CheckInsAccepted    = shared.NewCounter(`izci_monitor_checkins_total{outcome="accepted"}`)
+	CheckInsUnknown     = shared.NewCounter(`izci_monitor_checkins_total{outcome="unknown_monitor"}`)
+	CheckInsInvalid     = shared.NewCounter(`izci_monitor_checkins_total{outcome="invalid"}`)
+	CheckInsRateLimited = shared.NewCounter(`izci_monitor_checkins_total{outcome="rate_limited"}`)
+	// MonitorMissed counts runs that did not check in on time.
+	MonitorMissed = shared.NewCounter("izci_monitor_missed_total")
+	// MonitorTimeouts counts runs that stayed in progress too long.
+	MonitorTimeouts = shared.NewCounter("izci_monitor_timeouts_total")
+	// MonitorIncidents counts failure events sent to monitor issues.
+	MonitorIncidents = shared.NewCounter("izci_monitor_incident_events_total")
+	// MonitorRecoveries counts monitor issues resolved by successful runs.
+	MonitorRecoveries = shared.NewCounter("izci_monitor_recoveries_total")
+)
 
 // Sentry items other than events.
 var (

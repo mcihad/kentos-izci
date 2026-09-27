@@ -14,6 +14,10 @@ var turkish = strings.NewReplacer(
 	"â", "a", "Â", "a", "î", "i", "Î", "i", "û", "u", "Û", "u",
 )
 
+// Transliterate replaces Turkish letters (and a few common Latin ones) with
+// their ASCII counterparts, keeping everything else.
+func Transliterate(s string) string { return turkish.Replace(s) }
+
 // Make returns a slug of at most maxLen characters matching
 // ^[a-z][a-z0-9-]*[a-z0-9]$, or "" when name has no usable characters.
 // A leading digit is prefixed with "p-".

@@ -49,6 +49,7 @@ type API struct {
 	customers apiv1connect.CustomerServiceClient
 	ai        apiv1connect.AiServiceClient
 	orgs      apiv1connect.OrganizationServiceClient
+	monitors  apiv1connect.MonitorServiceClient
 }
 
 // NewAPI builds API clients on hc against baseURL. Credentials travel in
@@ -64,6 +65,7 @@ func NewAPI(hc connect.HTTPClient, baseURL string) *API {
 		customers: apiv1connect.NewCustomerServiceClient(hc, base, opt),
 		ai:        apiv1connect.NewAiServiceClient(hc, base, opt),
 		orgs:      apiv1connect.NewOrganizationServiceClient(hc, base, opt),
+		monitors:  apiv1connect.NewMonitorServiceClient(hc, base, opt),
 	}
 }
 

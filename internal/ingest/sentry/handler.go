@@ -23,6 +23,7 @@ import (
 
 	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/metrics"
+	"github.com/mcihad/kentos-izci/internal/monitor"
 	ingestv1 "github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1"
 )
 
@@ -52,6 +53,11 @@ func (h *Handler) Register(handle func(pattern string, handler http.Handler)) {
 	handle("/api/{project}/envelope", envelope)
 	handle("/api/{project}/store/{$}", store)
 	handle("/api/{project}/store", store)
+	cron := ingest.CORS(http.HandlerFunc(h.cron))
+	handle("/api/{project}/cron/{monitor}/{key}/{$}", cron)
+	handle("/api/{project}/cron/{monitor}/{key}", cron)
+	handle("/api/{project}/cron/{monitor}/{$}", cron)
+	handle("/api/{project}/cron/{monitor}", cron)
 }
 
 type item struct {
@@ -70,8 +76,8 @@ type itemHeader struct {
 }
 
 // envelope serves POST /api/{project}/envelope/: errors, attachments, user
-// feedback, sessions and client reports are processed; other items
-// (transactions, spans, profiles, replays, check-ins, logs) are accepted and
+// feedback, sessions, cron check-ins and client reports are processed; other
+// items (transactions, spans, profiles, replays, logs) are accepted and
 // dropped.
 func (h *Handler) envelope(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -112,6 +118,7 @@ func (h *Handler) envelope(w http.ResponseWriter, r *http.Request) {
 		feedback   []ingest.FeedbackInput
 		sessions   []ingest.SessionUpdate
 		aggregates []ingest.SessionAggregate
+		checkIns   []monitor.CheckIn
 	)
 	for _, it := range items {
 		switch it.typ {
@@ -157,11 +164,18 @@ func (h *Handler) envelope(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			aggregates = append(aggregates, a...)
+		case "check_in":
+			in, err := DecodeCheckIn(it.payload, drift)
+			if err != nil {
+				writeError(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			checkIns = append(checkIns, in)
 		case "client_report":
 			recordClientReport(it.payload)
 		default:
-			// transaction, span, profile(_chunk), replay_*, check_in, log,
-			// statsd …: other Sentry products than error monitoring.
+			// transaction, span, profile(_chunk), replay_*, log, statsd …:
+			// other Sentry products than error monitoring.
 			metrics.SentryItemDropped(it.typ)
 		}
 	}
@@ -171,6 +185,13 @@ func (h *Handler) envelope(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.svc.RecordSessions(caller, sessions, aggregates)
+	for _, in := range checkIns {
+		// An envelope has no per-item answer; a refused check-in (unknown
+		// monitor, rate limit) is logged and counted in metrics.
+		if _, err := h.svc.AcceptCheckIn(r.Context(), caller, in); err != nil {
+			h.log.Debug("check-in refused", slog.String("monitor", in.MonitorSlug), slog.Any("err", err))
+		}
+	}
 	for _, fb := range feedback {
 		if err := h.svc.AcceptFeedback(r.Context(), caller, fb); err != nil && !errors.Is(err, ingest.ErrEmptyFeedback) {
 			h.log.Warn("store user feedback", slog.Any("err", err))

@@ -116,6 +116,31 @@ cfg.ConnConfig.Tracer = &izcipgx.Tracer{}
 
 Sorgular breadcrumb olur. Hatalı sorgu, PostgreSQL hata koduyla birlikte scope'a eklenir; ardından yakalanan hatanın olayında "Veritabanı" kartında görünür.
 
+## Zamanlanmış görevler
+
+`WithMonitor` bir görevi [izleyicinin](cron.md) bir çalışması olarak çalıştırır: başlarken `in_progress`, görev dönünce süresiyle birlikte `ok` ya da (görev hata döndürdüyse) `error` gönderir. Görevin hatası olduğu gibi döner; check-in gönderilemezse görev yine çalışır.
+
+```go
+err := izci.WithMonitor(ctx, "gunluk-tahsilat", &izci.MonitorConfig{
+	Crontab:       "0 3 * * *",
+	Timezone:      "Europe/Istanbul",
+	CheckinMargin: 5 * time.Minute,
+	MaxRuntime:    30 * time.Minute,
+}, runBilling)
+```
+
+`MonitorConfig` izleyiciyi oluşturur ya da günceller; izleyici arayüzden oluşturulduysa `nil` verilebilir. Aralıklı işler için `Crontab` yerine `Interval: 2, Unit: izci.Hour` yazılır.
+
+Tek tek göndermek için `CaptureCheckIn` vardır. Olay kuyruğunu beklemeden hemen gönderir ve çalışmanın kimliğini döner:
+
+```go
+id, err := izci.CaptureCheckIn(ctx, izci.CheckIn{MonitorSlug: "gece-aktarim", Status: izci.CheckInInProgress}, nil)
+// ... iş ...
+_, err = izci.CaptureCheckIn(ctx, izci.CheckIn{ID: id, MonitorSlug: "gece-aktarim", Status: izci.CheckInOK}, nil)
+```
+
+Ortam ve sürüm verilmezse istemcinin `Environment` ve `Release` ayarları kullanılır.
+
 ## Çalışma zamanı bağlamı
 
 `DisableRuntimeContext` kapalıyken her olay şunları taşır: `runtime.MemStats` (heap, GC), goroutine sayısı, `GOMAXPROCS`, süreç CPU süresi ve RSS, makinenin belleği ve yük ortalaması (Linux'ta `/proc`, macOS'ta `sysctl`). Bu bilgiler olay sayfasında gösterge kartları olarak görünür.

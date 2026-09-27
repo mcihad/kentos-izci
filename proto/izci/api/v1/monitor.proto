@@ -1,0 +1,383 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "izci/api/v1/common.proto";
+
+// MonitorService manages cron monitors: scheduled jobs (reports, billing
+// runs, imports) that report when they run. Monitors are usually created by
+// the jobs themselves with their first check-in (Sentry SDK monitor_config
+// or izci.ingest.v1.IngestService.SendCheckIn); they can also be created and
+// edited here. A monitor that misses runs, fails or times out raises an
+// issue, which alert rules notify about like any other.
+service MonitorService {
+  // ListMonitors returns the monitors of the current organization with the
+  // state of each environment and their latest runs. Requires ROLE_VIEWER.
+  rpc ListMonitors(ListMonitorsRequest) returns (ListMonitorsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // GetMonitor returns one monitor. Requires ROLE_VIEWER.
+  rpc GetMonitor(GetMonitorRequest) returns (GetMonitorResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // CreateMonitor creates a monitor in a project. Requires ROLE_ADMIN.
+  rpc CreateMonitor(CreateMonitorRequest) returns (CreateMonitorResponse);
+
+  // UpdateMonitor changes the name, schedule, failure policy or paused
+  // state of a monitor. Requires ROLE_ADMIN.
+  rpc UpdateMonitor(UpdateMonitorRequest) returns (UpdateMonitorResponse);
+
+  // DeleteMonitor deletes a monitor with its runs. Its issues stay. Requires
+  // ROLE_ADMIN.
+  rpc DeleteMonitor(DeleteMonitorRequest) returns (DeleteMonitorResponse);
+
+  // ListCheckIns returns the runs of a monitor, newest first. Requires
+  // ROLE_VIEWER.
+  rpc ListCheckIns(ListCheckInsRequest) returns (ListCheckInsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+}
+
+// Monitor is a scheduled job izci watches.
+message Monitor {
+  // Monitor id (UUID).
+  string id = 1;
+
+  // Project the monitor belongs to.
+  ProjectRef project = 2;
+
+  // Identifier jobs use in check-ins (monitor_slug), unique in the project,
+  // e.g. "daily-billing".
+  string slug = 3;
+
+  // Display name, e.g. "Günlük tahsilat".
+  string name = 4;
+
+  // When runs are due.
+  MonitorSchedule schedule = 5;
+
+  // IANA time zone the crontab is read in, e.g. "Europe/Istanbul".
+  string timezone = 6;
+
+  // Minutes a run may check in late before it counts as missed.
+  uint32 checkin_margin_minutes = 7;
+
+  // Minutes a run may stay in progress before it counts as timed out.
+  uint32 max_runtime_minutes = 8;
+
+  // Failed runs in a row that open an issue.
+  uint32 failure_threshold = 9;
+
+  // Successful runs in a row that resolve the issue again.
+  uint32 recovery_threshold = 10;
+
+  // A paused monitor records runs but raises no issues and never counts a
+  // run as missed.
+  bool paused = 11;
+
+  // State per environment the job reported from, ordered by name.
+  repeated MonitorEnvironment environments = 12;
+
+  // Latest runs across environments, newest first (at most 30); filled by
+  // ListMonitors.
+  repeated CheckIn recent_check_ins = 13;
+
+  // When the monitor was created.
+  google.protobuf.Timestamp created_at = 14;
+
+  // When the monitor was last changed.
+  google.protobuf.Timestamp updated_at = 15;
+}
+
+// MonitorSchedule says when runs are due.
+message MonitorSchedule {
+  // The kind of schedule. Required.
+  oneof kind {
+    // Crontab expression in five fields or a descriptor, e.g. "0 3 * * *"
+    // (03:00 every day) or "@hourly".
+    string crontab = 1 [(buf.validate.field).string = {
+      min_len: 1
+      max_len: 100
+    }];
+
+    // A run every interval, counted from the previous run.
+    MonitorInterval interval = 2;
+  }
+}
+
+// MonitorInterval is an interval schedule, e.g. every 2 hours.
+message MonitorInterval {
+  // Number of units between runs.
+  uint32 value = 1 [(buf.validate.field).uint32 = {
+    gte: 1
+    lte: 100000
+  }];
+
+  // Unit of the interval.
+  MonitorIntervalUnit unit = 2 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+}
+
+// MonitorIntervalUnit is the unit of an interval schedule.
+enum MonitorIntervalUnit {
+  // Not set.
+  MONITOR_INTERVAL_UNIT_UNSPECIFIED = 0;
+  // Minutes.
+  MONITOR_INTERVAL_UNIT_MINUTE = 1;
+  // Hours.
+  MONITOR_INTERVAL_UNIT_HOUR = 2;
+  // Days.
+  MONITOR_INTERVAL_UNIT_DAY = 3;
+  // Weeks.
+  MONITOR_INTERVAL_UNIT_WEEK = 4;
+  // Calendar months.
+  MONITOR_INTERVAL_UNIT_MONTH = 5;
+  // Calendar years.
+  MONITOR_INTERVAL_UNIT_YEAR = 6;
+}
+
+// MonitorEnvironment is the state of a monitor in one environment.
+message MonitorEnvironment {
+  // Environment name, e.g. "production".
+  string environment = 1;
+
+  // Outcome of the last finished run.
+  MonitorStatus status = 2;
+
+  // When the last run started (or finished, for single check-ins).
+  google.protobuf.Timestamp last_check_in_at = 3;
+
+  // When the next run is expected; unset before the first run.
+  google.protobuf.Timestamp next_check_in_at = 4;
+
+  // The latest the next run may check in before it counts as missed.
+  google.protobuf.Timestamp next_check_in_latest = 5;
+
+  // Failed runs in a row.
+  uint32 failures = 6;
+
+  // The open issue raised for this environment, if any.
+  IssueRef issue = 7;
+}
+
+// MonitorStatus is the state of a monitor environment.
+enum MonitorStatus {
+  // Not set.
+  MONITOR_STATUS_UNSPECIFIED = 0;
+  // No run has finished yet.
+  MONITOR_STATUS_WAITING = 1;
+  // The last run succeeded.
+  MONITOR_STATUS_OK = 2;
+  // The last run failed.
+  MONITOR_STATUS_ERROR = 3;
+  // The last expected run did not check in.
+  MONITOR_STATUS_MISSED = 4;
+  // The last run did not finish within the maximum runtime.
+  MONITOR_STATUS_TIMEOUT = 5;
+}
+
+// CheckIn is one run of a monitored job.
+message CheckIn {
+  // Run id in izci (UUID).
+  string id = 1;
+
+  // Id the job gave the run (check_in_id); izci's own id for missed runs.
+  string check_in_id = 2;
+
+  // Environment of the run.
+  string environment = 3;
+
+  // Outcome, or IN_PROGRESS while running.
+  CheckInStatus status = 4;
+
+  // How long the run took; unset while in progress or unknown.
+  google.protobuf.Duration duration = 5;
+
+  // Release of the job's code, when reported.
+  string release = 6;
+
+  // The scheduled time the run answered, when known.
+  google.protobuf.Timestamp expected_at = 7;
+
+  // When the run started (for missed runs: when izci noticed).
+  google.protobuf.Timestamp started_at = 8;
+
+  // When the run was last updated.
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+// CheckInStatus is the state of a run.
+enum CheckInStatus {
+  // Not set.
+  CHECK_IN_STATUS_UNSPECIFIED = 0;
+  // Still running.
+  CHECK_IN_STATUS_IN_PROGRESS = 1;
+  // Finished successfully.
+  CHECK_IN_STATUS_OK = 2;
+  // Finished with an error.
+  CHECK_IN_STATUS_ERROR = 3;
+  // Did not check in on schedule.
+  CHECK_IN_STATUS_MISSED = 4;
+  // Stayed in progress longer than the maximum runtime.
+  CHECK_IN_STATUS_TIMEOUT = 5;
+}
+
+// ListMonitorsRequest filters monitors.
+message ListMonitorsRequest {
+  // Project slug; empty for every project.
+  string project = 1 [(buf.validate.field).string.max_len = 50];
+
+  // Case-insensitive text to find in the name or slug.
+  string query = 2 [(buf.validate.field).string.max_len = 100];
+}
+
+// ListMonitorsResponse lists monitors ordered by name.
+message ListMonitorsResponse {
+  // Monitors with their environments and recent runs.
+  repeated Monitor monitors = 1;
+}
+
+// GetMonitorRequest names a monitor.
+message GetMonitorRequest {
+  // Monitor id (UUID).
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// GetMonitorResponse holds the monitor.
+message GetMonitorResponse {
+  // The monitor with its environments.
+  Monitor monitor = 1;
+}
+
+// CreateMonitorRequest describes a new monitor.
+message CreateMonitorRequest {
+  // Project slug. Required.
+  string project = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+
+  // Display name. Required.
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // Slug jobs use; derived from the name when empty.
+  string slug = 3 [(buf.validate.field).string.max_len = 50];
+
+  // When runs are due. Required.
+  MonitorSchedule schedule = 4 [(buf.validate.field).required = true];
+
+  // IANA time zone of the crontab; UTC when empty.
+  string timezone = 5 [(buf.validate.field).string.max_len = 64];
+
+  // Minutes a run may be late (default 1).
+  uint32 checkin_margin_minutes = 6 [(buf.validate.field).uint32.lte = 43200];
+
+  // Minutes a run may take (default 30).
+  uint32 max_runtime_minutes = 7 [(buf.validate.field).uint32.lte = 10080];
+
+  // Failed runs in a row that open an issue (default 1).
+  uint32 failure_threshold = 8 [(buf.validate.field).uint32.lte = 720];
+
+  // Successful runs in a row that resolve it (default 1).
+  uint32 recovery_threshold = 9 [(buf.validate.field).uint32.lte = 720];
+}
+
+// CreateMonitorResponse holds the new monitor.
+message CreateMonitorResponse {
+  // The created monitor.
+  Monitor monitor = 1;
+}
+
+// UpdateMonitorRequest changes a monitor; unset fields keep their value.
+message UpdateMonitorRequest {
+  // Monitor id (UUID).
+  string id = 1 [(buf.validate.field).string.uuid = true];
+
+  // New display name.
+  optional string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // New schedule.
+  MonitorSchedule schedule = 3;
+
+  // New time zone.
+  optional string timezone = 4 [(buf.validate.field).string.max_len = 64];
+
+  // New lateness margin in minutes.
+  optional uint32 checkin_margin_minutes = 5 [(buf.validate.field).uint32 = {
+    gte: 1
+    lte: 43200
+  }];
+
+  // New maximum runtime in minutes.
+  optional uint32 max_runtime_minutes = 6 [(buf.validate.field).uint32 = {
+    gte: 1
+    lte: 10080
+  }];
+
+  // New failure threshold.
+  optional uint32 failure_threshold = 7 [(buf.validate.field).uint32 = {
+    gte: 1
+    lte: 720
+  }];
+
+  // New recovery threshold.
+  optional uint32 recovery_threshold = 8 [(buf.validate.field).uint32 = {
+    gte: 1
+    lte: 720
+  }];
+
+  // Pauses (true) or resumes (false) the monitor.
+  optional bool paused = 9;
+}
+
+// UpdateMonitorResponse holds the changed monitor.
+message UpdateMonitorResponse {
+  // The monitor after the change.
+  Monitor monitor = 1;
+}
+
+// DeleteMonitorRequest names the monitor to delete.
+message DeleteMonitorRequest {
+  // Monitor id (UUID).
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// DeleteMonitorResponse confirms the deletion.
+message DeleteMonitorResponse {}
+
+// ListCheckInsRequest pages the runs of a monitor.
+message ListCheckInsRequest {
+  // Monitor id (UUID).
+  string monitor_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // Environment to show; empty for all.
+  string environment = 2 [(buf.validate.field).string.max_len = 64];
+
+  // Maximum runs to return (default 50, max 100).
+  uint32 page_size = 3 [(buf.validate.field).uint32.lte = 100];
+
+  // Token from a previous response.
+  string page_token = 4;
+}
+
+// ListCheckInsResponse is a page of runs.
+message ListCheckInsResponse {
+  // Runs, newest first.
+  repeated CheckIn check_ins = 1;
+
+  // Token for the next page, empty on the last one.
+  string next_page_token = 2;
+}

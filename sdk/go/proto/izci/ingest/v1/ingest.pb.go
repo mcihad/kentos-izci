@@ -9,6 +9,7 @@ package ingestv1
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -91,6 +92,132 @@ func (x EventOutcome) Number() protoreflect.EnumNumber {
 // Deprecated: Use EventOutcome.Descriptor instead.
 func (EventOutcome) EnumDescriptor() ([]byte, []int) {
 	return file_izci_ingest_v1_ingest_proto_rawDescGZIP(), []int{0}
+}
+
+// CheckInStatus is the state a check-in reports.
+type CheckInStatus int32
+
+const (
+	// Not set; rejected.
+	CheckInStatus_CHECK_IN_STATUS_UNSPECIFIED CheckInStatus = 0
+	// The job started.
+	CheckInStatus_CHECK_IN_STATUS_IN_PROGRESS CheckInStatus = 1
+	// The job finished successfully.
+	CheckInStatus_CHECK_IN_STATUS_OK CheckInStatus = 2
+	// The job failed.
+	CheckInStatus_CHECK_IN_STATUS_ERROR CheckInStatus = 3
+)
+
+// Enum value maps for CheckInStatus.
+var (
+	CheckInStatus_name = map[int32]string{
+		0: "CHECK_IN_STATUS_UNSPECIFIED",
+		1: "CHECK_IN_STATUS_IN_PROGRESS",
+		2: "CHECK_IN_STATUS_OK",
+		3: "CHECK_IN_STATUS_ERROR",
+	}
+	CheckInStatus_value = map[string]int32{
+		"CHECK_IN_STATUS_UNSPECIFIED": 0,
+		"CHECK_IN_STATUS_IN_PROGRESS": 1,
+		"CHECK_IN_STATUS_OK":          2,
+		"CHECK_IN_STATUS_ERROR":       3,
+	}
+)
+
+func (x CheckInStatus) Enum() *CheckInStatus {
+	p := new(CheckInStatus)
+	*p = x
+	return p
+}
+
+func (x CheckInStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CheckInStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_izci_ingest_v1_ingest_proto_enumTypes[1].Descriptor()
+}
+
+func (CheckInStatus) Type() protoreflect.EnumType {
+	return &file_izci_ingest_v1_ingest_proto_enumTypes[1]
+}
+
+func (x CheckInStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CheckInStatus.Descriptor instead.
+func (CheckInStatus) EnumDescriptor() ([]byte, []int) {
+	return file_izci_ingest_v1_ingest_proto_rawDescGZIP(), []int{1}
+}
+
+// IntervalUnit is the unit of an interval schedule.
+type IntervalUnit int32
+
+const (
+	// Not set; rejected.
+	IntervalUnit_INTERVAL_UNIT_UNSPECIFIED IntervalUnit = 0
+	// Minutes.
+	IntervalUnit_INTERVAL_UNIT_MINUTE IntervalUnit = 1
+	// Hours.
+	IntervalUnit_INTERVAL_UNIT_HOUR IntervalUnit = 2
+	// Days.
+	IntervalUnit_INTERVAL_UNIT_DAY IntervalUnit = 3
+	// Weeks.
+	IntervalUnit_INTERVAL_UNIT_WEEK IntervalUnit = 4
+	// Calendar months.
+	IntervalUnit_INTERVAL_UNIT_MONTH IntervalUnit = 5
+	// Calendar years.
+	IntervalUnit_INTERVAL_UNIT_YEAR IntervalUnit = 6
+)
+
+// Enum value maps for IntervalUnit.
+var (
+	IntervalUnit_name = map[int32]string{
+		0: "INTERVAL_UNIT_UNSPECIFIED",
+		1: "INTERVAL_UNIT_MINUTE",
+		2: "INTERVAL_UNIT_HOUR",
+		3: "INTERVAL_UNIT_DAY",
+		4: "INTERVAL_UNIT_WEEK",
+		5: "INTERVAL_UNIT_MONTH",
+		6: "INTERVAL_UNIT_YEAR",
+	}
+	IntervalUnit_value = map[string]int32{
+		"INTERVAL_UNIT_UNSPECIFIED": 0,
+		"INTERVAL_UNIT_MINUTE":      1,
+		"INTERVAL_UNIT_HOUR":        2,
+		"INTERVAL_UNIT_DAY":         3,
+		"INTERVAL_UNIT_WEEK":        4,
+		"INTERVAL_UNIT_MONTH":       5,
+		"INTERVAL_UNIT_YEAR":        6,
+	}
+)
+
+func (x IntervalUnit) Enum() *IntervalUnit {
+	p := new(IntervalUnit)
+	*p = x
+	return p
+}
+
+func (x IntervalUnit) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (IntervalUnit) Descriptor() protoreflect.EnumDescriptor {
+	return file_izci_ingest_v1_ingest_proto_enumTypes[2].Descriptor()
+}
+
+func (IntervalUnit) Type() protoreflect.EnumType {
+	return &file_izci_ingest_v1_ingest_proto_enumTypes[2]
+}
+
+func (x IntervalUnit) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use IntervalUnit.Descriptor instead.
+func (IntervalUnit) EnumDescriptor() ([]byte, []int) {
+	return file_izci_ingest_v1_ingest_proto_rawDescGZIP(), []int{2}
 }
 
 // SendEventRequest carries one event.
@@ -776,11 +903,412 @@ func (x *GetClientConfigResponse) GetCacheTtlSeconds() uint32 {
 	return 0
 }
 
+// SendCheckInRequest carries one check-in.
+type SendCheckInRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The check-in. Required.
+	CheckIn       *CheckIn `protobuf:"bytes,1,opt,name=check_in,json=checkIn,proto3" json:"check_in,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SendCheckInRequest) Reset() {
+	*x = SendCheckInRequest{}
+	mi := &file_izci_ingest_v1_ingest_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SendCheckInRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SendCheckInRequest) ProtoMessage() {}
+
+func (x *SendCheckInRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_ingest_v1_ingest_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SendCheckInRequest.ProtoReflect.Descriptor instead.
+func (*SendCheckInRequest) Descriptor() ([]byte, []int) {
+	return file_izci_ingest_v1_ingest_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *SendCheckInRequest) GetCheckIn() *CheckIn {
+	if x != nil {
+		return x.CheckIn
+	}
+	return nil
+}
+
+// SendCheckInResponse identifies the run the check-in belongs to.
+type SendCheckInResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Id of the run (UUID): the check_in_id sent, or a new one. Send it with
+	// the closing check-in of a run that is in progress.
+	CheckInId     string `protobuf:"bytes,1,opt,name=check_in_id,json=checkInId,proto3" json:"check_in_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SendCheckInResponse) Reset() {
+	*x = SendCheckInResponse{}
+	mi := &file_izci_ingest_v1_ingest_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SendCheckInResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SendCheckInResponse) ProtoMessage() {}
+
+func (x *SendCheckInResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_ingest_v1_ingest_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SendCheckInResponse.ProtoReflect.Descriptor instead.
+func (*SendCheckInResponse) Descriptor() ([]byte, []int) {
+	return file_izci_ingest_v1_ingest_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *SendCheckInResponse) GetCheckInId() string {
+	if x != nil {
+		return x.CheckInId
+	}
+	return ""
+}
+
+// CheckIn reports that a scheduled job started or finished.
+type CheckIn struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Id of the run (UUID) chosen by the job. A later check-in with the same
+	// id finishes the run. When empty, the server assigns one; a closing
+	// check-in without id finishes the newest run still in progress.
+	CheckInId string `protobuf:"bytes,1,opt,name=check_in_id,json=checkInId,proto3" json:"check_in_id,omitempty"`
+	// Slug of the monitor within the project, e.g. "daily-billing". Letters,
+	// digits, "-" and "_"; other characters become "-". Required. Max 50
+	// characters.
+	MonitorSlug string `protobuf:"bytes,2,opt,name=monitor_slug,json=monitorSlug,proto3" json:"monitor_slug,omitempty"`
+	// What happened. Required.
+	Status CheckInStatus `protobuf:"varint,3,opt,name=status,proto3,enum=izci.ingest.v1.CheckInStatus" json:"status,omitempty"`
+	// How long the run took; defaults to the time between the in-progress
+	// and the closing check-in.
+	Duration *durationpb.Duration `protobuf:"bytes,4,opt,name=duration,proto3" json:"duration,omitempty"`
+	// Environment the job runs in, e.g. "production" (the default).
+	Environment string `protobuf:"bytes,5,opt,name=environment,proto3" json:"environment,omitempty"`
+	// Release of the job's code, e.g. "billing@2.3.0".
+	Release string `protobuf:"bytes,6,opt,name=release,proto3" json:"release,omitempty"`
+	// Trace the run belongs to (32 hexadecimal characters), when traced.
+	TraceId string `protobuf:"bytes,7,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
+	// Creates the monitor, or updates it when the schedule changed. Sending
+	// it with every check-in keeps the monitor in sync with the code.
+	MonitorConfig *MonitorConfig `protobuf:"bytes,8,opt,name=monitor_config,json=monitorConfig,proto3" json:"monitor_config,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckIn) Reset() {
+	*x = CheckIn{}
+	mi := &file_izci_ingest_v1_ingest_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckIn) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckIn) ProtoMessage() {}
+
+func (x *CheckIn) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_ingest_v1_ingest_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckIn.ProtoReflect.Descriptor instead.
+func (*CheckIn) Descriptor() ([]byte, []int) {
+	return file_izci_ingest_v1_ingest_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *CheckIn) GetCheckInId() string {
+	if x != nil {
+		return x.CheckInId
+	}
+	return ""
+}
+
+func (x *CheckIn) GetMonitorSlug() string {
+	if x != nil {
+		return x.MonitorSlug
+	}
+	return ""
+}
+
+func (x *CheckIn) GetStatus() CheckInStatus {
+	if x != nil {
+		return x.Status
+	}
+	return CheckInStatus_CHECK_IN_STATUS_UNSPECIFIED
+}
+
+func (x *CheckIn) GetDuration() *durationpb.Duration {
+	if x != nil {
+		return x.Duration
+	}
+	return nil
+}
+
+func (x *CheckIn) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
+func (x *CheckIn) GetRelease() string {
+	if x != nil {
+		return x.Release
+	}
+	return ""
+}
+
+func (x *CheckIn) GetTraceId() string {
+	if x != nil {
+		return x.TraceId
+	}
+	return ""
+}
+
+func (x *CheckIn) GetMonitorConfig() *MonitorConfig {
+	if x != nil {
+		return x.MonitorConfig
+	}
+	return nil
+}
+
+// MonitorConfig is the schedule and failure policy of a monitor.
+//
+// Sentry equivalent: monitor_config.
+type MonitorConfig struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// When runs are due. Required.
+	//
+	// Types that are valid to be assigned to Schedule:
+	//
+	//	*MonitorConfig_Crontab
+	//	*MonitorConfig_Interval
+	Schedule isMonitorConfig_Schedule `protobuf_oneof:"schedule"`
+	// IANA time zone the crontab is read in, e.g. "Europe/Istanbul". Defaults
+	// to UTC.
+	Timezone string `protobuf:"bytes,3,opt,name=timezone,proto3" json:"timezone,omitempty"`
+	// Minutes a run may check in late before it counts as missed. Default 1,
+	// max 43200 (30 days).
+	CheckinMarginMinutes uint32 `protobuf:"varint,4,opt,name=checkin_margin_minutes,json=checkinMarginMinutes,proto3" json:"checkin_margin_minutes,omitempty"`
+	// Minutes a run may stay in progress before it counts as timed out.
+	// Default 30, max 10080 (7 days).
+	MaxRuntimeMinutes uint32 `protobuf:"varint,5,opt,name=max_runtime_minutes,json=maxRuntimeMinutes,proto3" json:"max_runtime_minutes,omitempty"`
+	// Failed runs in a row that open an issue. Default 1.
+	FailureIssueThreshold uint32 `protobuf:"varint,6,opt,name=failure_issue_threshold,json=failureIssueThreshold,proto3" json:"failure_issue_threshold,omitempty"`
+	// Successful runs in a row that resolve the issue again. Default 1.
+	RecoveryThreshold uint32 `protobuf:"varint,7,opt,name=recovery_threshold,json=recoveryThreshold,proto3" json:"recovery_threshold,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *MonitorConfig) Reset() {
+	*x = MonitorConfig{}
+	mi := &file_izci_ingest_v1_ingest_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MonitorConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MonitorConfig) ProtoMessage() {}
+
+func (x *MonitorConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_ingest_v1_ingest_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MonitorConfig.ProtoReflect.Descriptor instead.
+func (*MonitorConfig) Descriptor() ([]byte, []int) {
+	return file_izci_ingest_v1_ingest_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *MonitorConfig) GetSchedule() isMonitorConfig_Schedule {
+	if x != nil {
+		return x.Schedule
+	}
+	return nil
+}
+
+func (x *MonitorConfig) GetCrontab() string {
+	if x != nil {
+		if x, ok := x.Schedule.(*MonitorConfig_Crontab); ok {
+			return x.Crontab
+		}
+	}
+	return ""
+}
+
+func (x *MonitorConfig) GetInterval() *MonitorInterval {
+	if x != nil {
+		if x, ok := x.Schedule.(*MonitorConfig_Interval); ok {
+			return x.Interval
+		}
+	}
+	return nil
+}
+
+func (x *MonitorConfig) GetTimezone() string {
+	if x != nil {
+		return x.Timezone
+	}
+	return ""
+}
+
+func (x *MonitorConfig) GetCheckinMarginMinutes() uint32 {
+	if x != nil {
+		return x.CheckinMarginMinutes
+	}
+	return 0
+}
+
+func (x *MonitorConfig) GetMaxRuntimeMinutes() uint32 {
+	if x != nil {
+		return x.MaxRuntimeMinutes
+	}
+	return 0
+}
+
+func (x *MonitorConfig) GetFailureIssueThreshold() uint32 {
+	if x != nil {
+		return x.FailureIssueThreshold
+	}
+	return 0
+}
+
+func (x *MonitorConfig) GetRecoveryThreshold() uint32 {
+	if x != nil {
+		return x.RecoveryThreshold
+	}
+	return 0
+}
+
+type isMonitorConfig_Schedule interface {
+	isMonitorConfig_Schedule()
+}
+
+type MonitorConfig_Crontab struct {
+	// Crontab expression in five fields or a descriptor, e.g. "0 3 * * *"
+	// (03:00 every day) or "@hourly".
+	Crontab string `protobuf:"bytes,1,opt,name=crontab,proto3,oneof"`
+}
+
+type MonitorConfig_Interval struct {
+	// A run every interval, counted from the previous run.
+	Interval *MonitorInterval `protobuf:"bytes,2,opt,name=interval,proto3,oneof"`
+}
+
+func (*MonitorConfig_Crontab) isMonitorConfig_Schedule() {}
+
+func (*MonitorConfig_Interval) isMonitorConfig_Schedule() {}
+
+// MonitorInterval is an interval schedule, e.g. every 2 hours.
+type MonitorInterval struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Number of units between runs, at least 1.
+	Value uint32 `protobuf:"varint,1,opt,name=value,proto3" json:"value,omitempty"`
+	// Unit of the interval.
+	Unit          IntervalUnit `protobuf:"varint,2,opt,name=unit,proto3,enum=izci.ingest.v1.IntervalUnit" json:"unit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MonitorInterval) Reset() {
+	*x = MonitorInterval{}
+	mi := &file_izci_ingest_v1_ingest_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MonitorInterval) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MonitorInterval) ProtoMessage() {}
+
+func (x *MonitorInterval) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_ingest_v1_ingest_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MonitorInterval.ProtoReflect.Descriptor instead.
+func (*MonitorInterval) Descriptor() ([]byte, []int) {
+	return file_izci_ingest_v1_ingest_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *MonitorInterval) GetValue() uint32 {
+	if x != nil {
+		return x.Value
+	}
+	return 0
+}
+
+func (x *MonitorInterval) GetUnit() IntervalUnit {
+	if x != nil {
+		return x.Unit
+	}
+	return IntervalUnit_INTERVAL_UNIT_UNSPECIFIED
+}
+
 var File_izci_ingest_v1_ingest_proto protoreflect.FileDescriptor
 
 const file_izci_ingest_v1_ingest_proto_rawDesc = "" +
 	"\n" +
-	"\x1bizci/ingest/v1/ingest.proto\x12\x0eizci.ingest.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1aizci/ingest/v1/event.proto\"?\n" +
+	"\x1bizci/ingest/v1/ingest.proto\x12\x0eizci.ingest.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1aizci/ingest/v1/event.proto\"?\n" +
 	"\x10SendEventRequest\x12+\n" +
 	"\x05event\x18\x01 \x01(\v2\x15.izci.ingest.v1.EventR\x05event\"H\n" +
 	"\x11SendEventResponse\x123\n" +
@@ -837,20 +1365,60 @@ const file_izci_ingest_v1_ingest_proto_rawDesc = "" +
 	" \x01(\bR\tcollectIp\x12;\n" +
 	"\vserver_time\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"serverTime\x12*\n" +
-	"\x11cache_ttl_seconds\x18\f \x01(\rR\x0fcacheTtlSeconds*\xbd\x01\n" +
+	"\x11cache_ttl_seconds\x18\f \x01(\rR\x0fcacheTtlSeconds\"H\n" +
+	"\x12SendCheckInRequest\x122\n" +
+	"\bcheck_in\x18\x01 \x01(\v2\x17.izci.ingest.v1.CheckInR\acheckIn\"5\n" +
+	"\x13SendCheckInResponse\x12\x1e\n" +
+	"\vcheck_in_id\x18\x01 \x01(\tR\tcheckInId\"\xd7\x02\n" +
+	"\aCheckIn\x12\x1e\n" +
+	"\vcheck_in_id\x18\x01 \x01(\tR\tcheckInId\x12!\n" +
+	"\fmonitor_slug\x18\x02 \x01(\tR\vmonitorSlug\x125\n" +
+	"\x06status\x18\x03 \x01(\x0e2\x1d.izci.ingest.v1.CheckInStatusR\x06status\x125\n" +
+	"\bduration\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\bduration\x12 \n" +
+	"\venvironment\x18\x05 \x01(\tR\venvironment\x12\x18\n" +
+	"\arelease\x18\x06 \x01(\tR\arelease\x12\x19\n" +
+	"\btrace_id\x18\a \x01(\tR\atraceId\x12D\n" +
+	"\x0emonitor_config\x18\b \x01(\v2\x1d.izci.ingest.v1.MonitorConfigR\rmonitorConfig\"\xdf\x02\n" +
+	"\rMonitorConfig\x12\x1a\n" +
+	"\acrontab\x18\x01 \x01(\tH\x00R\acrontab\x12=\n" +
+	"\binterval\x18\x02 \x01(\v2\x1f.izci.ingest.v1.MonitorIntervalH\x00R\binterval\x12\x1a\n" +
+	"\btimezone\x18\x03 \x01(\tR\btimezone\x124\n" +
+	"\x16checkin_margin_minutes\x18\x04 \x01(\rR\x14checkinMarginMinutes\x12.\n" +
+	"\x13max_runtime_minutes\x18\x05 \x01(\rR\x11maxRuntimeMinutes\x126\n" +
+	"\x17failure_issue_threshold\x18\x06 \x01(\rR\x15failureIssueThreshold\x12-\n" +
+	"\x12recovery_threshold\x18\a \x01(\rR\x11recoveryThresholdB\n" +
+	"\n" +
+	"\bschedule\"Y\n" +
+	"\x0fMonitorInterval\x12\x14\n" +
+	"\x05value\x18\x01 \x01(\rR\x05value\x120\n" +
+	"\x04unit\x18\x02 \x01(\x0e2\x1c.izci.ingest.v1.IntervalUnitR\x04unit*\xbd\x01\n" +
 	"\fEventOutcome\x12\x1d\n" +
 	"\x19EVENT_OUTCOME_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16EVENT_OUTCOME_ACCEPTED\x10\x01\x12\x1b\n" +
 	"\x17EVENT_OUTCOME_DUPLICATE\x10\x02\x12\x1a\n" +
 	"\x16EVENT_OUTCOME_FILTERED\x10\x03\x12\x1e\n" +
 	"\x1aEVENT_OUTCOME_RATE_LIMITED\x10\x04\x12\x19\n" +
-	"\x15EVENT_OUTCOME_INVALID\x10\x052\x83\x03\n" +
+	"\x15EVENT_OUTCOME_INVALID\x10\x05*\x84\x01\n" +
+	"\rCheckInStatus\x12\x1f\n" +
+	"\x1bCHECK_IN_STATUS_UNSPECIFIED\x10\x00\x12\x1f\n" +
+	"\x1bCHECK_IN_STATUS_IN_PROGRESS\x10\x01\x12\x16\n" +
+	"\x12CHECK_IN_STATUS_OK\x10\x02\x12\x19\n" +
+	"\x15CHECK_IN_STATUS_ERROR\x10\x03*\xbf\x01\n" +
+	"\fIntervalUnit\x12\x1d\n" +
+	"\x19INTERVAL_UNIT_UNSPECIFIED\x10\x00\x12\x18\n" +
+	"\x14INTERVAL_UNIT_MINUTE\x10\x01\x12\x16\n" +
+	"\x12INTERVAL_UNIT_HOUR\x10\x02\x12\x15\n" +
+	"\x11INTERVAL_UNIT_DAY\x10\x03\x12\x16\n" +
+	"\x12INTERVAL_UNIT_WEEK\x10\x04\x12\x17\n" +
+	"\x13INTERVAL_UNIT_MONTH\x10\x05\x12\x16\n" +
+	"\x12INTERVAL_UNIT_YEAR\x10\x062\xdb\x03\n" +
 	"\rIngestService\x12P\n" +
 	"\tSendEvent\x12 .izci.ingest.v1.SendEventRequest\x1a!.izci.ingest.v1.SendEventResponse\x12S\n" +
 	"\n" +
 	"SendEvents\x12!.izci.ingest.v1.SendEventsRequest\x1a\".izci.ingest.v1.SendEventsResponse\x12b\n" +
 	"\x0fRegisterRelease\x12&.izci.ingest.v1.RegisterReleaseRequest\x1a'.izci.ingest.v1.RegisterReleaseResponse\x12g\n" +
-	"\x0fGetClientConfig\x12&.izci.ingest.v1.GetClientConfigRequest\x1a'.izci.ingest.v1.GetClientConfigResponse\"\x03\x90\x02\x01B\xbf\x01\n" +
+	"\x0fGetClientConfig\x12&.izci.ingest.v1.GetClientConfigRequest\x1a'.izci.ingest.v1.GetClientConfigResponse\"\x03\x90\x02\x01\x12V\n" +
+	"\vSendCheckIn\x12\".izci.ingest.v1.SendCheckInRequest\x1a#.izci.ingest.v1.SendCheckInResponseB\xbf\x01\n" +
 	"\x12com.izci.ingest.v1B\vIngestProtoP\x01ZBgithub.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1;ingestv1\xa2\x02\x03IIX\xaa\x02\x0eIzci.Ingest.V1\xca\x02\x0eIzci\\Ingest\\V1\xe2\x02\x1aIzci\\Ingest\\V1\\GPBMetadata\xea\x02\x10Izci::Ingest::V1b\x06proto3"
 
 var (
@@ -865,45 +1433,61 @@ func file_izci_ingest_v1_ingest_proto_rawDescGZIP() []byte {
 	return file_izci_ingest_v1_ingest_proto_rawDescData
 }
 
-var file_izci_ingest_v1_ingest_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_izci_ingest_v1_ingest_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_izci_ingest_v1_ingest_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_izci_ingest_v1_ingest_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_izci_ingest_v1_ingest_proto_goTypes = []any{
 	(EventOutcome)(0),               // 0: izci.ingest.v1.EventOutcome
-	(*SendEventRequest)(nil),        // 1: izci.ingest.v1.SendEventRequest
-	(*SendEventResponse)(nil),       // 2: izci.ingest.v1.SendEventResponse
-	(*SendEventsRequest)(nil),       // 3: izci.ingest.v1.SendEventsRequest
-	(*SendEventsResponse)(nil),      // 4: izci.ingest.v1.SendEventsResponse
-	(*EventResult)(nil),             // 5: izci.ingest.v1.EventResult
-	(*RegisterReleaseRequest)(nil),  // 6: izci.ingest.v1.RegisterReleaseRequest
-	(*RegisterReleaseResponse)(nil), // 7: izci.ingest.v1.RegisterReleaseResponse
-	(*GetClientConfigRequest)(nil),  // 8: izci.ingest.v1.GetClientConfigRequest
-	(*GetClientConfigResponse)(nil), // 9: izci.ingest.v1.GetClientConfigResponse
-	(*Event)(nil),                   // 10: izci.ingest.v1.Event
-	(*timestamppb.Timestamp)(nil),   // 11: google.protobuf.Timestamp
-	(*Sdk)(nil),                     // 12: izci.ingest.v1.Sdk
+	(CheckInStatus)(0),              // 1: izci.ingest.v1.CheckInStatus
+	(IntervalUnit)(0),               // 2: izci.ingest.v1.IntervalUnit
+	(*SendEventRequest)(nil),        // 3: izci.ingest.v1.SendEventRequest
+	(*SendEventResponse)(nil),       // 4: izci.ingest.v1.SendEventResponse
+	(*SendEventsRequest)(nil),       // 5: izci.ingest.v1.SendEventsRequest
+	(*SendEventsResponse)(nil),      // 6: izci.ingest.v1.SendEventsResponse
+	(*EventResult)(nil),             // 7: izci.ingest.v1.EventResult
+	(*RegisterReleaseRequest)(nil),  // 8: izci.ingest.v1.RegisterReleaseRequest
+	(*RegisterReleaseResponse)(nil), // 9: izci.ingest.v1.RegisterReleaseResponse
+	(*GetClientConfigRequest)(nil),  // 10: izci.ingest.v1.GetClientConfigRequest
+	(*GetClientConfigResponse)(nil), // 11: izci.ingest.v1.GetClientConfigResponse
+	(*SendCheckInRequest)(nil),      // 12: izci.ingest.v1.SendCheckInRequest
+	(*SendCheckInResponse)(nil),     // 13: izci.ingest.v1.SendCheckInResponse
+	(*CheckIn)(nil),                 // 14: izci.ingest.v1.CheckIn
+	(*MonitorConfig)(nil),           // 15: izci.ingest.v1.MonitorConfig
+	(*MonitorInterval)(nil),         // 16: izci.ingest.v1.MonitorInterval
+	(*Event)(nil),                   // 17: izci.ingest.v1.Event
+	(*timestamppb.Timestamp)(nil),   // 18: google.protobuf.Timestamp
+	(*Sdk)(nil),                     // 19: izci.ingest.v1.Sdk
+	(*durationpb.Duration)(nil),     // 20: google.protobuf.Duration
 }
 var file_izci_ingest_v1_ingest_proto_depIdxs = []int32{
-	10, // 0: izci.ingest.v1.SendEventRequest.event:type_name -> izci.ingest.v1.Event
-	5,  // 1: izci.ingest.v1.SendEventResponse.result:type_name -> izci.ingest.v1.EventResult
-	10, // 2: izci.ingest.v1.SendEventsRequest.events:type_name -> izci.ingest.v1.Event
-	5,  // 3: izci.ingest.v1.SendEventsResponse.results:type_name -> izci.ingest.v1.EventResult
+	17, // 0: izci.ingest.v1.SendEventRequest.event:type_name -> izci.ingest.v1.Event
+	7,  // 1: izci.ingest.v1.SendEventResponse.result:type_name -> izci.ingest.v1.EventResult
+	17, // 2: izci.ingest.v1.SendEventsRequest.events:type_name -> izci.ingest.v1.Event
+	7,  // 3: izci.ingest.v1.SendEventsResponse.results:type_name -> izci.ingest.v1.EventResult
 	0,  // 4: izci.ingest.v1.EventResult.outcome:type_name -> izci.ingest.v1.EventOutcome
-	11, // 5: izci.ingest.v1.RegisterReleaseRequest.released_at:type_name -> google.protobuf.Timestamp
-	12, // 6: izci.ingest.v1.GetClientConfigRequest.sdk:type_name -> izci.ingest.v1.Sdk
-	11, // 7: izci.ingest.v1.GetClientConfigResponse.server_time:type_name -> google.protobuf.Timestamp
-	1,  // 8: izci.ingest.v1.IngestService.SendEvent:input_type -> izci.ingest.v1.SendEventRequest
-	3,  // 9: izci.ingest.v1.IngestService.SendEvents:input_type -> izci.ingest.v1.SendEventsRequest
-	6,  // 10: izci.ingest.v1.IngestService.RegisterRelease:input_type -> izci.ingest.v1.RegisterReleaseRequest
-	8,  // 11: izci.ingest.v1.IngestService.GetClientConfig:input_type -> izci.ingest.v1.GetClientConfigRequest
-	2,  // 12: izci.ingest.v1.IngestService.SendEvent:output_type -> izci.ingest.v1.SendEventResponse
-	4,  // 13: izci.ingest.v1.IngestService.SendEvents:output_type -> izci.ingest.v1.SendEventsResponse
-	7,  // 14: izci.ingest.v1.IngestService.RegisterRelease:output_type -> izci.ingest.v1.RegisterReleaseResponse
-	9,  // 15: izci.ingest.v1.IngestService.GetClientConfig:output_type -> izci.ingest.v1.GetClientConfigResponse
-	12, // [12:16] is the sub-list for method output_type
-	8,  // [8:12] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	18, // 5: izci.ingest.v1.RegisterReleaseRequest.released_at:type_name -> google.protobuf.Timestamp
+	19, // 6: izci.ingest.v1.GetClientConfigRequest.sdk:type_name -> izci.ingest.v1.Sdk
+	18, // 7: izci.ingest.v1.GetClientConfigResponse.server_time:type_name -> google.protobuf.Timestamp
+	14, // 8: izci.ingest.v1.SendCheckInRequest.check_in:type_name -> izci.ingest.v1.CheckIn
+	1,  // 9: izci.ingest.v1.CheckIn.status:type_name -> izci.ingest.v1.CheckInStatus
+	20, // 10: izci.ingest.v1.CheckIn.duration:type_name -> google.protobuf.Duration
+	15, // 11: izci.ingest.v1.CheckIn.monitor_config:type_name -> izci.ingest.v1.MonitorConfig
+	16, // 12: izci.ingest.v1.MonitorConfig.interval:type_name -> izci.ingest.v1.MonitorInterval
+	2,  // 13: izci.ingest.v1.MonitorInterval.unit:type_name -> izci.ingest.v1.IntervalUnit
+	3,  // 14: izci.ingest.v1.IngestService.SendEvent:input_type -> izci.ingest.v1.SendEventRequest
+	5,  // 15: izci.ingest.v1.IngestService.SendEvents:input_type -> izci.ingest.v1.SendEventsRequest
+	8,  // 16: izci.ingest.v1.IngestService.RegisterRelease:input_type -> izci.ingest.v1.RegisterReleaseRequest
+	10, // 17: izci.ingest.v1.IngestService.GetClientConfig:input_type -> izci.ingest.v1.GetClientConfigRequest
+	12, // 18: izci.ingest.v1.IngestService.SendCheckIn:input_type -> izci.ingest.v1.SendCheckInRequest
+	4,  // 19: izci.ingest.v1.IngestService.SendEvent:output_type -> izci.ingest.v1.SendEventResponse
+	6,  // 20: izci.ingest.v1.IngestService.SendEvents:output_type -> izci.ingest.v1.SendEventsResponse
+	9,  // 21: izci.ingest.v1.IngestService.RegisterRelease:output_type -> izci.ingest.v1.RegisterReleaseResponse
+	11, // 22: izci.ingest.v1.IngestService.GetClientConfig:output_type -> izci.ingest.v1.GetClientConfigResponse
+	13, // 23: izci.ingest.v1.IngestService.SendCheckIn:output_type -> izci.ingest.v1.SendCheckInResponse
+	19, // [19:24] is the sub-list for method output_type
+	14, // [14:19] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_izci_ingest_v1_ingest_proto_init() }
@@ -912,13 +1496,17 @@ func file_izci_ingest_v1_ingest_proto_init() {
 		return
 	}
 	file_izci_ingest_v1_event_proto_init()
+	file_izci_ingest_v1_ingest_proto_msgTypes[12].OneofWrappers = []any{
+		(*MonitorConfig_Crontab)(nil),
+		(*MonitorConfig_Interval)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_ingest_v1_ingest_proto_rawDesc), len(file_izci_ingest_v1_ingest_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   9,
+			NumEnums:      3,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

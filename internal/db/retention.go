@@ -38,6 +38,7 @@ func (d *DB) ApplyRetention(ctx context.Context, cutoff time.Time) (RetentionRes
 		{"event_attachments", `DELETE FROM event_attachments WHERE created_at < $1`},
 		{"user_feedback", `DELETE FROM user_feedback WHERE created_at < $1`},
 		{"release_sessions", `DELETE FROM release_sessions WHERE hour < $1`},
+		{"monitor_checkins", `DELETE FROM monitor_checkins WHERE created_at < $1 AND status <> 'in_progress'`},
 		{"release_session_users", `DELETE FROM release_session_users WHERE day < $1::date`},
 		{"usage_daily", `DELETE FROM usage_daily WHERE day < ($1::timestamptz - interval '400 days')::date`},
 	}

@@ -77,6 +77,7 @@ Birden fazla organizasyonunuz varsa varsayılanı `Izci-Org: <kısa-ad>` başlı
 | `list_customers` | Müşteriler ve sağlık durumu. | read |
 | `get_customer_overview` | Bir müşterinin projeleri ve onu en çok etkileyen hatalar. | read |
 | `list_releases` | Sürümler, commit'ler ve getirdikleri yeni hatalar. | read |
+| `list_monitors` | [Zamanlanmış görevler](cron.md): zamanlama, ortam başına son çalışmanın durumu, açık hata kaydı; `failing` ile yalnız sorunlular. | read |
 | `get_ai_run` | Yapay zekâ analizinin sonucu, raporu ve diff'i. | read |
 | `update_issue` | Durum, atanan kişi ve öncelik değiştirme. | write |
 | `add_comment` | Hataya yorum ekleme. | write |

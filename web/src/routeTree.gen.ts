@@ -30,6 +30,8 @@ import { Route as OOrgDocsIndexRouteImport } from "./routes/o.$org.docs.index";
 import { Route as OOrgDocsSplatRouteImport } from "./routes/o.$org.docs.$";
 import { Route as OOrgIssuesIndexRouteImport } from "./routes/o.$org.issues.index";
 import { Route as OOrgIssuesIssueIdRouteImport } from "./routes/o.$org.issues.$issueId";
+import { Route as OOrgMonitorsIndexRouteImport } from "./routes/o.$org.monitors.index";
+import { Route as OOrgMonitorsMonitorIdRouteImport } from "./routes/o.$org.monitors.$monitorId";
 import { Route as OOrgProjectsIndexRouteImport } from "./routes/o.$org.projects.index";
 import { Route as OOrgProjectsSlugRouteImport } from "./routes/o.$org.projects.$slug";
 
@@ -138,6 +140,16 @@ const OOrgIssuesIssueIdRoute = OOrgIssuesIssueIdRouteImport.update({
   path: "/issues/$issueId",
   getParentRoute: () => OOrgRoute,
 } as any);
+const OOrgMonitorsIndexRoute = OOrgMonitorsIndexRouteImport.update({
+  id: "/monitors/",
+  path: "/monitors/",
+  getParentRoute: () => OOrgRoute,
+} as any);
+const OOrgMonitorsMonitorIdRoute = OOrgMonitorsMonitorIdRouteImport.update({
+  id: "/monitors/$monitorId",
+  path: "/monitors/$monitorId",
+  getParentRoute: () => OOrgRoute,
+} as any);
 const OOrgProjectsIndexRoute = OOrgProjectsIndexRouteImport.update({
   id: "/projects/",
   path: "/projects/",
@@ -168,10 +180,12 @@ export interface FileRoutesByFullPath {
   "/o/$org/customers/$key": typeof OOrgCustomersKeyRoute;
   "/o/$org/docs/$": typeof OOrgDocsSplatRoute;
   "/o/$org/issues/$issueId": typeof OOrgIssuesIssueIdRoute;
+  "/o/$org/monitors/$monitorId": typeof OOrgMonitorsMonitorIdRoute;
   "/o/$org/projects/$slug": typeof OOrgProjectsSlugRoute;
   "/o/$org/customers/": typeof OOrgCustomersIndexRoute;
   "/o/$org/docs/": typeof OOrgDocsIndexRoute;
   "/o/$org/issues/": typeof OOrgIssuesIndexRoute;
+  "/o/$org/monitors/": typeof OOrgMonitorsIndexRoute;
   "/o/$org/projects/": typeof OOrgProjectsIndexRoute;
 }
 export interface FileRoutesByTo {
@@ -191,10 +205,12 @@ export interface FileRoutesByTo {
   "/o/$org/customers/$key": typeof OOrgCustomersKeyRoute;
   "/o/$org/docs/$": typeof OOrgDocsSplatRoute;
   "/o/$org/issues/$issueId": typeof OOrgIssuesIssueIdRoute;
+  "/o/$org/monitors/$monitorId": typeof OOrgMonitorsMonitorIdRoute;
   "/o/$org/projects/$slug": typeof OOrgProjectsSlugRoute;
   "/o/$org/customers": typeof OOrgCustomersIndexRoute;
   "/o/$org/docs": typeof OOrgDocsIndexRoute;
   "/o/$org/issues": typeof OOrgIssuesIndexRoute;
+  "/o/$org/monitors": typeof OOrgMonitorsIndexRoute;
   "/o/$org/projects": typeof OOrgProjectsIndexRoute;
 }
 export interface FileRoutesById {
@@ -217,10 +233,12 @@ export interface FileRoutesById {
   "/o/$org/customers/$key": typeof OOrgCustomersKeyRoute;
   "/o/$org/docs/$": typeof OOrgDocsSplatRoute;
   "/o/$org/issues/$issueId": typeof OOrgIssuesIssueIdRoute;
+  "/o/$org/monitors/$monitorId": typeof OOrgMonitorsMonitorIdRoute;
   "/o/$org/projects/$slug": typeof OOrgProjectsSlugRoute;
   "/o/$org/customers/": typeof OOrgCustomersIndexRoute;
   "/o/$org/docs/": typeof OOrgDocsIndexRoute;
   "/o/$org/issues/": typeof OOrgIssuesIndexRoute;
+  "/o/$org/monitors/": typeof OOrgMonitorsIndexRoute;
   "/o/$org/projects/": typeof OOrgProjectsIndexRoute;
 }
 export interface FileRouteTypes {
@@ -244,10 +262,12 @@ export interface FileRouteTypes {
     | "/o/$org/customers/$key"
     | "/o/$org/docs/$"
     | "/o/$org/issues/$issueId"
+    | "/o/$org/monitors/$monitorId"
     | "/o/$org/projects/$slug"
     | "/o/$org/customers/"
     | "/o/$org/docs/"
     | "/o/$org/issues/"
+    | "/o/$org/monitors/"
     | "/o/$org/projects/";
   fileRoutesByTo: FileRoutesByTo;
   to:
@@ -267,10 +287,12 @@ export interface FileRouteTypes {
     | "/o/$org/customers/$key"
     | "/o/$org/docs/$"
     | "/o/$org/issues/$issueId"
+    | "/o/$org/monitors/$monitorId"
     | "/o/$org/projects/$slug"
     | "/o/$org/customers"
     | "/o/$org/docs"
     | "/o/$org/issues"
+    | "/o/$org/monitors"
     | "/o/$org/projects";
   id:
     | "__root__"
@@ -292,10 +314,12 @@ export interface FileRouteTypes {
     | "/o/$org/customers/$key"
     | "/o/$org/docs/$"
     | "/o/$org/issues/$issueId"
+    | "/o/$org/monitors/$monitorId"
     | "/o/$org/projects/$slug"
     | "/o/$org/customers/"
     | "/o/$org/docs/"
     | "/o/$org/issues/"
+    | "/o/$org/monitors/"
     | "/o/$org/projects/";
   fileRoutesById: FileRoutesById;
 }
@@ -457,6 +481,20 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof OOrgIssuesIssueIdRouteImport;
       parentRoute: typeof OOrgRoute;
     };
+    "/o/$org/monitors/": {
+      id: "/o/$org/monitors/";
+      path: "/monitors";
+      fullPath: "/o/$org/monitors/";
+      preLoaderRoute: typeof OOrgMonitorsIndexRouteImport;
+      parentRoute: typeof OOrgRoute;
+    };
+    "/o/$org/monitors/$monitorId": {
+      id: "/o/$org/monitors/$monitorId";
+      path: "/monitors/$monitorId";
+      fullPath: "/o/$org/monitors/$monitorId";
+      preLoaderRoute: typeof OOrgMonitorsMonitorIdRouteImport;
+      parentRoute: typeof OOrgRoute;
+    };
     "/o/$org/projects/": {
       id: "/o/$org/projects/";
       path: "/projects";
@@ -500,9 +538,11 @@ interface OOrgRouteChildren {
   OOrgIndexRoute: typeof OOrgIndexRoute;
   OOrgCustomersKeyRoute: typeof OOrgCustomersKeyRoute;
   OOrgIssuesIssueIdRoute: typeof OOrgIssuesIssueIdRoute;
+  OOrgMonitorsMonitorIdRoute: typeof OOrgMonitorsMonitorIdRoute;
   OOrgProjectsSlugRoute: typeof OOrgProjectsSlugRoute;
   OOrgCustomersIndexRoute: typeof OOrgCustomersIndexRoute;
   OOrgIssuesIndexRoute: typeof OOrgIssuesIndexRoute;
+  OOrgMonitorsIndexRoute: typeof OOrgMonitorsIndexRoute;
   OOrgProjectsIndexRoute: typeof OOrgProjectsIndexRoute;
 }
 
@@ -518,9 +558,11 @@ const OOrgRouteChildren: OOrgRouteChildren = {
   OOrgIndexRoute: OOrgIndexRoute,
   OOrgCustomersKeyRoute: OOrgCustomersKeyRoute,
   OOrgIssuesIssueIdRoute: OOrgIssuesIssueIdRoute,
+  OOrgMonitorsMonitorIdRoute: OOrgMonitorsMonitorIdRoute,
   OOrgProjectsSlugRoute: OOrgProjectsSlugRoute,
   OOrgCustomersIndexRoute: OOrgCustomersIndexRoute,
   OOrgIssuesIndexRoute: OOrgIssuesIndexRoute,
+  OOrgMonitorsIndexRoute: OOrgMonitorsIndexRoute,
   OOrgProjectsIndexRoute: OOrgProjectsIndexRoute,
 };
 

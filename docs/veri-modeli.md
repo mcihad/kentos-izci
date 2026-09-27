@@ -34,6 +34,9 @@
 | `events` | Olaylar; **günlük bölümlere** ayrılmıştır (aşağıya bakın). |
 | `event_attachments` | Olay ekleri (ekran görüntüsü, günlük dosyası); istemci olay kimliğiyle olaya bağlanır, içerik `bytea` olarak lz4 ile sıkıştırılır. |
 | `user_feedback` | Kullanıcı geri bildirimleri; ilgili olay saklandığında hataya bağlanır. |
+| `monitors` | Zamanlanmış görev izleyicileri: kısa ad, zamanlama (crontab ya da aralık), saat dilimi, gecikme payı, en uzun süre, eşikler. |
+| `monitor_environments` | İzleyicinin her ortamdaki durumu: son ve beklenen çalışma, art arda hata ve başarı sayısı, açık hata kaydı. |
+| `monitor_checkins` | Çalışmalar (check-in'ler): durum, süre, sürüm, beklenen zaman. `RETENTION_DAYS` kadar saklanır. |
 | `release_sessions`, `release_session_users` | Sürüm sağlığı: saatlik oturum sayaçları ve günlük tekil kullanıcılar (kimliğin anahtarlı özeti). |
 | `issue_hourly`, `project_hourly`, `customer_hourly` | Grafikler, eğilimler ve sıklık kuralları için saatlik sayaçlar. |
 | `issue_tags` | Etiket dağılımları (müşteri, sürüm, tarayıcı…); aramanın ve **Etki** sekmesinin kaynağı. |

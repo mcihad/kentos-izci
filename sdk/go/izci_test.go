@@ -30,6 +30,7 @@ type fakeServer struct {
 	ingestv1connect.UnimplementedIngestServiceHandler
 	mu       sync.Mutex
 	events   []*ingestv1.Event
+	checkIns []*ingestv1.CheckIn
 	auth     string
 	limitFor int // answer RESOURCE_EXHAUSTED for this many calls
 }
@@ -51,6 +52,19 @@ func (f *fakeServer) SendEvents(_ context.Context, req *connect.Request[ingestv1
 		resp.Results = append(resp.Results, &ingestv1.EventResult{EventId: ev.GetEventId(), Outcome: ingestv1.EventOutcome_EVENT_OUTCOME_ACCEPTED})
 	}
 	return connect.NewResponse(resp), nil
+}
+
+func (f *fakeServer) SendCheckIn(_ context.Context, req *connect.Request[ingestv1.SendCheckInRequest]) (*connect.Response[ingestv1.SendCheckInResponse], error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.auth = req.Header().Get("Authorization")
+	ci := req.Msg.GetCheckIn()
+	f.checkIns = append(f.checkIns, ci)
+	id := ci.GetCheckInId()
+	if id == "" {
+		id = "0192f3a4-5b6c-7d8e-9f00-112233445566"
+	}
+	return connect.NewResponse(&ingestv1.SendCheckInResponse{CheckInId: id}), nil
 }
 
 func (f *fakeServer) received() []*ingestv1.Event {
@@ -263,5 +277,36 @@ func TestRateLimitBackoff(t *testing.T) {
 	}
 	if len(srv.received()) != 0 {
 		t.Error("no event should have been stored")
+	}
+}
+
+func TestWithMonitor(t *testing.T) {
+	srv := setup(t, izci.Options{Release: "billing@2.0.0", Environment: "production"})
+	cfg := &izci.MonitorConfig{Crontab: "0 3 * * *", Timezone: "Europe/Istanbul", MaxRuntime: 90 * time.Second}
+	failed := errors.New("bank unreachable")
+	err := izci.WithMonitor(context.Background(), "daily-billing", cfg, func(context.Context) error {
+		time.Sleep(10 * time.Millisecond)
+		return failed
+	})
+	if !errors.Is(err, failed) {
+		t.Fatalf("job error not returned: %v", err)
+	}
+	srv.mu.Lock()
+	defer srv.mu.Unlock()
+	if len(srv.checkIns) != 2 {
+		t.Fatalf("check-ins: %d", len(srv.checkIns))
+	}
+	start, end := srv.checkIns[0], srv.checkIns[1]
+	if start.GetStatus() != ingestv1.CheckInStatus_CHECK_IN_STATUS_IN_PROGRESS || start.GetMonitorSlug() != "daily-billing" ||
+		start.GetMonitorConfig().GetCrontab() != "0 3 * * *" || start.GetMonitorConfig().GetMaxRuntimeMinutes() != 2 ||
+		start.GetEnvironment() != "production" || start.GetRelease() != "billing@2.0.0" {
+		t.Fatalf("in-progress check-in: %v", start)
+	}
+	if end.GetStatus() != ingestv1.CheckInStatus_CHECK_IN_STATUS_ERROR || end.GetCheckInId() != "0192f3a4-5b6c-7d8e-9f00-112233445566" ||
+		end.GetDuration().AsDuration() < 10*time.Millisecond {
+		t.Fatalf("closing check-in: %v", end)
+	}
+	if srv.auth != "Bearer izk_testkeytestkeytestkeytestkey00" {
+		t.Fatalf("auth header: %q", srv.auth)
 	}
 }

@@ -8,6 +8,7 @@ import {
   MessageSquareTextIcon,
   RadioIcon,
   SparklesIcon,
+  TimerIcon,
 } from "lucide-react";
 
 export type NavItem = {
@@ -18,6 +19,7 @@ export type NavItem = {
     | "/o/$org/feedback"
     | "/o/$org/customers"
     | "/o/$org/live"
+    | "/o/$org/monitors"
     | "/o/$org/projects"
     | "/o/$org/alerts"
     | "/o/$org/ai";
@@ -32,6 +34,7 @@ export const primaryNav: NavItem[] = [
   { label: "Geri bildirim", to: "/o/$org/feedback", icon: MessageSquareTextIcon },
   { label: "Müşteriler", to: "/o/$org/customers", icon: Building2Icon },
   { label: "Canlı akış", to: "/o/$org/live", icon: RadioIcon },
+  { label: "Zamanlanmış görevler", to: "/o/$org/monitors", icon: TimerIcon },
   { label: "Projeler", to: "/o/$org/projects", icon: BoxesIcon },
   { label: "Yapay zekâ", to: "/o/$org/ai", icon: SparklesIcon },
   { label: "Uyarılar", to: "/o/$org/alerts", icon: BellRingIcon },

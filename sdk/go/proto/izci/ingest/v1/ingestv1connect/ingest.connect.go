@@ -44,6 +44,9 @@ const (
 	// IngestServiceGetClientConfigProcedure is the fully-qualified name of the IngestService's
 	// GetClientConfig RPC.
 	IngestServiceGetClientConfigProcedure = "/izci.ingest.v1.IngestService/GetClientConfig"
+	// IngestServiceSendCheckInProcedure is the fully-qualified name of the IngestService's SendCheckIn
+	// RPC.
+	IngestServiceSendCheckInProcedure = "/izci.ingest.v1.IngestService/SendCheckIn"
 )
 
 // IngestServiceClient is a client for the izci.ingest.v1.IngestService service.
@@ -67,6 +70,18 @@ type IngestServiceClient interface {
 	// sampling, limits and extra fields to scrub. SDKs call it at startup and
 	// may cache the result for cache_ttl.
 	GetClientConfig(context.Context, *connect.Request[v1.GetClientConfigRequest]) (*connect.Response[v1.GetClientConfigResponse], error)
+	// SendCheckIn reports a run of a scheduled job to a cron monitor: send
+	// CHECK_IN_STATUS_IN_PROGRESS when the job starts and OK or ERROR with the
+	// same check_in_id when it ends (or only the final status for short jobs).
+	// izci records a missed run when no check-in arrives on schedule and a
+	// timeout when a run stays in progress longer than max_runtime.
+	//
+	// The monitor is identified by monitor_slug within the key's project. A
+	// check-in with monitor_config creates the monitor or updates its
+	// schedule; without it the monitor must already exist (NOT_FOUND).
+	//
+	// Sentry equivalent: the check_in envelope item (CaptureCheckIn).
+	SendCheckIn(context.Context, *connect.Request[v1.SendCheckInRequest]) (*connect.Response[v1.SendCheckInResponse], error)
 }
 
 // NewIngestServiceClient constructs a client for the izci.ingest.v1.IngestService service. By
@@ -105,6 +120,12 @@ func NewIngestServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		sendCheckIn: connect.NewClient[v1.SendCheckInRequest, v1.SendCheckInResponse](
+			httpClient,
+			baseURL+IngestServiceSendCheckInProcedure,
+			connect.WithSchema(ingestServiceMethods.ByName("SendCheckIn")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -114,6 +135,7 @@ type ingestServiceClient struct {
 	sendEvents      *connect.Client[v1.SendEventsRequest, v1.SendEventsResponse]
 	registerRelease *connect.Client[v1.RegisterReleaseRequest, v1.RegisterReleaseResponse]
 	getClientConfig *connect.Client[v1.GetClientConfigRequest, v1.GetClientConfigResponse]
+	sendCheckIn     *connect.Client[v1.SendCheckInRequest, v1.SendCheckInResponse]
 }
 
 // SendEvent calls izci.ingest.v1.IngestService.SendEvent.
@@ -134,6 +156,11 @@ func (c *ingestServiceClient) RegisterRelease(ctx context.Context, req *connect.
 // GetClientConfig calls izci.ingest.v1.IngestService.GetClientConfig.
 func (c *ingestServiceClient) GetClientConfig(ctx context.Context, req *connect.Request[v1.GetClientConfigRequest]) (*connect.Response[v1.GetClientConfigResponse], error) {
 	return c.getClientConfig.CallUnary(ctx, req)
+}
+
+// SendCheckIn calls izci.ingest.v1.IngestService.SendCheckIn.
+func (c *ingestServiceClient) SendCheckIn(ctx context.Context, req *connect.Request[v1.SendCheckInRequest]) (*connect.Response[v1.SendCheckInResponse], error) {
+	return c.sendCheckIn.CallUnary(ctx, req)
 }
 
 // IngestServiceHandler is an implementation of the izci.ingest.v1.IngestService service.
@@ -157,6 +184,18 @@ type IngestServiceHandler interface {
 	// sampling, limits and extra fields to scrub. SDKs call it at startup and
 	// may cache the result for cache_ttl.
 	GetClientConfig(context.Context, *connect.Request[v1.GetClientConfigRequest]) (*connect.Response[v1.GetClientConfigResponse], error)
+	// SendCheckIn reports a run of a scheduled job to a cron monitor: send
+	// CHECK_IN_STATUS_IN_PROGRESS when the job starts and OK or ERROR with the
+	// same check_in_id when it ends (or only the final status for short jobs).
+	// izci records a missed run when no check-in arrives on schedule and a
+	// timeout when a run stays in progress longer than max_runtime.
+	//
+	// The monitor is identified by monitor_slug within the key's project. A
+	// check-in with monitor_config creates the monitor or updates its
+	// schedule; without it the monitor must already exist (NOT_FOUND).
+	//
+	// Sentry equivalent: the check_in envelope item (CaptureCheckIn).
+	SendCheckIn(context.Context, *connect.Request[v1.SendCheckInRequest]) (*connect.Response[v1.SendCheckInResponse], error)
 }
 
 // NewIngestServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -191,6 +230,12 @@ func NewIngestServiceHandler(svc IngestServiceHandler, opts ...connect.HandlerOp
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	ingestServiceSendCheckInHandler := connect.NewUnaryHandler(
+		IngestServiceSendCheckInProcedure,
+		svc.SendCheckIn,
+		connect.WithSchema(ingestServiceMethods.ByName("SendCheckIn")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/izci.ingest.v1.IngestService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case IngestServiceSendEventProcedure:
@@ -201,6 +246,8 @@ func NewIngestServiceHandler(svc IngestServiceHandler, opts ...connect.HandlerOp
 			ingestServiceRegisterReleaseHandler.ServeHTTP(w, r)
 		case IngestServiceGetClientConfigProcedure:
 			ingestServiceGetClientConfigHandler.ServeHTTP(w, r)
+		case IngestServiceSendCheckInProcedure:
+			ingestServiceSendCheckInHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -224,4 +271,8 @@ func (UnimplementedIngestServiceHandler) RegisterRelease(context.Context, *conne
 
 func (UnimplementedIngestServiceHandler) GetClientConfig(context.Context, *connect.Request[v1.GetClientConfigRequest]) (*connect.Response[v1.GetClientConfigResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.ingest.v1.IngestService.GetClientConfig is not implemented"))
+}
+
+func (UnimplementedIngestServiceHandler) SendCheckIn(context.Context, *connect.Request[v1.SendCheckInRequest]) (*connect.Response[v1.SendCheckInResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.ingest.v1.IngestService.SendCheckIn is not implemented"))
 }

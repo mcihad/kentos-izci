@@ -4,8 +4,8 @@
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Timestamp } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
+import type { Duration, Timestamp } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_duration, file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Event, Sdk } from "./event_pb";
 import { file_izci_ingest_v1_event } from "./event_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file izci/ingest/v1/ingest.proto.
  */
 export const file_izci_ingest_v1_ingest: GenFile = /*@__PURE__*/
-  fileDesc("ChtpemNpL2luZ2VzdC92MS9pbmdlc3QucHJvdG8SDml6Y2kuaW5nZXN0LnYxIjgKEFNlbmRFdmVudFJlcXVlc3QSJAoFZXZlbnQYASABKAsyFS5pemNpLmluZ2VzdC52MS5FdmVudCJAChFTZW5kRXZlbnRSZXNwb25zZRIrCgZyZXN1bHQYASABKAsyGy5pemNpLmluZ2VzdC52MS5FdmVudFJlc3VsdCI6ChFTZW5kRXZlbnRzUmVxdWVzdBIlCgZldmVudHMYASADKAsyFS5pemNpLmluZ2VzdC52MS5FdmVudCJCChJTZW5kRXZlbnRzUmVzcG9uc2USLAoHcmVzdWx0cxgBIAMoCzIbLml6Y2kuaW5nZXN0LnYxLkV2ZW50UmVzdWx0ItsBCgtFdmVudFJlc3VsdBIQCghldmVudF9pZBgBIAEoCRItCgdvdXRjb21lGAIgASgOMhwuaXpjaS5pbmdlc3QudjEuRXZlbnRPdXRjb21lEhAKCGlzc3VlX2lkGAMgASgJEhYKDmlzc3VlX3Nob3J0X2lkGAQgASgJEhEKCWlzc3VlX3VybBgFIAEoCRIUCgxpc3N1ZV9pc19uZXcYBiABKAgSFwoPaXNzdWVfcmVncmVzc2VkGAcgASgIEg0KBWVycm9yGAggASgJEhAKCHdhcm5pbmdzGAkgAygJIsYBChZSZWdpc3RlclJlbGVhc2VSZXF1ZXN0Eg8KB3ZlcnNpb24YASABKAkSEgoKY29tbWl0X3NoYRgCIAEoCRISCgpyZXBvc2l0b3J5GAMgASgJEgsKA3JlZhgEIAEoCRILCgN1cmwYBSABKAkSEwoLZW52aXJvbm1lbnQYBiABKAkSLwoLcmVsZWFzZWRfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKC3JlbGVhc2VkX2J5GAggASgJIj4KF1JlZ2lzdGVyUmVsZWFzZVJlc3BvbnNlEhIKCnJlbGVhc2VfaWQYASABKAkSDwoHY3JlYXRlZBgCIAEoCCJPChZHZXRDbGllbnRDb25maWdSZXF1ZXN0EiAKA3NkaxgBIAEoCzITLml6Y2kuaW5nZXN0LnYxLlNkaxITCgtlbnZpcm9ubWVudBgCIAEoCSLUAgoXR2V0Q2xpZW50Q29uZmlnUmVzcG9uc2USGQoRb3JnYW5pemF0aW9uX3NsdWcYASABKAkSFAoMcHJvamVjdF9zbHVnGAIgASgJEhQKDHByb2plY3RfbmFtZRgDIAEoCRITCgtzYW1wbGVfcmF0ZRgEIAEoARIXCg9tYXhfYnJlYWRjcnVtYnMYBSABKA0SFwoPbWF4X2V2ZW50X2J5dGVzGAYgASgNEhYKDm1heF9iYXRjaF9zaXplGAcgASgNEh0KFW1heF9ldmVudHNfcGVyX21pbnV0ZRgIIAEoDRIUCgxzY3J1Yl9maWVsZHMYCSADKAkSEgoKY29sbGVjdF9pcBgKIAEoCBIvCgtzZXJ2ZXJfdGltZRgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGQoRY2FjaGVfdHRsX3NlY29uZHMYDCABKA0qvQEKDEV2ZW50T3V0Y29tZRIdChlFVkVOVF9PVVRDT01FX1VOU1BFQ0lGSUVEEAASGgoWRVZFTlRfT1VUQ09NRV9BQ0NFUFRFRBABEhsKF0VWRU5UX09VVENPTUVfRFVQTElDQVRFEAISGgoWRVZFTlRfT1VUQ09NRV9GSUxURVJFRBADEh4KGkVWRU5UX09VVENPTUVfUkFURV9MSU1JVEVEEAQSGQoVRVZFTlRfT1VUQ09NRV9JTlZBTElEEAUygwMKDUluZ2VzdFNlcnZpY2USUAoJU2VuZEV2ZW50EiAuaXpjaS5pbmdlc3QudjEuU2VuZEV2ZW50UmVxdWVzdBohLml6Y2kuaW5nZXN0LnYxLlNlbmRFdmVudFJlc3BvbnNlElMKClNlbmRFdmVudHMSIS5pemNpLmluZ2VzdC52MS5TZW5kRXZlbnRzUmVxdWVzdBoiLml6Y2kuaW5nZXN0LnYxLlNlbmRFdmVudHNSZXNwb25zZRJiCg9SZWdpc3RlclJlbGVhc2USJi5pemNpLmluZ2VzdC52MS5SZWdpc3RlclJlbGVhc2VSZXF1ZXN0GicuaXpjaS5pbmdlc3QudjEuUmVnaXN0ZXJSZWxlYXNlUmVzcG9uc2USZwoPR2V0Q2xpZW50Q29uZmlnEiYuaXpjaS5pbmdlc3QudjEuR2V0Q2xpZW50Q29uZmlnUmVxdWVzdBonLml6Y2kuaW5nZXN0LnYxLkdldENsaWVudENvbmZpZ1Jlc3BvbnNlIgOQAgFCvwEKEmNvbS5pemNpLmluZ2VzdC52MUILSW5nZXN0UHJvdG9QAVpCZ2l0aHViLmNvbS9tY2loYWQva2VudG9zLWl6Y2kvc2RrL2dvL3Byb3RvL2l6Y2kvaW5nZXN0L3YxO2luZ2VzdHYxogIDSUlYqgIOSXpjaS5Jbmdlc3QuVjHKAg5JemNpXEluZ2VzdFxWMeICGkl6Y2lcSW5nZXN0XFYxXEdQQk1ldGFkYXRh6gIQSXpjaTo6SW5nZXN0OjpWMWIGcHJvdG8z", [file_google_protobuf_timestamp, file_izci_ingest_v1_event]);
+  fileDesc("ChtpemNpL2luZ2VzdC92MS9pbmdlc3QucHJvdG8SDml6Y2kuaW5nZXN0LnYxIjgKEFNlbmRFdmVudFJlcXVlc3QSJAoFZXZlbnQYASABKAsyFS5pemNpLmluZ2VzdC52MS5FdmVudCJAChFTZW5kRXZlbnRSZXNwb25zZRIrCgZyZXN1bHQYASABKAsyGy5pemNpLmluZ2VzdC52MS5FdmVudFJlc3VsdCI6ChFTZW5kRXZlbnRzUmVxdWVzdBIlCgZldmVudHMYASADKAsyFS5pemNpLmluZ2VzdC52MS5FdmVudCJCChJTZW5kRXZlbnRzUmVzcG9uc2USLAoHcmVzdWx0cxgBIAMoCzIbLml6Y2kuaW5nZXN0LnYxLkV2ZW50UmVzdWx0ItsBCgtFdmVudFJlc3VsdBIQCghldmVudF9pZBgBIAEoCRItCgdvdXRjb21lGAIgASgOMhwuaXpjaS5pbmdlc3QudjEuRXZlbnRPdXRjb21lEhAKCGlzc3VlX2lkGAMgASgJEhYKDmlzc3VlX3Nob3J0X2lkGAQgASgJEhEKCWlzc3VlX3VybBgFIAEoCRIUCgxpc3N1ZV9pc19uZXcYBiABKAgSFwoPaXNzdWVfcmVncmVzc2VkGAcgASgIEg0KBWVycm9yGAggASgJEhAKCHdhcm5pbmdzGAkgAygJIsYBChZSZWdpc3RlclJlbGVhc2VSZXF1ZXN0Eg8KB3ZlcnNpb24YASABKAkSEgoKY29tbWl0X3NoYRgCIAEoCRISCgpyZXBvc2l0b3J5GAMgASgJEgsKA3JlZhgEIAEoCRILCgN1cmwYBSABKAkSEwoLZW52aXJvbm1lbnQYBiABKAkSLwoLcmVsZWFzZWRfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKC3JlbGVhc2VkX2J5GAggASgJIj4KF1JlZ2lzdGVyUmVsZWFzZVJlc3BvbnNlEhIKCnJlbGVhc2VfaWQYASABKAkSDwoHY3JlYXRlZBgCIAEoCCJPChZHZXRDbGllbnRDb25maWdSZXF1ZXN0EiAKA3NkaxgBIAEoCzITLml6Y2kuaW5nZXN0LnYxLlNkaxITCgtlbnZpcm9ubWVudBgCIAEoCSLUAgoXR2V0Q2xpZW50Q29uZmlnUmVzcG9uc2USGQoRb3JnYW5pemF0aW9uX3NsdWcYASABKAkSFAoMcHJvamVjdF9zbHVnGAIgASgJEhQKDHByb2plY3RfbmFtZRgDIAEoCRITCgtzYW1wbGVfcmF0ZRgEIAEoARIXCg9tYXhfYnJlYWRjcnVtYnMYBSABKA0SFwoPbWF4X2V2ZW50X2J5dGVzGAYgASgNEhYKDm1heF9iYXRjaF9zaXplGAcgASgNEh0KFW1heF9ldmVudHNfcGVyX21pbnV0ZRgIIAEoDRIUCgxzY3J1Yl9maWVsZHMYCSADKAkSEgoKY29sbGVjdF9pcBgKIAEoCBIvCgtzZXJ2ZXJfdGltZRgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGQoRY2FjaGVfdHRsX3NlY29uZHMYDCABKA0iPwoSU2VuZENoZWNrSW5SZXF1ZXN0EikKCGNoZWNrX2luGAEgASgLMhcuaXpjaS5pbmdlc3QudjEuQ2hlY2tJbiIqChNTZW5kQ2hlY2tJblJlc3BvbnNlEhMKC2NoZWNrX2luX2lkGAEgASgJIv8BCgdDaGVja0luEhMKC2NoZWNrX2luX2lkGAEgASgJEhQKDG1vbml0b3Jfc2x1ZxgCIAEoCRItCgZzdGF0dXMYAyABKA4yHS5pemNpLmluZ2VzdC52MS5DaGVja0luU3RhdHVzEisKCGR1cmF0aW9uGAQgASgLMhkuZ29vZ2xlLnByb3RvYnVmLkR1cmF0aW9uEhMKC2Vudmlyb25tZW50GAUgASgJEg8KB3JlbGVhc2UYBiABKAkSEAoIdHJhY2VfaWQYByABKAkSNQoObW9uaXRvcl9jb25maWcYCCABKAsyHS5pemNpLmluZ2VzdC52MS5Nb25pdG9yQ29uZmlnIu8BCg1Nb25pdG9yQ29uZmlnEhEKB2Nyb250YWIYASABKAlIABIzCghpbnRlcnZhbBgCIAEoCzIfLml6Y2kuaW5nZXN0LnYxLk1vbml0b3JJbnRlcnZhbEgAEhAKCHRpbWV6b25lGAMgASgJEh4KFmNoZWNraW5fbWFyZ2luX21pbnV0ZXMYBCABKA0SGwoTbWF4X3J1bnRpbWVfbWludXRlcxgFIAEoDRIfChdmYWlsdXJlX2lzc3VlX3RocmVzaG9sZBgGIAEoDRIaChJyZWNvdmVyeV90aHJlc2hvbGQYByABKA1CCgoIc2NoZWR1bGUiTAoPTW9uaXRvckludGVydmFsEg0KBXZhbHVlGAEgASgNEioKBHVuaXQYAiABKA4yHC5pemNpLmluZ2VzdC52MS5JbnRlcnZhbFVuaXQqvQEKDEV2ZW50T3V0Y29tZRIdChlFVkVOVF9PVVRDT01FX1VOU1BFQ0lGSUVEEAASGgoWRVZFTlRfT1VUQ09NRV9BQ0NFUFRFRBABEhsKF0VWRU5UX09VVENPTUVfRFVQTElDQVRFEAISGgoWRVZFTlRfT1VUQ09NRV9GSUxURVJFRBADEh4KGkVWRU5UX09VVENPTUVfUkFURV9MSU1JVEVEEAQSGQoVRVZFTlRfT1VUQ09NRV9JTlZBTElEEAUqhAEKDUNoZWNrSW5TdGF0dXMSHwobQ0hFQ0tfSU5fU1RBVFVTX1VOU1BFQ0lGSUVEEAASHwobQ0hFQ0tfSU5fU1RBVFVTX0lOX1BST0dSRVNTEAESFgoSQ0hFQ0tfSU5fU1RBVFVTX09LEAISGQoVQ0hFQ0tfSU5fU1RBVFVTX0VSUk9SEAMqvwEKDEludGVydmFsVW5pdBIdChlJTlRFUlZBTF9VTklUX1VOU1BFQ0lGSUVEEAASGAoUSU5URVJWQUxfVU5JVF9NSU5VVEUQARIWChJJTlRFUlZBTF9VTklUX0hPVVIQAhIVChFJTlRFUlZBTF9VTklUX0RBWRADEhYKEklOVEVSVkFMX1VOSVRfV0VFSxAEEhcKE0lOVEVSVkFMX1VOSVRfTU9OVEgQBRIWChJJTlRFUlZBTF9VTklUX1lFQVIQBjLbAwoNSW5nZXN0U2VydmljZRJQCglTZW5kRXZlbnQSIC5pemNpLmluZ2VzdC52MS5TZW5kRXZlbnRSZXF1ZXN0GiEuaXpjaS5pbmdlc3QudjEuU2VuZEV2ZW50UmVzcG9uc2USUwoKU2VuZEV2ZW50cxIhLml6Y2kuaW5nZXN0LnYxLlNlbmRFdmVudHNSZXF1ZXN0GiIuaXpjaS5pbmdlc3QudjEuU2VuZEV2ZW50c1Jlc3BvbnNlEmIKD1JlZ2lzdGVyUmVsZWFzZRImLml6Y2kuaW5nZXN0LnYxLlJlZ2lzdGVyUmVsZWFzZVJlcXVlc3QaJy5pemNpLmluZ2VzdC52MS5SZWdpc3RlclJlbGVhc2VSZXNwb25zZRJnCg9HZXRDbGllbnRDb25maWcSJi5pemNpLmluZ2VzdC52MS5HZXRDbGllbnRDb25maWdSZXF1ZXN0GicuaXpjaS5pbmdlc3QudjEuR2V0Q2xpZW50Q29uZmlnUmVzcG9uc2UiA5ACARJWCgtTZW5kQ2hlY2tJbhIiLml6Y2kuaW5nZXN0LnYxLlNlbmRDaGVja0luUmVxdWVzdBojLml6Y2kuaW5nZXN0LnYxLlNlbmRDaGVja0luUmVzcG9uc2VCvwEKEmNvbS5pemNpLmluZ2VzdC52MUILSW5nZXN0UHJvdG9QAVpCZ2l0aHViLmNvbS9tY2loYWQva2VudG9zLWl6Y2kvc2RrL2dvL3Byb3RvL2l6Y2kvaW5nZXN0L3YxO2luZ2VzdHYxogIDSUlYqgIOSXpjaS5Jbmdlc3QuVjHKAg5JemNpXEluZ2VzdFxWMeICGkl6Y2lcSW5nZXN0XFYxXEdQQk1ldGFkYXRh6gIQSXpjaTo6SW5nZXN0OjpWMWIGcHJvdG8z", [file_google_protobuf_duration, file_google_protobuf_timestamp, file_izci_ingest_v1_event]);
 
 /**
  * SendEventRequest carries one event.
@@ -419,6 +419,231 @@ export const GetClientConfigResponseSchema: GenMessage<GetClientConfigResponse> 
   messageDesc(file_izci_ingest_v1_ingest, 8);
 
 /**
+ * SendCheckInRequest carries one check-in.
+ *
+ * @generated from message izci.ingest.v1.SendCheckInRequest
+ */
+export type SendCheckInRequest = Message<"izci.ingest.v1.SendCheckInRequest"> & {
+  /**
+   * The check-in. Required.
+   *
+   * @generated from field: izci.ingest.v1.CheckIn check_in = 1;
+   */
+  checkIn?: CheckIn | undefined;
+};
+
+/**
+ * Describes the message izci.ingest.v1.SendCheckInRequest.
+ * Use `create(SendCheckInRequestSchema)` to create a new message.
+ */
+export const SendCheckInRequestSchema: GenMessage<SendCheckInRequest> = /*@__PURE__*/
+  messageDesc(file_izci_ingest_v1_ingest, 9);
+
+/**
+ * SendCheckInResponse identifies the run the check-in belongs to.
+ *
+ * @generated from message izci.ingest.v1.SendCheckInResponse
+ */
+export type SendCheckInResponse = Message<"izci.ingest.v1.SendCheckInResponse"> & {
+  /**
+   * Id of the run (UUID): the check_in_id sent, or a new one. Send it with
+   * the closing check-in of a run that is in progress.
+   *
+   * @generated from field: string check_in_id = 1;
+   */
+  checkInId: string;
+};
+
+/**
+ * Describes the message izci.ingest.v1.SendCheckInResponse.
+ * Use `create(SendCheckInResponseSchema)` to create a new message.
+ */
+export const SendCheckInResponseSchema: GenMessage<SendCheckInResponse> = /*@__PURE__*/
+  messageDesc(file_izci_ingest_v1_ingest, 10);
+
+/**
+ * CheckIn reports that a scheduled job started or finished.
+ *
+ * @generated from message izci.ingest.v1.CheckIn
+ */
+export type CheckIn = Message<"izci.ingest.v1.CheckIn"> & {
+  /**
+   * Id of the run (UUID) chosen by the job. A later check-in with the same
+   * id finishes the run. When empty, the server assigns one; a closing
+   * check-in without id finishes the newest run still in progress.
+   *
+   * @generated from field: string check_in_id = 1;
+   */
+  checkInId: string;
+
+  /**
+   * Slug of the monitor within the project, e.g. "daily-billing". Letters,
+   * digits, "-" and "_"; other characters become "-". Required. Max 50
+   * characters.
+   *
+   * @generated from field: string monitor_slug = 2;
+   */
+  monitorSlug: string;
+
+  /**
+   * What happened. Required.
+   *
+   * @generated from field: izci.ingest.v1.CheckInStatus status = 3;
+   */
+  status: CheckInStatus;
+
+  /**
+   * How long the run took; defaults to the time between the in-progress
+   * and the closing check-in.
+   *
+   * @generated from field: google.protobuf.Duration duration = 4;
+   */
+  duration?: Duration | undefined;
+
+  /**
+   * Environment the job runs in, e.g. "production" (the default).
+   *
+   * @generated from field: string environment = 5;
+   */
+  environment: string;
+
+  /**
+   * Release of the job's code, e.g. "billing@2.3.0".
+   *
+   * @generated from field: string release = 6;
+   */
+  release: string;
+
+  /**
+   * Trace the run belongs to (32 hexadecimal characters), when traced.
+   *
+   * @generated from field: string trace_id = 7;
+   */
+  traceId: string;
+
+  /**
+   * Creates the monitor, or updates it when the schedule changed. Sending
+   * it with every check-in keeps the monitor in sync with the code.
+   *
+   * @generated from field: izci.ingest.v1.MonitorConfig monitor_config = 8;
+   */
+  monitorConfig?: MonitorConfig | undefined;
+};
+
+/**
+ * Describes the message izci.ingest.v1.CheckIn.
+ * Use `create(CheckInSchema)` to create a new message.
+ */
+export const CheckInSchema: GenMessage<CheckIn> = /*@__PURE__*/
+  messageDesc(file_izci_ingest_v1_ingest, 11);
+
+/**
+ * MonitorConfig is the schedule and failure policy of a monitor.
+ *
+ * Sentry equivalent: monitor_config.
+ *
+ * @generated from message izci.ingest.v1.MonitorConfig
+ */
+export type MonitorConfig = Message<"izci.ingest.v1.MonitorConfig"> & {
+  /**
+   * When runs are due. Required.
+   *
+   * @generated from oneof izci.ingest.v1.MonitorConfig.schedule
+   */
+  schedule: {
+    /**
+     * Crontab expression in five fields or a descriptor, e.g. "0 3 * * *"
+     * (03:00 every day) or "@hourly".
+     *
+     * @generated from field: string crontab = 1;
+     */
+    value: string;
+    case: "crontab";
+  } | {
+    /**
+     * A run every interval, counted from the previous run.
+     *
+     * @generated from field: izci.ingest.v1.MonitorInterval interval = 2;
+     */
+    value: MonitorInterval;
+    case: "interval";
+  } | { case: undefined; value?: undefined };
+
+  /**
+   * IANA time zone the crontab is read in, e.g. "Europe/Istanbul". Defaults
+   * to UTC.
+   *
+   * @generated from field: string timezone = 3;
+   */
+  timezone: string;
+
+  /**
+   * Minutes a run may check in late before it counts as missed. Default 1,
+   * max 43200 (30 days).
+   *
+   * @generated from field: uint32 checkin_margin_minutes = 4;
+   */
+  checkinMarginMinutes: number;
+
+  /**
+   * Minutes a run may stay in progress before it counts as timed out.
+   * Default 30, max 10080 (7 days).
+   *
+   * @generated from field: uint32 max_runtime_minutes = 5;
+   */
+  maxRuntimeMinutes: number;
+
+  /**
+   * Failed runs in a row that open an issue. Default 1.
+   *
+   * @generated from field: uint32 failure_issue_threshold = 6;
+   */
+  failureIssueThreshold: number;
+
+  /**
+   * Successful runs in a row that resolve the issue again. Default 1.
+   *
+   * @generated from field: uint32 recovery_threshold = 7;
+   */
+  recoveryThreshold: number;
+};
+
+/**
+ * Describes the message izci.ingest.v1.MonitorConfig.
+ * Use `create(MonitorConfigSchema)` to create a new message.
+ */
+export const MonitorConfigSchema: GenMessage<MonitorConfig> = /*@__PURE__*/
+  messageDesc(file_izci_ingest_v1_ingest, 12);
+
+/**
+ * MonitorInterval is an interval schedule, e.g. every 2 hours.
+ *
+ * @generated from message izci.ingest.v1.MonitorInterval
+ */
+export type MonitorInterval = Message<"izci.ingest.v1.MonitorInterval"> & {
+  /**
+   * Number of units between runs, at least 1.
+   *
+   * @generated from field: uint32 value = 1;
+   */
+  value: number;
+
+  /**
+   * Unit of the interval.
+   *
+   * @generated from field: izci.ingest.v1.IntervalUnit unit = 2;
+   */
+  unit: IntervalUnit;
+};
+
+/**
+ * Describes the message izci.ingest.v1.MonitorInterval.
+ * Use `create(MonitorIntervalSchema)` to create a new message.
+ */
+export const MonitorIntervalSchema: GenMessage<MonitorInterval> = /*@__PURE__*/
+  messageDesc(file_izci_ingest_v1_ingest, 13);
+
+/**
  * EventOutcome is the fate of a submitted event.
  *
  * @generated from enum izci.ingest.v1.EventOutcome
@@ -478,6 +703,109 @@ export enum EventOutcome {
  */
 export const EventOutcomeSchema: GenEnum<EventOutcome> = /*@__PURE__*/
   enumDesc(file_izci_ingest_v1_ingest, 0);
+
+/**
+ * CheckInStatus is the state a check-in reports.
+ *
+ * @generated from enum izci.ingest.v1.CheckInStatus
+ */
+export enum CheckInStatus {
+  /**
+   * Not set; rejected.
+   *
+   * @generated from enum value: CHECK_IN_STATUS_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * The job started.
+   *
+   * @generated from enum value: CHECK_IN_STATUS_IN_PROGRESS = 1;
+   */
+  IN_PROGRESS = 1,
+
+  /**
+   * The job finished successfully.
+   *
+   * @generated from enum value: CHECK_IN_STATUS_OK = 2;
+   */
+  OK = 2,
+
+  /**
+   * The job failed.
+   *
+   * @generated from enum value: CHECK_IN_STATUS_ERROR = 3;
+   */
+  ERROR = 3,
+}
+
+/**
+ * Describes the enum izci.ingest.v1.CheckInStatus.
+ */
+export const CheckInStatusSchema: GenEnum<CheckInStatus> = /*@__PURE__*/
+  enumDesc(file_izci_ingest_v1_ingest, 1);
+
+/**
+ * IntervalUnit is the unit of an interval schedule.
+ *
+ * @generated from enum izci.ingest.v1.IntervalUnit
+ */
+export enum IntervalUnit {
+  /**
+   * Not set; rejected.
+   *
+   * @generated from enum value: INTERVAL_UNIT_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * Minutes.
+   *
+   * @generated from enum value: INTERVAL_UNIT_MINUTE = 1;
+   */
+  MINUTE = 1,
+
+  /**
+   * Hours.
+   *
+   * @generated from enum value: INTERVAL_UNIT_HOUR = 2;
+   */
+  HOUR = 2,
+
+  /**
+   * Days.
+   *
+   * @generated from enum value: INTERVAL_UNIT_DAY = 3;
+   */
+  DAY = 3,
+
+  /**
+   * Weeks.
+   *
+   * @generated from enum value: INTERVAL_UNIT_WEEK = 4;
+   */
+  WEEK = 4,
+
+  /**
+   * Calendar months.
+   *
+   * @generated from enum value: INTERVAL_UNIT_MONTH = 5;
+   */
+  MONTH = 5,
+
+  /**
+   * Calendar years.
+   *
+   * @generated from enum value: INTERVAL_UNIT_YEAR = 6;
+   */
+  YEAR = 6,
+}
+
+/**
+ * Describes the enum izci.ingest.v1.IntervalUnit.
+ */
+export const IntervalUnitSchema: GenEnum<IntervalUnit> = /*@__PURE__*/
+  enumDesc(file_izci_ingest_v1_ingest, 2);
 
 /**
  * IngestService receives events and release metadata from applications.
@@ -587,6 +915,26 @@ export const IngestService: GenService<{
     methodKind: "unary";
     input: typeof GetClientConfigRequestSchema;
     output: typeof GetClientConfigResponseSchema;
+  },
+  /**
+   * SendCheckIn reports a run of a scheduled job to a cron monitor: send
+   * CHECK_IN_STATUS_IN_PROGRESS when the job starts and OK or ERROR with the
+   * same check_in_id when it ends (or only the final status for short jobs).
+   * izci records a missed run when no check-in arrives on schedule and a
+   * timeout when a run stays in progress longer than max_runtime.
+   *
+   * The monitor is identified by monitor_slug within the key's project. A
+   * check-in with monitor_config creates the monitor or updates its
+   * schedule; without it the monitor must already exist (NOT_FOUND).
+   *
+   * Sentry equivalent: the check_in envelope item (CaptureCheckIn).
+   *
+   * @generated from rpc izci.ingest.v1.IngestService.SendCheckIn
+   */
+  sendCheckIn: {
+    methodKind: "unary";
+    input: typeof SendCheckInRequestSchema;
+    output: typeof SendCheckInResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_izci_ingest_v1_ingest, 0);

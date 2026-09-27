@@ -706,6 +706,85 @@ func (s *server) listReleases(ctx context.Context, req *mcpsdk.CallToolRequest, 
 	return nil, out, nil
 }
 
+// ── Cron monitors ──────────────────────────────────────────────────────────
+
+type listMonitorsIn struct {
+	Organization string `json:"organization,omitempty" jsonschema:"organization slug; defaults to the Izci-Org header, the organization the token is bound to or the user's only organization"`
+	Project      string `json:"project,omitempty" jsonschema:"project slug; empty for every project"`
+	Query        string `json:"query,omitempty" jsonschema:"text to find in the monitor name or slug"`
+	Failing      bool   `json:"failing,omitempty" jsonschema:"only monitors whose last run failed, was missed or timed out in some environment"`
+}
+
+// MonitorItem is a cron monitor with its state per environment.
+type MonitorItem struct {
+	Slug         string           `json:"slug" jsonschema:"monitor_slug the job checks in with"`
+	Name         string           `json:"name"`
+	Project      string           `json:"project"`
+	Schedule     string           `json:"schedule" jsonschema:"crontab expression, or every N units counted from the previous run"`
+	Timezone     string           `json:"timezone"`
+	Paused       bool             `json:"paused,omitempty"`
+	Environments []MonitorEnvItem `json:"environments"`
+	RecentRuns   []string         `json:"recent_runs,omitempty" jsonschema:"statuses of the latest runs, newest first"`
+}
+
+// MonitorEnvItem is the state of a monitor in one environment.
+type MonitorEnvItem struct {
+	Environment    string `json:"environment"`
+	Status         string `json:"status" jsonschema:"waiting, ok, error, missed or timeout"`
+	LastCheckIn    string `json:"last_check_in,omitempty"`
+	NextCheckIn    string `json:"next_check_in,omitempty"`
+	FailuresInARow uint32 `json:"failures_in_a_row,omitempty"`
+	Issue          string `json:"issue,omitempty" jsonschema:"short id of the open issue raised for this environment"`
+}
+
+type listMonitorsOut struct {
+	Monitors []MonitorItem `json:"monitors"`
+}
+
+func (s *server) listMonitors(ctx context.Context, req *mcpsdk.CallToolRequest, in listMonitorsIn) (*mcpsdk.CallToolResult, listMonitorsOut, error) {
+	ctx, err := s.scoped(ctx, req, in.Organization)
+	if err != nil {
+		return nil, listMonitorsOut{}, err
+	}
+	res, err := s.api.monitors.ListMonitors(ctx, connect.NewRequest(&apiv1.ListMonitorsRequest{Project: in.Project, Query: in.Query}))
+	if err != nil {
+		return nil, listMonitorsOut{}, apiError(err)
+	}
+	out := listMonitorsOut{Monitors: []MonitorItem{}}
+	for _, m := range res.Msg.GetMonitors() {
+		it := MonitorItem{Slug: m.GetSlug(), Name: m.GetName(), Project: m.GetProject().GetSlug(), Timezone: m.GetTimezone(),
+			Paused: m.GetPaused(), Environments: []MonitorEnvItem{}}
+		if iv := m.GetSchedule().GetInterval(); iv != nil {
+			unit := enumName(iv.GetUnit().String(), "MONITOR_INTERVAL_UNIT_")
+			if iv.GetValue() != 1 {
+				unit += "s"
+			}
+			it.Schedule = fmt.Sprintf("every %d %s", iv.GetValue(), unit)
+		} else {
+			it.Schedule = m.GetSchedule().GetCrontab()
+		}
+		failing := false
+		for _, e := range m.GetEnvironments() {
+			status := e.GetStatus()
+			if status == apiv1.MonitorStatus_MONITOR_STATUS_ERROR || status == apiv1.MonitorStatus_MONITOR_STATUS_MISSED ||
+				status == apiv1.MonitorStatus_MONITOR_STATUS_TIMEOUT {
+				failing = true
+			}
+			it.Environments = append(it.Environments, MonitorEnvItem{Environment: e.GetEnvironment(),
+				Status: enumName(status.String(), "MONITOR_STATUS_"), LastCheckIn: ts(e.GetLastCheckInAt()),
+				NextCheckIn: ts(e.GetNextCheckInAt()), FailuresInARow: e.GetFailures(), Issue: e.GetIssue().GetShortId()})
+		}
+		if in.Failing && (!failing || m.GetPaused()) {
+			continue
+		}
+		for _, c := range m.GetRecentCheckIns() {
+			it.RecentRuns = append(it.RecentRuns, enumName(c.GetStatus().String(), "CHECK_IN_STATUS_"))
+		}
+		out.Monitors = append(out.Monitors, it)
+	}
+	return nil, out, nil
+}
+
 // ── AI ─────────────────────────────────────────────────────────────────────
 
 type startAnalysisIn struct {
@@ -819,6 +898,10 @@ func (s *server) registerTools(m *mcpsdk.Server) {
 	mcpsdk.AddTool(m, &mcpsdk.Tool{Name: "list_releases", Annotations: readOnly,
 		Description: "List a project's releases with commits, deploys and how many issues each release introduced."},
 		s.listReleases)
+	mcpsdk.AddTool(m, &mcpsdk.Tool{Name: "list_monitors", Annotations: readOnly,
+		Description: "List cron monitors (scheduled jobs that check in, like Sentry Crons) with their schedule and, per environment, the last run's status " +
+			"(ok, error, missed, timeout), next expected run and the open issue. Use failing=true to find jobs that are not running correctly."},
+		s.listMonitors)
 	mcpsdk.AddTool(m, &mcpsdk.Tool{Name: "get_ai_run", Annotations: readOnly,
 		Description: "Get an AI analysis run: status, root cause, proposed fix summary, confidence, risk, changed files and (include_diff) the full report and diff."},
 		s.getRun)

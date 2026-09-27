@@ -24,7 +24,7 @@ const accents: { value: Accent; label: string; color: string }[] = [
 
 // A choice drawn as a card: a label around a visually hidden native radio.
 const choiceClass =
-  "cursor-pointer rounded-md border transition-colors duration-(--duration-fast) has-[:focus-visible]:shadow-(--focus-shadow)";
+  "relative cursor-pointer rounded-md border transition-colors duration-(--duration-fast) has-[:focus-visible]:shadow-(--focus-shadow)";
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (

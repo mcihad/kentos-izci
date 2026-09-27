@@ -63,6 +63,14 @@ var rules = map[string]rule{
 	c.OrganizationServiceGetUsageProcedure:           orgRule(viewer, read),
 	c.OrganizationServiceListAuditLogProcedure:       orgRule(admin, read),
 
+	// MonitorService
+	c.MonitorServiceListMonitorsProcedure:  orgRule(viewer, read),
+	c.MonitorServiceGetMonitorProcedure:    orgRule(viewer, read),
+	c.MonitorServiceCreateMonitorProcedure: orgRule(admin, write),
+	c.MonitorServiceUpdateMonitorProcedure: orgRule(admin, write),
+	c.MonitorServiceDeleteMonitorProcedure: orgRule(admin, write),
+	c.MonitorServiceListCheckInsProcedure:  orgRule(viewer, read),
+
 	// ProjectService
 	c.ProjectServiceListProjectsProcedure:       orgRule(viewer, read),
 	c.ProjectServiceGetProjectProcedure:         orgRule(viewer, read),

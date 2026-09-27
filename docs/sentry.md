@@ -2,7 +2,7 @@
 
 İzci, Sentry SDK'larının kullandığı protokolü anlar. Sentry SDK'sı kullanan bir uygulamayı İzci'ye bağlamak için **yalnız DSN'i değiştirmek** yeter; kod değişmez. Sentry olayları İzci olay modeline çevrilir ve gRPC ile gelen olaylarla aynı yoldan geçer: aynı gruplama, uyarılar, müşteri analizi ve yapay zekâ.
 
-Hatalar dışında SDK'ların hata izleme için gönderdikleri de saklanır: **ekler** (ekran görüntüsü, günlük dosyası), **kullanıcı geri bildirimi** ve **oturumlar** (sürüm sağlığı).
+Hatalar dışında SDK'ların hata izleme için gönderdikleri de saklanır: **ekler** (ekran görüntüsü, günlük dosyası), **kullanıcı geri bildirimi**, **oturumlar** (sürüm sağlığı) ve zamanlanmış görevlerin **check-in**'leri ([cron izleme](cron.md)).
 
 ## Denenmiş SDK'lar
 
@@ -130,7 +130,8 @@ let _guard = sentry::init(("https://izk_…@izci.example.com/7", options));
 | Kullanıcı geri bildirimi (`feedback`; eski SDK'larda `user_report`) | **Geri bildirim** sayfası ve hatanın **Geri bildirim** sekmesi; ilgili olay biliniyorsa hataya bağlanır. |
 | Oturum (`session`, sunucu SDK'larında `sessions`) | **Projeler › Sürümler**: çökmesiz oturum ve kullanıcı oranı, oturum sayısı, benimsenme. |
 | İstemci raporu (`client_report`) | SDK'nın göndermeden attığı verinin sayısı, [metrik](operasyon.md#metrikler) olarak. |
-| Performans işlemleri ve span'ler, profiller, oturum kayıtları (replay), cron kontrolleri, loglar | Kabul edilir, saklanmaz. Bunlar Sentry'nin hata izleme dışındaki ürünleridir. |
+| Cron kontrolü (`check_in`): `CaptureCheckIn`, `withMonitor`, `@monitor` | **Zamanlanmış görevler**: çalışmalar, kaçırılan ve zaman aşımına uğrayan çalışmalar; sorun olunca hata kaydı ve uyarı. Bkz. [Zamanlanmış görev izleme](cron.md). |
+| Performans işlemleri ve span'ler, profiller, oturum kayıtları (replay), loglar | Kabul edilir, saklanmaz. Bunlar Sentry'nin hata izleme dışındaki ürünleridir. |
 
 Saklanmayan öğeler için SDK hata almaz. Ağ trafiğini azaltmak için örneklemeyi kapatın (`TracesSampleRate = 0`, `replaysSessionSampleRate: 0` gibi).
 
@@ -181,6 +182,7 @@ Bir oturum; mobil ya da masaüstü uygulamanın bir çalışması, tarayıcıda 
 |---|---|
 | `POST /api/{proje}/envelope/` | Güncel SDK'ların kullandığı zarf (envelope) biçimi. |
 | `POST /api/{proje}/store/` | Eski SDK'ların tek olay biçimi. |
+| `POST /api/{proje}/cron/{izleyici}/{anahtar}/` | SDK'sı olmayan işler için check-in (GET de kabul edilir); bkz. [HTTP ile](cron.md#http-ile). |
 
 Anahtar şu sırayla aranır: `X-Sentry-Auth` başlığındaki `sentry_key`, `Authorization`, `?sentry_key=` sorgu parametresi, zarf başlığındaki `dsn`. Gövde `gzip`, `deflate`, `br` ya da `zstd` ile sıkıştırılabilir; sıkıştırılmış gövde 20 MiB, açılmış hâli 40 MiB ile sınırlıdır. Bir zarf en çok 100 olay taşır.
 

@@ -30,6 +30,8 @@ function describe(a: IssueActivity): string {
     case ActivityKind.REGRESSED:
       return `Çözülmüş hata geri döndü${a.data.release ? ` (${a.data.release} sürümü)` : ""}`;
     case ActivityKind.STATUS_CHANGED:
+      if (a.data.reason === "monitor_recovered")
+        return "Zamanlanmış görev yeniden başarıyla çalıştı; hata kendiliğinden çözüldü";
       return `${statusText[a.data.to ?? ""] ?? "durumu değiştirdi"}${a.data.release ? ` (${a.data.release} sürümünde)` : ""}`;
     case ActivityKind.ASSIGNED:
       return a.data.assignee ? `hatayı ${a.data.assignee} kişisine atadı` : "atamayı kaldırdı";

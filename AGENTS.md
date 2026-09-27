@@ -69,14 +69,15 @@ commit message and the phase table in `docs/mimari.md` (once written).
 | `internal/search` | issue search language parser (`is:unresolved level:>=error customer:x "text"`) |
 | `internal/realtime` | in-process hub fanning committed ingest batches and triage out to `WatchLive` streams |
 | `internal/alert` | alert rules evaluated inside the ingest transaction (savepoint) → transactional notification outbox |
+| `internal/monitor` | cron monitoring: schedules (crontab/interval in a time zone), check-in processing (`Process`), the `monitor-sweep` job that records missed and timed-out runs; incidents are synthetic events pushed through the ingest pipeline (`ingest.NewIncidentEmitter`), so grouping, alert rules and Telegram apply unchanged |
 | `internal/telegram` | Bot API client, outbox dispatcher (edit-in-place, flood control), chat/account linking, signed triage buttons, polling or webhook |
 | `internal/github` | GitHub REST client (no go-github), GitHub App JWT + cached installation tokens, OAuth check of who installed the app, sealed personal access tokens (`Access`) |
 | `internal/mcp` | MCP server (official Go SDK): tools, resources and prompts as a thin adapter over izci.api.v1 — called in-process with the caller's personal access token (`/mcp`, `izci mcp`) or over HTTPS (`izci mcp --url`), so authorization, scopes and RLS are the API's |
 | `internal/ai` | AI runs: bare mirror + per-run worktree, context files and prompt, the opencode process (JSON events → run log), results and diff, publishing branches/pull requests, `Doctor` |
-| `internal/ingest` | normalize → scrub → in-app → grouping → group-commit writer; `IngestService`; attachments, user feedback and release-health sessions (`items.go`, `sessions.go`) |
+| `internal/ingest` | normalize → scrub → in-app → grouping → group-commit writer; `IngestService`; attachments, user feedback and release-health sessions (`items.go`, `sessions.go`); cron check-ins (`checkins.go`) |
 | `internal/ingest/sentry` | Sentry envelope/store endpoints and the Sentry → izci mapping; `testdata/sdk` holds envelopes recorded from real Sentry SDKs — when changing the mapping, re-run them (`go test ./internal/ingest/sentry`) rather than hand-writing payloads |
 | `internal/clientip`, `internal/secret`, `internal/slug` | client address, tokens/AES-GCM/HMAC, slugs |
-| `internal/jobs` | periodic background tasks (usage flush, partitions, retention, project purge) |
+| `internal/jobs` | periodic background tasks (usage flush, partitions, retention, project purge, monitor sweep) |
 | `internal/sample` | realistic sample events (demo, bench, test events) |
 | `internal/testutil` | per-test PostgreSQL schemas (`NewDB`) |
 | `internal/metrics` | Prometheus metrics (VictoriaMetrics/metrics): process-wide counters updated on hot paths, per-instance gauges (queue, pool, live streams), `/metrics` with its access rule; labels never carry tenant data |

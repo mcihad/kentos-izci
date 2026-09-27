@@ -34,9 +34,9 @@ Conventions used throughout this package:
 
 **Services:** [IngestService](#izci-ingest-v1-ingestservice)
 
-**Messages:** [AppContext](#izci-ingest-v1-appcontext) · [Breadcrumb](#izci-ingest-v1-breadcrumb) · [BrowserContext](#izci-ingest-v1-browsercontext) · [CloudContext](#izci-ingest-v1-cloudcontext) · [Contexts](#izci-ingest-v1-contexts) · [CpuInfo](#izci-ingest-v1-cpuinfo) · [CultureContext](#izci-ingest-v1-culturecontext) · [Customer](#izci-ingest-v1-customer) · [DatabaseContext](#izci-ingest-v1-databasecontext) · [DeviceContext](#izci-ingest-v1-devicecontext) · [Event](#izci-ingest-v1-event) · [EventResult](#izci-ingest-v1-eventresult) · [Exception](#izci-ingest-v1-exception) · [Frame](#izci-ingest-v1-frame) · [Geo](#izci-ingest-v1-geo) · [GetClientConfigRequest](#izci-ingest-v1-getclientconfigrequest) · [GetClientConfigResponse](#izci-ingest-v1-getclientconfigresponse) · [GpuContext](#izci-ingest-v1-gpucontext) · [Header](#izci-ingest-v1-header) · [Mechanism](#izci-ingest-v1-mechanism) · [MemoryInfo](#izci-ingest-v1-memoryinfo) · [Message](#izci-ingest-v1-message) · [OsContext](#izci-ingest-v1-oscontext) · [ProcessContext](#izci-ingest-v1-processcontext) · [RegisterReleaseRequest](#izci-ingest-v1-registerreleaserequest) · [RegisterReleaseResponse](#izci-ingest-v1-registerreleaseresponse) · [Request](#izci-ingest-v1-request) · [Response](#izci-ingest-v1-response) · [RuntimeContext](#izci-ingest-v1-runtimecontext) · [ScreenInfo](#izci-ingest-v1-screeninfo) · [Sdk](#izci-ingest-v1-sdk) · [SdkPackage](#izci-ingest-v1-sdkpackage) · [SendEventRequest](#izci-ingest-v1-sendeventrequest) · [SendEventResponse](#izci-ingest-v1-sendeventresponse) · [SendEventsRequest](#izci-ingest-v1-sendeventsrequest) · [SendEventsResponse](#izci-ingest-v1-sendeventsresponse) · [Stacktrace](#izci-ingest-v1-stacktrace) · [StorageInfo](#izci-ingest-v1-storageinfo) · [Tenant](#izci-ingest-v1-tenant) · [Thread](#izci-ingest-v1-thread) · [TraceContext](#izci-ingest-v1-tracecontext) · [User](#izci-ingest-v1-user)
+**Messages:** [AppContext](#izci-ingest-v1-appcontext) · [Breadcrumb](#izci-ingest-v1-breadcrumb) · [BrowserContext](#izci-ingest-v1-browsercontext) · [CheckIn](#izci-ingest-v1-checkin) · [CloudContext](#izci-ingest-v1-cloudcontext) · [Contexts](#izci-ingest-v1-contexts) · [CpuInfo](#izci-ingest-v1-cpuinfo) · [CultureContext](#izci-ingest-v1-culturecontext) · [Customer](#izci-ingest-v1-customer) · [DatabaseContext](#izci-ingest-v1-databasecontext) · [DeviceContext](#izci-ingest-v1-devicecontext) · [Event](#izci-ingest-v1-event) · [EventResult](#izci-ingest-v1-eventresult) · [Exception](#izci-ingest-v1-exception) · [Frame](#izci-ingest-v1-frame) · [Geo](#izci-ingest-v1-geo) · [GetClientConfigRequest](#izci-ingest-v1-getclientconfigrequest) · [GetClientConfigResponse](#izci-ingest-v1-getclientconfigresponse) · [GpuContext](#izci-ingest-v1-gpucontext) · [Header](#izci-ingest-v1-header) · [Mechanism](#izci-ingest-v1-mechanism) · [MemoryInfo](#izci-ingest-v1-memoryinfo) · [Message](#izci-ingest-v1-message) · [MonitorConfig](#izci-ingest-v1-monitorconfig) · [MonitorInterval](#izci-ingest-v1-monitorinterval) · [OsContext](#izci-ingest-v1-oscontext) · [ProcessContext](#izci-ingest-v1-processcontext) · [RegisterReleaseRequest](#izci-ingest-v1-registerreleaserequest) · [RegisterReleaseResponse](#izci-ingest-v1-registerreleaseresponse) · [Request](#izci-ingest-v1-request) · [Response](#izci-ingest-v1-response) · [RuntimeContext](#izci-ingest-v1-runtimecontext) · [ScreenInfo](#izci-ingest-v1-screeninfo) · [Sdk](#izci-ingest-v1-sdk) · [SdkPackage](#izci-ingest-v1-sdkpackage) · [SendCheckInRequest](#izci-ingest-v1-sendcheckinrequest) · [SendCheckInResponse](#izci-ingest-v1-sendcheckinresponse) · [SendEventRequest](#izci-ingest-v1-sendeventrequest) · [SendEventResponse](#izci-ingest-v1-sendeventresponse) · [SendEventsRequest](#izci-ingest-v1-sendeventsrequest) · [SendEventsResponse](#izci-ingest-v1-sendeventsresponse) · [Stacktrace](#izci-ingest-v1-stacktrace) · [StorageInfo](#izci-ingest-v1-storageinfo) · [Tenant](#izci-ingest-v1-tenant) · [Thread](#izci-ingest-v1-thread) · [TraceContext](#izci-ingest-v1-tracecontext) · [User](#izci-ingest-v1-user)
 
-**Enums:** [EventOutcome](#izci-ingest-v1-eventoutcome) · [Level](#izci-ingest-v1-level)
+**Enums:** [CheckInStatus](#izci-ingest-v1-checkinstatus) · [EventOutcome](#izci-ingest-v1-eventoutcome) · [IntervalUnit](#izci-ingest-v1-intervalunit) · [Level](#izci-ingest-v1-level)
 
 ## Services
 
@@ -104,6 +104,7 @@ EVENT_OUTCOME_DUPLICATE and not stored twice.
 | [SendEvents](#izci-ingest-v1-ingestservice-sendevents) | [SendEventsRequest](#izci-ingest-v1-sendeventsrequest) | [SendEventsResponse](#izci-ingest-v1-sendeventsresponse) | SendEvents stores up to 100 events in one call. |
 | [RegisterRelease](#izci-ingest-v1-ingestservice-registerrelease) | [RegisterReleaseRequest](#izci-ingest-v1-registerreleaserequest) | [RegisterReleaseResponse](#izci-ingest-v1-registerreleaseresponse) | RegisterRelease records metadata about a release (commit, repository, deployment), typically called from CI after a build or deploy. |
 | [GetClientConfig](#izci-ingest-v1-ingestservice-getclientconfig) | [GetClientConfigRequest](#izci-ingest-v1-getclientconfigrequest) | [GetClientConfigResponse](#izci-ingest-v1-getclientconfigresponse) | GetClientConfig returns project settings an SDK should apply locally: sampling, limits and extra fields to scrub. |
+| [SendCheckIn](#izci-ingest-v1-ingestservice-sendcheckin) | [SendCheckInRequest](#izci-ingest-v1-sendcheckinrequest) | [SendCheckInResponse](#izci-ingest-v1-sendcheckinresponse) | SendCheckIn reports a run of a scheduled job to a cron monitor: send CHECK_IN_STATUS_IN_PROGRESS when the job starts and OK or ERROR with the same check_in_id when it ends (or only the final status for short jobs). |
 
 <a id="izci-ingest-v1-ingestservice-sendevent"></a>
 
@@ -150,6 +151,24 @@ may cache the result for cache_ttl.
 
 _Side-effect free: may be called with HTTP GET over the Connect protocol._
 
+<a id="izci-ingest-v1-ingestservice-sendcheckin"></a>
+
+#### IngestService.SendCheckIn
+
+`rpc SendCheckIn(SendCheckInRequest) returns (SendCheckInResponse)`
+
+SendCheckIn reports a run of a scheduled job to a cron monitor: send
+CHECK_IN_STATUS_IN_PROGRESS when the job starts and OK or ERROR with the
+same check_in_id when it ends (or only the final status for short jobs).
+izci records a missed run when no check-in arrives on schedule and a
+timeout when a run stays in progress longer than max_runtime.
+
+The monitor is identified by monitor_slug within the key's project. A
+check-in with monitor_config creates the monitor or updates its
+schedule; without it the monitor must already exist (NOT_FOUND).
+
+Sentry equivalent: the check_in envelope item (CaptureCheckIn).
+
 ## Messages
 
 <a id="izci-ingest-v1-appcontext"></a>
@@ -194,6 +213,23 @@ BrowserContext describes the web browser.
 | `name` | `string` | Browser name, e.g. "Chrome", "Firefox", "Safari", "Edge". |
 | `version` | `string` | Browser version, e.g. "129.0.6668.58". |
 | `user_agent` | `string` | Raw User-Agent string, when it is not sent as a request header. The server parses it into browser, os and device information. |
+
+<a id="izci-ingest-v1-checkin"></a>
+
+### CheckIn
+
+CheckIn reports that a scheduled job started or finished.
+
+| Field | Type | Description |
+|---|---|---|
+| `check_in_id` | `string` | Id of the run (UUID) chosen by the job. A later check-in with the same id finishes the run. When empty, the server assigns one; a closing check-in without id finishes the newest run still in progress. |
+| `monitor_slug` | `string` | Slug of the monitor within the project, e.g. "daily-billing". Letters, digits, "-" and "_"; other characters become "-". Required. Max 50 characters. |
+| `status` | [CheckInStatus](#izci-ingest-v1-checkinstatus) | What happened. Required. |
+| `duration` | [google.protobuf.Duration](https://protobuf.dev/reference/protobuf/google.protobuf/#duration) | How long the run took; defaults to the time between the in-progress and the closing check-in. |
+| `environment` | `string` | Environment the job runs in, e.g. "production" (the default). |
+| `release` | `string` | Release of the job's code, e.g. "billing@2.3.0". |
+| `trace_id` | `string` | Trace the run belongs to (32 hexadecimal characters), when traced. |
+| `monitor_config` | [MonitorConfig](#izci-ingest-v1-monitorconfig) | Creates the monitor, or updates it when the schedule changed. Sending it with every check-in keeps the monitor in sync with the code. |
 
 <a id="izci-ingest-v1-cloudcontext"></a>
 
@@ -551,6 +587,35 @@ Message is a human-readable description of the event.
 | `template` | `string` | Parameterized template the text was produced from, e.g. "User %s not found" or "User {UserId} not found". When present, izci groups message-only events by template instead of by formatted text, so "User 42 not found" and "User 43 not found" become one issue. Max 1 KiB. |
 | `params` | repeated `string` | Values substituted into template, in order. Max 32 values of 1 KiB. |
 
+<a id="izci-ingest-v1-monitorconfig"></a>
+
+### MonitorConfig
+
+MonitorConfig is the schedule and failure policy of a monitor.
+
+Sentry equivalent: monitor_config.
+
+| Field | Type | Description |
+|---|---|---|
+| `crontab` | `string` | _oneof `schedule`._ Crontab expression in five fields or a descriptor, e.g. "0 3 * * *" (03:00 every day) or "@hourly". |
+| `interval` | [MonitorInterval](#izci-ingest-v1-monitorinterval) | _oneof `schedule`._ A run every interval, counted from the previous run. |
+| `timezone` | `string` | IANA time zone the crontab is read in, e.g. "Europe/Istanbul". Defaults to UTC. |
+| `checkin_margin_minutes` | `uint32` | Minutes a run may check in late before it counts as missed. Default 1, max 43200 (30 days). |
+| `max_runtime_minutes` | `uint32` | Minutes a run may stay in progress before it counts as timed out. Default 30, max 10080 (7 days). |
+| `failure_issue_threshold` | `uint32` | Failed runs in a row that open an issue. Default 1. |
+| `recovery_threshold` | `uint32` | Successful runs in a row that resolve the issue again. Default 1. |
+
+<a id="izci-ingest-v1-monitorinterval"></a>
+
+### MonitorInterval
+
+MonitorInterval is an interval schedule, e.g. every 2 hours.
+
+| Field | Type | Description |
+|---|---|---|
+| `value` | `uint32` | Number of units between runs, at least 1. |
+| `unit` | [IntervalUnit](#izci-ingest-v1-intervalunit) | Unit of the interval. |
+
 <a id="izci-ingest-v1-oscontext"></a>
 
 ### OsContext
@@ -704,6 +769,26 @@ SdkPackage is one package of an SDK.
 | `name` | `string` | Package name, e.g. "go:github.com/mcihad/kentos-izci/sdk/go". |
 | `version` | `string` | Package version. |
 
+<a id="izci-ingest-v1-sendcheckinrequest"></a>
+
+### SendCheckInRequest
+
+SendCheckInRequest carries one check-in.
+
+| Field | Type | Description |
+|---|---|---|
+| `check_in` | [CheckIn](#izci-ingest-v1-checkin) | The check-in. Required. |
+
+<a id="izci-ingest-v1-sendcheckinresponse"></a>
+
+### SendCheckInResponse
+
+SendCheckInResponse identifies the run the check-in belongs to.
+
+| Field | Type | Description |
+|---|---|---|
+| `check_in_id` | `string` | Id of the run (UUID): the check_in_id sent, or a new one. Send it with the closing check-in of a run that is in progress. |
+
 <a id="izci-ingest-v1-sendeventrequest"></a>
 
 ### SendEventRequest
@@ -829,6 +914,19 @@ distinct users per issue using the first one that is present.
 
 ## Enums
 
+<a id="izci-ingest-v1-checkinstatus"></a>
+
+### CheckInStatus
+
+CheckInStatus is the state a check-in reports.
+
+| Name | Number | Description |
+|---|---|---|
+| `CHECK_IN_STATUS_UNSPECIFIED` | 0 | Not set; rejected. |
+| `CHECK_IN_STATUS_IN_PROGRESS` | 1 | The job started. |
+| `CHECK_IN_STATUS_OK` | 2 | The job finished successfully. |
+| `CHECK_IN_STATUS_ERROR` | 3 | The job failed. |
+
 <a id="izci-ingest-v1-eventoutcome"></a>
 
 ### EventOutcome
@@ -843,6 +941,22 @@ EventOutcome is the fate of a submitted event.
 | `EVENT_OUTCOME_FILTERED` | 3 | Dropped by a project filter (e.g. an ignored environment or a discarded issue). |
 | `EVENT_OUTCOME_RATE_LIMITED` | 4 | Dropped because the key, project or organization exceeded its rate limit or monthly quota (batch calls only; single calls fail with RESOURCE_EXHAUSTED instead). |
 | `EVENT_OUTCOME_INVALID` | 5 | Rejected because it has no usable content (batch calls only; single calls fail with INVALID_ARGUMENT instead). |
+
+<a id="izci-ingest-v1-intervalunit"></a>
+
+### IntervalUnit
+
+IntervalUnit is the unit of an interval schedule.
+
+| Name | Number | Description |
+|---|---|---|
+| `INTERVAL_UNIT_UNSPECIFIED` | 0 | Not set; rejected. |
+| `INTERVAL_UNIT_MINUTE` | 1 | Minutes. |
+| `INTERVAL_UNIT_HOUR` | 2 | Hours. |
+| `INTERVAL_UNIT_DAY` | 3 | Days. |
+| `INTERVAL_UNIT_WEEK` | 4 | Weeks. |
+| `INTERVAL_UNIT_MONTH` | 5 | Calendar months. |
+| `INTERVAL_UNIT_YEAR` | 6 | Calendar years. |
 
 <a id="izci-ingest-v1-level"></a>
 

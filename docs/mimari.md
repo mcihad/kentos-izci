@@ -56,6 +56,7 @@ Görünüm KentOS tasarım sistemine dayanır: lacivert marka rengi, koyu lacive
 | Saklama | 6 saatte bir | Süresi dolan bölümleri ve eski sayaçları siler. |
 | Kullanım | 15 saniyede bir | Kota ve kullanım sayaçlarını yazar. |
 | Proje temizliği | 5 dakikada bir | Silinen projelerin verisini temizler. |
+| Zamanlanmış görev kontrolü | 30 saniyede bir | Kaçırılan ve zaman aşımına uğrayan [çalışmaları](cron.md) işaretler; satır kilidiyle, birden çok örnekte güvenle. |
 | Bildirim dağıtıcı | Sürekli | Bildirim kuyruğunu Telegram'a gönderir; yeniden deneme ve hız sınırlarıyla. |
 | Telegram polling | Sürekli | Tek örnekte, veritabanı kilidiyle. |
 | Yapay zekâ koşucusu | Sürekli | Kuyruktaki analizleri alır ve yürütür. |
@@ -70,6 +71,7 @@ Görünüm KentOS tasarım sistemine dayanır: lacivert marka rengi, koyu lacive
 | `internal/api`, `internal/auth` | Yönetim API'si, kimlik doğrulama ve yetki |
 | `internal/db`, `internal/store` | Veritabanı, göçler, SQL |
 | `internal/alert`, `internal/telegram` | Uyarı kuralları ve Telegram |
+| `internal/monitor` | Zamanlanmış görev izleme: zamanlama, check-in işleme, kaçırılan çalışma kontrolü |
 | `internal/github`, `internal/ai` | GitHub ve yapay zekâ analizi |
 | `internal/mcp` | MCP sunucusu |
 | `sdk/go` | Go SDK |

@@ -203,6 +203,7 @@ Birden fazla örneği aynı veritabanıyla bir yük dengeleyicinin arkasında ç
 - Telegram polling'i veritabanı kilidiyle tek örnekte çalışır; bildirim gönderimini bütün örnekler paylaşır.
 - Yapay zekâ analizleri ortak kuyruktan alınır; her örnek en çok `AI_MAX_CONCURRENT` analiz yürütür. Her örneğin kendi `IZCI_DATA_DIR` klasörü olmalıdır.
 - Bakım işleri (bölüm oluşturma, saklama, proje temizliği) her örnekte çalışır ve tekrarlanabilir işlerdir.
+- Zamanlanmış görev kontrolü her örnekte çalışır; satırlar kilitlenerek alındığı için bir çalışma yalnız bir kez kaçırılmış sayılır.
 
 ## İzleme
 
@@ -245,6 +246,9 @@ scrape_configs:
 | `izci_sentry_attachments_total{outcome}`, `izci_sentry_attachment_bytes_total` | sayaç | Olay ekleri: `stored`, `discarded` (proje ayarı ya da kabul edilmeyen olay), `too_large`; saklanan bayt. |
 | `izci_sentry_feedback_total{outcome}` | sayaç | Kullanıcı geri bildirimleri: `stored`, `duplicate`, `rejected`. |
 | `izci_sentry_sessions_total{outcome}` | sayaç | Sürüm sağlığı oturum güncellemeleri: `accepted`, `invalid` (sürümsüz, çok eski), `filtered` (yok sayılan ortam). |
+| `izci_monitor_checkins_total{outcome}` | sayaç | Zamanlanmış görev check-in'leri: `accepted`, `unknown_monitor` (izleyici yok, yapılandırma da yok), `invalid`, `rate_limited`. |
+| `izci_monitor_missed_total`, `izci_monitor_timeouts_total` | sayaç | İzci'nin kaydettiği kaçırılan ve zaman aşımına uğrayan çalışmalar. |
+| `izci_monitor_incident_events_total`, `izci_monitor_recoveries_total` | sayaç | Zamanlanmış görev sorunları için üretilen hata olayları ve kendiliğinden çözülen kayıtlar. |
 | `izci_sentry_client_discarded_total{reason,category}` | sayaç | SDK'ların istemci raporlarında bildirdiği, göndermeden attıkları (ör. `sample_rate`, `queue_overflow`, `ratelimit_backoff`). |
 | `izci_http_requests_total{handler,code}` | sayaç | HTTP istekleri; `handler`: `ingest`, `sentry`, `api`, `stream`, `mcp`, `auth`, `docs`, `grpc`, `health`, `metrics`, `telegram`, `integrations`, `ui`. |
 | `izci_http_request_duration_seconds{handler}` | histogram | İstek süreleri; uzun ömürlü akışlar (`stream`) dahil değildir. |

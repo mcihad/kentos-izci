@@ -23,6 +23,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
 	"github.com/mcihad/kentos-izci/internal/metrics"
+	"github.com/mcihad/kentos-izci/internal/monitor"
 	"github.com/mcihad/kentos-izci/internal/store"
 	ingestv1 "github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1"
 	"github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1/ingestv1connect"
@@ -56,6 +57,7 @@ type Service struct {
 	dedupe   *Dedupe
 	pipeline *Pipeline
 	sessions *SessionRecorder
+	monitors *monitor.Service
 }
 
 var _ ingestv1connect.IngestServiceHandler = (*Service)(nil)

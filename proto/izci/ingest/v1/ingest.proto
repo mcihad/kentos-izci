@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package izci.ingest.v1;
 
+import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "izci/ingest/v1/event.proto";
 
@@ -83,6 +84,19 @@ service IngestService {
   rpc GetClientConfig(GetClientConfigRequest) returns (GetClientConfigResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
   }
+
+  // SendCheckIn reports a run of a scheduled job to a cron monitor: send
+  // CHECK_IN_STATUS_IN_PROGRESS when the job starts and OK or ERROR with the
+  // same check_in_id when it ends (or only the final status for short jobs).
+  // izci records a missed run when no check-in arrives on schedule and a
+  // timeout when a run stays in progress longer than max_runtime.
+  //
+  // The monitor is identified by monitor_slug within the key's project. A
+  // check-in with monitor_config creates the monitor or updates its
+  // schedule; without it the monitor must already exist (NOT_FOUND).
+  //
+  // Sentry equivalent: the check_in envelope item (CaptureCheckIn).
+  rpc SendCheckIn(SendCheckInRequest) returns (SendCheckInResponse);
 }
 
 // SendEventRequest carries one event.
@@ -260,4 +274,122 @@ message GetClientConfigResponse {
 
   // How long (in seconds) the SDK may cache this configuration.
   uint32 cache_ttl_seconds = 12;
+}
+
+// SendCheckInRequest carries one check-in.
+message SendCheckInRequest {
+  // The check-in. Required.
+  CheckIn check_in = 1;
+}
+
+// SendCheckInResponse identifies the run the check-in belongs to.
+message SendCheckInResponse {
+  // Id of the run (UUID): the check_in_id sent, or a new one. Send it with
+  // the closing check-in of a run that is in progress.
+  string check_in_id = 1;
+}
+
+// CheckIn reports that a scheduled job started or finished.
+message CheckIn {
+  // Id of the run (UUID) chosen by the job. A later check-in with the same
+  // id finishes the run. When empty, the server assigns one; a closing
+  // check-in without id finishes the newest run still in progress.
+  string check_in_id = 1;
+
+  // Slug of the monitor within the project, e.g. "daily-billing". Letters,
+  // digits, "-" and "_"; other characters become "-". Required. Max 50
+  // characters.
+  string monitor_slug = 2;
+
+  // What happened. Required.
+  CheckInStatus status = 3;
+
+  // How long the run took; defaults to the time between the in-progress
+  // and the closing check-in.
+  google.protobuf.Duration duration = 4;
+
+  // Environment the job runs in, e.g. "production" (the default).
+  string environment = 5;
+
+  // Release of the job's code, e.g. "billing@2.3.0".
+  string release = 6;
+
+  // Trace the run belongs to (32 hexadecimal characters), when traced.
+  string trace_id = 7;
+
+  // Creates the monitor, or updates it when the schedule changed. Sending
+  // it with every check-in keeps the monitor in sync with the code.
+  MonitorConfig monitor_config = 8;
+}
+
+// CheckInStatus is the state a check-in reports.
+enum CheckInStatus {
+  // Not set; rejected.
+  CHECK_IN_STATUS_UNSPECIFIED = 0;
+  // The job started.
+  CHECK_IN_STATUS_IN_PROGRESS = 1;
+  // The job finished successfully.
+  CHECK_IN_STATUS_OK = 2;
+  // The job failed.
+  CHECK_IN_STATUS_ERROR = 3;
+}
+
+// MonitorConfig is the schedule and failure policy of a monitor.
+//
+// Sentry equivalent: monitor_config.
+message MonitorConfig {
+  // When runs are due. Required.
+  oneof schedule {
+    // Crontab expression in five fields or a descriptor, e.g. "0 3 * * *"
+    // (03:00 every day) or "@hourly".
+    string crontab = 1;
+
+    // A run every interval, counted from the previous run.
+    MonitorInterval interval = 2;
+  }
+
+  // IANA time zone the crontab is read in, e.g. "Europe/Istanbul". Defaults
+  // to UTC.
+  string timezone = 3;
+
+  // Minutes a run may check in late before it counts as missed. Default 1,
+  // max 43200 (30 days).
+  uint32 checkin_margin_minutes = 4;
+
+  // Minutes a run may stay in progress before it counts as timed out.
+  // Default 30, max 10080 (7 days).
+  uint32 max_runtime_minutes = 5;
+
+  // Failed runs in a row that open an issue. Default 1.
+  uint32 failure_issue_threshold = 6;
+
+  // Successful runs in a row that resolve the issue again. Default 1.
+  uint32 recovery_threshold = 7;
+}
+
+// MonitorInterval is an interval schedule, e.g. every 2 hours.
+message MonitorInterval {
+  // Number of units between runs, at least 1.
+  uint32 value = 1;
+
+  // Unit of the interval.
+  IntervalUnit unit = 2;
+}
+
+// IntervalUnit is the unit of an interval schedule.
+enum IntervalUnit {
+  // Not set; rejected.
+  INTERVAL_UNIT_UNSPECIFIED = 0;
+  // Minutes.
+  INTERVAL_UNIT_MINUTE = 1;
+  // Hours.
+  INTERVAL_UNIT_HOUR = 2;
+  // Days.
+  INTERVAL_UNIT_DAY = 3;
+  // Weeks.
+  INTERVAL_UNIT_WEEK = 4;
+  // Calendar months.
+  INTERVAL_UNIT_MONTH = 5;
+  // Calendar years.
+  INTERVAL_UNIT_YEAR = 6;
 }

@@ -32,6 +32,7 @@ Anahtarın **izinli kökenleri** (ör. `https://kalem.example.com`) tarayıcıla
 | `SendEvents` | En çok 100 olayı bir istekte gönderir; her olay için ayrı sonuç döner. SDK'lar kuyruğu bununla boşaltır. |
 | `RegisterRelease` | CI'dan sürüm, commit, depo ve deploy bilgisi kaydeder. Yapay zekâ analizi doğru commit'i buradan bulur. |
 | `GetClientConfig` | SDK'ya örnekleme oranı, breadcrumb sınırı, maskelenecek alanlar ve hız sınırını söyler. |
+| `SendCheckIn` | Zamanlanmış bir görevin çalışmasını (başladı, bitti, hata verdi) izleyicisine bildirir; bkz. [Zamanlanmış görev izleme](cron.md). |
 
 ## Olay modeli
 

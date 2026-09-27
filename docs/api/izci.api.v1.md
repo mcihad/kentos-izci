@@ -1,6 +1,6 @@
 # izci.api.v1
 
-> Generated from `izci/api/v1/common.proto`, `izci/api/v1/auth.proto`, `izci/api/v1/organization.proto`, `izci/api/v1/admin.proto`, `izci/api/v1/feedback.proto`, `izci/api/v1/event.proto`, `izci/api/v1/issue.proto`, `izci/api/v1/ai.proto`, `izci/api/v1/alert.proto`, `izci/api/v1/customer.proto`, `izci/api/v1/dashboard.proto`, `izci/api/v1/integration.proto`, `izci/api/v1/project.proto`, `izci/api/v1/user.proto` — do not edit by hand.
+> Generated from `izci/api/v1/common.proto`, `izci/api/v1/auth.proto`, `izci/api/v1/organization.proto`, `izci/api/v1/admin.proto`, `izci/api/v1/feedback.proto`, `izci/api/v1/event.proto`, `izci/api/v1/issue.proto`, `izci/api/v1/ai.proto`, `izci/api/v1/alert.proto`, `izci/api/v1/customer.proto`, `izci/api/v1/dashboard.proto`, `izci/api/v1/integration.proto`, `izci/api/v1/monitor.proto`, `izci/api/v1/project.proto`, `izci/api/v1/user.proto` — do not edit by hand.
 
 Package izci.api.v1 is the API behind the izci web UI. It is also the
 public management API for automation (CLI scripts, CI, MCP tools).
@@ -35,11 +35,11 @@ empty on the last page.
 
 ## Contents
 
-**Services:** [AuthService](#izci-api-v1-authservice) · [OrganizationService](#izci-api-v1-organizationservice) · [AdminService](#izci-api-v1-adminservice) · [FeedbackService](#izci-api-v1-feedbackservice) · [EventService](#izci-api-v1-eventservice) · [IssueService](#izci-api-v1-issueservice) · [AiService](#izci-api-v1-aiservice) · [AlertService](#izci-api-v1-alertservice) · [CustomerService](#izci-api-v1-customerservice) · [DashboardService](#izci-api-v1-dashboardservice) · [IntegrationService](#izci-api-v1-integrationservice) · [ProjectService](#izci-api-v1-projectservice) · [UserService](#izci-api-v1-userservice)
+**Services:** [AuthService](#izci-api-v1-authservice) · [OrganizationService](#izci-api-v1-organizationservice) · [AdminService](#izci-api-v1-adminservice) · [FeedbackService](#izci-api-v1-feedbackservice) · [EventService](#izci-api-v1-eventservice) · [IssueService](#izci-api-v1-issueservice) · [AiService](#izci-api-v1-aiservice) · [AlertService](#izci-api-v1-alertservice) · [CustomerService](#izci-api-v1-customerservice) · [DashboardService](#izci-api-v1-dashboardservice) · [IntegrationService](#izci-api-v1-integrationservice) · [MonitorService](#izci-api-v1-monitorservice) · [ProjectService](#izci-api-v1-projectservice) · [UserService](#izci-api-v1-userservice)
 
-**Messages:** [AcceptInvitationRequest](#izci-api-v1-acceptinvitationrequest) · [AcceptInvitationResponse](#izci-api-v1-acceptinvitationresponse) · [AccessToken](#izci-api-v1-accesstoken) · [AddIssueCommentRequest](#izci-api-v1-addissuecommentrequest) · [AddIssueCommentResponse](#izci-api-v1-addissuecommentresponse) · [AdminOrganization](#izci-api-v1-adminorganization) · [AdminUser](#izci-api-v1-adminuser) · [AiLogEntry](#izci-api-v1-ailogentry) · [AiResult](#izci-api-v1-airesult) · [AiRun](#izci-api-v1-airun) · [AiSettings](#izci-api-v1-aisettings) · [AiUsage](#izci-api-v1-aiusage) · [AlertFilters](#izci-api-v1-alertfilters) · [AlertRule](#izci-api-v1-alertrule) · [AlertRuleInput](#izci-api-v1-alertruleinput) · [AlertTrigger](#izci-api-v1-alerttrigger) · [ApiKey](#izci-api-v1-apikey) · [AuditLogEntry](#izci-api-v1-auditlogentry) · [AuthProvider](#izci-api-v1-authprovider) · [CancelRunRequest](#izci-api-v1-cancelrunrequest) · [CancelRunResponse](#izci-api-v1-cancelrunresponse) · [ChangePasswordRequest](#izci-api-v1-changepasswordrequest) · [ChangePasswordResponse](#izci-api-v1-changepasswordresponse) · [ChangedFile](#izci-api-v1-changedfile) · [Channel](#izci-api-v1-channel) · [CompleteSetupRequest](#izci-api-v1-completesetuprequest) · [CompleteSetupResponse](#izci-api-v1-completesetupresponse) · [ConnectGitHubTokenRequest](#izci-api-v1-connectgithubtokenrequest) · [ConnectGitHubTokenResponse](#izci-api-v1-connectgithubtokenresponse) · [CreateAccessTokenRequest](#izci-api-v1-createaccesstokenrequest) · [CreateAccessTokenResponse](#izci-api-v1-createaccesstokenresponse) · [CreateAlertRuleRequest](#izci-api-v1-createalertrulerequest) · [CreateAlertRuleResponse](#izci-api-v1-createalertruleresponse) · [CreateApiKeyRequest](#izci-api-v1-createapikeyrequest) · [CreateApiKeyResponse](#izci-api-v1-createapikeyresponse) · [CreateBranchRequest](#izci-api-v1-createbranchrequest) · [CreateBranchResponse](#izci-api-v1-createbranchresponse) · [CreateOrganizationRequest](#izci-api-v1-createorganizationrequest) · [CreateOrganizationResponse](#izci-api-v1-createorganizationresponse) · [CreateProjectRequest](#izci-api-v1-createprojectrequest) · [CreateProjectResponse](#izci-api-v1-createprojectresponse) · [CreatePullRequestRequest](#izci-api-v1-createpullrequestrequest) · [CreatePullRequestResponse](#izci-api-v1-createpullrequestresponse) · [CreateTelegramAccountLinkCodeRequest](#izci-api-v1-createtelegramaccountlinkcoderequest) · [CreateTelegramAccountLinkCodeResponse](#izci-api-v1-createtelegramaccountlinkcoderesponse) · [CreateTelegramLinkCodeRequest](#izci-api-v1-createtelegramlinkcoderequest) · [CreateTelegramLinkCodeResponse](#izci-api-v1-createtelegramlinkcoderesponse) · [Customer](#izci-api-v1-customer) · [CustomerProjectBreakdown](#izci-api-v1-customerprojectbreakdown) · [CustomerRef](#izci-api-v1-customerref) · [CustomerSummary](#izci-api-v1-customersummary) · [DailyUsage](#izci-api-v1-dailyusage) · [DeleteAlertRuleRequest](#izci-api-v1-deletealertrulerequest) · [DeleteAlertRuleResponse](#izci-api-v1-deletealertruleresponse) · [DeleteChannelRequest](#izci-api-v1-deletechannelrequest) · [DeleteChannelResponse](#izci-api-v1-deletechannelresponse) · [DeleteIntegrationRequest](#izci-api-v1-deleteintegrationrequest) · [DeleteIntegrationResponse](#izci-api-v1-deleteintegrationresponse) · [DeleteProjectRequest](#izci-api-v1-deleteprojectrequest) · [DeleteProjectResponse](#izci-api-v1-deleteprojectresponse) · [Deploy](#izci-api-v1-deploy) · [Environment](#izci-api-v1-environment) · [ErrorDetail](#izci-api-v1-errordetail) · [EventAttachment](#izci-api-v1-eventattachment) · [EventDetail](#izci-api-v1-eventdetail) · [EventSummary](#izci-api-v1-eventsummary) · [FeatureFlags](#izci-api-v1-featureflags) · [GetAiStatusRequest](#izci-api-v1-getaistatusrequest) · [GetAiStatusResponse](#izci-api-v1-getaistatusresponse) · [GetCustomerRequest](#izci-api-v1-getcustomerrequest) · [GetCustomerResponse](#izci-api-v1-getcustomerresponse) · [GetEventRequest](#izci-api-v1-geteventrequest) · [GetEventResponse](#izci-api-v1-geteventresponse) · [GetGitHubStatusRequest](#izci-api-v1-getgithubstatusrequest) · [GetGitHubStatusResponse](#izci-api-v1-getgithubstatusresponse) · [GetIngestEndpointsRequest](#izci-api-v1-getingestendpointsrequest) · [GetIngestEndpointsResponse](#izci-api-v1-getingestendpointsresponse) · [GetInstanceInfoRequest](#izci-api-v1-getinstanceinforequest) · [GetInstanceInfoResponse](#izci-api-v1-getinstanceinforesponse) · [GetInvitationRequest](#izci-api-v1-getinvitationrequest) · [GetInvitationResponse](#izci-api-v1-getinvitationresponse) · [GetIssueRequest](#izci-api-v1-getissuerequest) · [GetIssueResponse](#izci-api-v1-getissueresponse) · [GetIssueStatsRequest](#izci-api-v1-getissuestatsrequest) · [GetIssueStatsResponse](#izci-api-v1-getissuestatsresponse) · [GetIssueTagFacetsRequest](#izci-api-v1-getissuetagfacetsrequest) · [GetIssueTagFacetsResponse](#izci-api-v1-getissuetagfacetsresponse) · [GetNotificationStatusRequest](#izci-api-v1-getnotificationstatusrequest) · [GetNotificationStatusResponse](#izci-api-v1-getnotificationstatusresponse) · [GetOrganizationRequest](#izci-api-v1-getorganizationrequest) · [GetOrganizationResponse](#izci-api-v1-getorganizationresponse) · [GetOverviewRequest](#izci-api-v1-getoverviewrequest) · [GetOverviewResponse](#izci-api-v1-getoverviewresponse) · [GetProjectRequest](#izci-api-v1-getprojectrequest) · [GetProjectResponse](#izci-api-v1-getprojectresponse) · [GetRawEventRequest](#izci-api-v1-getraweventrequest) · [GetRawEventResponse](#izci-api-v1-getraweventresponse) · [GetRunRequest](#izci-api-v1-getrunrequest) · [GetRunResponse](#izci-api-v1-getrunresponse) · [GetSessionRequest](#izci-api-v1-getsessionrequest) · [GetSessionResponse](#izci-api-v1-getsessionresponse) · [GetSetupStateRequest](#izci-api-v1-getsetupstaterequest) · [GetSetupStateResponse](#izci-api-v1-getsetupstateresponse) · [GetUsageRequest](#izci-api-v1-getusagerequest) · [GetUsageResponse](#izci-api-v1-getusageresponse) · [Grouping](#izci-api-v1-grouping) · [IgnoreOptions](#izci-api-v1-ignoreoptions) · [InAppRules](#izci-api-v1-inapprules) · [Integration](#izci-api-v1-integration) · [Invitation](#izci-api-v1-invitation) · [InviteMemberRequest](#izci-api-v1-invitememberrequest) · [InviteMemberResponse](#izci-api-v1-invitememberresponse) · [Issue](#izci-api-v1-issue) · [IssueActivity](#izci-api-v1-issueactivity) · [IssueLocation](#izci-api-v1-issuelocation) · [IssueRef](#izci-api-v1-issueref) · [IssueSummary](#izci-api-v1-issuesummary) · [LevelSeries](#izci-api-v1-levelseries) · [LinkRepositoryRequest](#izci-api-v1-linkrepositoryrequest) · [LinkRepositoryResponse](#izci-api-v1-linkrepositoryresponse) · [ListAccessTokensRequest](#izci-api-v1-listaccesstokensrequest) · [ListAccessTokensResponse](#izci-api-v1-listaccesstokensresponse) · [ListAlertRulesRequest](#izci-api-v1-listalertrulesrequest) · [ListAlertRulesResponse](#izci-api-v1-listalertrulesresponse) · [ListApiKeysRequest](#izci-api-v1-listapikeysrequest) · [ListApiKeysResponse](#izci-api-v1-listapikeysresponse) · [ListAuditLogRequest](#izci-api-v1-listauditlogrequest) · [ListAuditLogResponse](#izci-api-v1-listauditlogresponse) · [ListAuthProvidersRequest](#izci-api-v1-listauthprovidersrequest) · [ListAuthProvidersResponse](#izci-api-v1-listauthprovidersresponse) · [ListChannelsRequest](#izci-api-v1-listchannelsrequest) · [ListChannelsResponse](#izci-api-v1-listchannelsresponse) · [ListCustomersRequest](#izci-api-v1-listcustomersrequest) · [ListCustomersResponse](#izci-api-v1-listcustomersresponse) · [ListEnvironmentsRequest](#izci-api-v1-listenvironmentsrequest) · [ListEnvironmentsResponse](#izci-api-v1-listenvironmentsresponse) · [ListFeedbackRequest](#izci-api-v1-listfeedbackrequest) · [ListFeedbackResponse](#izci-api-v1-listfeedbackresponse) · [ListIntegrationsRequest](#izci-api-v1-listintegrationsrequest) · [ListIntegrationsResponse](#izci-api-v1-listintegrationsresponse) · [ListIssueActivityRequest](#izci-api-v1-listissueactivityrequest) · [ListIssueActivityResponse](#izci-api-v1-listissueactivityresponse) · [ListIssueEventsRequest](#izci-api-v1-listissueeventsrequest) · [ListIssueEventsResponse](#izci-api-v1-listissueeventsresponse) · [ListIssuesRequest](#izci-api-v1-listissuesrequest) · [ListIssuesResponse](#izci-api-v1-listissuesresponse) · [ListMembersRequest](#izci-api-v1-listmembersrequest) · [ListMembersResponse](#izci-api-v1-listmembersresponse) · [ListOrganizationsRequest](#izci-api-v1-listorganizationsrequest) · [ListOrganizationsResponse](#izci-api-v1-listorganizationsresponse) · [ListProjectsRequest](#izci-api-v1-listprojectsrequest) · [ListProjectsResponse](#izci-api-v1-listprojectsresponse) · [ListReleasesRequest](#izci-api-v1-listreleasesrequest) · [ListReleasesResponse](#izci-api-v1-listreleasesresponse) · [ListRepositoriesRequest](#izci-api-v1-listrepositoriesrequest) · [ListRepositoriesResponse](#izci-api-v1-listrepositoriesresponse) · [ListRunsRequest](#izci-api-v1-listrunsrequest) · [ListRunsResponse](#izci-api-v1-listrunsresponse) · [ListSessionsRequest](#izci-api-v1-listsessionsrequest) · [ListSessionsResponse](#izci-api-v1-listsessionsresponse) · [ListUsersRequest](#izci-api-v1-listusersrequest) · [ListUsersResponse](#izci-api-v1-listusersresponse) · [LoginRequest](#izci-api-v1-loginrequest) · [LoginResponse](#izci-api-v1-loginresponse) · [LogoutRequest](#izci-api-v1-logoutrequest) · [LogoutResponse](#izci-api-v1-logoutresponse) · [Member](#izci-api-v1-member) · [Membership](#izci-api-v1-membership) · [Organization](#izci-api-v1-organization) · [OrganizationLimits](#izci-api-v1-organizationlimits) · [OrganizationRef](#izci-api-v1-organizationref) · [OrganizationSettings](#izci-api-v1-organizationsettings) · [OverviewTotals](#izci-api-v1-overviewtotals) · [PathMapping](#izci-api-v1-pathmapping) · [PathRewrite](#izci-api-v1-pathrewrite) · [PrivacySettings](#izci-api-v1-privacysettings) · [Project](#izci-api-v1-project) · [ProjectHealth](#izci-api-v1-projecthealth) · [ProjectRef](#izci-api-v1-projectref) · [ProjectRepository](#izci-api-v1-projectrepository) · [ProjectSettings](#izci-api-v1-projectsettings) · [ProjectStats](#izci-api-v1-projectstats) · [PullRequestRef](#izci-api-v1-pullrequestref) · [Release](#izci-api-v1-release) · [ReleaseHealth](#izci-api-v1-releasehealth) · [RemoveMemberRequest](#izci-api-v1-removememberrequest) · [RemoveMemberResponse](#izci-api-v1-removememberresponse) · [Repository](#izci-api-v1-repository) · [ResolveOptions](#izci-api-v1-resolveoptions) · [RevokeAccessTokenRequest](#izci-api-v1-revokeaccesstokenrequest) · [RevokeAccessTokenResponse](#izci-api-v1-revokeaccesstokenresponse) · [RevokeApiKeyRequest](#izci-api-v1-revokeapikeyrequest) · [RevokeApiKeyResponse](#izci-api-v1-revokeapikeyresponse) · [RevokeInvitationRequest](#izci-api-v1-revokeinvitationrequest) · [RevokeInvitationResponse](#izci-api-v1-revokeinvitationresponse) · [RevokeSessionRequest](#izci-api-v1-revokesessionrequest) · [RevokeSessionResponse](#izci-api-v1-revokesessionresponse) · [SearchSuggestion](#izci-api-v1-searchsuggestion) · [SendTestEventRequest](#izci-api-v1-sendtesteventrequest) · [SendTestEventResponse](#izci-api-v1-sendtesteventresponse) · [SendTestNotificationRequest](#izci-api-v1-sendtestnotificationrequest) · [SendTestNotificationResponse](#izci-api-v1-sendtestnotificationresponse) · [Series](#izci-api-v1-series) · [Session](#izci-api-v1-session) · [SessionInfo](#izci-api-v1-sessioninfo) · [SignUpRequest](#izci-api-v1-signuprequest) · [SignUpResponse](#izci-api-v1-signupresponse) · [Snooze](#izci-api-v1-snooze) · [StartGitHubAppInstallationRequest](#izci-api-v1-startgithubappinstallationrequest) · [StartGitHubAppInstallationResponse](#izci-api-v1-startgithubappinstallationresponse) · [StartRunRequest](#izci-api-v1-startrunrequest) · [StartRunResponse](#izci-api-v1-startrunresponse) · [SuggestSearchRequest](#izci-api-v1-suggestsearchrequest) · [SuggestSearchResponse](#izci-api-v1-suggestsearchresponse) · [TagFacet](#izci-api-v1-tagfacet) · [TagValueCount](#izci-api-v1-tagvaluecount) · [TelegramAccount](#izci-api-v1-telegramaccount) · [TelegramChat](#izci-api-v1-telegramchat) · [UnlinkRepositoryRequest](#izci-api-v1-unlinkrepositoryrequest) · [UnlinkRepositoryResponse](#izci-api-v1-unlinkrepositoryresponse) · [UnlinkTelegramAccountRequest](#izci-api-v1-unlinktelegramaccountrequest) · [UnlinkTelegramAccountResponse](#izci-api-v1-unlinktelegramaccountresponse) · [UpdateAlertRuleRequest](#izci-api-v1-updatealertrulerequest) · [UpdateAlertRuleResponse](#izci-api-v1-updatealertruleresponse) · [UpdateApiKeyRequest](#izci-api-v1-updateapikeyrequest) · [UpdateApiKeyResponse](#izci-api-v1-updateapikeyresponse) · [UpdateChannelRequest](#izci-api-v1-updatechannelrequest) · [UpdateChannelResponse](#izci-api-v1-updatechannelresponse) · [UpdateCustomerRequest](#izci-api-v1-updatecustomerrequest) · [UpdateCustomerResponse](#izci-api-v1-updatecustomerresponse) · [UpdateIssuesRequest](#izci-api-v1-updateissuesrequest) · [UpdateIssuesResponse](#izci-api-v1-updateissuesresponse) · [UpdateMemberRequest](#izci-api-v1-updatememberrequest) · [UpdateMemberResponse](#izci-api-v1-updatememberresponse) · [UpdateOrganizationPlanRequest](#izci-api-v1-updateorganizationplanrequest) · [UpdateOrganizationPlanResponse](#izci-api-v1-updateorganizationplanresponse) · [UpdateOrganizationRequest](#izci-api-v1-updateorganizationrequest) · [UpdateOrganizationResponse](#izci-api-v1-updateorganizationresponse) · [UpdateProfileRequest](#izci-api-v1-updateprofilerequest) · [UpdateProfileResponse](#izci-api-v1-updateprofileresponse) · [UpdateProjectRequest](#izci-api-v1-updateprojectrequest) · [UpdateProjectResponse](#izci-api-v1-updateprojectresponse) · [UpdateUserRequest](#izci-api-v1-updateuserrequest) · [UpdateUserResponse](#izci-api-v1-updateuserresponse) · [User](#izci-api-v1-user) · [UserAgentInfo](#izci-api-v1-useragentinfo) · [UserFeedback](#izci-api-v1-userfeedback) · [UserRef](#izci-api-v1-userref) · [WatchLiveRequest](#izci-api-v1-watchliverequest) · [WatchLiveResponse](#izci-api-v1-watchliveresponse) · [WatchRunRequest](#izci-api-v1-watchrunrequest) · [WatchRunResponse](#izci-api-v1-watchrunresponse)
+**Messages:** [AcceptInvitationRequest](#izci-api-v1-acceptinvitationrequest) · [AcceptInvitationResponse](#izci-api-v1-acceptinvitationresponse) · [AccessToken](#izci-api-v1-accesstoken) · [AddIssueCommentRequest](#izci-api-v1-addissuecommentrequest) · [AddIssueCommentResponse](#izci-api-v1-addissuecommentresponse) · [AdminOrganization](#izci-api-v1-adminorganization) · [AdminUser](#izci-api-v1-adminuser) · [AiLogEntry](#izci-api-v1-ailogentry) · [AiResult](#izci-api-v1-airesult) · [AiRun](#izci-api-v1-airun) · [AiSettings](#izci-api-v1-aisettings) · [AiUsage](#izci-api-v1-aiusage) · [AlertFilters](#izci-api-v1-alertfilters) · [AlertRule](#izci-api-v1-alertrule) · [AlertRuleInput](#izci-api-v1-alertruleinput) · [AlertTrigger](#izci-api-v1-alerttrigger) · [ApiKey](#izci-api-v1-apikey) · [AuditLogEntry](#izci-api-v1-auditlogentry) · [AuthProvider](#izci-api-v1-authprovider) · [CancelRunRequest](#izci-api-v1-cancelrunrequest) · [CancelRunResponse](#izci-api-v1-cancelrunresponse) · [ChangePasswordRequest](#izci-api-v1-changepasswordrequest) · [ChangePasswordResponse](#izci-api-v1-changepasswordresponse) · [ChangedFile](#izci-api-v1-changedfile) · [Channel](#izci-api-v1-channel) · [CheckIn](#izci-api-v1-checkin) · [CompleteSetupRequest](#izci-api-v1-completesetuprequest) · [CompleteSetupResponse](#izci-api-v1-completesetupresponse) · [ConnectGitHubTokenRequest](#izci-api-v1-connectgithubtokenrequest) · [ConnectGitHubTokenResponse](#izci-api-v1-connectgithubtokenresponse) · [CreateAccessTokenRequest](#izci-api-v1-createaccesstokenrequest) · [CreateAccessTokenResponse](#izci-api-v1-createaccesstokenresponse) · [CreateAlertRuleRequest](#izci-api-v1-createalertrulerequest) · [CreateAlertRuleResponse](#izci-api-v1-createalertruleresponse) · [CreateApiKeyRequest](#izci-api-v1-createapikeyrequest) · [CreateApiKeyResponse](#izci-api-v1-createapikeyresponse) · [CreateBranchRequest](#izci-api-v1-createbranchrequest) · [CreateBranchResponse](#izci-api-v1-createbranchresponse) · [CreateMonitorRequest](#izci-api-v1-createmonitorrequest) · [CreateMonitorResponse](#izci-api-v1-createmonitorresponse) · [CreateOrganizationRequest](#izci-api-v1-createorganizationrequest) · [CreateOrganizationResponse](#izci-api-v1-createorganizationresponse) · [CreateProjectRequest](#izci-api-v1-createprojectrequest) · [CreateProjectResponse](#izci-api-v1-createprojectresponse) · [CreatePullRequestRequest](#izci-api-v1-createpullrequestrequest) · [CreatePullRequestResponse](#izci-api-v1-createpullrequestresponse) · [CreateTelegramAccountLinkCodeRequest](#izci-api-v1-createtelegramaccountlinkcoderequest) · [CreateTelegramAccountLinkCodeResponse](#izci-api-v1-createtelegramaccountlinkcoderesponse) · [CreateTelegramLinkCodeRequest](#izci-api-v1-createtelegramlinkcoderequest) · [CreateTelegramLinkCodeResponse](#izci-api-v1-createtelegramlinkcoderesponse) · [Customer](#izci-api-v1-customer) · [CustomerProjectBreakdown](#izci-api-v1-customerprojectbreakdown) · [CustomerRef](#izci-api-v1-customerref) · [CustomerSummary](#izci-api-v1-customersummary) · [DailyUsage](#izci-api-v1-dailyusage) · [DeleteAlertRuleRequest](#izci-api-v1-deletealertrulerequest) · [DeleteAlertRuleResponse](#izci-api-v1-deletealertruleresponse) · [DeleteChannelRequest](#izci-api-v1-deletechannelrequest) · [DeleteChannelResponse](#izci-api-v1-deletechannelresponse) · [DeleteIntegrationRequest](#izci-api-v1-deleteintegrationrequest) · [DeleteIntegrationResponse](#izci-api-v1-deleteintegrationresponse) · [DeleteMonitorRequest](#izci-api-v1-deletemonitorrequest) · [DeleteMonitorResponse](#izci-api-v1-deletemonitorresponse) · [DeleteProjectRequest](#izci-api-v1-deleteprojectrequest) · [DeleteProjectResponse](#izci-api-v1-deleteprojectresponse) · [Deploy](#izci-api-v1-deploy) · [Environment](#izci-api-v1-environment) · [ErrorDetail](#izci-api-v1-errordetail) · [EventAttachment](#izci-api-v1-eventattachment) · [EventDetail](#izci-api-v1-eventdetail) · [EventSummary](#izci-api-v1-eventsummary) · [FeatureFlags](#izci-api-v1-featureflags) · [GetAiStatusRequest](#izci-api-v1-getaistatusrequest) · [GetAiStatusResponse](#izci-api-v1-getaistatusresponse) · [GetCustomerRequest](#izci-api-v1-getcustomerrequest) · [GetCustomerResponse](#izci-api-v1-getcustomerresponse) · [GetEventRequest](#izci-api-v1-geteventrequest) · [GetEventResponse](#izci-api-v1-geteventresponse) · [GetGitHubStatusRequest](#izci-api-v1-getgithubstatusrequest) · [GetGitHubStatusResponse](#izci-api-v1-getgithubstatusresponse) · [GetIngestEndpointsRequest](#izci-api-v1-getingestendpointsrequest) · [GetIngestEndpointsResponse](#izci-api-v1-getingestendpointsresponse) · [GetInstanceInfoRequest](#izci-api-v1-getinstanceinforequest) · [GetInstanceInfoResponse](#izci-api-v1-getinstanceinforesponse) · [GetInvitationRequest](#izci-api-v1-getinvitationrequest) · [GetInvitationResponse](#izci-api-v1-getinvitationresponse) · [GetIssueRequest](#izci-api-v1-getissuerequest) · [GetIssueResponse](#izci-api-v1-getissueresponse) · [GetIssueStatsRequest](#izci-api-v1-getissuestatsrequest) · [GetIssueStatsResponse](#izci-api-v1-getissuestatsresponse) · [GetIssueTagFacetsRequest](#izci-api-v1-getissuetagfacetsrequest) · [GetIssueTagFacetsResponse](#izci-api-v1-getissuetagfacetsresponse) · [GetMonitorRequest](#izci-api-v1-getmonitorrequest) · [GetMonitorResponse](#izci-api-v1-getmonitorresponse) · [GetNotificationStatusRequest](#izci-api-v1-getnotificationstatusrequest) · [GetNotificationStatusResponse](#izci-api-v1-getnotificationstatusresponse) · [GetOrganizationRequest](#izci-api-v1-getorganizationrequest) · [GetOrganizationResponse](#izci-api-v1-getorganizationresponse) · [GetOverviewRequest](#izci-api-v1-getoverviewrequest) · [GetOverviewResponse](#izci-api-v1-getoverviewresponse) · [GetProjectRequest](#izci-api-v1-getprojectrequest) · [GetProjectResponse](#izci-api-v1-getprojectresponse) · [GetRawEventRequest](#izci-api-v1-getraweventrequest) · [GetRawEventResponse](#izci-api-v1-getraweventresponse) · [GetRunRequest](#izci-api-v1-getrunrequest) · [GetRunResponse](#izci-api-v1-getrunresponse) · [GetSessionRequest](#izci-api-v1-getsessionrequest) · [GetSessionResponse](#izci-api-v1-getsessionresponse) · [GetSetupStateRequest](#izci-api-v1-getsetupstaterequest) · [GetSetupStateResponse](#izci-api-v1-getsetupstateresponse) · [GetUsageRequest](#izci-api-v1-getusagerequest) · [GetUsageResponse](#izci-api-v1-getusageresponse) · [Grouping](#izci-api-v1-grouping) · [IgnoreOptions](#izci-api-v1-ignoreoptions) · [InAppRules](#izci-api-v1-inapprules) · [Integration](#izci-api-v1-integration) · [Invitation](#izci-api-v1-invitation) · [InviteMemberRequest](#izci-api-v1-invitememberrequest) · [InviteMemberResponse](#izci-api-v1-invitememberresponse) · [Issue](#izci-api-v1-issue) · [IssueActivity](#izci-api-v1-issueactivity) · [IssueLocation](#izci-api-v1-issuelocation) · [IssueRef](#izci-api-v1-issueref) · [IssueSummary](#izci-api-v1-issuesummary) · [LevelSeries](#izci-api-v1-levelseries) · [LinkRepositoryRequest](#izci-api-v1-linkrepositoryrequest) · [LinkRepositoryResponse](#izci-api-v1-linkrepositoryresponse) · [ListAccessTokensRequest](#izci-api-v1-listaccesstokensrequest) · [ListAccessTokensResponse](#izci-api-v1-listaccesstokensresponse) · [ListAlertRulesRequest](#izci-api-v1-listalertrulesrequest) · [ListAlertRulesResponse](#izci-api-v1-listalertrulesresponse) · [ListApiKeysRequest](#izci-api-v1-listapikeysrequest) · [ListApiKeysResponse](#izci-api-v1-listapikeysresponse) · [ListAuditLogRequest](#izci-api-v1-listauditlogrequest) · [ListAuditLogResponse](#izci-api-v1-listauditlogresponse) · [ListAuthProvidersRequest](#izci-api-v1-listauthprovidersrequest) · [ListAuthProvidersResponse](#izci-api-v1-listauthprovidersresponse) · [ListChannelsRequest](#izci-api-v1-listchannelsrequest) · [ListChannelsResponse](#izci-api-v1-listchannelsresponse) · [ListCheckInsRequest](#izci-api-v1-listcheckinsrequest) · [ListCheckInsResponse](#izci-api-v1-listcheckinsresponse) · [ListCustomersRequest](#izci-api-v1-listcustomersrequest) · [ListCustomersResponse](#izci-api-v1-listcustomersresponse) · [ListEnvironmentsRequest](#izci-api-v1-listenvironmentsrequest) · [ListEnvironmentsResponse](#izci-api-v1-listenvironmentsresponse) · [ListFeedbackRequest](#izci-api-v1-listfeedbackrequest) · [ListFeedbackResponse](#izci-api-v1-listfeedbackresponse) · [ListIntegrationsRequest](#izci-api-v1-listintegrationsrequest) · [ListIntegrationsResponse](#izci-api-v1-listintegrationsresponse) · [ListIssueActivityRequest](#izci-api-v1-listissueactivityrequest) · [ListIssueActivityResponse](#izci-api-v1-listissueactivityresponse) · [ListIssueEventsRequest](#izci-api-v1-listissueeventsrequest) · [ListIssueEventsResponse](#izci-api-v1-listissueeventsresponse) · [ListIssuesRequest](#izci-api-v1-listissuesrequest) · [ListIssuesResponse](#izci-api-v1-listissuesresponse) · [ListMembersRequest](#izci-api-v1-listmembersrequest) · [ListMembersResponse](#izci-api-v1-listmembersresponse) · [ListMonitorsRequest](#izci-api-v1-listmonitorsrequest) · [ListMonitorsResponse](#izci-api-v1-listmonitorsresponse) · [ListOrganizationsRequest](#izci-api-v1-listorganizationsrequest) · [ListOrganizationsResponse](#izci-api-v1-listorganizationsresponse) · [ListProjectsRequest](#izci-api-v1-listprojectsrequest) · [ListProjectsResponse](#izci-api-v1-listprojectsresponse) · [ListReleasesRequest](#izci-api-v1-listreleasesrequest) · [ListReleasesResponse](#izci-api-v1-listreleasesresponse) · [ListRepositoriesRequest](#izci-api-v1-listrepositoriesrequest) · [ListRepositoriesResponse](#izci-api-v1-listrepositoriesresponse) · [ListRunsRequest](#izci-api-v1-listrunsrequest) · [ListRunsResponse](#izci-api-v1-listrunsresponse) · [ListSessionsRequest](#izci-api-v1-listsessionsrequest) · [ListSessionsResponse](#izci-api-v1-listsessionsresponse) · [ListUsersRequest](#izci-api-v1-listusersrequest) · [ListUsersResponse](#izci-api-v1-listusersresponse) · [LoginRequest](#izci-api-v1-loginrequest) · [LoginResponse](#izci-api-v1-loginresponse) · [LogoutRequest](#izci-api-v1-logoutrequest) · [LogoutResponse](#izci-api-v1-logoutresponse) · [Member](#izci-api-v1-member) · [Membership](#izci-api-v1-membership) · [Monitor](#izci-api-v1-monitor) · [MonitorEnvironment](#izci-api-v1-monitorenvironment) · [MonitorInterval](#izci-api-v1-monitorinterval) · [MonitorSchedule](#izci-api-v1-monitorschedule) · [Organization](#izci-api-v1-organization) · [OrganizationLimits](#izci-api-v1-organizationlimits) · [OrganizationRef](#izci-api-v1-organizationref) · [OrganizationSettings](#izci-api-v1-organizationsettings) · [OverviewTotals](#izci-api-v1-overviewtotals) · [PathMapping](#izci-api-v1-pathmapping) · [PathRewrite](#izci-api-v1-pathrewrite) · [PrivacySettings](#izci-api-v1-privacysettings) · [Project](#izci-api-v1-project) · [ProjectHealth](#izci-api-v1-projecthealth) · [ProjectRef](#izci-api-v1-projectref) · [ProjectRepository](#izci-api-v1-projectrepository) · [ProjectSettings](#izci-api-v1-projectsettings) · [ProjectStats](#izci-api-v1-projectstats) · [PullRequestRef](#izci-api-v1-pullrequestref) · [Release](#izci-api-v1-release) · [ReleaseHealth](#izci-api-v1-releasehealth) · [RemoveMemberRequest](#izci-api-v1-removememberrequest) · [RemoveMemberResponse](#izci-api-v1-removememberresponse) · [Repository](#izci-api-v1-repository) · [ResolveOptions](#izci-api-v1-resolveoptions) · [RevokeAccessTokenRequest](#izci-api-v1-revokeaccesstokenrequest) · [RevokeAccessTokenResponse](#izci-api-v1-revokeaccesstokenresponse) · [RevokeApiKeyRequest](#izci-api-v1-revokeapikeyrequest) · [RevokeApiKeyResponse](#izci-api-v1-revokeapikeyresponse) · [RevokeInvitationRequest](#izci-api-v1-revokeinvitationrequest) · [RevokeInvitationResponse](#izci-api-v1-revokeinvitationresponse) · [RevokeSessionRequest](#izci-api-v1-revokesessionrequest) · [RevokeSessionResponse](#izci-api-v1-revokesessionresponse) · [SearchSuggestion](#izci-api-v1-searchsuggestion) · [SendTestEventRequest](#izci-api-v1-sendtesteventrequest) · [SendTestEventResponse](#izci-api-v1-sendtesteventresponse) · [SendTestNotificationRequest](#izci-api-v1-sendtestnotificationrequest) · [SendTestNotificationResponse](#izci-api-v1-sendtestnotificationresponse) · [Series](#izci-api-v1-series) · [Session](#izci-api-v1-session) · [SessionInfo](#izci-api-v1-sessioninfo) · [SignUpRequest](#izci-api-v1-signuprequest) · [SignUpResponse](#izci-api-v1-signupresponse) · [Snooze](#izci-api-v1-snooze) · [StartGitHubAppInstallationRequest](#izci-api-v1-startgithubappinstallationrequest) · [StartGitHubAppInstallationResponse](#izci-api-v1-startgithubappinstallationresponse) · [StartRunRequest](#izci-api-v1-startrunrequest) · [StartRunResponse](#izci-api-v1-startrunresponse) · [SuggestSearchRequest](#izci-api-v1-suggestsearchrequest) · [SuggestSearchResponse](#izci-api-v1-suggestsearchresponse) · [TagFacet](#izci-api-v1-tagfacet) · [TagValueCount](#izci-api-v1-tagvaluecount) · [TelegramAccount](#izci-api-v1-telegramaccount) · [TelegramChat](#izci-api-v1-telegramchat) · [UnlinkRepositoryRequest](#izci-api-v1-unlinkrepositoryrequest) · [UnlinkRepositoryResponse](#izci-api-v1-unlinkrepositoryresponse) · [UnlinkTelegramAccountRequest](#izci-api-v1-unlinktelegramaccountrequest) · [UnlinkTelegramAccountResponse](#izci-api-v1-unlinktelegramaccountresponse) · [UpdateAlertRuleRequest](#izci-api-v1-updatealertrulerequest) · [UpdateAlertRuleResponse](#izci-api-v1-updatealertruleresponse) · [UpdateApiKeyRequest](#izci-api-v1-updateapikeyrequest) · [UpdateApiKeyResponse](#izci-api-v1-updateapikeyresponse) · [UpdateChannelRequest](#izci-api-v1-updatechannelrequest) · [UpdateChannelResponse](#izci-api-v1-updatechannelresponse) · [UpdateCustomerRequest](#izci-api-v1-updatecustomerrequest) · [UpdateCustomerResponse](#izci-api-v1-updatecustomerresponse) · [UpdateIssuesRequest](#izci-api-v1-updateissuesrequest) · [UpdateIssuesResponse](#izci-api-v1-updateissuesresponse) · [UpdateMemberRequest](#izci-api-v1-updatememberrequest) · [UpdateMemberResponse](#izci-api-v1-updatememberresponse) · [UpdateMonitorRequest](#izci-api-v1-updatemonitorrequest) · [UpdateMonitorResponse](#izci-api-v1-updatemonitorresponse) · [UpdateOrganizationPlanRequest](#izci-api-v1-updateorganizationplanrequest) · [UpdateOrganizationPlanResponse](#izci-api-v1-updateorganizationplanresponse) · [UpdateOrganizationRequest](#izci-api-v1-updateorganizationrequest) · [UpdateOrganizationResponse](#izci-api-v1-updateorganizationresponse) · [UpdateProfileRequest](#izci-api-v1-updateprofilerequest) · [UpdateProfileResponse](#izci-api-v1-updateprofileresponse) · [UpdateProjectRequest](#izci-api-v1-updateprojectrequest) · [UpdateProjectResponse](#izci-api-v1-updateprojectresponse) · [UpdateUserRequest](#izci-api-v1-updateuserrequest) · [UpdateUserResponse](#izci-api-v1-updateuserresponse) · [User](#izci-api-v1-user) · [UserAgentInfo](#izci-api-v1-useragentinfo) · [UserFeedback](#izci-api-v1-userfeedback) · [UserRef](#izci-api-v1-userref) · [WatchLiveRequest](#izci-api-v1-watchliverequest) · [WatchLiveResponse](#izci-api-v1-watchliveresponse) · [WatchRunRequest](#izci-api-v1-watchrunrequest) · [WatchRunResponse](#izci-api-v1-watchrunresponse)
 
-**Enums:** [ActivityKind](#izci-api-v1-activitykind) · [AiLogKind](#izci-api-v1-ailogkind) · [AiRunMode](#izci-api-v1-airunmode) · [AiRunStatus](#izci-api-v1-airunstatus) · [AiRunTrigger](#izci-api-v1-airuntrigger) · [AiState](#izci-api-v1-aistate) · [ApiKeyScope](#izci-api-v1-apikeyscope) · [AutoAction](#izci-api-v1-autoaction) · [AutoAnalyze](#izci-api-v1-autoanalyze) · [ChannelKind](#izci-api-v1-channelkind) · [CustomerSort](#izci-api-v1-customersort) · [ErrorReason](#izci-api-v1-errorreason) · [EventPick](#izci-api-v1-eventpick) · [Health](#izci-api-v1-health) · [IntegrationAuth](#izci-api-v1-integrationauth) · [IpStorage](#izci-api-v1-ipstorage) · [IssueSort](#izci-api-v1-issuesort) · [IssueStatus](#izci-api-v1-issuestatus) · [IssueSubstatus](#izci-api-v1-issuesubstatus) · [LiveEventKind](#izci-api-v1-liveeventkind) · [Priority](#izci-api-v1-priority) · [Risk](#izci-api-v1-risk) · [Role](#izci-api-v1-role) · [SignupMode](#izci-api-v1-signupmode) · [StatsPeriod](#izci-api-v1-statsperiod) · [SuggestionKind](#izci-api-v1-suggestionkind) · [TokenScope](#izci-api-v1-tokenscope) · [TriggerKind](#izci-api-v1-triggerkind)
+**Enums:** [ActivityKind](#izci-api-v1-activitykind) · [AiLogKind](#izci-api-v1-ailogkind) · [AiRunMode](#izci-api-v1-airunmode) · [AiRunStatus](#izci-api-v1-airunstatus) · [AiRunTrigger](#izci-api-v1-airuntrigger) · [AiState](#izci-api-v1-aistate) · [ApiKeyScope](#izci-api-v1-apikeyscope) · [AutoAction](#izci-api-v1-autoaction) · [AutoAnalyze](#izci-api-v1-autoanalyze) · [ChannelKind](#izci-api-v1-channelkind) · [CheckInStatus](#izci-api-v1-checkinstatus) · [CustomerSort](#izci-api-v1-customersort) · [ErrorReason](#izci-api-v1-errorreason) · [EventPick](#izci-api-v1-eventpick) · [Health](#izci-api-v1-health) · [IntegrationAuth](#izci-api-v1-integrationauth) · [IpStorage](#izci-api-v1-ipstorage) · [IssueSort](#izci-api-v1-issuesort) · [IssueStatus](#izci-api-v1-issuestatus) · [IssueSubstatus](#izci-api-v1-issuesubstatus) · [LiveEventKind](#izci-api-v1-liveeventkind) · [MonitorIntervalUnit](#izci-api-v1-monitorintervalunit) · [MonitorStatus](#izci-api-v1-monitorstatus) · [Priority](#izci-api-v1-priority) · [Risk](#izci-api-v1-risk) · [Role](#izci-api-v1-role) · [SignupMode](#izci-api-v1-signupmode) · [StatsPeriod](#izci-api-v1-statsperiod) · [SuggestionKind](#izci-api-v1-suggestionkind) · [TokenScope](#izci-api-v1-tokenscope) · [TriggerKind](#izci-api-v1-triggerkind)
 
 ## Services
 
@@ -913,6 +913,84 @@ instance. Requires ROLE_VIEWER.
 
 _Side-effect free: may be called with HTTP GET over the Connect protocol._
 
+<a id="izci-api-v1-monitorservice"></a>
+
+### MonitorService
+
+MonitorService manages cron monitors: scheduled jobs (reports, billing
+runs, imports) that report when they run. Monitors are usually created by
+the jobs themselves with their first check-in (Sentry SDK monitor_config
+or izci.ingest.v1.IngestService.SendCheckIn); they can also be created and
+edited here. A monitor that misses runs, fails or times out raises an
+issue, which alert rules notify about like any other.
+
+| Method | Request | Response | Summary |
+|---|---|---|---|
+| [ListMonitors](#izci-api-v1-monitorservice-listmonitors) | [ListMonitorsRequest](#izci-api-v1-listmonitorsrequest) | [ListMonitorsResponse](#izci-api-v1-listmonitorsresponse) | ListMonitors returns the monitors of the current organization with the state of each environment and their latest runs. |
+| [GetMonitor](#izci-api-v1-monitorservice-getmonitor) | [GetMonitorRequest](#izci-api-v1-getmonitorrequest) | [GetMonitorResponse](#izci-api-v1-getmonitorresponse) | GetMonitor returns one monitor. |
+| [CreateMonitor](#izci-api-v1-monitorservice-createmonitor) | [CreateMonitorRequest](#izci-api-v1-createmonitorrequest) | [CreateMonitorResponse](#izci-api-v1-createmonitorresponse) | CreateMonitor creates a monitor in a project. |
+| [UpdateMonitor](#izci-api-v1-monitorservice-updatemonitor) | [UpdateMonitorRequest](#izci-api-v1-updatemonitorrequest) | [UpdateMonitorResponse](#izci-api-v1-updatemonitorresponse) | UpdateMonitor changes the name, schedule, failure policy or paused state of a monitor. |
+| [DeleteMonitor](#izci-api-v1-monitorservice-deletemonitor) | [DeleteMonitorRequest](#izci-api-v1-deletemonitorrequest) | [DeleteMonitorResponse](#izci-api-v1-deletemonitorresponse) | DeleteMonitor deletes a monitor with its runs. |
+| [ListCheckIns](#izci-api-v1-monitorservice-listcheckins) | [ListCheckInsRequest](#izci-api-v1-listcheckinsrequest) | [ListCheckInsResponse](#izci-api-v1-listcheckinsresponse) | ListCheckIns returns the runs of a monitor, newest first. |
+
+<a id="izci-api-v1-monitorservice-listmonitors"></a>
+
+#### MonitorService.ListMonitors
+
+`rpc ListMonitors(ListMonitorsRequest) returns (ListMonitorsResponse)`
+
+ListMonitors returns the monitors of the current organization with the
+state of each environment and their latest runs. Requires ROLE_VIEWER.
+
+_Side-effect free: may be called with HTTP GET over the Connect protocol._
+
+<a id="izci-api-v1-monitorservice-getmonitor"></a>
+
+#### MonitorService.GetMonitor
+
+`rpc GetMonitor(GetMonitorRequest) returns (GetMonitorResponse)`
+
+GetMonitor returns one monitor. Requires ROLE_VIEWER.
+
+_Side-effect free: may be called with HTTP GET over the Connect protocol._
+
+<a id="izci-api-v1-monitorservice-createmonitor"></a>
+
+#### MonitorService.CreateMonitor
+
+`rpc CreateMonitor(CreateMonitorRequest) returns (CreateMonitorResponse)`
+
+CreateMonitor creates a monitor in a project. Requires ROLE_ADMIN.
+
+<a id="izci-api-v1-monitorservice-updatemonitor"></a>
+
+#### MonitorService.UpdateMonitor
+
+`rpc UpdateMonitor(UpdateMonitorRequest) returns (UpdateMonitorResponse)`
+
+UpdateMonitor changes the name, schedule, failure policy or paused
+state of a monitor. Requires ROLE_ADMIN.
+
+<a id="izci-api-v1-monitorservice-deletemonitor"></a>
+
+#### MonitorService.DeleteMonitor
+
+`rpc DeleteMonitor(DeleteMonitorRequest) returns (DeleteMonitorResponse)`
+
+DeleteMonitor deletes a monitor with its runs. Its issues stay. Requires
+ROLE_ADMIN.
+
+<a id="izci-api-v1-monitorservice-listcheckins"></a>
+
+#### MonitorService.ListCheckIns
+
+`rpc ListCheckIns(ListCheckInsRequest) returns (ListCheckInsResponse)`
+
+ListCheckIns returns the runs of a monitor, newest first. Requires
+ROLE_VIEWER.
+
+_Side-effect free: may be called with HTTP GET over the Connect protocol._
+
 <a id="izci-api-v1-projectservice"></a>
 
 ### ProjectService
@@ -1531,6 +1609,24 @@ Channel is a notification destination.
 | `last_delivery_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | Last successful delivery. |
 | `last_error` | `string` | Last delivery error, empty when the last delivery succeeded. |
 
+<a id="izci-api-v1-checkin"></a>
+
+### CheckIn
+
+CheckIn is one run of a monitored job.
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | `string` | Run id in izci (UUID). |
+| `check_in_id` | `string` | Id the job gave the run (check_in_id); izci's own id for missed runs. |
+| `environment` | `string` | Environment of the run. |
+| `status` | [CheckInStatus](#izci-api-v1-checkinstatus) | Outcome, or IN_PROGRESS while running. |
+| `duration` | [google.protobuf.Duration](https://protobuf.dev/reference/protobuf/google.protobuf/#duration) | How long the run took; unset while in progress or unknown. |
+| `release` | `string` | Release of the job's code, when reported. |
+| `expected_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | The scheduled time the run answered, when known. |
+| `started_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the run started (for missed runs: when izci noticed). |
+| `updated_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the run was last updated. |
+
 <a id="izci-api-v1-completesetuprequest"></a>
 
 ### CompleteSetupRequest
@@ -1670,6 +1766,34 @@ CreateBranchResponse returns the pushed branch.
 | Field | Type | Description |
 |---|---|---|
 | `pull_request` | [PullRequestRef](#izci-api-v1-pullrequestref) | The branch (number 0, state "branch"). |
+
+<a id="izci-api-v1-createmonitorrequest"></a>
+
+### CreateMonitorRequest
+
+CreateMonitorRequest describes a new monitor.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `project` | `string` | Project slug. Required. | min length 1, max length 50 |
+| `name` | `string` | Display name. Required. | min length 1, max length 100 |
+| `slug` | `string` | Slug jobs use; derived from the name when empty. | max length 50 |
+| `schedule` | [MonitorSchedule](#izci-api-v1-monitorschedule) | When runs are due. Required. | required |
+| `timezone` | `string` | IANA time zone of the crontab; UTC when empty. | max length 64 |
+| `checkin_margin_minutes` | `uint32` | Minutes a run may be late (default 1). | ≤ 43200 |
+| `max_runtime_minutes` | `uint32` | Minutes a run may take (default 30). | ≤ 10080 |
+| `failure_threshold` | `uint32` | Failed runs in a row that open an issue (default 1). | ≤ 720 |
+| `recovery_threshold` | `uint32` | Successful runs in a row that resolve it (default 1). | ≤ 720 |
+
+<a id="izci-api-v1-createmonitorresponse"></a>
+
+### CreateMonitorResponse
+
+CreateMonitorResponse holds the new monitor.
+
+| Field | Type | Description |
+|---|---|---|
+| `monitor` | [Monitor](#izci-api-v1-monitor) | The created monitor. |
 
 <a id="izci-api-v1-createorganizationrequest"></a>
 
@@ -1904,6 +2028,24 @@ DeleteIntegrationRequest identifies the integration.
 ### DeleteIntegrationResponse
 
 DeleteIntegrationResponse has no fields.
+
+_No fields._
+
+<a id="izci-api-v1-deletemonitorrequest"></a>
+
+### DeleteMonitorRequest
+
+DeleteMonitorRequest names the monitor to delete.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `id` | `string` | Monitor id (UUID). | UUID |
+
+<a id="izci-api-v1-deletemonitorresponse"></a>
+
+### DeleteMonitorResponse
+
+DeleteMonitorResponse confirms the deletion.
 
 _No fields._
 
@@ -2274,6 +2416,26 @@ GetIssueTagFacetsResponse returns facets.
 | Field | Type | Description |
 |---|---|---|
 | `facets` | repeated [TagFacet](#izci-api-v1-tagfacet) | Facets in the order requested (or the default order). |
+
+<a id="izci-api-v1-getmonitorrequest"></a>
+
+### GetMonitorRequest
+
+GetMonitorRequest names a monitor.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `id` | `string` | Monitor id (UUID). | UUID |
+
+<a id="izci-api-v1-getmonitorresponse"></a>
+
+### GetMonitorResponse
+
+GetMonitorResponse holds the monitor.
+
+| Field | Type | Description |
+|---|---|---|
+| `monitor` | [Monitor](#izci-api-v1-monitor) | The monitor with its environments. |
 
 <a id="izci-api-v1-getnotificationstatusrequest"></a>
 
@@ -2810,6 +2972,30 @@ ListChannelsResponse lists channels.
 |---|---|---|
 | `channels` | repeated [Channel](#izci-api-v1-channel) | Channels ordered by name. |
 
+<a id="izci-api-v1-listcheckinsrequest"></a>
+
+### ListCheckInsRequest
+
+ListCheckInsRequest pages the runs of a monitor.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `monitor_id` | `string` | Monitor id (UUID). | UUID |
+| `environment` | `string` | Environment to show; empty for all. | max length 64 |
+| `page_size` | `uint32` | Maximum runs to return (default 50, max 100). | ≤ 100 |
+| `page_token` | `string` | Token from a previous response. |  |
+
+<a id="izci-api-v1-listcheckinsresponse"></a>
+
+### ListCheckInsResponse
+
+ListCheckInsResponse is a page of runs.
+
+| Field | Type | Description |
+|---|---|---|
+| `check_ins` | repeated [CheckIn](#izci-api-v1-checkin) | Runs, newest first. |
+| `next_page_token` | `string` | Token for the next page, empty on the last one. |
+
 <a id="izci-api-v1-listcustomersrequest"></a>
 
 ### ListCustomersRequest
@@ -2992,6 +3178,27 @@ ListMembersResponse lists members and invitations.
 |---|---|---|
 | `members` | repeated [Member](#izci-api-v1-member) | Members ordered by name. |
 | `invitations` | repeated [Invitation](#izci-api-v1-invitation) | Pending invitations, newest first (only for ROLE_ADMIN and above). |
+
+<a id="izci-api-v1-listmonitorsrequest"></a>
+
+### ListMonitorsRequest
+
+ListMonitorsRequest filters monitors.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `project` | `string` | Project slug; empty for every project. | max length 50 |
+| `query` | `string` | Case-insensitive text to find in the name or slug. | max length 100 |
+
+<a id="izci-api-v1-listmonitorsresponse"></a>
+
+### ListMonitorsResponse
+
+ListMonitorsResponse lists monitors ordered by name.
+
+| Field | Type | Description |
+|---|---|---|
+| `monitors` | repeated [Monitor](#izci-api-v1-monitor) | Monitors with their environments and recent runs. |
 
 <a id="izci-api-v1-listorganizationsrequest"></a>
 
@@ -3205,6 +3412,68 @@ Membership is a user's role in one organization.
 |---|---|---|
 | `organization` | [OrganizationRef](#izci-api-v1-organizationref) | The organization. |
 | `role` | [Role](#izci-api-v1-role) | The user's role in it. |
+
+<a id="izci-api-v1-monitor"></a>
+
+### Monitor
+
+Monitor is a scheduled job izci watches.
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | `string` | Monitor id (UUID). |
+| `project` | [ProjectRef](#izci-api-v1-projectref) | Project the monitor belongs to. |
+| `slug` | `string` | Identifier jobs use in check-ins (monitor_slug), unique in the project, e.g. "daily-billing". |
+| `name` | `string` | Display name, e.g. "Günlük tahsilat". |
+| `schedule` | [MonitorSchedule](#izci-api-v1-monitorschedule) | When runs are due. |
+| `timezone` | `string` | IANA time zone the crontab is read in, e.g. "Europe/Istanbul". |
+| `checkin_margin_minutes` | `uint32` | Minutes a run may check in late before it counts as missed. |
+| `max_runtime_minutes` | `uint32` | Minutes a run may stay in progress before it counts as timed out. |
+| `failure_threshold` | `uint32` | Failed runs in a row that open an issue. |
+| `recovery_threshold` | `uint32` | Successful runs in a row that resolve the issue again. |
+| `paused` | `bool` | A paused monitor records runs but raises no issues and never counts a run as missed. |
+| `environments` | repeated [MonitorEnvironment](#izci-api-v1-monitorenvironment) | State per environment the job reported from, ordered by name. |
+| `recent_check_ins` | repeated [CheckIn](#izci-api-v1-checkin) | Latest runs across environments, newest first (at most 30); filled by ListMonitors. |
+| `created_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the monitor was created. |
+| `updated_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the monitor was last changed. |
+
+<a id="izci-api-v1-monitorenvironment"></a>
+
+### MonitorEnvironment
+
+MonitorEnvironment is the state of a monitor in one environment.
+
+| Field | Type | Description |
+|---|---|---|
+| `environment` | `string` | Environment name, e.g. "production". |
+| `status` | [MonitorStatus](#izci-api-v1-monitorstatus) | Outcome of the last finished run. |
+| `last_check_in_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the last run started (or finished, for single check-ins). |
+| `next_check_in_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the next run is expected; unset before the first run. |
+| `next_check_in_latest` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | The latest the next run may check in before it counts as missed. |
+| `failures` | `uint32` | Failed runs in a row. |
+| `issue` | [IssueRef](#izci-api-v1-issueref) | The open issue raised for this environment, if any. |
+
+<a id="izci-api-v1-monitorinterval"></a>
+
+### MonitorInterval
+
+MonitorInterval is an interval schedule, e.g. every 2 hours.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `value` | `uint32` | Number of units between runs. | ≤ 100000 |
+| `unit` | [MonitorIntervalUnit](#izci-api-v1-monitorintervalunit) | Unit of the interval. | defined values only, must be set |
+
+<a id="izci-api-v1-monitorschedule"></a>
+
+### MonitorSchedule
+
+MonitorSchedule says when runs are due.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `crontab` | `string` | _oneof `kind`._ Crontab expression in five fields or a descriptor, e.g. "0 3 * * *" (03:00 every day) or "@hourly". | min length 1, max length 100 |
+| `interval` | [MonitorInterval](#izci-api-v1-monitorinterval) | _oneof `kind`._ A run every interval, counted from the previous run. |  |
 
 <a id="izci-api-v1-organization"></a>
 
@@ -4005,6 +4274,34 @@ UpdateMemberResponse returns the updated member.
 |---|---|---|
 | `member` | [Member](#izci-api-v1-member) | The updated member. |
 
+<a id="izci-api-v1-updatemonitorrequest"></a>
+
+### UpdateMonitorRequest
+
+UpdateMonitorRequest changes a monitor; unset fields keep their value.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `id` | `string` | Monitor id (UUID). | UUID |
+| `name` | optional `string` | New display name. | min length 1, max length 100 |
+| `schedule` | [MonitorSchedule](#izci-api-v1-monitorschedule) | New schedule. |  |
+| `timezone` | optional `string` | New time zone. | max length 64 |
+| `checkin_margin_minutes` | optional `uint32` | New lateness margin in minutes. | ≤ 43200 |
+| `max_runtime_minutes` | optional `uint32` | New maximum runtime in minutes. | ≤ 10080 |
+| `failure_threshold` | optional `uint32` | New failure threshold. | ≤ 720 |
+| `recovery_threshold` | optional `uint32` | New recovery threshold. | ≤ 720 |
+| `paused` | optional `bool` | Pauses (true) or resumes (false) the monitor. |  |
+
+<a id="izci-api-v1-updatemonitorresponse"></a>
+
+### UpdateMonitorResponse
+
+UpdateMonitorResponse holds the changed monitor.
+
+| Field | Type | Description |
+|---|---|---|
+| `monitor` | [Monitor](#izci-api-v1-monitor) | The monitor after the change. |
+
 <a id="izci-api-v1-updateorganizationplanrequest"></a>
 
 ### UpdateOrganizationPlanRequest
@@ -4376,6 +4673,21 @@ ChannelKind is the transport of a channel.
 | `CHANNEL_KIND_UNSPECIFIED` | 0 | Not set. |
 | `CHANNEL_KIND_TELEGRAM` | 1 | A Telegram private chat, group, supergroup topic or channel. |
 
+<a id="izci-api-v1-checkinstatus"></a>
+
+### CheckInStatus
+
+CheckInStatus is the state of a run.
+
+| Name | Number | Description |
+|---|---|---|
+| `CHECK_IN_STATUS_UNSPECIFIED` | 0 | Not set. |
+| `CHECK_IN_STATUS_IN_PROGRESS` | 1 | Still running. |
+| `CHECK_IN_STATUS_OK` | 2 | Finished successfully. |
+| `CHECK_IN_STATUS_ERROR` | 3 | Finished with an error. |
+| `CHECK_IN_STATUS_MISSED` | 4 | Did not check in on schedule. |
+| `CHECK_IN_STATUS_TIMEOUT` | 5 | Stayed in progress longer than the maximum runtime. |
+
 <a id="izci-api-v1-customersort"></a>
 
 ### CustomerSort
@@ -4538,6 +4850,37 @@ LiveEventKind classifies live updates.
 | `LIVE_EVENT_KIND_ISSUE_CREATED` | 3 | A new issue was created. |
 | `LIVE_EVENT_KIND_ISSUE_REGRESSED` | 4 | A resolved issue regressed. |
 | `LIVE_EVENT_KIND_ISSUE_UPDATED` | 5 | An issue was triaged (status, assignee, priority). |
+
+<a id="izci-api-v1-monitorintervalunit"></a>
+
+### MonitorIntervalUnit
+
+MonitorIntervalUnit is the unit of an interval schedule.
+
+| Name | Number | Description |
+|---|---|---|
+| `MONITOR_INTERVAL_UNIT_UNSPECIFIED` | 0 | Not set. |
+| `MONITOR_INTERVAL_UNIT_MINUTE` | 1 | Minutes. |
+| `MONITOR_INTERVAL_UNIT_HOUR` | 2 | Hours. |
+| `MONITOR_INTERVAL_UNIT_DAY` | 3 | Days. |
+| `MONITOR_INTERVAL_UNIT_WEEK` | 4 | Weeks. |
+| `MONITOR_INTERVAL_UNIT_MONTH` | 5 | Calendar months. |
+| `MONITOR_INTERVAL_UNIT_YEAR` | 6 | Calendar years. |
+
+<a id="izci-api-v1-monitorstatus"></a>
+
+### MonitorStatus
+
+MonitorStatus is the state of a monitor environment.
+
+| Name | Number | Description |
+|---|---|---|
+| `MONITOR_STATUS_UNSPECIFIED` | 0 | Not set. |
+| `MONITOR_STATUS_WAITING` | 1 | No run has finished yet. |
+| `MONITOR_STATUS_OK` | 2 | The last run succeeded. |
+| `MONITOR_STATUS_ERROR` | 3 | The last run failed. |
+| `MONITOR_STATUS_MISSED` | 4 | The last expected run did not check in. |
+| `MONITOR_STATUS_TIMEOUT` | 5 | The last run did not finish within the maximum runtime. |
 
 <a id="izci-api-v1-priority"></a>
 

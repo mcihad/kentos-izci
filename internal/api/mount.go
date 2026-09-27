@@ -59,6 +59,7 @@ type Servers struct {
 	Integration  *IntegrationServer
 	Ai           *AiServer
 	Feedback     *FeedbackServer
+	Monitor      *MonitorServer
 	// Hub is the live update hub the services publish to.
 	Hub *realtime.Hub
 }
@@ -69,7 +70,7 @@ var ServiceNames = []string{
 	apiv1connect.ProjectServiceName, apiv1connect.IssueServiceName, apiv1connect.EventServiceName,
 	apiv1connect.CustomerServiceName, apiv1connect.DashboardServiceName, apiv1connect.AlertServiceName,
 	apiv1connect.IntegrationServiceName, apiv1connect.AiServiceName, apiv1connect.AdminServiceName,
-	apiv1connect.FeedbackServiceName,
+	apiv1connect.FeedbackServiceName, apiv1connect.MonitorServiceName,
 }
 
 // Mount registers every izci.api.v1 service on handle. Services that are
@@ -110,6 +111,7 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 		Integration:  &IntegrationServer{base: b},
 		Ai:           &AiServer{base: b},
 		Feedback:     &FeedbackServer{base: b},
+		Monitor:      &MonitorServer{base: b},
 		Hub:          d.Hub,
 	}
 	if d.Notifier != nil {
@@ -127,6 +129,7 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 	handle(apiv1connect.NewIntegrationServiceHandler(s.Integration, opts...))
 	handle(apiv1connect.NewAiServiceHandler(s.Ai, opts...))
 	handle(apiv1connect.NewFeedbackServiceHandler(s.Feedback, opts...))
+	handle(apiv1connect.NewMonitorServiceHandler(s.Monitor, opts...))
 	handle("GET /attachments/{org}/{id}", http.HandlerFunc(s.Event.ServeAttachment))
 	handle("GET /integrations/github/callback", http.HandlerFunc(s.Integration.GitHubCallback))
 	handle(apiv1connect.NewAdminServiceHandler(s.Admin, opts...))
