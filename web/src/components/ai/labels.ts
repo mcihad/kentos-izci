@@ -1,14 +1,15 @@
+import { tones } from "@/components/issue/badges";
 import { type AiRun, AiRunStatus, AiRunTrigger, Risk } from "@/gen/izci/api/v1/ai_pb";
 import { toDate } from "@/lib/format";
 
 export const runStatus: Record<AiRunStatus, { label: string; tone: string; active?: boolean }> = {
-  [AiRunStatus.UNSPECIFIED]: { label: "Bilinmiyor", tone: "text-muted-foreground border-border" },
-  [AiRunStatus.QUEUED]: { label: "Sırada", tone: "text-muted-foreground border-border", active: true },
-  [AiRunStatus.PREPARING]: { label: "Hazırlanıyor", tone: "text-primary border-primary/40", active: true },
-  [AiRunStatus.RUNNING]: { label: "Çalışıyor", tone: "text-primary border-primary/40", active: true },
-  [AiRunStatus.SUCCEEDED]: { label: "Tamamlandı", tone: "text-health-good-ink border-health-good/40" },
-  [AiRunStatus.FAILED]: { label: "Başarısız", tone: "text-level-error-ink border-level-error/40" },
-  [AiRunStatus.CANCELLED]: { label: "İptal edildi", tone: "text-muted-foreground border-border" },
+  [AiRunStatus.UNSPECIFIED]: { label: "Bilinmiyor", tone: tones.neutral },
+  [AiRunStatus.QUEUED]: { label: "Sırada", tone: tones.neutral, active: true },
+  [AiRunStatus.PREPARING]: { label: "Hazırlanıyor", tone: tones.info, active: true },
+  [AiRunStatus.RUNNING]: { label: "Çalışıyor", tone: tones.info, active: true },
+  [AiRunStatus.SUCCEEDED]: { label: "Tamamlandı", tone: tones.success },
+  [AiRunStatus.FAILED]: { label: "Başarısız", tone: tones.danger },
+  [AiRunStatus.CANCELLED]: { label: "İptal edildi", tone: tones.neutral },
 };
 
 export const runTrigger: Record<AiRunTrigger, string> = {

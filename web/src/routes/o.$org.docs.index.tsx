@@ -17,11 +17,11 @@ function DocsIndex() {
     <div className="grid max-w-3xl gap-8">
       <p className="text-md text-muted-foreground leading-7">
         Bu rehberler sunucunun sürümüyle birlikte gelir. Yapay zekâ araçları aynı içeriği{" "}
-        <a href="/llms.txt" className="font-mono text-sm text-primary hover:underline">
+        <a href="/llms.txt" className="font-mono text-sm text-link hover:underline">
           /llms.txt
         </a>{" "}
         ve{" "}
-        <a href="/llms-full.txt" className="font-mono text-sm text-primary hover:underline">
+        <a href="/llms-full.txt" className="font-mono text-sm text-link hover:underline">
           /llms-full.txt
         </a>{" "}
         adreslerinden okuyabilir.
@@ -35,7 +35,7 @@ function DocsIndex() {
                 <Link
                   to="/o/$org/docs/$"
                   params={{ org: org.slug, _splat: g.slug }}
-                  className="block h-full rounded-lg border px-4 py-3 transition-colors hover:bg-accent/40"
+                  className="block h-full card px-4 py-3 transition-colors hover:bg-accent/40"
                 >
                   <p className="font-medium text-md">{g.title}</p>
                   <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{g.description}</p>

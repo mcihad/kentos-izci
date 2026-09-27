@@ -27,44 +27,49 @@ export function LevelLabel({ level, className }: { level: Level; className?: str
   );
 }
 
-const pill = "inline-flex h-6 items-center whitespace-nowrap rounded-full border px-2 font-medium text-xs";
+/** The design system's badge: a 20px soft pill in a status tone. */
+export const pill =
+  "inline-flex h-5 items-center gap-1 whitespace-nowrap rounded-full border px-2 font-semibold text-2xs tracking-[0.01em]";
+
+/** Badge tones: fg / bg / border triplets from the status tokens. */
+export const tones = {
+  neutral: "border-status-neutral-border bg-status-neutral-bg text-status-neutral-fg",
+  info: "border-status-info-border bg-status-info-bg text-status-info-fg",
+  success: "border-status-success-border bg-status-success-bg text-status-success-fg",
+  warning: "border-status-warning-border bg-status-warning-bg text-status-warning-fg",
+  danger: "border-status-danger-border bg-status-danger-bg text-status-danger-fg",
+  fatal: "border-level-fatal/35 bg-level-fatal/10 text-level-fatal-ink",
+} as const;
 
 export function SubstatusBadge({ substatus }: { substatus: IssueSubstatus }) {
   if (substatus === IssueSubstatus.UNSPECIFIED || substatus === IssueSubstatus.ONGOING) return null;
   const tone =
     substatus === IssueSubstatus.NEW
-      ? "border-primary/40 text-primary"
+      ? tones.info
       : substatus === IssueSubstatus.REGRESSED
-        ? "border-level-warning/45 text-level-warning-ink"
-        : "border-level-error/45 text-level-error-ink";
+        ? tones.warning
+        : tones.danger;
   return <span className={cn(pill, tone)}>{substatusLabels[substatus]}</span>;
 }
 
 export function StatusBadge({ status }: { status: IssueStatus }) {
   const tone =
     status === IssueStatus.RESOLVED
-      ? "border-health-good/40 text-health-good-ink"
+      ? tones.success
       : status === IssueStatus.IGNORED
-        ? "border-border text-muted-foreground"
-        : "border-level-error/40 text-level-error-ink";
+        ? tones.neutral
+        : tones.danger;
   return <span className={cn(pill, tone)}>{statusLabels[status]}</span>;
 }
 
 export function UnhandledBadge() {
-  return <span className={cn(pill, "border-level-fatal/40 text-level-fatal-ink")}>İşlenmemiş</span>;
+  return <span className={cn(pill, tones.fatal)}>İşlenmemiş</span>;
 }
 
 export function PriorityBadge({ priority }: { priority: Priority }) {
   if (priority !== Priority.HIGH && priority !== Priority.CRITICAL) return null;
   return (
-    <span
-      className={cn(
-        pill,
-        priority === Priority.CRITICAL
-          ? "border-level-fatal/40 text-level-fatal-ink"
-          : "border-level-warning/40 text-level-warning-ink",
-      )}
-    >
+    <span className={cn(pill, priority === Priority.CRITICAL ? tones.danger : tones.warning)}>
       {priorityLabels[priority]}
     </span>
   );

@@ -125,11 +125,11 @@ function AlertsPage() {
           {!channels.data ? (
             <Skeleton className="h-24 w-full" />
           ) : chs.length === 0 ? (
-            <EmptyState icon={MessageCircleIcon} title="Bağlı sohbet yok" className="rounded-lg border py-10">
+            <EmptyState icon={MessageCircleIcon} title="Bağlı sohbet yok" className="card py-10">
               Ekibinizin Telegram grubunu bağlayın; yeni ve geri dönen hatalar oraya gelsin.
             </EmptyState>
           ) : (
-            <ul className="divide-y rounded-lg border">
+            <ul className="divide-y card">
               {chs.map((c) => (
                 <li key={c.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
                   <div className="min-w-0 flex-1">
@@ -208,13 +208,13 @@ function AlertsPage() {
           {!rules.data ? (
             <Skeleton className="h-24 w-full" />
           ) : rules.data.rules.length === 0 ? (
-            <EmptyState icon={BellRingIcon} title="Kural yok" className="rounded-lg border py-10">
+            <EmptyState icon={BellRingIcon} title="Kural yok" className="card py-10">
               {chs.length === 0
                 ? "Önce bir sohbet bağlayın; ilk sohbetle birlikte iki temel kural eklenir."
                 : "Bir kural ekleyerek başlayın."}
             </EmptyState>
           ) : (
-            <ul className="divide-y rounded-lg border">
+            <ul className="divide-y card">
               {rules.data.rules.map((r) => (
                 <li key={r.id} className="flex flex-wrap items-start gap-x-4 gap-y-2 px-4 py-3">
                   <Switch

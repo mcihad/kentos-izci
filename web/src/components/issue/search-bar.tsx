@@ -71,7 +71,7 @@ export const SearchBar = forwardRef<
           aria-controls="issue-search-suggestions"
           aria-label="Hatalarda ara"
           placeholder={placeholder ?? 'is:unresolved level:error customer:sivas-belediyesi "timeout"'}
-          className="h-10 w-full rounded-md border bg-card pr-9 pl-9 font-mono text-base outline-none md:h-9 md:text-sm transition-shadow placeholder:font-sans placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30"
+          className="h-[max(var(--control-h-md),2.5rem)] w-full rounded-md border border-(--input-border) bg-(--input-bg) text-base outline-none transition-[color,box-shadow,border-color] duration-(--duration-fast) placeholder:text-subtle hover:border-(--input-border-hover) focus-visible:border-(--input-border-focus) focus-visible:shadow-(--focus-shadow) focus-visible:outline-none md:h-(--control-h-md) md:text-sm pr-9 pl-9 font-mono placeholder:font-sans"
           onChange={(e) => {
             setText(e.target.value);
             setCursor(e.target.selectionStart ?? e.target.value.length);

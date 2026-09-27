@@ -145,7 +145,7 @@ function SetupPage() {
                   className={cn(
                     "grid size-6 shrink-0 place-items-center rounded-full border font-medium text-xs tabular",
                     i < step && "border-primary bg-primary text-primary-foreground",
-                    i === step && "border-primary text-primary",
+                    i === step && "border-primary text-brand-ink",
                   )}
                 >
                   {i < step ? <CheckIcon className="size-3.5" /> : i + 1}

@@ -8,7 +8,8 @@ import { gutter, PageHeader } from "@/components/app/page";
 import { Field } from "@/components/common/field";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState } from "@/components/common/states";
-import { TabNav } from "@/components/common/tab-nav";
+import { TabbedCard, TabNav } from "@/components/common/tab-nav";
+import { thClass, theadClass, trClass } from "@/components/common/table";
 import { UserAvatar } from "@/components/common/user-avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +30,7 @@ import { baseTransport } from "@/lib/api";
 import { errorMessage } from "@/lib/errors";
 import { formatCompact, formatDateTime, formatNumber } from "@/lib/format";
 import { useSession } from "@/lib/session";
+import { cn } from "@/lib/utils";
 
 const tabs = [
   { id: "instance", label: "Sunucu" },
@@ -55,13 +57,23 @@ function AdminPage() {
       <PageHeader
         title="Sunucu yönetimi"
         description="Tüm organizasyonları ve kullanıcıları kapsayan ayarlar"
-      >
-        <TabNav tabs={tabs} active={tab} from={Route.fullPath} label="Yönetim bölümleri" />
-      </PageHeader>
+      />
       <div className={gutter}>
-        {tab === "instance" ? <Instance /> : null}
-        {tab === "organizations" ? <Organizations /> : null}
-        {tab === "users" ? <Users /> : null}
+        <TabbedCard
+          tabs={
+            <TabNav
+              tabs={tabs}
+              active={tab}
+              from={Route.fullPath}
+              label="Yönetim bölümleri"
+              className="px-2 sm:px-3"
+            />
+          }
+        >
+          {tab === "instance" ? <Instance /> : null}
+          {tab === "organizations" ? <Organizations /> : null}
+          {tab === "users" ? <Users /> : null}
+        </TabbedCard>
       </div>
     </div>
   );
@@ -142,37 +154,37 @@ function Organizations() {
         ))}
       </ul>
       <div className="hidden overflow-x-auto rounded-lg border md:block">
-        <table className="w-full text-md">
-          <thead className="bg-muted/40 text-left text-sm text-muted-foreground">
+        <table className="w-full text-sm">
+          <thead className={theadClass}>
             <tr>
-              <th className="px-3 py-2.5 font-medium">Organizasyon</th>
-              <th className="px-3 py-2.5 font-medium">Plan</th>
-              <th className="px-3 py-2.5 text-right font-medium">Proje</th>
-              <th className="px-3 py-2.5 text-right font-medium">Üye</th>
-              <th className="px-3 py-2.5 text-right font-medium">Bu ay olay</th>
-              <th className="px-3 py-2.5 font-medium">Son olay</th>
-              <th className="px-3 py-2.5" />
+              <th className={thClass}>Organizasyon</th>
+              <th className={thClass}>Plan</th>
+              <th className={cn(thClass, "text-right")}>Proje</th>
+              <th className={cn(thClass, "text-right")}>Üye</th>
+              <th className={cn(thClass, "text-right")}>Bu ay olay</th>
+              <th className={thClass}>Son olay</th>
+              <th className={thClass} />
             </tr>
           </thead>
           <tbody className="divide-y">
             {q.data?.organizations.map((o) => (
-              <tr key={o.organization?.id}>
-                <td className="px-3 py-2.5">
+              <tr key={o.organization?.id} className={trClass}>
+                <td className="px-3.5 py-2">
                   <p className="font-medium">{o.organization?.name}</p>
                   <p className="font-mono text-sm text-muted-foreground">{o.organization?.slug}</p>
                 </td>
-                <td className="px-3 py-2.5">{o.organization?.plan || "—"}</td>
-                <td className="px-3 py-2.5 text-right tabular">
+                <td className="px-3.5 py-2">{o.organization?.plan || "—"}</td>
+                <td className="px-3.5 py-2 text-right tabular">
                   {formatNumber(o.organization?.projectCount ?? 0)}
                 </td>
-                <td className="px-3 py-2.5 text-right tabular">
+                <td className="px-3.5 py-2 text-right tabular">
                   {formatNumber(o.organization?.memberCount ?? 0)}
                 </td>
-                <td className="px-3 py-2.5 text-right tabular">{formatCompact(o.monthEvents)}</td>
-                <td className="px-3 py-2.5 text-muted-foreground">
+                <td className="px-3.5 py-2 text-right tabular">{formatCompact(o.monthEvents)}</td>
+                <td className="px-3.5 py-2 text-muted-foreground">
                   <RelativeTime value={o.lastEventAt} />
                 </td>
-                <td className="px-3 py-2.5 text-right">
+                <td className="px-3.5 py-2 text-right">
                   <Button variant="ghost" size="sm" onClick={() => setEditing(o)}>
                     Plan
                   </Button>

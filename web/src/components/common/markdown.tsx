@@ -103,7 +103,7 @@ function components(
               e.preventDefault();
               go(target);
             }}
-            className="text-primary underline-offset-2 hover:underline"
+            className="text-link underline-offset-2 hover:underline"
           >
             {children}
           </a>
@@ -115,7 +115,7 @@ function components(
           href={href}
           target={local ? undefined : "_blank"}
           rel={local ? undefined : "noreferrer noopener"}
-          className="text-primary underline-offset-2 hover:underline"
+          className="text-link underline-offset-2 hover:underline"
         >
           {children}
         </a>

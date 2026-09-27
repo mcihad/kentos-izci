@@ -49,7 +49,7 @@ function EntryIcon({ entry }: { entry: AiLogEntry }) {
   switch (entry.kind) {
     case AiLogKind.SYSTEM:
       Icon = CompassIcon;
-      tone = "text-primary";
+      tone = "text-brand-ink";
       break;
     case AiLogKind.TEXT:
       Icon = MessageSquareTextIcon;

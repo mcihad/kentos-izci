@@ -11,6 +11,7 @@ import {
 import { lazy, Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { RelativeTime } from "@/components/common/relative-time";
+import { pill } from "@/components/issue/badges";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -37,13 +38,7 @@ const Markdown = lazy(() => import("@/components/common/markdown"));
 export function RunStatusPill({ run, className }: { run: AiRun; className?: string }) {
   const s = runStatus[run.status];
   return (
-    <span
-      className={cn(
-        "inline-flex h-6 items-center gap-1.5 whitespace-nowrap rounded-full border px-2 font-medium text-xs",
-        s.tone,
-        className,
-      )}
-    >
+    <span className={cn(pill, s.tone, className)}>
       {s.active ? (
         <span className="relative flex size-1.5">
           <span className="absolute inline-flex size-full animate-ping rounded-full bg-current opacity-60 motion-reduce:animate-none" />
@@ -202,7 +197,7 @@ function PublishBar({
         href={published.url}
         target="_blank"
         rel="noreferrer"
-        className="flex items-center gap-3 rounded-lg border px-4 py-3 transition-colors hover:bg-accent/40"
+        className="flex items-center gap-3 card px-4 py-3 transition-colors hover:bg-accent/40"
       >
         {published.draft ? (
           <GitPullRequestDraftIcon className="size-4 text-muted-foreground" />
@@ -250,7 +245,7 @@ function PublishBar({
               to="/o/$org/projects/$slug"
               params={{ org: org.slug, slug: run.project?.slug ?? "" }}
               search={{ tab: "repository" }}
-              className="text-primary hover:underline"
+              className="text-link hover:underline"
             >
               proje ayarları
             </Link>
@@ -364,7 +359,7 @@ export function RunView({
       </div>
 
       {active ? (
-        <section className="rounded-lg border px-4 py-4" aria-label="Canlı günlük">
+        <section className="card px-4 py-4" aria-label="Canlı günlük">
           {watch.log.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               {run.status === AiRunStatus.QUEUED
@@ -382,7 +377,7 @@ export function RunView({
         </div>
       ) : run.status === AiRunStatus.SUCCEEDED ? (
         <>
-          <section className="rounded-lg border px-5 py-4" aria-label="Sonuç">
+          <section className="card px-5 py-4" aria-label="Sonuç">
             <ResultSummary run={run} />
           </section>
           {hasDiff ? <PublishBar run={run} repository={repository} writable={writable} /> : null}
@@ -408,7 +403,7 @@ export function RunView({
                 <Markdown text={run.analysisMarkdown} />
               </Suspense>
               {run.result?.testSuggestions.length ? (
-                <div className="mt-5 rounded-lg border px-4 py-3">
+                <div className="mt-5 card px-4 py-3">
                   <p className="mb-1.5 font-medium text-sm">Doğrulama önerileri</p>
                   <ul className="list-disc space-y-1 pl-5 text-sm marker:text-muted-foreground">
                     {run.result.testSuggestions.map((s) => (
@@ -432,7 +427,7 @@ export function RunView({
         <>
           <section
             className={cn(
-              "rounded-lg border px-4 py-3 text-sm",
+              "card px-4 py-3 text-sm",
               run.status === AiRunStatus.FAILED && "border-level-error/40",
             )}
           >

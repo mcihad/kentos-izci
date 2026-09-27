@@ -44,7 +44,7 @@ function DiffFileView({ file }: { file: DiffFile }) {
   let ni = 0;
   let oi = 0;
   return (
-    <section className="min-w-0 overflow-hidden rounded-lg border" aria-label={file.path}>
+    <section className="min-w-0 overflow-hidden card" aria-label={file.path}>
       <header className="flex items-center gap-2 bg-muted/40 px-3 py-2">
         <button
           type="button"

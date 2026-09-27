@@ -2,12 +2,14 @@ import { useInfiniteQuery, useQuery } from "@connectrpc/connect-query";
 import { useState } from "react";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState } from "@/components/common/states";
+import { thClass, theadClass, trClass } from "@/components/common/table";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatsPeriod } from "@/gen/izci/api/v1/common_pb";
 import { type Project, ProjectService } from "@/gen/izci/api/v1/project_pb";
 import { formatNumber } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 const periods = [
   { value: StatsPeriod.LAST_24_HOURS, label: "Son 24 saat" },
@@ -131,23 +133,23 @@ export function ProjectReleases({ project }: { project: Project }) {
               ))}
             </ul>
             <div className="hidden overflow-x-auto rounded-lg border md:block">
-              <table className="w-full min-w-[860px] text-md">
-                <thead className="bg-muted/40 text-left text-sm text-muted-foreground">
+              <table className="w-full min-w-[860px] text-sm">
+                <thead className={theadClass}>
                   <tr>
-                    <th className="px-3 py-2.5 font-medium">Sürüm</th>
-                    <th className="px-3 py-2.5 text-right font-medium">Benimsenme</th>
-                    <th className="px-3 py-2.5 text-right font-medium">Oturum</th>
-                    <th className="px-3 py-2.5 font-medium">Çökmesiz oturum</th>
-                    <th className="px-3 py-2.5 font-medium">Çökmesiz kullanıcı</th>
-                    <th className="px-3 py-2.5 text-right font-medium">Yeni hata</th>
-                    <th className="px-3 py-2.5 font-medium">İlk görülme</th>
-                    <th className="px-3 py-2.5 font-medium">Dağıtımlar</th>
+                    <th className={thClass}>Sürüm</th>
+                    <th className={cn(thClass, "text-right")}>Benimsenme</th>
+                    <th className={cn(thClass, "text-right")}>Oturum</th>
+                    <th className={thClass}>Çökmesiz oturum</th>
+                    <th className={thClass}>Çökmesiz kullanıcı</th>
+                    <th className={cn(thClass, "text-right")}>Yeni hata</th>
+                    <th className={thClass}>İlk görülme</th>
+                    <th className={thClass}>Dağıtımlar</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
                   {rows.map((r) => (
-                    <tr key={r.id}>
-                      <td className="px-3 py-2">
+                    <tr key={r.id} className={trClass}>
+                      <td className="px-3.5 py-2">
                         <span className="block font-medium font-mono text-sm">{r.version}</span>
                         {r.commitSha ? (
                           <span className="font-mono text-xs text-muted-foreground">
@@ -161,17 +163,17 @@ export function ProjectReleases({ project }: { project: Project }) {
                           </span>
                         ) : null}
                       </td>
-                      <td className="px-3 py-2.5 text-right tabular text-muted-foreground">
+                      <td className="px-3.5 py-2 text-right tabular text-muted-foreground">
                         {r.health ? `%${Math.round(r.health.adoption).toLocaleString("tr-TR")}` : "—"}
                       </td>
-                      <td className="px-3 py-2.5 text-right tabular">
+                      <td className="px-3.5 py-2 text-right tabular">
                         {r.health ? (
                           formatNumber(r.health.sessions)
                         ) : (
                           <span className="text-muted-foreground">—</span>
                         )}
                       </td>
-                      <td className="px-3 py-2">
+                      <td className="px-3.5 py-2">
                         {r.health ? (
                           <span title={`${formatNumber(r.health.crashedSessions)} çökme`}>
                             <Rate value={r.health.crashFreeSessions} />
@@ -180,7 +182,7 @@ export function ProjectReleases({ project }: { project: Project }) {
                           <span className="text-muted-foreground">—</span>
                         )}
                       </td>
-                      <td className="px-3 py-2">
+                      <td className="px-3.5 py-2">
                         {r.health ? (
                           <span title={`${formatNumber(r.health.users)} kullanıcı`}>
                             <Rate value={r.health.crashFreeUsers} empty={r.health.users === 0n} />
@@ -189,11 +191,11 @@ export function ProjectReleases({ project }: { project: Project }) {
                           <span className="text-muted-foreground">—</span>
                         )}
                       </td>
-                      <td className="px-3 py-2.5 text-right tabular">{formatNumber(r.newIssues)}</td>
-                      <td className="px-3 py-2.5 text-muted-foreground">
+                      <td className="px-3.5 py-2 text-right tabular">{formatNumber(r.newIssues)}</td>
+                      <td className="px-3.5 py-2 text-muted-foreground">
                         <RelativeTime value={r.firstSeen} />
                       </td>
-                      <td className="px-3 py-2.5 text-xs text-muted-foreground">
+                      <td className="px-3.5 py-2 text-xs text-muted-foreground">
                         {r.deploys.length
                           ? r.deploys
                               .slice(0, 3)

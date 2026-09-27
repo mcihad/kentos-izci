@@ -46,6 +46,8 @@ Kuyruk dolarsa istemci hemen `UNAVAILABLE` alır; SDK'lar bu geri baskıyla yava
 
 React, TypeScript, Vite, Tailwind, shadcn/ui ve TanStack Router ile yazılmıştır. Arayüz derlenip binary'ye gömülür, önceden `br` ve `gzip` ile sıkıştırılmış olarak sunulur. Arayüz API ile Connect protokolüyle konuşur. İlk yükleme 200 KB (gzip) bütçesiyle sınırlıdır; kod renklendirme, grafikler ve Markdown gerektiğinde yüklenir. Sıkı bir CSP uygulanır: satır içi betik ve WebAssembly yoktur.
 
+Görünüm KentOS tasarım sistemine dayanır: lacivert marka rengi, koyu lacivert kenar çubuğu, gri zemin üzerinde beyaz kartlar. Her kullanıcı üst çubuktaki palet düğmesinden görünümü kendi tarayıcısı için değiştirebilir: açık, koyu ya da sistem teması; yazı tipi (Plus Jakarta Sans, Inter, IBM Plex Sans); yoğunluk; köşe yuvarlaklığı; ana renk (lacivert, petrol, mor, yeşil, kehribar, nötr) ve kart gölgeleri. Kod ve kimlikler JetBrains Mono ile gösterilir. Yazı tipleri binary'ye gömülüdür; tarayıcı yalnızca seçili aileyi indirir.
+
 ## Arka plan işleri
 
 | İş | Ne zaman | Ne yapar |

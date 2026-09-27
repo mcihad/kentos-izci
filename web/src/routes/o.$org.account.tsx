@@ -4,7 +4,7 @@ import { Sessions } from "@/components/account/sessions";
 import { Telegram } from "@/components/account/telegram";
 import { Tokens } from "@/components/account/tokens";
 import { gutter, PageHeader } from "@/components/app/page";
-import { TabNav } from "@/components/common/tab-nav";
+import { TabbedCard, TabNav } from "@/components/common/tab-nav";
 import { useSession } from "@/lib/session";
 
 const tabs = [
@@ -27,14 +27,24 @@ function AccountPage() {
   const user = useSession()?.user;
   return (
     <div className="pb-12">
-      <PageHeader title="Hesabım" description={user?.email}>
-        <TabNav tabs={tabs} active={tab} from={Route.fullPath} label="Hesap bölümleri" />
-      </PageHeader>
+      <PageHeader title="Hesabım" description={user?.email} />
       <div className={gutter}>
-        {tab === "profile" ? <Profile /> : null}
-        {tab === "sessions" ? <Sessions /> : null}
-        {tab === "tokens" ? <Tokens /> : null}
-        {tab === "telegram" ? <Telegram /> : null}
+        <TabbedCard
+          tabs={
+            <TabNav
+              tabs={tabs}
+              active={tab}
+              from={Route.fullPath}
+              label="Hesap bölümleri"
+              className="px-2 sm:px-3"
+            />
+          }
+        >
+          {tab === "profile" ? <Profile /> : null}
+          {tab === "sessions" ? <Sessions /> : null}
+          {tab === "tokens" ? <Tokens /> : null}
+          {tab === "telegram" ? <Telegram /> : null}
+        </TabbedCard>
       </div>
     </div>
   );

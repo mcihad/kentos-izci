@@ -41,7 +41,7 @@ function ProjectsPage() {
         }
       />
       {projects.isPending ? (
-        <div className={cn("space-y-2 py-4", gutter)}>
+        <div className={cn("space-y-2", gutter)}>
           <Skeleton className="h-14 w-full" />
           <Skeleton className="h-14 w-full" />
         </div>
@@ -50,6 +50,7 @@ function ProjectsPage() {
       ) : list.length === 0 ? (
         <EmptyState
           icon={BoxesIcon}
+          className={cn("card mx-4 sm:mx-(--gutter)")}
           title="Henüz proje yok"
           action={
             canAdmin(org.role) ? (
@@ -62,52 +63,57 @@ function ProjectsPage() {
           Hata göndermek istediğiniz her uygulama için bir proje oluşturun.
         </EmptyState>
       ) : (
-        <ul className="divide-y border-b">
-          {list.map((p) => (
-            <li key={p.id} className="relative hover:bg-accent/40">
-              <div className={cn("flex items-center gap-4 py-3.5", gutter)}>
-                <div className="min-w-0 flex-1">
-                  <Link
-                    to="/o/$org/projects/$slug"
-                    params={{ org: org.slug, slug: p.slug }}
-                    className="font-medium text-md after:absolute after:inset-0"
-                  >
-                    {p.name}
-                  </Link>
-                  <p className="mt-0.5 flex flex-wrap gap-x-3 text-xs text-muted-foreground">
-                    <span className="font-mono">{p.slug}</span>
-                    <span>{platformLabel(p.platform)}</span>
-                    <span>
-                      {p.stats?.lastEventAt ? (
-                        <>
-                          Son olay <RelativeTime value={p.stats.lastEventAt} />
-                        </>
-                      ) : (
-                        "Henüz olay gelmedi"
-                      )}
-                    </span>
-                    {p.repository ? (
-                      <span className="font-mono">
-                        {p.repository.owner}/{p.repository.name}
+        <div className={gutter}>
+          <ul className="card divide-y overflow-hidden max-sm:-mx-4 max-sm:rounded-none max-sm:border-x-0">
+            {list.map((p) => (
+              <li
+                key={p.id}
+                className="relative transition-colors duration-(--duration-fast) hover:bg-(--table-row-hover)"
+              >
+                <div className="flex items-center gap-4 px-4 py-3.5 sm:px-(--card-p)">
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      to="/o/$org/projects/$slug"
+                      params={{ org: org.slug, slug: p.slug }}
+                      className="font-medium text-md after:absolute after:inset-0"
+                    >
+                      {p.name}
+                    </Link>
+                    <p className="mt-0.5 flex flex-wrap gap-x-3 text-xs text-muted-foreground">
+                      <span className="font-mono">{p.slug}</span>
+                      <span>{platformLabel(p.platform)}</span>
+                      <span>
+                        {p.stats?.lastEventAt ? (
+                          <>
+                            Son olay <RelativeTime value={p.stats.lastEventAt} />
+                          </>
+                        ) : (
+                          "Henüz olay gelmedi"
+                        )}
                       </span>
-                    ) : null}
-                  </p>
+                      {p.repository ? (
+                        <span className="font-mono">
+                          {p.repository.owner}/{p.repository.name}
+                        </span>
+                      ) : null}
+                    </p>
+                  </div>
+                  <Sparkline series={p.stats?.series24h} className="hidden h-6 w-28 sm:block" />
+                  <div className="w-16 text-right">
+                    <p className="font-medium text-md tabular">{formatCompact(p.stats?.events24h ?? 0n)}</p>
+                    <p className="text-xs text-muted-foreground">olay, 24 sa</p>
+                  </div>
+                  <div className="w-16 text-right">
+                    <p className="font-medium text-md tabular">
+                      {formatNumber(p.stats?.unresolvedIssues ?? 0)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">açık hata</p>
+                  </div>
                 </div>
-                <Sparkline series={p.stats?.series24h} className="hidden h-6 w-28 sm:block" />
-                <div className="w-16 text-right">
-                  <p className="font-medium text-md tabular">{formatCompact(p.stats?.events24h ?? 0n)}</p>
-                  <p className="text-xs text-muted-foreground">olay, 24 sa</p>
-                </div>
-                <div className="w-16 text-right">
-                  <p className="font-medium text-md tabular">
-                    {formatNumber(p.stats?.unresolvedIssues ?? 0)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">açık hata</p>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       <NewProjectDialog open={creating} onOpenChange={setCreating} />
     </div>

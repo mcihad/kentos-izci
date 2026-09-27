@@ -159,110 +159,116 @@ function IssuesPage() {
             </span>
           )
         }
-      >
-        <TabStrip label="Görünümler" active={activeView?.label ?? ""}>
-          {views.map((v) => (
-            <Link
-              key={v.label}
-              from={Route.fullPath}
-              search={(prev) => ({ ...prev, query: v.query === defaultQuery ? undefined : v.query })}
-              activeOptions={tabActiveOptions}
-              className={tabClass(activeView === v)}
-              aria-current={activeView === v ? "page" : undefined}
-            >
-              {v.label}
-            </Link>
-          ))}
-        </TabStrip>
-      </PageHeader>
+      />
 
-      <div className={cn("flex flex-col gap-2.5 border-b py-3 md:flex-row md:items-center", gutter)}>
-        <SearchBar
-          ref={searchRef}
-          value={query}
-          onSubmit={(q) => setSearch({ query: q === defaultQuery ? undefined : q || undefined })}
-          className="flex-1"
-        />
-        <div className="scrollbar-none -mx-4 flex items-center gap-2 overflow-x-auto px-4 *:shrink-0 sm:-mx-6 sm:px-6 md:mx-0 md:overflow-visible md:px-0">
-          <ProjectFilter
-            value={projects}
-            onChange={(p) => setSearch({ projects: p.length ? p.join(",") : undefined })}
-          />
-          <Select
-            value={sort}
-            onValueChange={(v) => setSearch({ sort: v === "last_seen" ? undefined : (v as SortKey) })}
-          >
-            <SelectTrigger size="sm" className="text-sm" aria-label="Sıralama">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent align="end">
-              {Object.entries(sorts).map(([k, s]) => (
-                <SelectItem key={k} value={k}>
-                  {s.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <PeriodSelect
-            value={period.key}
-            onChange={(k) => setSearch({ period: k === "14d" ? undefined : k })}
-          />
+      <div className={gutter}>
+        {/* The design system's list card: views, search and filters, then the rows.
+            On phones it runs edge to edge to give the rows the full width. */}
+        <div className="card max-sm:-mx-4 max-sm:rounded-none max-sm:border-x-0">
+          <TabStrip label="Görünümler" active={activeView?.label ?? ""} className="px-2 sm:px-3">
+            {views.map((v) => (
+              <Link
+                key={v.label}
+                from={Route.fullPath}
+                search={(prev) => ({ ...prev, query: v.query === defaultQuery ? undefined : v.query })}
+                activeOptions={tabActiveOptions}
+                className={tabClass(activeView === v)}
+                aria-current={activeView === v ? "page" : undefined}
+              >
+                {v.label}
+              </Link>
+            ))}
+          </TabStrip>
+
+          <div className="flex flex-col gap-2.5 border-b px-4 py-3 md:flex-row md:items-center">
+            <SearchBar
+              ref={searchRef}
+              value={query}
+              onSubmit={(q) => setSearch({ query: q === defaultQuery ? undefined : q || undefined })}
+              className="flex-1"
+            />
+            <div className="scrollbar-none -mx-4 flex items-center gap-2 overflow-x-auto px-4 *:shrink-0 md:mx-0 md:overflow-visible md:px-0">
+              <ProjectFilter
+                value={projects}
+                onChange={(p) => setSearch({ projects: p.length ? p.join(",") : undefined })}
+              />
+              <Select
+                value={sort}
+                onValueChange={(v) => setSearch({ sort: v === "last_seen" ? undefined : (v as SortKey) })}
+              >
+                <SelectTrigger size="sm" className="text-sm" aria-label="Sıralama">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent align="end">
+                  {Object.entries(sorts).map(([k, s]) => (
+                    <SelectItem key={k} value={k}>
+                      {s.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <PeriodSelect
+                value={period.key}
+                onChange={(k) => setSearch({ period: k === "14d" ? undefined : k })}
+              />
+            </div>
+          </div>
+
+          {invalidQuery ? (
+            <p className="border-b px-4 py-2.5 text-destructive text-sm">
+              Arama ifadesi anlaşılamadı: {issues.error?.rawMessage}
+            </p>
+          ) : null}
+
+          {issues.isPending ? (
+            <ListSkeleton />
+          ) : issues.error && !invalidQuery ? (
+            <ErrorState error={issues.error} onRetry={() => void issues.refetch()} />
+          ) : rows.length === 0 ? (
+            <NoIssues
+              filtered={query !== defaultQuery || projects.length > 0}
+              onClear={() => setSearch({ query: undefined, projects: undefined })}
+            />
+          ) : (
+            <div ref={listRef} className="relative -mb-px" style={{ height: virtualizer.getTotalSize() }}>
+              {items.map((v) => {
+                const issue = rows[v.index];
+                if (!issue) return null;
+                return (
+                  <div
+                    key={issue.id}
+                    data-index={v.index}
+                    ref={virtualizer.measureElement}
+                    className="absolute inset-x-0 top-0"
+                    style={{ transform: `translateY(${v.start - virtualizer.options.scrollMargin}px)` }}
+                  >
+                    <IssueRow
+                      issue={issue}
+                      org={org.slug}
+                      focused={focus === v.index}
+                      selected={selected.has(issue.id)}
+                      onSelect={
+                        writable
+                          ? (on) =>
+                              setSelected((s) => {
+                                const n = new Set(s);
+                                if (on) n.add(issue.id);
+                                else n.delete(issue.id);
+                                return n;
+                              })
+                          : undefined
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {issues.isFetchingNextPage ? (
+            <p className="border-t py-4 text-center text-muted-foreground text-sm">Yükleniyor…</p>
+          ) : null}
         </div>
       </div>
-
-      {invalidQuery ? (
-        <p className={cn("border-b py-2.5 text-sm text-destructive", gutter)}>
-          Arama ifadesi anlaşılamadı: {issues.error?.rawMessage}
-        </p>
-      ) : null}
-
-      {issues.isPending ? (
-        <ListSkeleton />
-      ) : issues.error && !invalidQuery ? (
-        <ErrorState error={issues.error} onRetry={() => void issues.refetch()} />
-      ) : rows.length === 0 ? (
-        <NoIssues
-          filtered={query !== defaultQuery || projects.length > 0}
-          onClear={() => setSearch({ query: undefined, projects: undefined })}
-        />
-      ) : (
-        <div ref={listRef} className="relative" style={{ height: virtualizer.getTotalSize() }}>
-          {items.map((v) => {
-            const issue = rows[v.index];
-            if (!issue) return null;
-            return (
-              <div
-                key={issue.id}
-                data-index={v.index}
-                ref={virtualizer.measureElement}
-                className="absolute inset-x-0 top-0"
-                style={{ transform: `translateY(${v.start - virtualizer.options.scrollMargin}px)` }}
-              >
-                <IssueRow
-                  issue={issue}
-                  org={org.slug}
-                  focused={focus === v.index}
-                  selected={selected.has(issue.id)}
-                  onSelect={
-                    writable
-                      ? (on) =>
-                          setSelected((s) => {
-                            const n = new Set(s);
-                            if (on) n.add(issue.id);
-                            else n.delete(issue.id);
-                            return n;
-                          })
-                      : undefined
-                  }
-                />
-              </div>
-            );
-          })}
-        </div>
-      )}
-      {issues.isFetchingNextPage ? (
-        <p className="py-4 text-center text-muted-foreground text-sm">Yükleniyor…</p>
-      ) : null}
 
       {selected.size > 0 ? (
         <div className="fixed inset-x-0 bottom-5 z-40 flex justify-center px-4">

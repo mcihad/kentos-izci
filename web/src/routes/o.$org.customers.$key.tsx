@@ -158,11 +158,9 @@ function CustomerPage() {
         <div className="grid grid-cols-1 gap-9 xl:grid-cols-[minmax(0,1fr)_22rem]">
           <Section title="Açık hatalar" description="Bu müşteriden en çok olay gelen çözülmemiş hatalar">
             {d.topIssues.length === 0 ? (
-              <p className="rounded-lg border px-4 py-8 text-center text-sm text-muted-foreground">
-                Açık hata yok.
-              </p>
+              <p className="card px-4 py-8 text-center text-sm text-muted-foreground">Açık hata yok.</p>
             ) : (
-              <div className="overflow-hidden rounded-lg border [&>div:last-child]:border-b-0">
+              <div className="overflow-hidden card [&>div:last-child]:border-b-0">
                 {d.topIssues.map((i) => (
                   <IssueRow key={i.id} issue={i} org={org.slug} compact showUsers={false} />
                 ))}
@@ -171,7 +169,7 @@ function CustomerPage() {
           </Section>
           <div className="space-y-9">
             <Section title="Projelere göre">
-              <ul className="divide-y rounded-lg border">
+              <ul className="divide-y card">
                 {d.projects.map((p) => (
                   <li key={p.project?.id} className="flex items-center gap-3 px-3 py-2.5 text-sm">
                     <span className="min-w-0 flex-1">
@@ -188,9 +186,7 @@ function CustomerPage() {
             </Section>
             {c.notes ? (
               <Section title="Notlar">
-                <p className="whitespace-pre-wrap rounded-lg border px-4 py-3 text-sm leading-relaxed">
-                  {c.notes}
-                </p>
+                <p className="whitespace-pre-wrap card px-4 py-3 text-sm leading-relaxed">{c.notes}</p>
               </Section>
             ) : null}
             {Object.keys(c.attributes).length > 0 ? (

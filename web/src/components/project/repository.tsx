@@ -174,7 +174,7 @@ export function ProjectRepository({ project }: { project: Project }) {
                     to="/o/$org/settings"
                     params={{ org: org.slug }}
                     search={{ tab: "integrations" }}
-                    className="text-primary hover:underline"
+                    className="text-link hover:underline"
                   >
                     bir GitHub hesabı bağlayın
                   </Link>

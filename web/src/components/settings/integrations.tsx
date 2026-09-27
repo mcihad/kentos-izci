@@ -9,6 +9,7 @@ import { Field, FormError } from "@/components/common/field";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { UserAvatar } from "@/components/common/user-avatar";
+import { pill, tones } from "@/components/issue/badges";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -179,9 +180,7 @@ function IntegrationRow({
       <div className="min-w-0 flex-1">
         <p className="flex flex-wrap items-center gap-2 text-md">
           <span className="font-medium">{i.accountLogin || i.name}</span>
-          <span className="rounded-full border px-2 text-xs text-muted-foreground">
-            {app ? "GitHub App" : "Erişim anahtarı"}
-          </span>
+          <span className={cn(pill, tones.neutral)}>{app ? "GitHub App" : "Erişim anahtarı"}</span>
         </p>
         <p className="mt-0.5 truncate text-xs text-muted-foreground">
           {i.name}
@@ -281,7 +280,7 @@ function ConnectTokenDialog({
                 href="https://github.com/settings/personal-access-tokens/new"
                 target="_blank"
                 rel="noreferrer"
-                className="text-primary hover:underline"
+                className="text-link hover:underline"
               >
                 ince ayarlı bir erişim anahtarı
               </a>{" "}

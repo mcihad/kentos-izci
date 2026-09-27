@@ -13,8 +13,8 @@ export function useDocumentTitle(title: string | undefined) {
   }, [title]);
 }
 
-/** Horizontal page gutter shared by headers and bodies. */
-export const gutter = "px-4 sm:px-6 lg:px-8";
+/** Horizontal page gutter shared by headers and bodies; follows the density scope. */
+export const gutter = "px-4 sm:px-(--gutter)";
 
 export function PageHeader({
   title,
@@ -31,11 +31,11 @@ export function PageHeader({
 }) {
   useDocumentTitle(typeof title === "string" ? title : undefined);
   return (
-    <header className={cn("border-b", className)}>
-      <div className={cn("flex flex-wrap items-end gap-x-6 gap-y-3 pt-5 pb-4 sm:pt-7 sm:pb-5", gutter)}>
+    <header className={className}>
+      <div className={cn("flex flex-wrap items-end gap-x-6 gap-y-3 pt-5 pb-4 sm:pt-6 sm:pb-5", gutter)}>
         <div className="min-w-0 flex-[1_1_16rem]">
-          <h1 className="font-semibold text-xl leading-tight tracking-[-0.01em] sm:text-2xl">{title}</h1>
-          {description ? <div className="mt-1.5 text-md text-muted-foreground">{description}</div> : null}
+          <h1 className="font-semibold text-xl leading-tight sm:text-2xl">{title}</h1>
+          {description ? <div className="mt-1 text-md text-muted-foreground">{description}</div> : null}
         </div>
         {actions ? (
           <div className="scrollbar-none flex items-center gap-2 *:shrink-0 max-sm:-mx-4 max-sm:w-[calc(100%+2rem)] max-sm:overflow-x-auto max-sm:px-4 sm:flex-wrap">
@@ -48,30 +48,40 @@ export function PageHeader({
   );
 }
 
-/** A titled region inside a page. */
+/**
+ * A titled card: the design system's Card. With `bleed` a list or table runs
+ * edge to edge under the header instead of sitting inside the padding.
+ */
 export function Section({
   title,
   description,
   actions,
   children,
   className,
+  bleed = false,
 }: {
   title: React.ReactNode;
   description?: React.ReactNode;
   actions?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
+  bleed?: boolean;
 }) {
   return (
-    <section className={cn("min-w-0", className)}>
-      <div className="mb-3.5 flex flex-wrap items-end justify-between gap-3">
+    <section className={cn("card min-w-0 overflow-hidden", className)}>
+      <div
+        className={cn(
+          "flex flex-wrap items-start justify-between gap-x-4 gap-y-2 px-4 pt-4 pb-3.5 sm:px-(--card-p) sm:pt-(--card-p)",
+          bleed && "border-b",
+        )}
+      >
         <div className="min-w-0">
-          <h2 className="font-semibold text-lg leading-snug">{title}</h2>
-          {description ? <p className="mt-0.5 text-sm text-muted-foreground">{description}</p> : null}
+          <h2 className="font-semibold text-md leading-snug">{title}</h2>
+          {description ? <p className="mt-0.5 text-muted-foreground text-sm">{description}</p> : null}
         </div>
         {actions}
       </div>
-      {children}
+      <div className={bleed ? undefined : "px-4 pb-4 sm:px-(--card-p) sm:pb-(--card-p)"}>{children}</div>
     </section>
   );
 }

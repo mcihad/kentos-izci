@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+import { InboxIcon, type LucideIcon } from "lucide-react";
 import type * as React from "react";
 import { Button } from "@/components/ui/button";
 import { errorMessage } from "@/lib/errors";
@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 /** Shown when a list has nothing to show; says what to do next. */
 export function EmptyState({
-  icon: Icon,
+  icon: Icon = InboxIcon,
   title,
   children,
   action,
@@ -19,11 +19,13 @@ export function EmptyState({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col items-center gap-3 px-6 py-14 text-center", className)}>
-      {Icon ? <Icon className="size-6 text-muted-foreground/70" strokeWidth={1.5} /> : null}
+    <div className={cn("flex flex-col items-center gap-2.5 px-6 py-12 text-center", className)}>
+      <span className="mb-0.5 grid size-12 place-items-center rounded-lg bg-(--surface-muted) text-muted-foreground">
+        <Icon className="size-6" strokeWidth={1.75} />
+      </span>
       <div className="max-w-sm space-y-1">
-        <p className="font-medium text-md">{title}</p>
-        {children ? <div className="text-sm text-muted-foreground leading-relaxed">{children}</div> : null}
+        <p className="font-semibold text-md text-strong">{title}</p>
+        {children ? <div className="text-muted-foreground text-sm leading-relaxed">{children}</div> : null}
       </div>
       {action}
     </div>

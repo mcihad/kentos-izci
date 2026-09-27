@@ -66,7 +66,7 @@ export function LinkChatDialog({
         </DialogHeader>
         {linked ? (
           <div className="flex items-start gap-3 rounded-lg border border-primary/40 px-4 py-3">
-            <CheckCircle2Icon className="mt-0.5 size-5 text-primary" />
+            <CheckCircle2Icon className="mt-0.5 size-5 text-brand-ink" />
             <div>
               <p className="font-medium text-md">{linked.name} bağlandı</p>
               <p className="text-sm text-muted-foreground">

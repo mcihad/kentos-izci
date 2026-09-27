@@ -71,7 +71,7 @@ export function ProjectFilter({ value, onChange }: { value: string[]; onChange: 
           className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-accent"
         >
           <span className="flex-1">Tüm projeler</span>
-          {value.length === 0 ? <CheckIcon className="size-4 text-primary" /> : null}
+          {value.length === 0 ? <CheckIcon className="size-4 text-brand-ink" /> : null}
         </button>
         <div className="my-1 h-px bg-border" />
         {list.map((p) => (
@@ -83,7 +83,7 @@ export function ProjectFilter({ value, onChange }: { value: string[]; onChange: 
           >
             <span className="min-w-0 flex-1 truncate">{p.name}</span>
             <span className="font-mono text-xs text-muted-foreground">{p.slug}</span>
-            <CheckIcon className={cn("size-4 text-primary", !value.includes(p.slug) && "invisible")} />
+            <CheckIcon className={cn("size-4 text-brand-ink", !value.includes(p.slug) && "invisible")} />
           </button>
         ))}
       </PopoverContent>

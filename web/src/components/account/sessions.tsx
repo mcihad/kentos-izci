@@ -53,7 +53,7 @@ export function Sessions() {
             <div className="min-w-0 flex-1">
               <p className="truncate text-md">
                 {s.client || "Bilinmeyen istemci"}
-                {s.current ? <span className="ml-2 text-primary text-xs">bu cihaz</span> : null}
+                {s.current ? <span className="ml-2 text-brand-ink text-xs">bu cihaz</span> : null}
               </p>
               <p className="text-xs text-muted-foreground">
                 <span className="font-mono">{s.ipAddress}</span>, son etkinlik{" "}

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ProjectFilter } from "@/components/app/filters";
 import { gutter, PageHeader } from "@/components/app/page";
 import { EmptyState } from "@/components/common/states";
-import { IssueTitle, LevelBlaze } from "@/components/issue/badges";
+import { IssueTitle, LevelBlaze, pill, tones } from "@/components/issue/badges";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DashboardService, LiveEventKind, type WatchLiveResponse } from "@/gen/izci/api/v1/dashboard_pb";
@@ -21,12 +21,12 @@ export const Route = createFileRoute("/o/$org/live")({
 type Row = WatchLiveResponse & { key: string };
 
 const kindLabels: Partial<Record<LiveEventKind, { label: string; className: string }>> = {
-  [LiveEventKind.ISSUE_CREATED]: { label: "Yeni hata", className: "border-primary/40 text-primary" },
+  [LiveEventKind.ISSUE_CREATED]: { label: "Yeni hata", className: tones.info },
   [LiveEventKind.ISSUE_REGRESSED]: {
     label: "Geri döndü",
-    className: "border-level-warning/45 text-level-warning-ink",
+    className: tones.warning,
   },
-  [LiveEventKind.ISSUE_UPDATED]: { label: "Güncellendi", className: "border-border text-muted-foreground" },
+  [LiveEventKind.ISSUE_UPDATED]: { label: "Güncellendi", className: tones.neutral },
 };
 
 const minLevels: { value: string; label: string; level: Level }[] = [
@@ -130,57 +130,55 @@ function LivePage() {
           </>
         }
       />
-      {rows.length === 0 ? (
-        <EmptyState icon={RadioIcon} title="Olay bekleniyor" className="py-20">
-          Uygulamalarınızdan gelen her olay ve hata güncellemesi burada anında görünür. Denemek için bir
-          projeden test olayı gönderin.
-        </EmptyState>
-      ) : (
-        <ol>
-          {rows.map((r) => {
-            const issue = r.issue;
-            const kind = kindLabels[r.kind];
-            const t = toDate(r.time);
-            return (
-              <li key={r.key} className="animate-arrive relative border-b">
-                <Link
-                  to="/o/$org/issues/$issueId"
-                  params={{ org: org.slug, issueId: issue?.shortId ?? "" }}
-                  search={r.event ? { event: r.event.id } : {}}
-                  className={cn("flex items-stretch gap-3 py-2.5 hover:bg-accent/40", gutter)}
-                >
-                  <LevelBlaze level={r.event?.level ?? issue?.level ?? Level.ERROR} />
-                  <time className="w-16 shrink-0 pt-0.5 font-mono text-xs text-muted-foreground tabular">
-                    {t ? `${formatTime(t)}:${String(t.getSeconds()).padStart(2, "0")}` : ""}
-                  </time>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm">
-                      {issue ? (
-                        <IssueTitle type={issue.type} value={issue.value} title={issue.title} />
-                      ) : null}
-                    </p>
-                    <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                      <span className="font-mono text-xs text-foreground/80">{issue?.shortId}</span>
-                      {kind ? (
-                        <span className={cn("rounded-full border px-2 font-medium text-xs", kind.className)}>
-                          {kind.label}
-                        </span>
-                      ) : null}
-                      <span>{issue?.project?.slug}</span>
-                      {r.event?.customer ? (
-                        <span>{r.event.customer.name || r.event.customer.key}</span>
-                      ) : null}
-                      {r.event?.environment ? <span>{r.event.environment}</span> : null}
-                      {r.event?.release ? <span className="font-mono">{r.event.release}</span> : null}
-                      {r.event?.user ? <span>{r.event.user}</span> : null}
-                    </p>
-                  </div>
-                </Link>
-              </li>
-            );
-          })}
-        </ol>
-      )}
+      <div className={gutter}>
+        {rows.length === 0 ? (
+          <EmptyState icon={RadioIcon} title="Olay bekleniyor" className="card py-16">
+            Uygulamalarınızdan gelen her olay ve hata güncellemesi burada anında görünür. Denemek için bir
+            projeden test olayı gönderin.
+          </EmptyState>
+        ) : (
+          <ol className="card overflow-hidden max-sm:-mx-4 max-sm:rounded-none max-sm:border-x-0 [&>li:last-child]:border-b-0">
+            {rows.map((r) => {
+              const issue = r.issue;
+              const kind = kindLabels[r.kind];
+              const t = toDate(r.time);
+              return (
+                <li key={r.key} className="animate-arrive relative border-b">
+                  <Link
+                    to="/o/$org/issues/$issueId"
+                    params={{ org: org.slug, issueId: issue?.shortId ?? "" }}
+                    search={r.event ? { event: r.event.id } : {}}
+                    className="flex items-stretch gap-3 px-4 py-2.5 transition-colors duration-(--duration-fast) hover:bg-(--table-row-hover) sm:px-(--card-p)"
+                  >
+                    <LevelBlaze level={r.event?.level ?? issue?.level ?? Level.ERROR} />
+                    <time className="w-16 shrink-0 pt-0.5 font-mono text-xs text-muted-foreground tabular">
+                      {t ? `${formatTime(t)}:${String(t.getSeconds()).padStart(2, "0")}` : ""}
+                    </time>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm">
+                        {issue ? (
+                          <IssueTitle type={issue.type} value={issue.value} title={issue.title} />
+                        ) : null}
+                      </p>
+                      <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                        <span className="font-mono text-xs text-foreground/80">{issue?.shortId}</span>
+                        {kind ? <span className={cn(pill, kind.className)}>{kind.label}</span> : null}
+                        <span>{issue?.project?.slug}</span>
+                        {r.event?.customer ? (
+                          <span>{r.event.customer.name || r.event.customer.key}</span>
+                        ) : null}
+                        {r.event?.environment ? <span>{r.event.environment}</span> : null}
+                        {r.event?.release ? <span className="font-mono">{r.event.release}</span> : null}
+                        {r.event?.user ? <span>{r.event.user}</span> : null}
+                      </p>
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ol>
+        )}
+      </div>
     </div>
   );
 }

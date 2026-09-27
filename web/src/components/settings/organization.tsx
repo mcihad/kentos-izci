@@ -8,6 +8,7 @@ import { Field } from "@/components/common/field";
 import { RelativeTime } from "@/components/common/relative-time";
 import { StatStrip } from "@/components/common/stat-strip";
 import { EmptyState } from "@/components/common/states";
+import { thClass, theadClass, trClass } from "@/components/common/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -312,30 +313,30 @@ export function AuditLog() {
         ))}
       </ul>
       <div className="hidden overflow-x-auto rounded-lg border md:block">
-        <table className="w-full text-md">
-          <thead className="bg-muted/40 text-left text-sm text-muted-foreground">
+        <table className="w-full text-sm">
+          <thead className={theadClass}>
             <tr>
-              <th className="px-3 py-2.5 font-medium">Zaman</th>
-              <th className="px-3 py-2.5 font-medium">Kişi</th>
-              <th className="px-3 py-2.5 font-medium">İşlem</th>
-              <th className="px-3 py-2.5 font-medium">Hedef</th>
-              <th className="px-3 py-2.5 font-medium">IP</th>
+              <th className={thClass}>Zaman</th>
+              <th className={thClass}>Kişi</th>
+              <th className={thClass}>İşlem</th>
+              <th className={thClass}>Hedef</th>
+              <th className={thClass}>IP</th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {rows.map((e) => (
-              <tr key={e.id}>
-                <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
+              <tr key={e.id} className={trClass}>
+                <td className="whitespace-nowrap px-3.5 py-2 text-muted-foreground">
                   <RelativeTime value={e.createdAt} />
                 </td>
-                <td className="max-w-44 truncate px-3 py-2.5">
+                <td className="max-w-44 truncate px-3.5 py-2">
                   {e.actor?.name || e.actor?.email || "Sistem"}
                 </td>
-                <td className="px-3 py-2.5">{actionLabels[e.action] ?? e.action}</td>
-                <td className="max-w-52 truncate px-3 py-2.5 font-mono text-sm text-muted-foreground">
+                <td className="px-3.5 py-2">{actionLabels[e.action] ?? e.action}</td>
+                <td className="max-w-52 truncate px-3.5 py-2 font-mono text-sm text-muted-foreground">
                   {e.targetName || e.targetId}
                 </td>
-                <td className="px-3 py-2.5 font-mono text-sm text-muted-foreground">{e.ipAddress || "—"}</td>
+                <td className="px-3.5 py-2 font-mono text-sm text-muted-foreground">{e.ipAddress || "—"}</td>
               </tr>
             ))}
           </tbody>

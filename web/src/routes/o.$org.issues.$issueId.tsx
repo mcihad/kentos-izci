@@ -149,8 +149,8 @@ function IssuePage() {
   }
 
   return (
-    <div>
-      <header className="border-b">
+    <div className="pb-12">
+      <header>
         <div className={cn("pt-4 pb-4 sm:pt-5", gutter)}>
           <nav className="flex items-center gap-1.5 text-sm text-muted-foreground" aria-label="Konum">
             <Link to="/o/$org/issues" params={{ org: org.slug }} className="-my-2 py-2 hover:text-foreground">
@@ -188,7 +188,7 @@ function IssuePage() {
               </div>
             </div>
           </div>
-          <dl className="mt-4 grid grid-cols-[1fr_1fr_1fr_1.7fr] gap-2 rounded-lg border px-3 py-2.5 lg:hidden">
+          <dl className="mt-4 grid grid-cols-[1fr_1fr_1fr_1.7fr] gap-2 card px-3 py-2.5 lg:hidden">
             {(
               [
                 ["olay", formatCompact(s.timesSeen)],
@@ -212,72 +212,80 @@ function IssuePage() {
             <TriageBar issue={issue} writable={writable} />
           </div>
         </div>
-        <TabStrip label="Bölümler" active={tab}>
-          {tabs.map((t) => (
-            <Link
-              key={t.id}
-              from={Route.fullPath}
-              search={(p) => ({ ...p, tab: t.id === "event" ? undefined : t.id, run: undefined })}
-              activeOptions={tabActiveOptions}
-              className={tabClass(tab === t.id)}
-              aria-current={tab === t.id ? "page" : undefined}
-            >
-              {t.label}
-              {t.id === "feedback" && feedbackCount > 0 ? (
-                <span className="ml-2 rounded-full bg-muted px-2 py-px font-medium text-xs text-muted-foreground tabular">
-                  {feedbackCount >= 50 ? "50+" : feedbackCount}
-                </span>
-              ) : null}
-              {t.id === "ai" && s.aiState === AiState.RUNNING ? (
-                <span className="ml-1.5 inline-block size-1.5 animate-pulse rounded-full bg-primary align-middle" />
-              ) : null}
-            </Link>
-          ))}
-        </TabStrip>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className={cn("min-w-0", gutter)}>
-          {tab === "event" ? (
-            <>
-              <EventToolbar
-                detail={eventQ.data?.event}
-                previousId={eventQ.data?.previousId}
-                nextId={eventQ.data?.nextId}
-                current={search.event}
+      <div
+        className={cn(
+          "grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_20rem]",
+          gutter,
+        )}
+      >
+        {/* Main card: section tabs and their content. Edge to edge on phones. */}
+        <div className="card min-w-0 max-sm:-mx-4 max-sm:rounded-none max-sm:border-x-0">
+          <TabStrip label="Bölümler" active={tab} className="px-2 sm:px-3">
+            {tabs.map((t) => (
+              <Link
+                key={t.id}
+                from={Route.fullPath}
+                search={(p) => ({ ...p, tab: t.id === "event" ? undefined : t.id, run: undefined })}
+                activeOptions={tabActiveOptions}
+                className={tabClass(tab === t.id)}
+                aria-current={tab === t.id ? "page" : undefined}
+              >
+                {t.label}
+                {t.id === "feedback" && feedbackCount > 0 ? (
+                  <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full border bg-(--surface-muted) px-1.5 font-semibold text-2xs text-muted-foreground tabular">
+                    {feedbackCount >= 50 ? "50+" : feedbackCount}
+                  </span>
+                ) : null}
+                {t.id === "ai" && s.aiState === AiState.RUNNING ? (
+                  <span className="ml-1.5 inline-block size-1.5 animate-pulse rounded-full bg-primary align-middle" />
+                ) : null}
+              </Link>
+            ))}
+          </TabStrip>
+          <div className="min-w-0 px-4 sm:px-(--card-p)">
+            {tab === "event" ? (
+              <>
+                <EventToolbar
+                  detail={eventQ.data?.event}
+                  previousId={eventQ.data?.previousId}
+                  nextId={eventQ.data?.nextId}
+                  current={search.event}
+                />
+                {eventQ.isPending ? (
+                  <div className="space-y-3 py-6">
+                    <Skeleton className="h-5 w-1/2" />
+                    <Skeleton className="h-40 w-full" />
+                  </div>
+                ) : eventQ.error ? (
+                  <ErrorState error={eventQ.error} onRetry={() => void eventQ.refetch()} />
+                ) : eventQ.data?.event ? (
+                  <EventView key={eventQ.data.event.id} detail={eventQ.data.event} />
+                ) : null}
+              </>
+            ) : tab === "events" ? (
+              <IssueEvents issueId={s.id} shortId={s.shortId} />
+            ) : tab === "impact" ? (
+              <Impact facets={facets.data?.facets} />
+            ) : tab === "feedback" ? (
+              <div className="py-2">
+                <FeedbackList issueId={s.id} showIssue={false} />
+              </div>
+            ) : tab === "ai" ? (
+              <IssueAi
+                issue={s}
+                eventId={search.event}
+                runId={search.run}
+                onSelectRun={(run) => void navigate({ search: (p) => ({ ...p, run }), replace: true })}
+                writable={writable}
               />
-              {eventQ.isPending ? (
-                <div className="space-y-3 py-6">
-                  <Skeleton className="h-5 w-1/2" />
-                  <Skeleton className="h-40 w-full" />
-                </div>
-              ) : eventQ.error ? (
-                <ErrorState error={eventQ.error} onRetry={() => void eventQ.refetch()} />
-              ) : eventQ.data?.event ? (
-                <EventView key={eventQ.data.event.id} detail={eventQ.data.event} />
-              ) : null}
-            </>
-          ) : tab === "events" ? (
-            <IssueEvents issueId={s.id} shortId={s.shortId} />
-          ) : tab === "impact" ? (
-            <Impact facets={facets.data?.facets} />
-          ) : tab === "feedback" ? (
-            <div className="py-2">
-              <FeedbackList issueId={s.id} showIssue={false} />
-            </div>
-          ) : tab === "ai" ? (
-            <IssueAi
-              issue={s}
-              eventId={search.event}
-              runId={search.run}
-              onSelectRun={(run) => void navigate({ search: (p) => ({ ...p, run }), replace: true })}
-              writable={writable}
-            />
-          ) : (
-            <Activity issueId={s.id} writable={writable} />
-          )}
+            ) : (
+              <Activity issueId={s.id} writable={writable} />
+            )}
+          </div>
         </div>
-        <aside className="border-t px-4 py-5 sm:px-6 lg:border-t-0 lg:border-l lg:px-5">
+        <aside className="card min-w-0 px-4 py-4 max-sm:-mx-4 max-sm:rounded-none max-sm:border-x-0 sm:p-(--card-p)">
           <IssueAside issue={issue} facets={facets.data?.facets} />
         </aside>
       </div>

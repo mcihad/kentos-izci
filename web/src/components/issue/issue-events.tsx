@@ -4,10 +4,12 @@ import { SearchIcon } from "lucide-react";
 import { useState } from "react";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
+import { thClass, theadClass, trClass } from "@/components/common/table";
 import { Button } from "@/components/ui/button";
 import { IssueService } from "@/gen/izci/api/v1/issue_pb";
 import { errorMessage } from "@/lib/errors";
 import { useOrg } from "@/lib/org";
+import { cn } from "@/lib/utils";
 
 /** The issue's events, newest first, filterable with event search keys. */
 export function IssueEvents({ issueId, shortId }: { issueId: string; shortId: string }) {
@@ -35,7 +37,7 @@ export function IssueEvents({ issueId, shortId }: { issueId: string; shortId: st
           onChange={(e) => setDraft(e.target.value)}
           placeholder="environment:production customer:sivas-belediyesi release:1.4.2 browser:Chrome*"
           aria-label="Olaylarda ara"
-          className="h-10 w-full rounded-md border bg-card pr-3 pl-8 font-mono text-base outline-none md:h-9 md:text-sm placeholder:font-sans placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30"
+          className="h-[max(var(--control-h-md),2.5rem)] w-full rounded-md border border-(--input-border) bg-(--input-bg) text-base outline-none transition-[color,box-shadow,border-color] duration-(--duration-fast) placeholder:text-subtle hover:border-(--input-border-hover) focus-visible:border-(--input-border-focus) focus-visible:shadow-(--focus-shadow) focus-visible:outline-none md:h-(--control-h-md) md:text-sm pr-3 pl-8 font-mono placeholder:font-sans"
         />
       </form>
       {events.error ? (
@@ -72,22 +74,22 @@ export function IssueEvents({ issueId, shortId }: { issueId: string; shortId: st
             ))}
           </ul>
           <div className="hidden overflow-x-auto rounded-md border md:block">
-            <table className="w-full min-w-[720px] text-md">
-              <thead className="bg-muted/40 text-left text-sm text-muted-foreground">
+            <table className="w-full min-w-[720px] text-sm">
+              <thead className={theadClass}>
                 <tr>
-                  <th className="px-3 py-2.5 font-medium">Zaman</th>
-                  <th className="px-3 py-2.5 font-medium">Müşteri</th>
-                  <th className="px-3 py-2.5 font-medium">Kullanıcı</th>
-                  <th className="px-3 py-2.5 font-medium">Ortam</th>
-                  <th className="px-3 py-2.5 font-medium">Sürüm</th>
-                  <th className="px-3 py-2.5 font-medium">Tarayıcı / OS</th>
-                  <th className="px-3 py-2.5 font-medium">Sunucu</th>
+                  <th className={thClass}>Zaman</th>
+                  <th className={thClass}>Müşteri</th>
+                  <th className={thClass}>Kullanıcı</th>
+                  <th className={thClass}>Ortam</th>
+                  <th className={thClass}>Sürüm</th>
+                  <th className={thClass}>Tarayıcı / OS</th>
+                  <th className={thClass}>Sunucu</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {rows.map((ev) => (
-                  <tr key={ev.id} className="group hover:bg-accent/45">
-                    <td className="whitespace-nowrap px-3 py-2.5">
+                  <tr key={ev.id} className={cn("group", trClass)}>
+                    <td className="whitespace-nowrap px-3.5 py-2">
                       <Link
                         to="/o/$org/issues/$issueId"
                         params={{ org: org.slug, issueId: shortId }}
@@ -97,16 +99,16 @@ export function IssueEvents({ issueId, shortId }: { issueId: string; shortId: st
                         <RelativeTime value={ev.receivedAt} />
                       </Link>
                     </td>
-                    <td className="max-w-40 truncate px-3 py-2.5">
+                    <td className="max-w-40 truncate px-3.5 py-2">
                       {ev.customer?.name || ev.customer?.key || "—"}
                     </td>
-                    <td className="max-w-44 truncate px-3 py-2.5">{ev.user || "—"}</td>
-                    <td className="px-3 py-2.5">{ev.environment || "—"}</td>
-                    <td className="px-3 py-2.5 font-mono text-sm">{ev.release || "—"}</td>
-                    <td className="max-w-44 truncate px-3 py-2.5 text-muted-foreground">
+                    <td className="max-w-44 truncate px-3.5 py-2">{ev.user || "—"}</td>
+                    <td className="px-3.5 py-2">{ev.environment || "—"}</td>
+                    <td className="px-3.5 py-2 font-mono text-sm">{ev.release || "—"}</td>
+                    <td className="max-w-44 truncate px-3.5 py-2 text-muted-foreground">
                       {[ev.browser, ev.os].filter(Boolean).join(", ") || "—"}
                     </td>
-                    <td className="max-w-36 truncate px-3 py-2.5 font-mono text-sm text-muted-foreground">
+                    <td className="max-w-36 truncate px-3.5 py-2 font-mono text-sm text-muted-foreground">
                       {ev.serverName || "—"}
                     </td>
                   </tr>

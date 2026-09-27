@@ -157,7 +157,7 @@ export function TriageBar({ issue, writable }: { issue: Issue; writable: boolean
                 className="size-5"
               />
               <span className="min-w-0 flex-1 truncate">{m.user?.name || m.user?.email}</span>
-              {s.assignee?.id === m.user?.id ? <CheckIcon className="size-4 text-primary" /> : null}
+              {s.assignee?.id === m.user?.id ? <CheckIcon className="size-4 text-brand-ink" /> : null}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>

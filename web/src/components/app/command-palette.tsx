@@ -9,6 +9,7 @@ import {
   LogOutIcon,
   MonitorIcon,
   MoonIcon,
+  PaletteIcon,
   SearchIcon,
   SettingsIcon,
   SunIcon,
@@ -30,6 +31,7 @@ import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 import { baseTransport } from "@/lib/api";
 import { useOrg } from "@/lib/org";
 import { canAdmin } from "@/lib/session";
+import { appearanceFlag } from "@/lib/shortcuts";
 import { setTheme } from "@/lib/theme";
 import { primaryNav } from "./nav";
 
@@ -177,6 +179,13 @@ export function CommandPalette({
               <CommandItem value="Sistem teması" onSelect={() => run(() => setTheme("system"))}>
                 <MonitorIcon className="size-4 text-muted-foreground" />
                 Sistem teması
+              </CommandItem>
+              <CommandItem
+                value="Görünümü özelleştir yazı tipi renk yoğunluk"
+                onSelect={() => run(() => appearanceFlag.set(true))}
+              >
+                <PaletteIcon className="size-4 text-muted-foreground" />
+                Görünümü özelleştir
               </CommandItem>
             </CommandGroup>
             <CommandGroup heading="Oturum">

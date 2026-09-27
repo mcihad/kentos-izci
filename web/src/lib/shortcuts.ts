@@ -62,6 +62,8 @@ function createFlag() {
 }
 
 export const paletteFlag = createFlag();
+/** Open state of the appearance (theme) editor. */
+export const appearanceFlag = createFlag();
 export const shortcutHelpFlag = createFlag();
 
 export function useFlag(flag: ReturnType<typeof createFlag>) {

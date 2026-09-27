@@ -12,10 +12,13 @@ export function TabStrip({
   label,
   active,
   children,
+  className,
 }: {
   label: string;
   active: string;
   children: ReactNode;
+  /** Replaces the page gutter, e.g. inside a card. */
+  className?: string;
 }) {
   const ref = useRef<HTMLElement>(null);
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when the current tab changes
@@ -34,8 +37,8 @@ export function TabStrip({
       ref={ref}
       aria-label={label}
       className={cn(
-        "scrollbar-none -mb-px flex gap-6 overflow-x-auto text-md max-sm:fade-end max-sm:pr-8",
-        gutter,
+        "scrollbar-none flex gap-1 overflow-x-auto border-b max-sm:fade-end max-sm:pr-8",
+        className ?? gutter,
       )}
     >
       {children}
@@ -49,13 +52,13 @@ export function TabStrip({
  */
 export const tabActiveOptions = { exact: true, includeSearch: true } as const;
 
-/** Classes of one tab; tall enough to tap on phones. */
+/** Classes of one tab: the design system's underline tab, tall enough to tap. */
 export function tabClass(active: boolean) {
   return cn(
-    "inline-flex min-h-11 items-center whitespace-nowrap border-b-2 transition-colors sm:min-h-10",
+    "relative inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-t-md px-3.5 text-sm transition-colors duration-(--duration-fast) after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-t-[1px]",
     active
-      ? "border-primary font-semibold text-foreground"
-      : "border-transparent text-muted-foreground hover:text-foreground",
+      ? "font-semibold text-(--tabs-fg-active) after:bg-(--tabs-indicator)"
+      : "font-medium text-muted-foreground hover:bg-(--surface-hover) hover:text-foreground",
   );
 }
 
@@ -65,14 +68,16 @@ export function TabNav<T extends string>({
   active,
   from,
   label,
+  className,
 }: {
   tabs: readonly { id: T; label: ReactNode }[];
   active: T;
   from: string;
   label: string;
+  className?: string;
 }) {
   return (
-    <TabStrip label={label} active={active}>
+    <TabStrip label={label} active={active} className={className}>
       {tabs.map((t, i) => (
         <Link
           key={t.id}
@@ -86,5 +91,18 @@ export function TabNav<T extends string>({
         </Link>
       ))}
     </TabStrip>
+  );
+}
+
+/**
+ * The card a tabbed settings page lives in: section tabs on top, the chosen
+ * section below. Runs edge to edge on phones.
+ */
+export function TabbedCard({ tabs, children }: { tabs: ReactNode; children: ReactNode }) {
+  return (
+    <div className="card max-w-5xl max-sm:-mx-4 max-sm:rounded-none max-sm:border-x-0">
+      {tabs}
+      <div className="px-4 sm:px-(--card-p)">{children}</div>
+    </div>
   );
 }

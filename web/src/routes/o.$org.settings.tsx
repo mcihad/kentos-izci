@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { gutter, PageHeader } from "@/components/app/page";
-import { TabNav } from "@/components/common/tab-nav";
+import { TabbedCard, TabNav } from "@/components/common/tab-nav";
 import { Integrations } from "@/components/settings/integrations";
 import { Members } from "@/components/settings/members";
 import { AuditLog, OrganizationGeneral, Usage } from "@/components/settings/organization";
@@ -29,15 +29,25 @@ function SettingsPage() {
   const tab = search.tab ?? "general";
   return (
     <div className="pb-12">
-      <PageHeader title="Organizasyon ayarları" description={org.name}>
-        <TabNav tabs={tabs} active={tab} from={Route.fullPath} label="Ayar bölümleri" />
-      </PageHeader>
+      <PageHeader title="Organizasyon ayarları" description={org.name} />
       <div className={gutter}>
-        {tab === "general" ? <OrganizationGeneral /> : null}
-        {tab === "members" ? <Members /> : null}
-        {tab === "integrations" ? <Integrations result={search.github} /> : null}
-        {tab === "usage" ? <Usage /> : null}
-        {tab === "audit" ? <AuditLog /> : null}
+        <TabbedCard
+          tabs={
+            <TabNav
+              tabs={tabs}
+              active={tab}
+              from={Route.fullPath}
+              label="Ayar bölümleri"
+              className="px-2 sm:px-3"
+            />
+          }
+        >
+          {tab === "general" ? <OrganizationGeneral /> : null}
+          {tab === "members" ? <Members /> : null}
+          {tab === "integrations" ? <Integrations result={search.github} /> : null}
+          {tab === "usage" ? <Usage /> : null}
+          {tab === "audit" ? <AuditLog /> : null}
+        </TabbedCard>
       </div>
     </div>
   );

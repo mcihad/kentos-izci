@@ -6,7 +6,6 @@ import { gutter, PageHeader } from "@/components/app/page";
 import { FeedbackList } from "@/components/feedback/feedback-list";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
-import { cn } from "@/lib/utils";
 
 type Search = { project?: string; q?: string };
 
@@ -49,24 +48,28 @@ function FeedbackPage() {
           </Select>
         }
       />
-      <div className={cn("max-w-4xl pt-4", gutter)}>
-        <form
-          className="relative"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void navigate({ search: (p) => ({ ...p, q: draft.trim() || undefined }) });
-          }}
-        >
-          <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            placeholder="Mesajda, adda ya da e-postada ara"
-            aria-label="Geri bildirimlerde ara"
-            className="h-10 w-full rounded-md border bg-card pr-3 pl-8 text-base outline-none md:h-9 md:text-sm placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30"
-          />
-        </form>
-        <FeedbackList project={search.project} query={search.q} />
+      <div className={gutter}>
+        <div className="card max-w-4xl overflow-hidden max-sm:-mx-4 max-sm:rounded-none max-sm:border-x-0">
+          <form
+            className="relative border-b px-4 py-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void navigate({ search: (p) => ({ ...p, q: draft.trim() || undefined }) });
+            }}
+          >
+            <SearchIcon className="pointer-events-none absolute top-1/2 left-6.5 size-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              placeholder="Mesajda, adda ya da e-postada ara"
+              aria-label="Geri bildirimlerde ara"
+              className="h-[max(var(--control-h-md),2.5rem)] w-full rounded-md border border-(--input-border) bg-(--input-bg) text-base outline-none transition-[color,box-shadow,border-color] duration-(--duration-fast) placeholder:text-subtle hover:border-(--input-border-hover) focus-visible:border-(--input-border-focus) focus-visible:shadow-(--focus-shadow) focus-visible:outline-none md:h-(--control-h-md) md:text-sm pr-3 pl-8"
+            />
+          </form>
+          <div className="px-4 sm:px-(--card-p)">
+            <FeedbackList project={search.project} query={search.q} />
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -172,20 +172,33 @@ A change is done when:
 - **Copy:** Turkish, sentence case, active verbs ("Çöz", "Anahtar oluştur").
   Errors say what happened and what to do, without apologizing; API errors
   are mapped by `ErrorReason` in `lib/errors.ts`.
-- **Design language:** graphite neutrals, one teal accent (`primary`) for
-  interaction and selection, level colors only for severity. Stack traces and
-  breadcrumbs share the "trail" (`components/event/stack-trail.tsx`): in-app
-  frames get teal blazes, library frames hollow dots, the crash site a mark in
-  the level color. Monospace is reserved for code and identifiers.
-- **Readability:** Atkinson Hyperlegible Next and Mono. Font sizes come only
-  from the scale in `index.css` (`text-2xs` 12px … `text-3xl`); no
-  `text-[Npx]`, nothing under 12px. Text in a level or health color uses the
-  `*-ink` token (`text-level-error-ink`, `levels[x].ink`), which keeps 4.5:1
-  on light surfaces; the base tokens are for fills and marks. Syntax colors
-  are the `--syn-*` variables (one Shiki css-variables theme for both modes).
-- **Phones:** every table has a `md:hidden` list beside it; tab strips use
-  `TabStrip`/`TabNav` (scrolls, keeps the current tab in view); controls are
-  taller below `md` (buttons `h-10`, inputs 16px text so iOS does not zoom).
+- **Design language:** the KentOS design system (made in Claude Design, the
+  "KentOS Yönetim" kit): navy brand, cool greys, a dark navy rail, a grey
+  page with white cards (`card` utility), 6px controls and 10px cards,
+  navy-tinted shadows. Tokens live in `web/src/index.css` in three layers:
+  palette ramps (never used directly), semantic aliases (`--surface-*`,
+  `--text-*`, `--brand-*`, `--status-*`) and the shadcn bridge. Level colors
+  stay for severity only. Stack traces and breadcrumbs share the "trail"
+  (`components/event/stack-trail.tsx`). Monospace is reserved for code and
+  identifiers.
+- **Appearance:** users customize the theme per browser from the palette
+  button (`components/app/appearance-sheet.tsx`): light/dark/system, font
+  (Plus Jakarta Sans, Inter, IBM Plex Sans), density, radius, accent and card
+  elevation. Each choice is one scope class on `<html>` (`.font-*`,
+  `.density-*`, `.radius-*`, `.accent-*`, `.elevation-*`); `lib/theme.ts` and
+  `public/theme-init.js` apply them and must stay in step. Components read
+  control heights, gutters and radii from those tokens, never fixed values.
+- **Readability:** fonts are Plus Jakarta Sans / Inter / IBM Plex Sans and
+  JetBrains Mono for code. Font sizes come only from the scale in
+  `index.css` (`text-2xs` 12px … `text-3xl`); no `text-[Npx]`, nothing under
+  12px. Text in a level or health color uses the `*-ink` token; text in the
+  brand color uses `text-brand-ink` or `text-link`, never `text-primary`
+  (a fill colour, too dark on dark surfaces). Syntax colors are the `--syn-*`
+  variables (one Shiki css-variables theme for both modes).
+- **Phones:** every table has a `md:hidden` list beside it; list and main
+  cards run edge to edge below `sm`; tab strips use `TabStrip`/`TabNav`
+  (scrolls, keeps the current tab in view); controls never drop under 36–40px
+  below `md`, and inputs use 16px text so iOS does not zoom.
 - **Budget:** `pnpm build` fails when first-load JavaScript exceeds 200 KB
   gzip (`web/scripts/check-bundle.mjs`). Route definitions (`validateSearch`,
   `beforeLoad`) stay in the entry chunk, so they must not reference generated

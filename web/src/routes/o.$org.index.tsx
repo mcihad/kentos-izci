@@ -9,6 +9,7 @@ import { Sparkline } from "@/components/charts/sparkline";
 import { StackedBars } from "@/components/charts/stacked-bars";
 import { StatStrip } from "@/components/common/stat-strip";
 import { EmptyState, ErrorState } from "@/components/common/states";
+import { tdClass, thClass, theadClass, trClass } from "@/components/common/table";
 import { healthLabels } from "@/components/customer/health";
 import { IssueRow } from "@/components/issue/issue-row";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -90,7 +91,7 @@ function OverviewPage() {
           </>
         }
       />
-      <div className={cn("space-y-10 pt-6", gutter)}>
+      <div className={cn("space-y-4 pb-2", gutter)}>
         {overview.error ? (
           <ErrorState error={overview.error} onRetry={() => void overview.refetch()} />
         ) : !d || !t ? (
@@ -130,7 +131,7 @@ function OverviewPage() {
               }
             >
               {d.eventsByLevel.length === 0 ? (
-                <EmptyState title="Bu dönemde olay yok" className="rounded-lg border py-10" />
+                <EmptyState title="Bu dönemde olay yok" className="py-10" />
               ) : (
                 <StackedBars
                   height={200}
@@ -145,35 +146,36 @@ function OverviewPage() {
               )}
             </Section>
 
-            <div className="grid grid-cols-1 gap-9 xl:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
               <Section
                 title="Hızla artanlar"
                 description="Önceki döneme göre en çok artan çözülmemiş hatalar"
+                bleed
               >
                 <IssueList issues={d.trendingIssues} empty="Artış gösteren hata yok." />
               </Section>
-              <Section title="Yeni hatalar" description="Bu dönemde ilk kez görülenler">
+              <Section title="Yeni hatalar" description="Bu dönemde ilk kez görülenler" bleed>
                 <IssueList issues={d.newIssues} empty="Bu dönemde yeni hata çıkmadı." />
               </Section>
             </div>
 
-            <div className="grid grid-cols-1 gap-9 xl:grid-cols-2">
-              <Section title="Projeler">
-                <div className="overflow-hidden rounded-lg border">
-                  <table className="w-full text-md">
-                    <thead className="bg-muted/40 text-left text-sm text-muted-foreground">
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+              <Section title="Projeler" bleed>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className={theadClass}>
                       <tr>
-                        <th className="px-3 py-2.5 font-medium">Proje</th>
-                        <th className="hidden px-3 py-2.5 font-medium sm:table-cell">Eğilim</th>
-                        <th className="px-3 py-2.5 text-right font-medium">Olay</th>
-                        <th className="px-3 py-2.5 text-right font-medium">Açık</th>
-                        <th className="px-3 py-2.5 text-right font-medium">Yeni</th>
+                        <th className={thClass}>Proje</th>
+                        <th className={`hidden sm:table-cell ${thClass}`}>Eğilim</th>
+                        <th className={`text-right ${thClass}`}>Olay</th>
+                        <th className={`text-right ${thClass}`}>Açık</th>
+                        <th className={`text-right ${thClass}`}>Yeni</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
                       {d.projects.map((p) => (
-                        <tr key={p.project?.id} className="hover:bg-accent/40">
-                          <td className="max-w-0 px-3 py-2.5">
+                        <tr key={p.project?.id} className={trClass}>
+                          <td className={`max-w-0 ${tdClass}`}>
                             <Link
                               to="/o/$org/issues"
                               params={{ org: org.slug }}
@@ -183,14 +185,14 @@ function OverviewPage() {
                               {p.project?.name}
                             </Link>
                           </td>
-                          <td className="hidden px-3 py-1.5 sm:table-cell">
+                          <td className={`hidden sm:table-cell ${tdClass}`}>
                             <Sparkline series={p.series} className="h-5 w-24" />
                           </td>
-                          <td className="px-3 py-2.5 text-right tabular">{formatCompact(p.events)}</td>
-                          <td className="px-3 py-2.5 text-right tabular">
+                          <td className={`text-right tabular ${tdClass}`}>{formatCompact(p.events)}</td>
+                          <td className={`text-right tabular ${tdClass}`}>
                             {formatNumber(p.unresolvedIssues)}
                           </td>
-                          <td className="px-3 py-2.5 text-right tabular">{formatNumber(p.newIssues)}</td>
+                          <td className={`text-right tabular ${tdClass}`}>{formatNumber(p.newIssues)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -199,35 +201,36 @@ function OverviewPage() {
               </Section>
               <Section
                 title="En çok etkilenen müşteriler"
+                bleed
                 actions={
                   <Link
                     to="/o/$org/customers"
                     params={{ org: org.slug }}
-                    className="text-sm text-muted-foreground hover:text-foreground"
+                    className="font-semibold text-link text-sm hover:text-link-hover hover:underline"
                   >
                     Tüm müşteriler
                   </Link>
                 }
               >
                 {d.customers.length === 0 ? (
-                  <EmptyState title="Müşteri bilgisi gelmedi" className="rounded-lg border py-10">
+                  <EmptyState title="Müşteri bilgisi gelmedi" className="py-10">
                     Uygulamalarınız olaylarla birlikte müşteri bilgisini gönderdiğinde burada görünür.
                   </EmptyState>
                 ) : (
-                  <div className="overflow-hidden rounded-lg border">
-                    <table className="w-full text-md">
-                      <thead className="bg-muted/40 text-left text-sm text-muted-foreground">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className={theadClass}>
                         <tr>
-                          <th className="px-3 py-2.5 font-medium">Müşteri</th>
-                          <th className="hidden px-3 py-2.5 font-medium sm:table-cell">Eğilim</th>
-                          <th className="px-3 py-2.5 text-right font-medium">Olay</th>
-                          <th className="px-3 py-2.5 text-right font-medium">Açık</th>
+                          <th className={thClass}>Müşteri</th>
+                          <th className={`hidden sm:table-cell ${thClass}`}>Eğilim</th>
+                          <th className={`text-right ${thClass}`}>Olay</th>
+                          <th className={`text-right ${thClass}`}>Açık</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y">
                         {d.customers.map((c) => (
-                          <tr key={c.customer?.id} className="hover:bg-accent/40">
-                            <td className="max-w-0 px-3 py-2.5">
+                          <tr key={c.customer?.id} className={trClass}>
+                            <td className={`max-w-0 ${tdClass}`}>
                               <Link
                                 to="/o/$org/customers/$key"
                                 params={{ org: org.slug, key: c.customer?.key ?? "" }}
@@ -243,13 +246,13 @@ function OverviewPage() {
                                 </span>
                               </Link>
                             </td>
-                            <td className="hidden px-3 py-1.5 sm:table-cell">
+                            <td className={`hidden sm:table-cell ${tdClass}`}>
                               <Sparkline series={c.series} className="h-5 w-24" />
                             </td>
-                            <td className="px-3 py-2.5 text-right tabular">
+                            <td className={`text-right tabular ${tdClass}`}>
                               {formatCompact(c.periodEvents)}
                             </td>
-                            <td className="px-3 py-2.5 text-right tabular">
+                            <td className={`text-right tabular ${tdClass}`}>
                               {formatNumber(c.unresolvedIssues)}
                             </td>
                           </tr>
@@ -270,9 +273,9 @@ function OverviewPage() {
 function IssueList({ issues, empty }: { issues: IssueSummary[]; empty: string }) {
   const org = useOrg();
   if (issues.length === 0)
-    return <p className="rounded-lg border px-4 py-8 text-center text-md text-muted-foreground">{empty}</p>;
+    return <p className="px-4 py-8 text-center text-md text-muted-foreground">{empty}</p>;
   return (
-    <div className="overflow-hidden rounded-lg border [&>div:last-child]:border-b-0">
+    <div className="[&>div:last-child]:border-b-0">
       {issues.map((i) => (
         <IssueRow key={i.id} issue={i} org={org.slug} compact showUsers={false} />
       ))}

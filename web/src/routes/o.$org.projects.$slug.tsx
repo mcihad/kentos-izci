@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRightIcon } from "lucide-react";
 import { gutter, useDocumentTitle } from "@/components/app/page";
 import { EmptyState, ErrorState } from "@/components/common/states";
-import { TabStrip, tabActiveOptions, tabClass } from "@/components/common/tab-nav";
+import { TabbedCard, TabStrip, tabActiveOptions, tabClass } from "@/components/common/tab-nav";
 import { ProjectAi } from "@/components/project/ai";
 import { ProjectGeneral } from "@/components/project/general";
 import { ProjectKeys } from "@/components/project/keys";
@@ -65,8 +65,8 @@ function ProjectPage() {
 
   return (
     <div className="pb-12">
-      <header className="border-b">
-        <div className={cn("pt-4 pb-4", gutter)}>
+      <header>
+        <div className={cn("pt-4 pb-4 sm:pt-5 sm:pb-5", gutter)}>
           <nav className="flex items-center gap-1.5 text-sm text-muted-foreground" aria-label="Konum">
             <Link
               to="/o/$org/projects"
@@ -78,35 +78,40 @@ function ProjectPage() {
             <ChevronRightIcon className="size-3.5" />
             <span className="font-mono text-foreground">{project.slug}</span>
           </nav>
-          <h1 className="mt-2 font-semibold text-xl leading-tight tracking-[-0.015em]">{project.name}</h1>
+          <h1 className="mt-2 font-semibold text-xl leading-tight sm:text-2xl">{project.name}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {platformLabel(project.platform)} projesi, Sentry numarası{" "}
             <span className="font-mono">{String(project.publicId)}</span>
           </p>
         </div>
-        <TabStrip label="Ayar bölümleri" active={tab}>
-          {tabs.map((t) => (
-            <Link
-              key={t.id}
-              from={Route.fullPath}
-              search={{ tab: t.id }}
-              activeOptions={tabActiveOptions}
-              className={tabClass(tab === t.id)}
-              aria-current={tab === t.id ? "page" : undefined}
-            >
-              {t.label}
-            </Link>
-          ))}
-        </TabStrip>
       </header>
       <div className={gutter} key={project.id}>
-        {tab === "general" ? <ProjectGeneral project={project} /> : null}
-        {tab === "setup" ? <ProjectSetup project={project} /> : null}
-        {tab === "keys" ? <ProjectKeys project={project} /> : null}
-        {tab === "releases" ? <ProjectReleases project={project} /> : null}
-        {tab === "repository" ? <ProjectRepository project={project} /> : null}
-        {tab === "privacy" ? <ProjectPrivacy project={project} /> : null}
-        {tab === "ai" ? <ProjectAi project={project} /> : null}
+        <TabbedCard
+          tabs={
+            <TabStrip label="Ayar bölümleri" active={tab} className="px-2 sm:px-3">
+              {tabs.map((t) => (
+                <Link
+                  key={t.id}
+                  from={Route.fullPath}
+                  search={{ tab: t.id }}
+                  activeOptions={tabActiveOptions}
+                  className={tabClass(tab === t.id)}
+                  aria-current={tab === t.id ? "page" : undefined}
+                >
+                  {t.label}
+                </Link>
+              ))}
+            </TabStrip>
+          }
+        >
+          {tab === "general" ? <ProjectGeneral project={project} /> : null}
+          {tab === "setup" ? <ProjectSetup project={project} /> : null}
+          {tab === "keys" ? <ProjectKeys project={project} /> : null}
+          {tab === "releases" ? <ProjectReleases project={project} /> : null}
+          {tab === "repository" ? <ProjectRepository project={project} /> : null}
+          {tab === "privacy" ? <ProjectPrivacy project={project} /> : null}
+          {tab === "ai" ? <ProjectAi project={project} /> : null}
+        </TabbedCard>
       </div>
     </div>
   );

@@ -104,7 +104,7 @@ function AiPage() {
           </>
         }
       />
-      <div className={cn("grid grid-cols-1 gap-6 pt-6", gutter)}>
+      <div className={cn("grid grid-cols-1 gap-4", gutter)}>
         {st ? (
           <StatStrip
             stats={[
@@ -143,12 +143,12 @@ function AiPage() {
         ) : runs.error ? (
           <ErrorState error={runs.error} onRetry={() => void runs.refetch()} />
         ) : list.length === 0 ? (
-          <EmptyState icon={SparklesIcon} title="Henüz analiz yok">
+          <EmptyState icon={SparklesIcon} title="Henüz analiz yok" className="card">
             Bir hatanın sayfasında <b className="font-medium text-foreground">Yapay zekâ</b> sekmesinden
             analiz başlatabilir ya da proje ayarlarından yeni hatalar için otomatik analizi açabilirsiniz.
           </EmptyState>
         ) : (
-          <div className="overflow-hidden rounded-lg border">
+          <div className="overflow-hidden card">
             <ul className="divide-y">
               {list.map((r) => (
                 <RunRow key={r.id} run={r} />

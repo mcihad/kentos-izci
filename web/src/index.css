@@ -4,126 +4,684 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design tokens: the single source of truth for color, radius and type.
- * Components never hardcode values a token can express.
- * Palette: graphite neutrals + one signature teal ("izci" trail color) that
- * never collides with the severity scale (fatal/error/warning/info/debug).
+ * KentOS design system (the "KentOS Yönetim" kit), adapted for izci.
+ * Layers, top to bottom:
+ *   1. palette ramps: raw material, never used by components directly;
+ *   2. semantic aliases and component tokens: what components read;
+ *   3. theme scopes on <html>: .dark, .font-*, .density-*, .radius-*,
+ *      .elevation-*, .accent-* (set by lib/theme.ts and public/theme-init.js);
+ *   4. izci's own tokens (severity levels, trail, code) and the bridge to the
+ *      shadcn names that Tailwind utilities use (background, primary, …).
  */
+
+/* 1. Palette ramps. Generated in OKLCH for even steps, emitted as sRGB hex. */
 :root {
-  --radius: 0.625rem;
+  /* Lacivert: the KentOS brand family. */
+  --navy-50: #f0f6ff;
+  --navy-100: #e0ecfe;
+  --navy-200: #c5daf9;
+  --navy-300: #a0c0ef;
+  --navy-400: #76a0de;
+  --navy-500: #4f80c9;
+  --navy-600: #2e63b0;
+  --navy-700: #1a4c93;
+  --navy-800: #0d3975;
+  --navy-900: #072856;
+  --navy-950: #041838;
 
-  --background: oklch(0.992 0.002 250);
-  --foreground: oklch(0.21 0.012 255);
-  --card: oklch(1 0 0);
-  --card-foreground: var(--foreground);
-  --popover: oklch(1 0 0);
-  --popover-foreground: var(--foreground);
-  --primary: oklch(0.515 0.1 184);
-  --primary-foreground: oklch(0.985 0.01 184);
-  --secondary: oklch(0.965 0.004 250);
-  --secondary-foreground: oklch(0.27 0.012 255);
-  --muted: oklch(0.965 0.004 250);
-  --muted-foreground: oklch(0.455 0.014 255);
-  --accent: oklch(0.958 0.004 250);
-  --accent-foreground: oklch(0.21 0.012 255);
-  --destructive: oklch(0.555 0.2 27);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.905 0.006 250);
-  --input: oklch(0.905 0.006 250);
-  --ring: oklch(0.515 0.1 184 / 0.6);
+  /* Teal: the secondary accent. */
+  --teal-50: #eef8f9;
+  --teal-100: #dbf0f1;
+  --teal-200: #bbe1e4;
+  --teal-300: #8ecacf;
+  --teal-400: #58aeb5;
+  --teal-500: #06929a;
+  --teal-600: #00767f;
+  --teal-700: #005e67;
+  --teal-800: #00484f;
+  --teal-900: #003339;
+  --teal-950: #002024;
 
-  --level-fatal: oklch(0.55 0.22 350);
-  --level-error: oklch(0.6 0.2 27);
-  --level-warning: oklch(0.74 0.15 70);
-  --level-info: oklch(0.6 0.14 250);
-  --level-debug: oklch(0.6 0.015 255);
-  /* Text on light surfaces needs deeper tones than fills to reach 4.5:1. */
-  --level-fatal-ink: oklch(0.5 0.2 350);
-  --level-error-ink: oklch(0.525 0.19 27);
-  --level-warning-ink: oklch(0.53 0.115 62);
-  --level-info-ink: oklch(0.51 0.14 252);
-  --level-debug-ink: oklch(0.49 0.015 255);
+  /* Neutral: cool grey, hue-matched to the navy. */
+  --neutral-0: #ffffff;
+  --neutral-50: #fafbfc;
+  --neutral-100: #f4f6f8;
+  --neutral-200: #e7eaee;
+  --neutral-300: #d3d7dd;
+  --neutral-400: #b7bcc4;
+  --neutral-500: #999fa7;
+  --neutral-600: #7a818a;
+  --neutral-700: #5e646d;
+  --neutral-800: #444951;
+  --neutral-900: #2f333a;
+  --neutral-950: #191c20;
 
-  --health-good: oklch(0.6 0.13 155);
-  --health-good-ink: oklch(0.505 0.115 155);
-  --trail: oklch(0.86 0.01 250);
-  --code: oklch(0.975 0.003 250);
-  --highlight: oklch(0.515 0.1 184 / 0.1);
+  --green-50: #f1f9f3;
+  --green-100: #e2f4e6;
+  --green-200: #c8e8cf;
+  --green-300: #a6d7b2;
+  --green-400: #80c392;
+  --green-500: #59ad73;
+  --green-600: #359658;
+  --green-700: #1e7c43;
+  --green-800: #0e6332;
+  --green-900: #0c4b26;
+  --green-950: #083218;
 
-  --chart-1: oklch(0.515 0.1 184);
-  --chart-2: oklch(0.6 0.2 27);
-  --chart-3: oklch(0.74 0.15 70);
-  --chart-4: oklch(0.6 0.14 250);
-  --chart-5: oklch(0.55 0.22 350);
+  --amber-50: #fcf6ec;
+  --amber-100: #faedd9;
+  --amber-200: #f2dab8;
+  --amber-300: #e6c38d;
+  --amber-400: #d8a85b;
+  --amber-500: #c58c1e;
+  --amber-600: #af7200;
+  --amber-700: #935b00;
+  --amber-800: #764700;
+  --amber-900: #5a3500;
+  --amber-950: #3c2300;
 
-  --sidebar: oklch(0.978 0.003 250);
-  --sidebar-foreground: var(--foreground);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: oklch(0.945 0.006 250);
-  --sidebar-accent-foreground: var(--foreground);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--ring);
+  --red-50: #fff3f1;
+  --red-100: #ffe6e3;
+  --red-200: #ffcfca;
+  --red-300: #ffb1aa;
+  --red-400: #f88f87;
+  --red-500: #e96c66;
+  --red-600: #d24c49;
+  --red-700: #b33636;
+  --red-800: #912627;
+  --red-900: #6f1d1d;
+  --red-950: #4a1212;
+
+  /* Dark chrome: navy-tinted surfaces, 900 furthest back, 400 highest. */
+  --chrome-900: #030c1b;
+  --chrome-800: #061428;
+  --chrome-700: #0a1d35;
+  --chrome-600: #102843;
+  --chrome-500: #193352;
+  --chrome-400: #234062;
+
+  --violet-50: #f6f4ff;
+  --violet-100: #ece8fd;
+  --violet-200: #dbd3f7;
+  --violet-300: #c1b4ec;
+  --violet-400: #a391da;
+  --violet-500: #866fc4;
+  --violet-600: #6c50ab;
+  --violet-700: #553a8e;
+  --violet-800: #412971;
+  --violet-900: #2e1c53;
+  --violet-950: #1d1036;
+
+  /* Categorical chart hues, equal lightness so no series dominates. */
+  --cat-1: #4378c7;
+  --cat-2: #008f9b;
+  --cat-3: #268f4f;
+  --cat-4: #a46c00;
+  --cat-5: #bb544f;
+  --cat-6: #9b5baa;
+  --cat-7: #8066bf;
+  --cat-8: #009176;
+}
+
+/* Foundations: type, controls, layout frame, borders, elevation, motion. */
+:root {
+  --font-family-sans: "Plus Jakarta Sans";
+  --font-family-mono: "JetBrains Mono";
+
+  --tracking-tight: -0.015em;
+  --tracking-caps: 0.08em;
+
+  /* Controls: 36px baseline (standard density). */
+  --control-h-sm: 30px;
+  --control-h-md: 36px;
+  --control-h-lg: 42px;
+  --control-px-sm: 10px;
+  --control-px-md: 14px;
+  --control-px-lg: 18px;
+
+  /* Layout frame. */
+  --topbar-h: 56px;
+  --sidebar-w: 264px;
+  --sidebar-w-collapsed: 56px;
+  --content-max-wide: 1680px;
+  --gutter: 24px;
+  --card-p: 20px;
+  --row-h: 44px;
+
+  --border-w: 1px;
+  --border-w-focus: 2px;
+  --ring-w: 3px;
+  --ring-offset: 1px;
+
+  /* Shadows are navy-tinted: grey shadows over the cool greys read dirty.
+     Flat, bordered cards are the default; shadow is for what floats. */
+  --shadow-xs: 0 1px 2px rgb(7 40 86 / 0.06);
+  --shadow-sm: 0 1px 2px rgb(7 40 86 / 0.06), 0 1px 3px rgb(7 40 86 / 0.07);
+  --shadow-md: 0 2px 4px rgb(7 40 86 / 0.05), 0 6px 14px rgb(7 40 86 / 0.08);
+  --shadow-lg: 0 2px 6px rgb(7 40 86 / 0.05), 0 10px 28px rgb(7 40 86 / 0.12);
+  --shadow-xl: 0 4px 10px rgb(7 40 86 / 0.06), 0 20px 52px rgb(7 40 86 / 0.16);
+  --shadow-focus: 0 0 0 var(--ring-w) rgb(46 99 176 / 0.32);
+  --shadow-focus-danger: 0 0 0 var(--ring-w) rgb(179 54 54 / 0.28);
+
+  /* Motion: short and flat; it explains where things came from. */
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-panel: 320ms;
+  --ease-out: cubic-bezier(0.16, 0.84, 0.44, 1);
+  --ease-entrance: cubic-bezier(0.05, 0.7, 0.1, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-panel: 0ms;
+  }
+}
+
+/* 2. Semantic aliases and component tokens. */
+:root {
+  --surface-page: var(--neutral-100);
+  --surface-card: var(--neutral-0);
+  --surface-sunken: var(--neutral-50);
+  --surface-muted: var(--neutral-100);
+  --surface-hover: var(--neutral-100);
+  --surface-active: var(--neutral-200);
+  --surface-selected: var(--navy-50);
+  --surface-brand-subtle: var(--navy-50);
+  --surface-overlay: rgb(4 24 56 / 0.55);
+
+  --text-strong: var(--navy-900);
+  --text-body: var(--neutral-900);
+  --text-muted: var(--neutral-700);
+  --text-subtle: var(--neutral-600); /* placeholders only, never essential copy */
+  --text-link: var(--navy-700);
+  --text-link-hover: var(--navy-600);
+  --text-brand: var(--navy-800);
+
+  --border-subtle: var(--neutral-200);
+  --border-default: var(--neutral-300);
+  --border-strong: var(--neutral-400);
+  --border-brand: var(--navy-800);
+  --focus-ring: var(--navy-600);
+  --focus-shadow: var(--shadow-focus);
+  --scrollbar-thumb: rgb(7 40 86 / 0.18);
+  --scrollbar-thumb-hover: rgb(7 40 86 / 0.32);
+  --scrollbar-thumb-inverse: rgb(255 255 255 / 0.22);
+
+  /* Primary actions. */
+  --brand-bg: var(--navy-800);
+  --brand-bg-hover: var(--navy-700);
+  --brand-bg-active: var(--navy-900);
+  --brand-fg: #ffffff;
+  /* Secondary emphasis. */
+  --accent-base: var(--teal-600);
+  --accent-subtle: var(--teal-50);
+  /* Outline and secondary buttons. */
+  --neutral-bg: var(--neutral-0);
+  /* Destructive: fills and the text colour for errors. */
+  --danger-bg: var(--red-700);
+  --danger-bg-hover: var(--red-600);
+  --danger-fg: #ffffff;
+  --danger-ink: var(--red-700);
+
+  /* Status: fg / bg / border / solid for badges, alerts and cells. */
+  --status-success-fg: var(--green-800);
+  --status-success-bg: var(--green-50);
+  --status-success-border: var(--green-200);
+  --status-success-solid: var(--green-700);
+  --status-warning-fg: var(--amber-900);
+  --status-warning-bg: var(--amber-50);
+  --status-warning-border: var(--amber-200);
+  --status-warning-solid: var(--amber-600);
+  --status-danger-fg: var(--red-800);
+  --status-danger-bg: var(--red-50);
+  --status-danger-border: var(--red-200);
+  --status-danger-solid: var(--red-700);
+  --status-info-fg: var(--navy-800);
+  --status-info-bg: var(--navy-50);
+  --status-info-border: var(--navy-200);
+  --status-info-solid: var(--navy-700);
+  --status-neutral-fg: var(--neutral-800);
+  --status-neutral-bg: var(--neutral-100);
+  --status-neutral-border: var(--neutral-300);
+  --status-neutral-solid: var(--neutral-700);
+
+  /* Components. */
+  --card-bg: var(--surface-card);
+  --card-radius: var(--radius-lg);
+  --card-border-color: var(--border-subtle);
+  --card-shadow: var(--shadow-xs);
+
+  --input-bg: var(--neutral-0);
+  --input-border: var(--border-default);
+  --input-border-hover: var(--border-strong);
+  --input-border-focus: var(--focus-ring);
+  --input-placeholder: var(--text-subtle);
+
+  --table-header-bg: var(--neutral-50);
+  --table-row-hover: var(--neutral-50);
+
+  --sidebar-bg: var(--navy-900);
+  --sidebar-fg: var(--navy-100);
+  --sidebar-fg-muted: rgb(224 236 254 / 0.62);
+  --sidebar-item-hover: rgb(255 255 255 / 0.08);
+  --sidebar-item-active-bg: rgb(255 255 255 / 0.12);
+  --sidebar-item-active-fg: #ffffff;
+  --sidebar-border: rgb(255 255 255 / 0.08);
+  --sidebar-menu-bg: var(--navy-700);
+  --sidebar-accent-fg: var(--navy-300);
+
+  --topbar-bg: var(--neutral-0);
+  --topbar-border: var(--border-subtle);
+
+  --tooltip-bg: var(--navy-950);
+  --tooltip-fg: #ffffff;
+
+  --tabs-fg-active: var(--navy-800);
+  --tabs-indicator: var(--navy-800);
 }
 
 .dark {
-  --background: oklch(0.205 0.009 255);
-  --foreground: oklch(0.935 0.006 250);
-  --card: oklch(0.23 0.009 255);
-  --card-foreground: var(--foreground);
-  --popover: oklch(0.245 0.01 255);
-  --popover-foreground: var(--foreground);
-  --primary: oklch(0.79 0.105 180);
-  --primary-foreground: oklch(0.2 0.03 190);
-  --secondary: oklch(0.26 0.01 255);
-  --secondary-foreground: oklch(0.9 0.006 250);
-  --muted: oklch(0.255 0.01 255);
-  --muted-foreground: oklch(0.75 0.012 255);
-  --accent: oklch(0.275 0.011 255);
-  --accent-foreground: oklch(0.95 0.006 250);
-  --destructive: oklch(0.66 0.19 25);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.295 0.01 255);
-  --input: oklch(0.32 0.011 255);
-  --ring: oklch(0.79 0.105 180 / 0.5);
+  --surface-page: var(--chrome-900);
+  --surface-card: var(--chrome-800);
+  --surface-sunken: var(--chrome-900);
+  --surface-muted: var(--chrome-700);
+  --surface-hover: var(--chrome-700);
+  --surface-active: var(--chrome-600);
+  --surface-selected: var(--chrome-600);
+  --surface-brand-subtle: var(--chrome-600);
+  --surface-overlay: rgb(3 12 27 / 0.72);
 
-  --level-fatal: oklch(0.7 0.2 350);
-  --level-error: oklch(0.7 0.18 27);
-  --level-warning: oklch(0.82 0.14 75);
-  --level-info: oklch(0.72 0.12 250);
-  --level-debug: oklch(0.66 0.014 255);
-  --level-fatal-ink: var(--level-fatal);
-  --level-error-ink: var(--level-error);
-  --level-warning-ink: var(--level-warning);
-  --level-info-ink: var(--level-info);
-  --level-debug-ink: var(--level-debug);
+  --text-strong: #ffffff;
+  --text-body: #e5eaf2;
+  --text-muted: #a6b3c7;
+  --text-subtle: #7f8fa8;
+  --text-link: var(--navy-300);
+  --text-link-hover: var(--navy-200);
+  --text-brand: var(--navy-200);
 
-  --health-good: oklch(0.74 0.13 155);
-  --health-good-ink: var(--health-good);
-  --trail: oklch(0.37 0.012 255);
-  --code: oklch(0.185 0.009 255);
-  --highlight: oklch(0.79 0.105 180 / 0.1);
+  --border-subtle: rgb(255 255 255 / 0.09);
+  --border-default: rgb(255 255 255 / 0.16);
+  --border-strong: rgb(255 255 255 / 0.28);
+  --border-brand: var(--navy-500);
+  --focus-ring: var(--navy-400);
+  --focus-shadow: 0 0 0 var(--ring-w) rgb(118 160 222 / 0.34);
+  --scrollbar-thumb: rgb(255 255 255 / 0.16);
+  --scrollbar-thumb-hover: rgb(255 255 255 / 0.28);
 
-  --chart-1: oklch(0.79 0.105 180);
-  --chart-2: oklch(0.7 0.18 27);
-  --chart-3: oklch(0.82 0.14 75);
-  --chart-4: oklch(0.72 0.12 250);
-  --chart-5: oklch(0.7 0.2 350);
+  --brand-bg: var(--navy-600);
+  --brand-bg-hover: var(--navy-500);
+  --brand-bg-active: var(--navy-700);
+  --accent-base: var(--teal-500);
+  --accent-subtle: rgb(6 146 154 / 0.14);
+  --neutral-bg: var(--chrome-700);
+  --danger-ink: var(--red-300);
 
-  --sidebar: oklch(0.182 0.009 255);
-  --sidebar-foreground: var(--foreground);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: oklch(0.245 0.01 255);
-  --sidebar-accent-foreground: var(--foreground);
-  --sidebar-border: oklch(0.265 0.01 255);
-  --sidebar-ring: var(--ring);
+  --status-success-fg: var(--green-300);
+  --status-success-bg: rgb(53 150 88 / 0.16);
+  --status-success-border: rgb(53 150 88 / 0.38);
+  --status-warning-fg: var(--amber-300);
+  --status-warning-bg: rgb(197 140 30 / 0.16);
+  --status-warning-border: rgb(197 140 30 / 0.4);
+  --status-danger-fg: var(--red-300);
+  --status-danger-bg: rgb(210 76 73 / 0.16);
+  --status-danger-border: rgb(210 76 73 / 0.4);
+  --status-info-fg: var(--navy-200);
+  --status-info-bg: rgb(46 99 176 / 0.18);
+  --status-info-border: rgb(46 99 176 / 0.42);
+  --status-neutral-fg: var(--neutral-300);
+  --status-neutral-bg: rgb(255 255 255 / 0.07);
+  --status-neutral-border: rgb(255 255 255 / 0.16);
+
+  --card-shadow: none;
+  --input-bg: var(--chrome-700);
+  --table-header-bg: var(--chrome-700);
+  --table-row-hover: var(--chrome-700);
+  --sidebar-bg: var(--chrome-800);
+  --sidebar-fg: #e5eaf2;
+  --sidebar-border: rgb(255 255 255 / 0.07);
+  --sidebar-menu-bg: var(--chrome-600);
+  --topbar-bg: var(--chrome-800);
+  --topbar-border: rgb(255 255 255 / 0.07);
+  --tooltip-bg: var(--chrome-500);
+  --tabs-fg-active: var(--text-strong);
+  --tabs-indicator: var(--navy-400);
+}
+
+/* 3. Theme scopes. Each is one class on <html>; they compose.
+   FONT: the interface family; code always uses JetBrains Mono. */
+.font-jakarta {
+  --font-family-sans: "Plus Jakarta Sans";
+}
+.font-inter {
+  --font-family-sans: "Inter";
+}
+.font-plex {
+  --font-family-sans: "IBM Plex Sans";
+}
+
+/* DENSITY: control heights, row height, gutters. Standard needs no class. */
+.density-compact {
+  --control-h-sm: 26px;
+  --control-h-md: 32px;
+  --control-h-lg: 38px;
+  --control-px-sm: 8px;
+  --control-px-md: 10px;
+  --control-px-lg: 14px;
+  --topbar-h: 48px;
+  --sidebar-w: 240px;
+  --row-h: 38px;
+  --gutter: 16px;
+  --card-p: 16px;
+}
+.density-roomy {
+  --control-h-sm: 34px;
+  --control-h-md: 40px;
+  --control-h-lg: 48px;
+  --control-px-sm: 12px;
+  --control-px-md: 18px;
+  --control-px-lg: 24px;
+  --topbar-h: 64px;
+  --sidebar-w: 288px;
+  --row-h: 52px;
+  --gutter: 32px;
+  --card-p: 28px;
+}
+
+/* RADIUS: moderate (6px controls, 10px cards) needs no class. */
+.radius-square {
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+}
+.radius-tight {
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --radius-2xl: 12px;
+}
+.radius-soft {
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 24px;
+}
+
+/* ELEVATION: bordered (flat cards, shadow only on what floats) needs no class. */
+.elevation-flat {
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: 0 0 0 1px rgb(7 40 86 / 0.1);
+  --shadow-xl: 0 0 0 1px rgb(7 40 86 / 0.12);
+  --card-shadow: none;
+  --card-border-color: var(--border-default);
+}
+.elevation-raised {
+  --card-shadow: var(--shadow-md);
+  --card-border-color: transparent;
+}
+.dark.elevation-raised {
+  --card-shadow: 0 2px 4px rgb(0 0 0 / 0.3), 0 6px 14px rgb(0 0 0 / 0.35);
+}
+
+/* ACCENT: moves the brand colour (primary buttons, tabs, links, focus,
+   selection) and the sidebar. Lacivert needs no class. */
+.accent-teal {
+  --brand-bg: var(--teal-600);
+  --brand-bg-hover: var(--teal-500);
+  --brand-bg-active: var(--teal-800);
+  --text-brand: var(--teal-700);
+  --text-link: var(--teal-700);
+  --text-link-hover: var(--teal-600);
+  --border-brand: var(--teal-600);
+  --surface-selected: var(--teal-50);
+  --surface-brand-subtle: var(--teal-50);
+  --focus-ring: var(--teal-600);
+  --tabs-fg-active: var(--teal-700);
+  --tabs-indicator: var(--teal-600);
+  --sidebar-bg: var(--teal-900);
+  --sidebar-fg: var(--teal-100);
+  --sidebar-fg-muted: rgb(219 240 241 / 0.62);
+  --sidebar-item-active-bg: rgb(255 255 255 / 0.14);
+  --sidebar-menu-bg: var(--teal-700);
+  --sidebar-accent-fg: var(--teal-300);
+}
+.accent-violet {
+  --brand-bg: var(--violet-700);
+  --brand-bg-hover: var(--violet-600);
+  --brand-bg-active: var(--violet-900);
+  --text-brand: var(--violet-700);
+  --text-link: var(--violet-700);
+  --text-link-hover: var(--violet-600);
+  --border-brand: var(--violet-700);
+  --surface-selected: var(--violet-50);
+  --surface-brand-subtle: var(--violet-50);
+  --focus-ring: var(--violet-600);
+  --tabs-fg-active: var(--violet-800);
+  --tabs-indicator: var(--violet-700);
+  --sidebar-bg: var(--violet-900);
+  --sidebar-fg: var(--violet-100);
+  --sidebar-fg-muted: rgb(236 232 253 / 0.62);
+  --sidebar-item-active-bg: rgb(255 255 255 / 0.14);
+  --sidebar-menu-bg: var(--violet-700);
+  --sidebar-accent-fg: var(--violet-300);
+}
+.accent-green {
+  --brand-bg: var(--green-700);
+  --brand-bg-hover: var(--green-600);
+  --brand-bg-active: var(--green-900);
+  --text-brand: var(--green-800);
+  --text-link: var(--green-700);
+  --text-link-hover: var(--green-600);
+  --border-brand: var(--green-700);
+  --surface-selected: var(--green-50);
+  --surface-brand-subtle: var(--green-50);
+  --focus-ring: var(--green-600);
+  --tabs-fg-active: var(--green-800);
+  --tabs-indicator: var(--green-700);
+  --sidebar-bg: var(--green-900);
+  --sidebar-fg: var(--green-100);
+  --sidebar-fg-muted: rgb(226 244 230 / 0.62);
+  --sidebar-item-active-bg: rgb(255 255 255 / 0.14);
+  --sidebar-menu-bg: var(--green-700);
+  --sidebar-accent-fg: var(--green-300);
+}
+.accent-amber {
+  --brand-bg: var(--amber-700);
+  --brand-bg-hover: var(--amber-600);
+  --brand-bg-active: var(--amber-900);
+  --text-brand: var(--amber-800);
+  --text-link: var(--amber-800);
+  --text-link-hover: var(--amber-700);
+  --border-brand: var(--amber-700);
+  --surface-selected: var(--amber-50);
+  --surface-brand-subtle: var(--amber-50);
+  --focus-ring: var(--amber-600);
+  --tabs-fg-active: var(--amber-800);
+  --tabs-indicator: var(--amber-700);
+  --sidebar-bg: var(--amber-950);
+  --sidebar-fg: var(--amber-100);
+  --sidebar-fg-muted: rgb(250 237 217 / 0.62);
+  --sidebar-item-active-bg: rgb(255 255 255 / 0.14);
+  --sidebar-menu-bg: var(--amber-800);
+  --sidebar-accent-fg: var(--amber-300);
+}
+.accent-neutral {
+  --brand-bg: var(--neutral-800);
+  --brand-bg-hover: var(--neutral-700);
+  --brand-bg-active: var(--neutral-950);
+  --text-brand: var(--neutral-800);
+  --text-link: var(--neutral-800);
+  --text-link-hover: var(--neutral-700);
+  --border-brand: var(--neutral-800);
+  --surface-selected: var(--neutral-100);
+  --surface-brand-subtle: var(--neutral-100);
+  --focus-ring: var(--neutral-600);
+  --tabs-fg-active: var(--neutral-900);
+  --tabs-indicator: var(--neutral-800);
+  --sidebar-bg: var(--neutral-900);
+  --sidebar-fg: var(--neutral-100);
+  --sidebar-fg-muted: rgb(244 246 248 / 0.62);
+  --sidebar-menu-bg: var(--neutral-700);
+  --sidebar-accent-fg: var(--neutral-300);
+}
+
+/* Dark + accent: two classes beat either one, so the rail sinks into the dark
+   chrome and text colours stay readable on dark surfaces. */
+.dark.accent-teal {
+  --brand-bg: var(--teal-600);
+  --brand-bg-hover: var(--teal-500);
+  --text-brand: var(--teal-200);
+  --text-link: var(--teal-300);
+  --text-link-hover: var(--teal-200);
+  --surface-selected: var(--chrome-600);
+  --surface-brand-subtle: var(--chrome-600);
+  --focus-ring: var(--teal-400);
+  --tabs-fg-active: var(--text-strong);
+  --tabs-indicator: var(--teal-400);
+  --sidebar-bg: var(--teal-950);
+  --sidebar-menu-bg: var(--teal-800);
+}
+.dark.accent-violet {
+  --brand-bg: var(--violet-600);
+  --brand-bg-hover: var(--violet-500);
+  --text-brand: var(--violet-200);
+  --text-link: var(--violet-300);
+  --text-link-hover: var(--violet-200);
+  --surface-selected: var(--chrome-600);
+  --surface-brand-subtle: var(--chrome-600);
+  --focus-ring: var(--violet-400);
+  --tabs-fg-active: var(--text-strong);
+  --tabs-indicator: var(--violet-400);
+  --sidebar-bg: var(--violet-950);
+  --sidebar-menu-bg: var(--violet-800);
+}
+.dark.accent-green {
+  --brand-bg: var(--green-700);
+  --brand-bg-hover: var(--green-600);
+  --text-brand: var(--green-200);
+  --text-link: var(--green-300);
+  --text-link-hover: var(--green-200);
+  --surface-selected: var(--chrome-600);
+  --surface-brand-subtle: var(--chrome-600);
+  --focus-ring: var(--green-400);
+  --tabs-fg-active: var(--text-strong);
+  --tabs-indicator: var(--green-400);
+  --sidebar-bg: var(--green-950);
+  --sidebar-menu-bg: var(--green-800);
+}
+.dark.accent-amber {
+  --brand-bg: var(--amber-700);
+  --brand-bg-hover: var(--amber-600);
+  --text-brand: var(--amber-200);
+  --text-link: var(--amber-300);
+  --text-link-hover: var(--amber-200);
+  --surface-selected: var(--chrome-600);
+  --surface-brand-subtle: var(--chrome-600);
+  --focus-ring: var(--amber-400);
+  --tabs-fg-active: var(--text-strong);
+  --tabs-indicator: var(--amber-400);
+  --sidebar-bg: var(--amber-950);
+  --sidebar-menu-bg: var(--amber-800);
+}
+.dark.accent-neutral {
+  --brand-bg: var(--neutral-700);
+  --brand-bg-hover: var(--neutral-600);
+  --text-brand: var(--neutral-200);
+  --text-link: var(--neutral-200);
+  --text-link-hover: var(--neutral-100);
+  --surface-selected: var(--chrome-600);
+  --surface-brand-subtle: var(--chrome-600);
+  --focus-ring: var(--neutral-400);
+  --tabs-fg-active: var(--text-strong);
+  --tabs-indicator: var(--neutral-300);
+  --sidebar-bg: var(--chrome-800);
+  --sidebar-menu-bg: var(--chrome-600);
+}
+
+/* 4. izci tokens. Severity levels keep their own hues from the palette:
+   `color` for fills and marks, `-ink` for text (4.5:1 on its surfaces). */
+:root {
+  --level-fatal: var(--violet-600);
+  --level-error: var(--red-600);
+  --level-warning: var(--amber-500);
+  --level-info: var(--navy-500);
+  --level-debug: var(--neutral-500);
+  --level-fatal-ink: var(--violet-700);
+  --level-error-ink: var(--red-700);
+  --level-warning-ink: var(--amber-800);
+  --level-info-ink: var(--navy-700);
+  --level-debug-ink: var(--neutral-700);
+  --health-good: var(--green-600);
+  --health-good-ink: var(--green-800);
+
+  --trail: var(--border-default);
+  --code: var(--surface-sunken);
+  --highlight: var(--surface-selected);
+}
+.dark {
+  --level-fatal: var(--violet-400);
+  --level-error: var(--red-500);
+  --level-warning: var(--amber-400);
+  --level-info: var(--navy-400);
+  --level-debug: var(--neutral-500);
+  --level-fatal-ink: var(--violet-300);
+  --level-error-ink: var(--red-300);
+  --level-warning-ink: var(--amber-300);
+  --level-info-ink: var(--navy-300);
+  --level-debug-ink: var(--neutral-400);
+  --health-good: var(--green-500);
+  --health-good-ink: var(--green-300);
+}
+
+/* Bridge: the names shadcn components and Tailwind utilities read. */
+:root {
+  --radius: var(--radius-md);
+  --background: var(--surface-page);
+  --foreground: var(--text-body);
+  --card: var(--surface-card);
+  --card-foreground: var(--text-body);
+  --popover: var(--surface-card);
+  --popover-foreground: var(--text-body);
+  --primary: var(--brand-bg);
+  --primary-foreground: var(--brand-fg);
+  --secondary: var(--surface-muted);
+  --secondary-foreground: var(--text-strong);
+  --muted: var(--surface-muted);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--surface-hover);
+  --accent-foreground: var(--text-body);
+  --destructive: var(--danger-ink);
+  --destructive-foreground: var(--danger-fg);
+  --border: var(--border-subtle);
+  --input: var(--border-default);
+  --ring: var(--focus-ring);
+  --chart-1: var(--cat-1);
+  --chart-2: var(--cat-2);
+  --chart-3: var(--cat-3);
+  --chart-4: var(--cat-4);
+  --chart-5: var(--cat-5);
+  --sidebar: var(--sidebar-bg);
+  --sidebar-foreground: var(--sidebar-fg);
+  --sidebar-primary: var(--brand-bg);
+  --sidebar-primary-foreground: var(--brand-fg);
+  --sidebar-accent: var(--sidebar-item-active-bg);
+  --sidebar-accent-foreground: var(--sidebar-item-active-fg);
+  --sidebar-ring: var(--focus-ring);
 }
 
 /*
- * Type scale. Nothing an eye has to read is set below 12px; running text is
- * 15px (text-md). text-base stays 16px because iOS zooms into smaller form
- * fields.
+ * Type scale on the design system's steps. Nothing an eye has to read is set
+ * below 12px; running text is 15px (text-md). text-base stays 16px because
+ * iOS zooms into smaller form fields.
  */
 @theme {
   --text-2xs: 0.75rem;
@@ -136,24 +694,33 @@
   --text-md--line-height: 1.4375rem;
   --text-base: 1rem;
   --text-base--line-height: 1.5rem;
-  --text-lg: 1.0625rem;
-  --text-lg--line-height: 1.5rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.625rem;
   --text-xl: 1.25rem;
   --text-xl--line-height: 1.75rem;
-  --text-2xl: 1.625rem;
+  --text-2xl: 1.5rem;
   --text-2xl--line-height: 2rem;
-  --text-3xl: 2.125rem;
-  --text-3xl--line-height: 2.5rem;
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 2.25rem;
+
+  /* Radii follow the .radius-* scopes at runtime. */
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-2xl: 20px;
+
+  --shadow-xs: 0 1px 2px rgb(7 40 86 / 0.06);
+  --shadow-sm: 0 1px 2px rgb(7 40 86 / 0.06), 0 1px 3px rgb(7 40 86 / 0.07);
+  --shadow-md: 0 2px 4px rgb(7 40 86 / 0.05), 0 6px 14px rgb(7 40 86 / 0.08);
+  --shadow-lg: 0 2px 6px rgb(7 40 86 / 0.05), 0 10px 28px rgb(7 40 86 / 0.12);
+  --shadow-xl: 0 4px 10px rgb(7 40 86 / 0.06), 0 20px 52px rgb(7 40 86 / 0.16);
 }
 
 @theme inline {
-  --font-sans: "Atkinson Hyperlegible Next Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Atkinson Hyperlegible Mono Variable", ui-monospace, "SFMono-Regular", monospace;
-
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: var(--font-family-sans), ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-mono: var(--font-family-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -174,6 +741,33 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  --color-strong: var(--text-strong);
+  --color-subtle: var(--text-subtle);
+  --color-brand-ink: var(--text-brand);
+  --color-link: var(--text-link);
+  --color-link-hover: var(--text-link-hover);
+  --color-page: var(--surface-page);
+  --color-sunken: var(--surface-sunken);
+  --color-selected: var(--surface-selected);
+  --color-brand-subtle: var(--surface-brand-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-status-success-fg: var(--status-success-fg);
+  --color-status-success-bg: var(--status-success-bg);
+  --color-status-success-border: var(--status-success-border);
+  --color-status-warning-fg: var(--status-warning-fg);
+  --color-status-warning-bg: var(--status-warning-bg);
+  --color-status-warning-border: var(--status-warning-border);
+  --color-status-danger-fg: var(--status-danger-fg);
+  --color-status-danger-bg: var(--status-danger-bg);
+  --color-status-danger-border: var(--status-danger-border);
+  --color-status-info-fg: var(--status-info-fg);
+  --color-status-info-bg: var(--status-info-bg);
+  --color-status-info-border: var(--status-info-border);
+  --color-status-neutral-fg: var(--status-neutral-fg);
+  --color-status-neutral-bg: var(--status-neutral-bg);
+  --color-status-neutral-border: var(--status-neutral-border);
+
   --color-level-fatal: var(--level-fatal);
   --color-level-error: var(--level-error);
   --color-level-warning: var(--level-warning);
@@ -216,6 +810,16 @@
   body {
     @apply bg-background font-sans text-md text-foreground;
   }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--text-strong);
+    letter-spacing: var(--tracking-tight);
+    text-wrap: pretty;
+  }
   code,
   kbd,
   pre,
@@ -234,17 +838,37 @@
       "liga" 0;
   }
   ::selection {
-    background: color-mix(in oklch, var(--primary) 30%, transparent);
+    background: var(--navy-200);
+    color: var(--navy-950);
+  }
+  .dark ::selection {
+    background: var(--navy-700);
+    color: #ffffff;
+  }
+  ::placeholder {
+    color: var(--input-placeholder);
   }
   :focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
+    outline: var(--border-w-focus) solid var(--focus-ring);
+    outline-offset: var(--ring-offset);
   }
-  /* Quiet scrollbars that match the theme. */
+  /* Thin, track-less scrollbars tinted to the surface they sit on. */
   * {
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in oklch, var(--muted-foreground) 35%, transparent) transparent;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
   }
+  .on-dark,
+  .on-dark * {
+    scrollbar-color: var(--scrollbar-thumb-inverse) transparent;
+  }
+}
+
+/* A white card on the grey page: the design system's basic surface. */
+@utility card {
+  background-color: var(--card-bg);
+  border: var(--border-w) solid var(--card-border-color);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
 }
 
 @layer utilities {
@@ -264,7 +888,7 @@
   }
 }
 
-/* A new live row fades from the accent tint to the normal background. */
+/* A new live row fades from the selection tint to the normal background. */
 @keyframes izci-arrive {
   from {
     background-color: var(--highlight);
@@ -297,30 +921,29 @@
   }
 }
 
-/* Syntax highlighting: Shiki emits both theme colors as variables. */
-/* Syntax colours for highlighted code; each clears 4.5:1 on --code, also
-   on the tinted line an error is marked on. */
+/* Syntax colours for highlighted code, from the palette; each clears 4.5:1
+   on --code, also on the tinted line an error is marked on. */
 :root {
-  --syn-foreground: var(--foreground);
-  --syn-token-comment: oklch(0.5 0.02 250);
-  --syn-token-keyword: oklch(0.5 0.17 300);
-  --syn-token-function: oklch(0.49 0.14 255);
-  --syn-token-string: oklch(0.49 0.12 150);
+  --syn-foreground: var(--text-body);
+  --syn-token-comment: var(--neutral-700);
+  --syn-token-keyword: var(--violet-700);
+  --syn-token-function: var(--navy-700);
+  --syn-token-string: var(--green-800);
   --syn-token-string-expression: var(--syn-token-string);
-  --syn-token-constant: oklch(0.48 0.09 200);
-  --syn-token-parameter: oklch(0.42 0.03 255);
-  --syn-token-punctuation: oklch(0.47 0.015 255);
-  --syn-token-link: var(--primary);
+  --syn-token-constant: var(--teal-700);
+  --syn-token-parameter: var(--neutral-900);
+  --syn-token-punctuation: var(--neutral-700);
+  --syn-token-link: var(--text-link);
   --syn-token-inserted: var(--health-good-ink);
   --syn-token-deleted: var(--level-error-ink);
   --syn-token-changed: var(--level-warning-ink);
 }
 .dark {
-  --syn-token-comment: oklch(0.68 0.02 250);
-  --syn-token-keyword: oklch(0.77 0.13 305);
-  --syn-token-function: oklch(0.78 0.11 250);
-  --syn-token-string: oklch(0.8 0.13 150);
-  --syn-token-constant: oklch(0.81 0.1 195);
-  --syn-token-parameter: oklch(0.86 0.03 255);
-  --syn-token-punctuation: oklch(0.7 0.015 255);
+  --syn-token-comment: var(--text-subtle);
+  --syn-token-keyword: var(--violet-300);
+  --syn-token-function: var(--navy-300);
+  --syn-token-string: var(--green-300);
+  --syn-token-constant: var(--teal-300);
+  --syn-token-parameter: var(--text-body);
+  --syn-token-punctuation: var(--text-muted);
 }
