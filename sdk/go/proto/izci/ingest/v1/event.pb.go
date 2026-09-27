@@ -52,6 +52,68 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// ProcessingErrorKind classifies processing errors.
+type ProcessingErrorKind int32
+
+const (
+	// Not set.
+	ProcessingErrorKind_PROCESSING_ERROR_KIND_UNSPECIFIED ProcessingErrorKind = 0
+	// No source map was uploaded for a script, neither by debug id nor for
+	// the release and URL.
+	ProcessingErrorKind_PROCESSING_ERROR_KIND_SOURCE_MAP_MISSING ProcessingErrorKind = 1
+	// The uploaded source map could not be read.
+	ProcessingErrorKind_PROCESSING_ERROR_KIND_SOURCE_MAP_INVALID ProcessingErrorKind = 2
+	// No debug information file was uploaded for a native image.
+	ProcessingErrorKind_PROCESSING_ERROR_KIND_DEBUG_FILE_MISSING ProcessingErrorKind = 3
+	// The uploaded debug information file could not be read.
+	ProcessingErrorKind_PROCESSING_ERROR_KIND_DEBUG_FILE_INVALID ProcessingErrorKind = 4
+)
+
+// Enum value maps for ProcessingErrorKind.
+var (
+	ProcessingErrorKind_name = map[int32]string{
+		0: "PROCESSING_ERROR_KIND_UNSPECIFIED",
+		1: "PROCESSING_ERROR_KIND_SOURCE_MAP_MISSING",
+		2: "PROCESSING_ERROR_KIND_SOURCE_MAP_INVALID",
+		3: "PROCESSING_ERROR_KIND_DEBUG_FILE_MISSING",
+		4: "PROCESSING_ERROR_KIND_DEBUG_FILE_INVALID",
+	}
+	ProcessingErrorKind_value = map[string]int32{
+		"PROCESSING_ERROR_KIND_UNSPECIFIED":        0,
+		"PROCESSING_ERROR_KIND_SOURCE_MAP_MISSING": 1,
+		"PROCESSING_ERROR_KIND_SOURCE_MAP_INVALID": 2,
+		"PROCESSING_ERROR_KIND_DEBUG_FILE_MISSING": 3,
+		"PROCESSING_ERROR_KIND_DEBUG_FILE_INVALID": 4,
+	}
+)
+
+func (x ProcessingErrorKind) Enum() *ProcessingErrorKind {
+	p := new(ProcessingErrorKind)
+	*p = x
+	return p
+}
+
+func (x ProcessingErrorKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ProcessingErrorKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_izci_ingest_v1_event_proto_enumTypes[0].Descriptor()
+}
+
+func (ProcessingErrorKind) Type() protoreflect.EnumType {
+	return &file_izci_ingest_v1_event_proto_enumTypes[0]
+}
+
+func (x ProcessingErrorKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ProcessingErrorKind.Descriptor instead.
+func (ProcessingErrorKind) EnumDescriptor() ([]byte, []int) {
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{0}
+}
+
 // Level is the severity of an event, from least to most severe.
 type Level int32
 
@@ -102,11 +164,11 @@ func (x Level) String() string {
 }
 
 func (Level) Descriptor() protoreflect.EnumDescriptor {
-	return file_izci_ingest_v1_event_proto_enumTypes[0].Descriptor()
+	return file_izci_ingest_v1_event_proto_enumTypes[1].Descriptor()
 }
 
 func (Level) Type() protoreflect.EnumType {
-	return &file_izci_ingest_v1_event_proto_enumTypes[0]
+	return &file_izci_ingest_v1_event_proto_enumTypes[1]
 }
 
 func (x Level) Number() protoreflect.EnumNumber {
@@ -115,7 +177,7 @@ func (x Level) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Level.Descriptor instead.
 func (Level) EnumDescriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{0}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{1}
 }
 
 // Event is a single occurrence of an error or message reported by an
@@ -243,9 +305,19 @@ type Event struct {
 	// Versions of the libraries loaded by the application, name → version, e.g.
 	// {"github.com/jackc/pgx/v5": "v5.11.0"}. Helps to spot issues caused by a
 	// dependency upgrade. Max 500 entries.
-	Modules       map[string]string `protobuf:"bytes,25,rep,name=modules,proto3" json:"modules,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Modules map[string]string `protobuf:"bytes,25,rep,name=modules,proto3" json:"modules,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Code the stack traces run in, used to resolve them with uploaded source
+	// maps and debug files: scripts with debug ids and native images with
+	// their load addresses. Max 500 images.
+	//
+	// Sentry equivalent: debug_meta.images.
+	DebugImages []*DebugImage `protobuf:"bytes,26,rep,name=debug_images,json=debugImages,proto3" json:"debug_images,omitempty"`
+	// Problems izci met while resolving the stack traces with uploaded source
+	// maps or debug files, e.g. a missing source map. Set by the server;
+	// ignored on input.
+	ProcessingErrors []*ProcessingError `protobuf:"bytes,27,rep,name=processing_errors,json=processingErrors,proto3" json:"processing_errors,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *Event) Reset() {
@@ -453,6 +525,188 @@ func (x *Event) GetModules() map[string]string {
 	return nil
 }
 
+func (x *Event) GetDebugImages() []*DebugImage {
+	if x != nil {
+		return x.DebugImages
+	}
+	return nil
+}
+
+func (x *Event) GetProcessingErrors() []*ProcessingError {
+	if x != nil {
+		return x.ProcessingErrors
+	}
+	return nil
+}
+
+// DebugImage is a script or a native library the application loaded.
+type DebugImage struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Kind of image: "sourcemap" (a script with a debug id), "elf", "macho" or
+	// "pe" (native code).
+	Type string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	// Debug id of the image as a UUID, e.g. the id sentry-cli injected into a
+	// script or the one derived from the build id of a Flutter app.
+	DebugId string `protobuf:"bytes,2,opt,name=debug_id,json=debugId,proto3" json:"debug_id,omitempty"`
+	// Code id of a native image: its build id (ELF) or UUID (Mach-O) in hex.
+	CodeId string `protobuf:"bytes,3,opt,name=code_id,json=codeId,proto3" json:"code_id,omitempty"`
+	// Path or URL of the image, e.g. "https://kalem.example.com/assets/app.js"
+	// or "libapp.so". Frames of a script match its code_file.
+	CodeFile string `protobuf:"bytes,4,opt,name=code_file,json=codeFile,proto3" json:"code_file,omitempty"`
+	// Address the native image was loaded at, in hex, e.g. "0x7a2e400000".
+	ImageAddr string `protobuf:"bytes,5,opt,name=image_addr,json=imageAddr,proto3" json:"image_addr,omitempty"`
+	// Size of the native image in bytes; 0 when unknown.
+	ImageSize uint64 `protobuf:"varint,6,opt,name=image_size,json=imageSize,proto3" json:"image_size,omitempty"`
+	// CPU architecture of the native image, e.g. "arm64".
+	Arch          string `protobuf:"bytes,7,opt,name=arch,proto3" json:"arch,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DebugImage) Reset() {
+	*x = DebugImage{}
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DebugImage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DebugImage) ProtoMessage() {}
+
+func (x *DebugImage) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DebugImage.ProtoReflect.Descriptor instead.
+func (*DebugImage) Descriptor() ([]byte, []int) {
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *DebugImage) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *DebugImage) GetDebugId() string {
+	if x != nil {
+		return x.DebugId
+	}
+	return ""
+}
+
+func (x *DebugImage) GetCodeId() string {
+	if x != nil {
+		return x.CodeId
+	}
+	return ""
+}
+
+func (x *DebugImage) GetCodeFile() string {
+	if x != nil {
+		return x.CodeFile
+	}
+	return ""
+}
+
+func (x *DebugImage) GetImageAddr() string {
+	if x != nil {
+		return x.ImageAddr
+	}
+	return ""
+}
+
+func (x *DebugImage) GetImageSize() uint64 {
+	if x != nil {
+		return x.ImageSize
+	}
+	return 0
+}
+
+func (x *DebugImage) GetArch() string {
+	if x != nil {
+		return x.Arch
+	}
+	return ""
+}
+
+// ProcessingError is a problem met while resolving stack traces.
+type ProcessingError struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// What went wrong.
+	Kind ProcessingErrorKind `protobuf:"varint,1,opt,name=kind,proto3,enum=izci.ingest.v1.ProcessingErrorKind" json:"kind,omitempty"`
+	// The script URL or the debug id of the native image concerned.
+	Target string `protobuf:"bytes,2,opt,name=target,proto3" json:"target,omitempty"`
+	// Details in English, e.g. the release that was searched or a parse
+	// error.
+	Detail        string `protobuf:"bytes,3,opt,name=detail,proto3" json:"detail,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProcessingError) Reset() {
+	*x = ProcessingError{}
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProcessingError) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProcessingError) ProtoMessage() {}
+
+func (x *ProcessingError) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProcessingError.ProtoReflect.Descriptor instead.
+func (*ProcessingError) Descriptor() ([]byte, []int) {
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ProcessingError) GetKind() ProcessingErrorKind {
+	if x != nil {
+		return x.Kind
+	}
+	return ProcessingErrorKind_PROCESSING_ERROR_KIND_UNSPECIFIED
+}
+
+func (x *ProcessingError) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+func (x *ProcessingError) GetDetail() string {
+	if x != nil {
+		return x.Detail
+	}
+	return ""
+}
+
 // Customer identifies the organization on whose behalf the application was
 // running (for KentOS applications: the municipality or institution).
 //
@@ -476,7 +730,7 @@ type Customer struct {
 
 func (x *Customer) Reset() {
 	*x = Customer{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[1]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -488,7 +742,7 @@ func (x *Customer) String() string {
 func (*Customer) ProtoMessage() {}
 
 func (x *Customer) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[1]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -501,7 +755,7 @@ func (x *Customer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Customer.ProtoReflect.Descriptor instead.
 func (*Customer) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{1}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Customer) GetId() string {
@@ -539,7 +793,7 @@ type Tenant struct {
 
 func (x *Tenant) Reset() {
 	*x = Tenant{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[2]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -551,7 +805,7 @@ func (x *Tenant) String() string {
 func (*Tenant) ProtoMessage() {}
 
 func (x *Tenant) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[2]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -564,7 +818,7 @@ func (x *Tenant) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Tenant.ProtoReflect.Descriptor instead.
 func (*Tenant) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{2}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Tenant) GetId() string {
@@ -599,7 +853,7 @@ type Message struct {
 
 func (x *Message) Reset() {
 	*x = Message{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[3]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -611,7 +865,7 @@ func (x *Message) String() string {
 func (*Message) ProtoMessage() {}
 
 func (x *Message) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[3]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -624,7 +878,7 @@ func (x *Message) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Message.ProtoReflect.Descriptor instead.
 func (*Message) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{3}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Message) GetFormatted() string {
@@ -673,7 +927,7 @@ type Exception struct {
 
 func (x *Exception) Reset() {
 	*x = Exception{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[4]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -685,7 +939,7 @@ func (x *Exception) String() string {
 func (*Exception) ProtoMessage() {}
 
 func (x *Exception) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[4]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -698,7 +952,7 @@ func (x *Exception) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Exception.ProtoReflect.Descriptor instead.
 func (*Exception) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{4}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Exception) GetType() string {
@@ -782,7 +1036,7 @@ type Mechanism struct {
 
 func (x *Mechanism) Reset() {
 	*x = Mechanism{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[5]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -794,7 +1048,7 @@ func (x *Mechanism) String() string {
 func (*Mechanism) ProtoMessage() {}
 
 func (x *Mechanism) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[5]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -807,7 +1061,7 @@ func (x *Mechanism) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Mechanism.ProtoReflect.Descriptor instead.
 func (*Mechanism) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{5}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *Mechanism) GetType() string {
@@ -890,14 +1144,18 @@ type Stacktrace struct {
 	Frames []*Frame `protobuf:"bytes,1,rep,name=frames,proto3" json:"frames,omitempty"`
 	// CPU register values for native crashes, name → hexadecimal value, e.g.
 	// {"rip": "0x00007ff8a1b2c3d4"}.
-	Registers     map[string]string `protobuf:"bytes,2,rep,name=registers,proto3" json:"registers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Registers map[string]string `protobuf:"bytes,2,rep,name=registers,proto3" json:"registers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// The frames as the SDK sent them when izci resolved minified or native
+	// frames with uploaded source maps or debug files; empty otherwise. Set
+	// by the server; ignored on input.
+	RawFrames     []*Frame `protobuf:"bytes,3,rep,name=raw_frames,json=rawFrames,proto3" json:"raw_frames,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Stacktrace) Reset() {
 	*x = Stacktrace{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[6]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -909,7 +1167,7 @@ func (x *Stacktrace) String() string {
 func (*Stacktrace) ProtoMessage() {}
 
 func (x *Stacktrace) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[6]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -922,7 +1180,7 @@ func (x *Stacktrace) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Stacktrace.ProtoReflect.Descriptor instead.
 func (*Stacktrace) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{6}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *Stacktrace) GetFrames() []*Frame {
@@ -935,6 +1193,13 @@ func (x *Stacktrace) GetFrames() []*Frame {
 func (x *Stacktrace) GetRegisters() map[string]string {
 	if x != nil {
 		return x.Registers
+	}
+	return nil
+}
+
+func (x *Stacktrace) GetRawFrames() []*Frame {
+	if x != nil {
+		return x.RawFrames
 	}
 	return nil
 }
@@ -1000,7 +1265,7 @@ type Frame struct {
 
 func (x *Frame) Reset() {
 	*x = Frame{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[7]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1012,7 +1277,7 @@ func (x *Frame) String() string {
 func (*Frame) ProtoMessage() {}
 
 func (x *Frame) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[7]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1025,7 +1290,7 @@ func (x *Frame) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Frame.ProtoReflect.Descriptor instead.
 func (*Frame) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{7}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *Frame) GetFunction() string {
@@ -1163,7 +1428,7 @@ type Thread struct {
 
 func (x *Thread) Reset() {
 	*x = Thread{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[8]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1175,7 +1440,7 @@ func (x *Thread) String() string {
 func (*Thread) ProtoMessage() {}
 
 func (x *Thread) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[8]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1188,7 +1453,7 @@ func (x *Thread) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Thread.ProtoReflect.Descriptor instead.
 func (*Thread) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{8}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *Thread) GetId() string {
@@ -1269,7 +1534,7 @@ type Breadcrumb struct {
 
 func (x *Breadcrumb) Reset() {
 	*x = Breadcrumb{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[9]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1281,7 +1546,7 @@ func (x *Breadcrumb) String() string {
 func (*Breadcrumb) ProtoMessage() {}
 
 func (x *Breadcrumb) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[9]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1294,7 +1559,7 @@ func (x *Breadcrumb) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Breadcrumb.ProtoReflect.Descriptor instead.
 func (*Breadcrumb) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{9}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *Breadcrumb) GetTimestamp() *timestamppb.Timestamp {
@@ -1386,7 +1651,7 @@ type Request struct {
 
 func (x *Request) Reset() {
 	*x = Request{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[10]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1398,7 +1663,7 @@ func (x *Request) String() string {
 func (*Request) ProtoMessage() {}
 
 func (x *Request) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[10]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1411,7 +1676,7 @@ func (x *Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Request.ProtoReflect.Descriptor instead.
 func (*Request) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{10}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *Request) GetMethod() string {
@@ -1511,7 +1776,7 @@ type Header struct {
 
 func (x *Header) Reset() {
 	*x = Header{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[11]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1523,7 +1788,7 @@ func (x *Header) String() string {
 func (*Header) ProtoMessage() {}
 
 func (x *Header) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[11]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1536,7 +1801,7 @@ func (x *Header) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Header.ProtoReflect.Descriptor instead.
 func (*Header) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{11}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *Header) GetName() string {
@@ -1568,7 +1833,7 @@ type Response struct {
 
 func (x *Response) Reset() {
 	*x = Response{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[12]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1580,7 +1845,7 @@ func (x *Response) String() string {
 func (*Response) ProtoMessage() {}
 
 func (x *Response) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[12]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1593,7 +1858,7 @@ func (x *Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Response.ProtoReflect.Descriptor instead.
 func (*Response) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{12}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *Response) GetStatusCode() uint32 {
@@ -1650,7 +1915,7 @@ type User struct {
 
 func (x *User) Reset() {
 	*x = User{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[13]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1662,7 +1927,7 @@ func (x *User) String() string {
 func (*User) ProtoMessage() {}
 
 func (x *User) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[13]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1675,7 +1940,7 @@ func (x *User) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use User.ProtoReflect.Descriptor instead.
 func (*User) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{13}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *User) GetId() string {
@@ -1749,7 +2014,7 @@ type Geo struct {
 
 func (x *Geo) Reset() {
 	*x = Geo{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[14]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1761,7 +2026,7 @@ func (x *Geo) String() string {
 func (*Geo) ProtoMessage() {}
 
 func (x *Geo) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[14]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1774,7 +2039,7 @@ func (x *Geo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Geo.ProtoReflect.Descriptor instead.
 func (*Geo) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{14}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *Geo) GetCountryCode() string {
@@ -1838,7 +2103,7 @@ type Contexts struct {
 
 func (x *Contexts) Reset() {
 	*x = Contexts{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[15]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1850,7 +2115,7 @@ func (x *Contexts) String() string {
 func (*Contexts) ProtoMessage() {}
 
 func (x *Contexts) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[15]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1863,7 +2128,7 @@ func (x *Contexts) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Contexts.ProtoReflect.Descriptor instead.
 func (*Contexts) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{15}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *Contexts) GetDevice() *DeviceContext {
@@ -1995,7 +2260,7 @@ type DeviceContext struct {
 
 func (x *DeviceContext) Reset() {
 	*x = DeviceContext{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[16]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2007,7 +2272,7 @@ func (x *DeviceContext) String() string {
 func (*DeviceContext) ProtoMessage() {}
 
 func (x *DeviceContext) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[16]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2020,7 +2285,7 @@ func (x *DeviceContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeviceContext.ProtoReflect.Descriptor instead.
 func (*DeviceContext) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{16}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *DeviceContext) GetName() string {
@@ -2173,7 +2438,7 @@ type CpuInfo struct {
 
 func (x *CpuInfo) Reset() {
 	*x = CpuInfo{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[17]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2185,7 +2450,7 @@ func (x *CpuInfo) String() string {
 func (*CpuInfo) ProtoMessage() {}
 
 func (x *CpuInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[17]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2198,7 +2463,7 @@ func (x *CpuInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CpuInfo.ProtoReflect.Descriptor instead.
 func (*CpuInfo) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{17}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *CpuInfo) GetCount() uint32 {
@@ -2269,7 +2534,7 @@ type MemoryInfo struct {
 
 func (x *MemoryInfo) Reset() {
 	*x = MemoryInfo{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[18]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2281,7 +2546,7 @@ func (x *MemoryInfo) String() string {
 func (*MemoryInfo) ProtoMessage() {}
 
 func (x *MemoryInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[18]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2294,7 +2559,7 @@ func (x *MemoryInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MemoryInfo.ProtoReflect.Descriptor instead.
 func (*MemoryInfo) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{18}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *MemoryInfo) GetTotalBytes() uint64 {
@@ -2366,7 +2631,7 @@ type StorageInfo struct {
 
 func (x *StorageInfo) Reset() {
 	*x = StorageInfo{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[19]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2378,7 +2643,7 @@ func (x *StorageInfo) String() string {
 func (*StorageInfo) ProtoMessage() {}
 
 func (x *StorageInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[19]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2391,7 +2656,7 @@ func (x *StorageInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StorageInfo.ProtoReflect.Descriptor instead.
 func (*StorageInfo) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{19}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *StorageInfo) GetTotalBytes() uint64 {
@@ -2425,7 +2690,7 @@ type ScreenInfo struct {
 
 func (x *ScreenInfo) Reset() {
 	*x = ScreenInfo{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[20]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2437,7 +2702,7 @@ func (x *ScreenInfo) String() string {
 func (*ScreenInfo) ProtoMessage() {}
 
 func (x *ScreenInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[20]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2450,7 +2715,7 @@ func (x *ScreenInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScreenInfo.ProtoReflect.Descriptor instead.
 func (*ScreenInfo) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{20}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ScreenInfo) GetWidthPixels() uint32 {
@@ -2505,7 +2770,7 @@ type OsContext struct {
 
 func (x *OsContext) Reset() {
 	*x = OsContext{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[21]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2517,7 +2782,7 @@ func (x *OsContext) String() string {
 func (*OsContext) ProtoMessage() {}
 
 func (x *OsContext) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[21]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2530,7 +2795,7 @@ func (x *OsContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OsContext.ProtoReflect.Descriptor instead.
 func (*OsContext) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{21}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *OsContext) GetName() string {
@@ -2599,7 +2864,7 @@ type RuntimeContext struct {
 
 func (x *RuntimeContext) Reset() {
 	*x = RuntimeContext{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[22]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2611,7 +2876,7 @@ func (x *RuntimeContext) String() string {
 func (*RuntimeContext) ProtoMessage() {}
 
 func (x *RuntimeContext) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[22]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2624,7 +2889,7 @@ func (x *RuntimeContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RuntimeContext.ProtoReflect.Descriptor instead.
 func (*RuntimeContext) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{22}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *RuntimeContext) GetName() string {
@@ -2671,7 +2936,7 @@ type BrowserContext struct {
 
 func (x *BrowserContext) Reset() {
 	*x = BrowserContext{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[23]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2683,7 +2948,7 @@ func (x *BrowserContext) String() string {
 func (*BrowserContext) ProtoMessage() {}
 
 func (x *BrowserContext) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[23]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2696,7 +2961,7 @@ func (x *BrowserContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BrowserContext.ProtoReflect.Descriptor instead.
 func (*BrowserContext) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{23}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *BrowserContext) GetName() string {
@@ -2743,7 +3008,7 @@ type AppContext struct {
 
 func (x *AppContext) Reset() {
 	*x = AppContext{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[24]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2755,7 +3020,7 @@ func (x *AppContext) String() string {
 func (*AppContext) ProtoMessage() {}
 
 func (x *AppContext) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[24]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2768,7 +3033,7 @@ func (x *AppContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppContext.ProtoReflect.Descriptor instead.
 func (*AppContext) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{24}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *AppContext) GetId() string {
@@ -2867,7 +3132,7 @@ type ProcessContext struct {
 
 func (x *ProcessContext) Reset() {
 	*x = ProcessContext{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[25]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2879,7 +3144,7 @@ func (x *ProcessContext) String() string {
 func (*ProcessContext) ProtoMessage() {}
 
 func (x *ProcessContext) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[25]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2892,7 +3157,7 @@ func (x *ProcessContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProcessContext.ProtoReflect.Descriptor instead.
 func (*ProcessContext) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{25}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ProcessContext) GetPid() uint32 {
@@ -3033,7 +3298,7 @@ type GpuContext struct {
 
 func (x *GpuContext) Reset() {
 	*x = GpuContext{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[26]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3045,7 +3310,7 @@ func (x *GpuContext) String() string {
 func (*GpuContext) ProtoMessage() {}
 
 func (x *GpuContext) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[26]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3058,7 +3323,7 @@ func (x *GpuContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GpuContext.ProtoReflect.Descriptor instead.
 func (*GpuContext) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{26}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *GpuContext) GetName() string {
@@ -3113,7 +3378,7 @@ type CultureContext struct {
 
 func (x *CultureContext) Reset() {
 	*x = CultureContext{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[27]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3125,7 +3390,7 @@ func (x *CultureContext) String() string {
 func (*CultureContext) ProtoMessage() {}
 
 func (x *CultureContext) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[27]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3138,7 +3403,7 @@ func (x *CultureContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CultureContext.ProtoReflect.Descriptor instead.
 func (*CultureContext) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{27}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *CultureContext) GetLocale() string {
@@ -3188,7 +3453,7 @@ type TraceContext struct {
 
 func (x *TraceContext) Reset() {
 	*x = TraceContext{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[28]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3200,7 +3465,7 @@ func (x *TraceContext) String() string {
 func (*TraceContext) ProtoMessage() {}
 
 func (x *TraceContext) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[28]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3213,7 +3478,7 @@ func (x *TraceContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TraceContext.ProtoReflect.Descriptor instead.
 func (*TraceContext) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{28}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *TraceContext) GetTraceId() string {
@@ -3284,7 +3549,7 @@ type DatabaseContext struct {
 
 func (x *DatabaseContext) Reset() {
 	*x = DatabaseContext{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[29]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3296,7 +3561,7 @@ func (x *DatabaseContext) String() string {
 func (*DatabaseContext) ProtoMessage() {}
 
 func (x *DatabaseContext) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[29]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3309,7 +3574,7 @@ func (x *DatabaseContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DatabaseContext.ProtoReflect.Descriptor instead.
 func (*DatabaseContext) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{29}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *DatabaseContext) GetSystem() string {
@@ -3406,7 +3671,7 @@ type CloudContext struct {
 
 func (x *CloudContext) Reset() {
 	*x = CloudContext{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[30]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3418,7 +3683,7 @@ func (x *CloudContext) String() string {
 func (*CloudContext) ProtoMessage() {}
 
 func (x *CloudContext) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[30]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3431,7 +3696,7 @@ func (x *CloudContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CloudContext.ProtoReflect.Descriptor instead.
 func (*CloudContext) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{30}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *CloudContext) GetProvider() string {
@@ -3528,7 +3793,7 @@ type Sdk struct {
 
 func (x *Sdk) Reset() {
 	*x = Sdk{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[31]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3540,7 +3805,7 @@ func (x *Sdk) String() string {
 func (*Sdk) ProtoMessage() {}
 
 func (x *Sdk) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[31]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3553,7 +3818,7 @@ func (x *Sdk) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Sdk.ProtoReflect.Descriptor instead.
 func (*Sdk) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{31}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *Sdk) GetName() string {
@@ -3597,7 +3862,7 @@ type SdkPackage struct {
 
 func (x *SdkPackage) Reset() {
 	*x = SdkPackage{}
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[32]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3609,7 +3874,7 @@ func (x *SdkPackage) String() string {
 func (*SdkPackage) ProtoMessage() {}
 
 func (x *SdkPackage) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_ingest_v1_event_proto_msgTypes[32]
+	mi := &file_izci_ingest_v1_event_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3622,7 +3887,7 @@ func (x *SdkPackage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SdkPackage.ProtoReflect.Descriptor instead.
 func (*SdkPackage) Descriptor() ([]byte, []int) {
-	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{32}
+	return file_izci_ingest_v1_event_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *SdkPackage) GetName() string {
@@ -3643,7 +3908,8 @@ var File_izci_ingest_v1_event_proto protoreflect.FileDescriptor
 
 const file_izci_ingest_v1_event_proto_rawDesc = "" +
 	"\n" +
-	"\x1aizci/ingest/v1/event.proto\x12\x0eizci.ingest.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbd\t\n" +
+	"\x1aizci/ingest/v1/event.proto\x12\x0eizci.ingest.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xca\n" +
+	"\n" +
 	"\x05Event\x12\x19\n" +
 	"\bevent_id\x18\x01 \x01(\tR\aeventId\x128\n" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12+\n" +
@@ -3673,13 +3939,30 @@ const file_izci_ingest_v1_event_proto_rawDesc = "" +
 	"\x05extra\x18\x16 \x01(\v2\x17.google.protobuf.StructR\x05extra\x12 \n" +
 	"\vfingerprint\x18\x17 \x03(\tR\vfingerprint\x12%\n" +
 	"\x03sdk\x18\x18 \x01(\v2\x13.izci.ingest.v1.SdkR\x03sdk\x12<\n" +
-	"\amodules\x18\x19 \x03(\v2\".izci.ingest.v1.Event.ModulesEntryR\amodules\x1a7\n" +
+	"\amodules\x18\x19 \x03(\v2\".izci.ingest.v1.Event.ModulesEntryR\amodules\x12=\n" +
+	"\fdebug_images\x18\x1a \x03(\v2\x1a.izci.ingest.v1.DebugImageR\vdebugImages\x12L\n" +
+	"\x11processing_errors\x18\x1b \x03(\v2\x1f.izci.ingest.v1.ProcessingErrorR\x10processingErrors\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a:\n" +
 	"\fModulesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb7\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc3\x01\n" +
+	"\n" +
+	"DebugImage\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12\x19\n" +
+	"\bdebug_id\x18\x02 \x01(\tR\adebugId\x12\x17\n" +
+	"\acode_id\x18\x03 \x01(\tR\x06codeId\x12\x1b\n" +
+	"\tcode_file\x18\x04 \x01(\tR\bcodeFile\x12\x1d\n" +
+	"\n" +
+	"image_addr\x18\x05 \x01(\tR\timageAddr\x12\x1d\n" +
+	"\n" +
+	"image_size\x18\x06 \x01(\x04R\timageSize\x12\x12\n" +
+	"\x04arch\x18\a \x01(\tR\x04arch\"z\n" +
+	"\x0fProcessingError\x127\n" +
+	"\x04kind\x18\x01 \x01(\x0e2#.izci.ingest.v1.ProcessingErrorKindR\x04kind\x12\x16\n" +
+	"\x06target\x18\x02 \x01(\tR\x06target\x12\x16\n" +
+	"\x06detail\x18\x03 \x01(\tR\x06detail\"\xb7\x01\n" +
 	"\bCustomer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12H\n" +
@@ -3723,11 +4006,13 @@ const file_izci_ingest_v1_event_proto_rawDesc = "" +
 	"\n" +
 	"\b_handledB\f\n" +
 	"\n" +
-	"_parent_id\"\xc2\x01\n" +
+	"_parent_id\"\xf8\x01\n" +
 	"\n" +
 	"Stacktrace\x12-\n" +
 	"\x06frames\x18\x01 \x03(\v2\x15.izci.ingest.v1.FrameR\x06frames\x12G\n" +
-	"\tregisters\x18\x02 \x03(\v2).izci.ingest.v1.Stacktrace.RegistersEntryR\tregisters\x1a<\n" +
+	"\tregisters\x18\x02 \x03(\v2).izci.ingest.v1.Stacktrace.RegistersEntryR\tregisters\x124\n" +
+	"\n" +
+	"raw_frames\x18\x03 \x03(\v2\x15.izci.ingest.v1.FrameR\trawFrames\x1a<\n" +
 	"\x0eRegistersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb8\x04\n" +
@@ -4007,7 +4292,13 @@ const file_izci_ingest_v1_event_proto_rawDesc = "" +
 	"\n" +
 	"SdkPackage\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
-	"\aversion\x18\x02 \x01(\tR\aversion*t\n" +
+	"\aversion\x18\x02 \x01(\tR\aversion*\xf4\x01\n" +
+	"\x13ProcessingErrorKind\x12%\n" +
+	"!PROCESSING_ERROR_KIND_UNSPECIFIED\x10\x00\x12,\n" +
+	"(PROCESSING_ERROR_KIND_SOURCE_MAP_MISSING\x10\x01\x12,\n" +
+	"(PROCESSING_ERROR_KIND_SOURCE_MAP_INVALID\x10\x02\x12,\n" +
+	"(PROCESSING_ERROR_KIND_DEBUG_FILE_MISSING\x10\x03\x12,\n" +
+	"(PROCESSING_ERROR_KIND_DEBUG_FILE_INVALID\x10\x04*t\n" +
 	"\x05Level\x12\x15\n" +
 	"\x11LEVEL_UNSPECIFIED\x10\x00\x12\x0f\n" +
 	"\vLEVEL_DEBUG\x10\x01\x12\x0e\n" +
@@ -4031,121 +4322,128 @@ func file_izci_ingest_v1_event_proto_rawDescGZIP() []byte {
 	return file_izci_ingest_v1_event_proto_rawDescData
 }
 
-var file_izci_ingest_v1_event_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_izci_ingest_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 43)
+var file_izci_ingest_v1_event_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_izci_ingest_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 45)
 var file_izci_ingest_v1_event_proto_goTypes = []any{
-	(Level)(0),                    // 0: izci.ingest.v1.Level
-	(*Event)(nil),                 // 1: izci.ingest.v1.Event
-	(*Customer)(nil),              // 2: izci.ingest.v1.Customer
-	(*Tenant)(nil),                // 3: izci.ingest.v1.Tenant
-	(*Message)(nil),               // 4: izci.ingest.v1.Message
-	(*Exception)(nil),             // 5: izci.ingest.v1.Exception
-	(*Mechanism)(nil),             // 6: izci.ingest.v1.Mechanism
-	(*Stacktrace)(nil),            // 7: izci.ingest.v1.Stacktrace
-	(*Frame)(nil),                 // 8: izci.ingest.v1.Frame
-	(*Thread)(nil),                // 9: izci.ingest.v1.Thread
-	(*Breadcrumb)(nil),            // 10: izci.ingest.v1.Breadcrumb
-	(*Request)(nil),               // 11: izci.ingest.v1.Request
-	(*Header)(nil),                // 12: izci.ingest.v1.Header
-	(*Response)(nil),              // 13: izci.ingest.v1.Response
-	(*User)(nil),                  // 14: izci.ingest.v1.User
-	(*Geo)(nil),                   // 15: izci.ingest.v1.Geo
-	(*Contexts)(nil),              // 16: izci.ingest.v1.Contexts
-	(*DeviceContext)(nil),         // 17: izci.ingest.v1.DeviceContext
-	(*CpuInfo)(nil),               // 18: izci.ingest.v1.CpuInfo
-	(*MemoryInfo)(nil),            // 19: izci.ingest.v1.MemoryInfo
-	(*StorageInfo)(nil),           // 20: izci.ingest.v1.StorageInfo
-	(*ScreenInfo)(nil),            // 21: izci.ingest.v1.ScreenInfo
-	(*OsContext)(nil),             // 22: izci.ingest.v1.OsContext
-	(*RuntimeContext)(nil),        // 23: izci.ingest.v1.RuntimeContext
-	(*BrowserContext)(nil),        // 24: izci.ingest.v1.BrowserContext
-	(*AppContext)(nil),            // 25: izci.ingest.v1.AppContext
-	(*ProcessContext)(nil),        // 26: izci.ingest.v1.ProcessContext
-	(*GpuContext)(nil),            // 27: izci.ingest.v1.GpuContext
-	(*CultureContext)(nil),        // 28: izci.ingest.v1.CultureContext
-	(*TraceContext)(nil),          // 29: izci.ingest.v1.TraceContext
-	(*DatabaseContext)(nil),       // 30: izci.ingest.v1.DatabaseContext
-	(*CloudContext)(nil),          // 31: izci.ingest.v1.CloudContext
-	(*Sdk)(nil),                   // 32: izci.ingest.v1.Sdk
-	(*SdkPackage)(nil),            // 33: izci.ingest.v1.SdkPackage
-	nil,                           // 34: izci.ingest.v1.Event.TagsEntry
-	nil,                           // 35: izci.ingest.v1.Event.ModulesEntry
-	nil,                           // 36: izci.ingest.v1.Customer.AttributesEntry
-	nil,                           // 37: izci.ingest.v1.Mechanism.DataEntry
-	nil,                           // 38: izci.ingest.v1.Stacktrace.RegistersEntry
-	nil,                           // 39: izci.ingest.v1.Frame.VarsEntry
-	nil,                           // 40: izci.ingest.v1.Request.CookiesEntry
-	nil,                           // 41: izci.ingest.v1.Request.EnvEntry
-	nil,                           // 42: izci.ingest.v1.User.AttributesEntry
-	nil,                           // 43: izci.ingest.v1.Contexts.CustomEntry
-	(*timestamppb.Timestamp)(nil), // 44: google.protobuf.Timestamp
-	(*structpb.Struct)(nil),       // 45: google.protobuf.Struct
-	(*durationpb.Duration)(nil),   // 46: google.protobuf.Duration
+	(ProcessingErrorKind)(0),      // 0: izci.ingest.v1.ProcessingErrorKind
+	(Level)(0),                    // 1: izci.ingest.v1.Level
+	(*Event)(nil),                 // 2: izci.ingest.v1.Event
+	(*DebugImage)(nil),            // 3: izci.ingest.v1.DebugImage
+	(*ProcessingError)(nil),       // 4: izci.ingest.v1.ProcessingError
+	(*Customer)(nil),              // 5: izci.ingest.v1.Customer
+	(*Tenant)(nil),                // 6: izci.ingest.v1.Tenant
+	(*Message)(nil),               // 7: izci.ingest.v1.Message
+	(*Exception)(nil),             // 8: izci.ingest.v1.Exception
+	(*Mechanism)(nil),             // 9: izci.ingest.v1.Mechanism
+	(*Stacktrace)(nil),            // 10: izci.ingest.v1.Stacktrace
+	(*Frame)(nil),                 // 11: izci.ingest.v1.Frame
+	(*Thread)(nil),                // 12: izci.ingest.v1.Thread
+	(*Breadcrumb)(nil),            // 13: izci.ingest.v1.Breadcrumb
+	(*Request)(nil),               // 14: izci.ingest.v1.Request
+	(*Header)(nil),                // 15: izci.ingest.v1.Header
+	(*Response)(nil),              // 16: izci.ingest.v1.Response
+	(*User)(nil),                  // 17: izci.ingest.v1.User
+	(*Geo)(nil),                   // 18: izci.ingest.v1.Geo
+	(*Contexts)(nil),              // 19: izci.ingest.v1.Contexts
+	(*DeviceContext)(nil),         // 20: izci.ingest.v1.DeviceContext
+	(*CpuInfo)(nil),               // 21: izci.ingest.v1.CpuInfo
+	(*MemoryInfo)(nil),            // 22: izci.ingest.v1.MemoryInfo
+	(*StorageInfo)(nil),           // 23: izci.ingest.v1.StorageInfo
+	(*ScreenInfo)(nil),            // 24: izci.ingest.v1.ScreenInfo
+	(*OsContext)(nil),             // 25: izci.ingest.v1.OsContext
+	(*RuntimeContext)(nil),        // 26: izci.ingest.v1.RuntimeContext
+	(*BrowserContext)(nil),        // 27: izci.ingest.v1.BrowserContext
+	(*AppContext)(nil),            // 28: izci.ingest.v1.AppContext
+	(*ProcessContext)(nil),        // 29: izci.ingest.v1.ProcessContext
+	(*GpuContext)(nil),            // 30: izci.ingest.v1.GpuContext
+	(*CultureContext)(nil),        // 31: izci.ingest.v1.CultureContext
+	(*TraceContext)(nil),          // 32: izci.ingest.v1.TraceContext
+	(*DatabaseContext)(nil),       // 33: izci.ingest.v1.DatabaseContext
+	(*CloudContext)(nil),          // 34: izci.ingest.v1.CloudContext
+	(*Sdk)(nil),                   // 35: izci.ingest.v1.Sdk
+	(*SdkPackage)(nil),            // 36: izci.ingest.v1.SdkPackage
+	nil,                           // 37: izci.ingest.v1.Event.TagsEntry
+	nil,                           // 38: izci.ingest.v1.Event.ModulesEntry
+	nil,                           // 39: izci.ingest.v1.Customer.AttributesEntry
+	nil,                           // 40: izci.ingest.v1.Mechanism.DataEntry
+	nil,                           // 41: izci.ingest.v1.Stacktrace.RegistersEntry
+	nil,                           // 42: izci.ingest.v1.Frame.VarsEntry
+	nil,                           // 43: izci.ingest.v1.Request.CookiesEntry
+	nil,                           // 44: izci.ingest.v1.Request.EnvEntry
+	nil,                           // 45: izci.ingest.v1.User.AttributesEntry
+	nil,                           // 46: izci.ingest.v1.Contexts.CustomEntry
+	(*timestamppb.Timestamp)(nil), // 47: google.protobuf.Timestamp
+	(*structpb.Struct)(nil),       // 48: google.protobuf.Struct
+	(*durationpb.Duration)(nil),   // 49: google.protobuf.Duration
 }
 var file_izci_ingest_v1_event_proto_depIdxs = []int32{
-	44, // 0: izci.ingest.v1.Event.timestamp:type_name -> google.protobuf.Timestamp
-	0,  // 1: izci.ingest.v1.Event.level:type_name -> izci.ingest.v1.Level
-	2,  // 2: izci.ingest.v1.Event.customer:type_name -> izci.ingest.v1.Customer
-	3,  // 3: izci.ingest.v1.Event.tenant:type_name -> izci.ingest.v1.Tenant
-	4,  // 4: izci.ingest.v1.Event.message:type_name -> izci.ingest.v1.Message
-	5,  // 5: izci.ingest.v1.Event.exceptions:type_name -> izci.ingest.v1.Exception
-	9,  // 6: izci.ingest.v1.Event.threads:type_name -> izci.ingest.v1.Thread
-	10, // 7: izci.ingest.v1.Event.breadcrumbs:type_name -> izci.ingest.v1.Breadcrumb
-	11, // 8: izci.ingest.v1.Event.request:type_name -> izci.ingest.v1.Request
-	13, // 9: izci.ingest.v1.Event.response:type_name -> izci.ingest.v1.Response
-	14, // 10: izci.ingest.v1.Event.user:type_name -> izci.ingest.v1.User
-	16, // 11: izci.ingest.v1.Event.contexts:type_name -> izci.ingest.v1.Contexts
-	34, // 12: izci.ingest.v1.Event.tags:type_name -> izci.ingest.v1.Event.TagsEntry
-	45, // 13: izci.ingest.v1.Event.extra:type_name -> google.protobuf.Struct
-	32, // 14: izci.ingest.v1.Event.sdk:type_name -> izci.ingest.v1.Sdk
-	35, // 15: izci.ingest.v1.Event.modules:type_name -> izci.ingest.v1.Event.ModulesEntry
-	36, // 16: izci.ingest.v1.Customer.attributes:type_name -> izci.ingest.v1.Customer.AttributesEntry
-	6,  // 17: izci.ingest.v1.Exception.mechanism:type_name -> izci.ingest.v1.Mechanism
-	7,  // 18: izci.ingest.v1.Exception.stacktrace:type_name -> izci.ingest.v1.Stacktrace
-	37, // 19: izci.ingest.v1.Mechanism.data:type_name -> izci.ingest.v1.Mechanism.DataEntry
-	8,  // 20: izci.ingest.v1.Stacktrace.frames:type_name -> izci.ingest.v1.Frame
-	38, // 21: izci.ingest.v1.Stacktrace.registers:type_name -> izci.ingest.v1.Stacktrace.RegistersEntry
-	39, // 22: izci.ingest.v1.Frame.vars:type_name -> izci.ingest.v1.Frame.VarsEntry
-	7,  // 23: izci.ingest.v1.Thread.stacktrace:type_name -> izci.ingest.v1.Stacktrace
-	44, // 24: izci.ingest.v1.Breadcrumb.timestamp:type_name -> google.protobuf.Timestamp
-	0,  // 25: izci.ingest.v1.Breadcrumb.level:type_name -> izci.ingest.v1.Level
-	45, // 26: izci.ingest.v1.Breadcrumb.data:type_name -> google.protobuf.Struct
-	12, // 27: izci.ingest.v1.Request.headers:type_name -> izci.ingest.v1.Header
-	40, // 28: izci.ingest.v1.Request.cookies:type_name -> izci.ingest.v1.Request.CookiesEntry
-	41, // 29: izci.ingest.v1.Request.env:type_name -> izci.ingest.v1.Request.EnvEntry
-	12, // 30: izci.ingest.v1.Response.headers:type_name -> izci.ingest.v1.Header
-	42, // 31: izci.ingest.v1.User.attributes:type_name -> izci.ingest.v1.User.AttributesEntry
-	15, // 32: izci.ingest.v1.User.geo:type_name -> izci.ingest.v1.Geo
-	17, // 33: izci.ingest.v1.Contexts.device:type_name -> izci.ingest.v1.DeviceContext
-	22, // 34: izci.ingest.v1.Contexts.os:type_name -> izci.ingest.v1.OsContext
-	23, // 35: izci.ingest.v1.Contexts.runtime:type_name -> izci.ingest.v1.RuntimeContext
-	24, // 36: izci.ingest.v1.Contexts.browser:type_name -> izci.ingest.v1.BrowserContext
-	25, // 37: izci.ingest.v1.Contexts.app:type_name -> izci.ingest.v1.AppContext
-	26, // 38: izci.ingest.v1.Contexts.process:type_name -> izci.ingest.v1.ProcessContext
-	27, // 39: izci.ingest.v1.Contexts.gpu:type_name -> izci.ingest.v1.GpuContext
-	28, // 40: izci.ingest.v1.Contexts.culture:type_name -> izci.ingest.v1.CultureContext
-	29, // 41: izci.ingest.v1.Contexts.trace:type_name -> izci.ingest.v1.TraceContext
-	30, // 42: izci.ingest.v1.Contexts.database:type_name -> izci.ingest.v1.DatabaseContext
-	31, // 43: izci.ingest.v1.Contexts.cloud:type_name -> izci.ingest.v1.CloudContext
-	43, // 44: izci.ingest.v1.Contexts.custom:type_name -> izci.ingest.v1.Contexts.CustomEntry
-	18, // 45: izci.ingest.v1.DeviceContext.cpu:type_name -> izci.ingest.v1.CpuInfo
-	19, // 46: izci.ingest.v1.DeviceContext.memory:type_name -> izci.ingest.v1.MemoryInfo
-	20, // 47: izci.ingest.v1.DeviceContext.storage:type_name -> izci.ingest.v1.StorageInfo
-	21, // 48: izci.ingest.v1.DeviceContext.screen:type_name -> izci.ingest.v1.ScreenInfo
-	44, // 49: izci.ingest.v1.DeviceContext.boot_time:type_name -> google.protobuf.Timestamp
-	44, // 50: izci.ingest.v1.AppContext.start_time:type_name -> google.protobuf.Timestamp
-	44, // 51: izci.ingest.v1.ProcessContext.start_time:type_name -> google.protobuf.Timestamp
-	46, // 52: izci.ingest.v1.ProcessContext.uptime:type_name -> google.protobuf.Duration
-	46, // 53: izci.ingest.v1.ProcessContext.gc_pause_total:type_name -> google.protobuf.Duration
-	46, // 54: izci.ingest.v1.ProcessContext.cpu_time_user:type_name -> google.protobuf.Duration
-	46, // 55: izci.ingest.v1.ProcessContext.cpu_time_system:type_name -> google.protobuf.Duration
-	33, // 56: izci.ingest.v1.Sdk.packages:type_name -> izci.ingest.v1.SdkPackage
-	45, // 57: izci.ingest.v1.Contexts.CustomEntry.value:type_name -> google.protobuf.Struct
-	58, // [58:58] is the sub-list for method output_type
-	58, // [58:58] is the sub-list for method input_type
-	58, // [58:58] is the sub-list for extension type_name
-	58, // [58:58] is the sub-list for extension extendee
-	0,  // [0:58] is the sub-list for field type_name
+	47, // 0: izci.ingest.v1.Event.timestamp:type_name -> google.protobuf.Timestamp
+	1,  // 1: izci.ingest.v1.Event.level:type_name -> izci.ingest.v1.Level
+	5,  // 2: izci.ingest.v1.Event.customer:type_name -> izci.ingest.v1.Customer
+	6,  // 3: izci.ingest.v1.Event.tenant:type_name -> izci.ingest.v1.Tenant
+	7,  // 4: izci.ingest.v1.Event.message:type_name -> izci.ingest.v1.Message
+	8,  // 5: izci.ingest.v1.Event.exceptions:type_name -> izci.ingest.v1.Exception
+	12, // 6: izci.ingest.v1.Event.threads:type_name -> izci.ingest.v1.Thread
+	13, // 7: izci.ingest.v1.Event.breadcrumbs:type_name -> izci.ingest.v1.Breadcrumb
+	14, // 8: izci.ingest.v1.Event.request:type_name -> izci.ingest.v1.Request
+	16, // 9: izci.ingest.v1.Event.response:type_name -> izci.ingest.v1.Response
+	17, // 10: izci.ingest.v1.Event.user:type_name -> izci.ingest.v1.User
+	19, // 11: izci.ingest.v1.Event.contexts:type_name -> izci.ingest.v1.Contexts
+	37, // 12: izci.ingest.v1.Event.tags:type_name -> izci.ingest.v1.Event.TagsEntry
+	48, // 13: izci.ingest.v1.Event.extra:type_name -> google.protobuf.Struct
+	35, // 14: izci.ingest.v1.Event.sdk:type_name -> izci.ingest.v1.Sdk
+	38, // 15: izci.ingest.v1.Event.modules:type_name -> izci.ingest.v1.Event.ModulesEntry
+	3,  // 16: izci.ingest.v1.Event.debug_images:type_name -> izci.ingest.v1.DebugImage
+	4,  // 17: izci.ingest.v1.Event.processing_errors:type_name -> izci.ingest.v1.ProcessingError
+	0,  // 18: izci.ingest.v1.ProcessingError.kind:type_name -> izci.ingest.v1.ProcessingErrorKind
+	39, // 19: izci.ingest.v1.Customer.attributes:type_name -> izci.ingest.v1.Customer.AttributesEntry
+	9,  // 20: izci.ingest.v1.Exception.mechanism:type_name -> izci.ingest.v1.Mechanism
+	10, // 21: izci.ingest.v1.Exception.stacktrace:type_name -> izci.ingest.v1.Stacktrace
+	40, // 22: izci.ingest.v1.Mechanism.data:type_name -> izci.ingest.v1.Mechanism.DataEntry
+	11, // 23: izci.ingest.v1.Stacktrace.frames:type_name -> izci.ingest.v1.Frame
+	41, // 24: izci.ingest.v1.Stacktrace.registers:type_name -> izci.ingest.v1.Stacktrace.RegistersEntry
+	11, // 25: izci.ingest.v1.Stacktrace.raw_frames:type_name -> izci.ingest.v1.Frame
+	42, // 26: izci.ingest.v1.Frame.vars:type_name -> izci.ingest.v1.Frame.VarsEntry
+	10, // 27: izci.ingest.v1.Thread.stacktrace:type_name -> izci.ingest.v1.Stacktrace
+	47, // 28: izci.ingest.v1.Breadcrumb.timestamp:type_name -> google.protobuf.Timestamp
+	1,  // 29: izci.ingest.v1.Breadcrumb.level:type_name -> izci.ingest.v1.Level
+	48, // 30: izci.ingest.v1.Breadcrumb.data:type_name -> google.protobuf.Struct
+	15, // 31: izci.ingest.v1.Request.headers:type_name -> izci.ingest.v1.Header
+	43, // 32: izci.ingest.v1.Request.cookies:type_name -> izci.ingest.v1.Request.CookiesEntry
+	44, // 33: izci.ingest.v1.Request.env:type_name -> izci.ingest.v1.Request.EnvEntry
+	15, // 34: izci.ingest.v1.Response.headers:type_name -> izci.ingest.v1.Header
+	45, // 35: izci.ingest.v1.User.attributes:type_name -> izci.ingest.v1.User.AttributesEntry
+	18, // 36: izci.ingest.v1.User.geo:type_name -> izci.ingest.v1.Geo
+	20, // 37: izci.ingest.v1.Contexts.device:type_name -> izci.ingest.v1.DeviceContext
+	25, // 38: izci.ingest.v1.Contexts.os:type_name -> izci.ingest.v1.OsContext
+	26, // 39: izci.ingest.v1.Contexts.runtime:type_name -> izci.ingest.v1.RuntimeContext
+	27, // 40: izci.ingest.v1.Contexts.browser:type_name -> izci.ingest.v1.BrowserContext
+	28, // 41: izci.ingest.v1.Contexts.app:type_name -> izci.ingest.v1.AppContext
+	29, // 42: izci.ingest.v1.Contexts.process:type_name -> izci.ingest.v1.ProcessContext
+	30, // 43: izci.ingest.v1.Contexts.gpu:type_name -> izci.ingest.v1.GpuContext
+	31, // 44: izci.ingest.v1.Contexts.culture:type_name -> izci.ingest.v1.CultureContext
+	32, // 45: izci.ingest.v1.Contexts.trace:type_name -> izci.ingest.v1.TraceContext
+	33, // 46: izci.ingest.v1.Contexts.database:type_name -> izci.ingest.v1.DatabaseContext
+	34, // 47: izci.ingest.v1.Contexts.cloud:type_name -> izci.ingest.v1.CloudContext
+	46, // 48: izci.ingest.v1.Contexts.custom:type_name -> izci.ingest.v1.Contexts.CustomEntry
+	21, // 49: izci.ingest.v1.DeviceContext.cpu:type_name -> izci.ingest.v1.CpuInfo
+	22, // 50: izci.ingest.v1.DeviceContext.memory:type_name -> izci.ingest.v1.MemoryInfo
+	23, // 51: izci.ingest.v1.DeviceContext.storage:type_name -> izci.ingest.v1.StorageInfo
+	24, // 52: izci.ingest.v1.DeviceContext.screen:type_name -> izci.ingest.v1.ScreenInfo
+	47, // 53: izci.ingest.v1.DeviceContext.boot_time:type_name -> google.protobuf.Timestamp
+	47, // 54: izci.ingest.v1.AppContext.start_time:type_name -> google.protobuf.Timestamp
+	47, // 55: izci.ingest.v1.ProcessContext.start_time:type_name -> google.protobuf.Timestamp
+	49, // 56: izci.ingest.v1.ProcessContext.uptime:type_name -> google.protobuf.Duration
+	49, // 57: izci.ingest.v1.ProcessContext.gc_pause_total:type_name -> google.protobuf.Duration
+	49, // 58: izci.ingest.v1.ProcessContext.cpu_time_user:type_name -> google.protobuf.Duration
+	49, // 59: izci.ingest.v1.ProcessContext.cpu_time_system:type_name -> google.protobuf.Duration
+	36, // 60: izci.ingest.v1.Sdk.packages:type_name -> izci.ingest.v1.SdkPackage
+	48, // 61: izci.ingest.v1.Contexts.CustomEntry.value:type_name -> google.protobuf.Struct
+	62, // [62:62] is the sub-list for method output_type
+	62, // [62:62] is the sub-list for method input_type
+	62, // [62:62] is the sub-list for extension type_name
+	62, // [62:62] is the sub-list for extension extendee
+	0,  // [0:62] is the sub-list for field type_name
 }
 
 func init() { file_izci_ingest_v1_event_proto_init() }
@@ -4153,23 +4451,23 @@ func file_izci_ingest_v1_event_proto_init() {
 	if File_izci_ingest_v1_event_proto != nil {
 		return
 	}
-	file_izci_ingest_v1_event_proto_msgTypes[5].OneofWrappers = []any{}
 	file_izci_ingest_v1_event_proto_msgTypes[7].OneofWrappers = []any{}
-	file_izci_ingest_v1_event_proto_msgTypes[16].OneofWrappers = []any{}
-	file_izci_ingest_v1_event_proto_msgTypes[17].OneofWrappers = []any{}
+	file_izci_ingest_v1_event_proto_msgTypes[9].OneofWrappers = []any{}
 	file_izci_ingest_v1_event_proto_msgTypes[18].OneofWrappers = []any{}
-	file_izci_ingest_v1_event_proto_msgTypes[21].OneofWrappers = []any{}
-	file_izci_ingest_v1_event_proto_msgTypes[24].OneofWrappers = []any{}
-	file_izci_ingest_v1_event_proto_msgTypes[25].OneofWrappers = []any{}
+	file_izci_ingest_v1_event_proto_msgTypes[19].OneofWrappers = []any{}
+	file_izci_ingest_v1_event_proto_msgTypes[20].OneofWrappers = []any{}
+	file_izci_ingest_v1_event_proto_msgTypes[23].OneofWrappers = []any{}
+	file_izci_ingest_v1_event_proto_msgTypes[26].OneofWrappers = []any{}
 	file_izci_ingest_v1_event_proto_msgTypes[27].OneofWrappers = []any{}
 	file_izci_ingest_v1_event_proto_msgTypes[29].OneofWrappers = []any{}
+	file_izci_ingest_v1_event_proto_msgTypes[31].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_ingest_v1_event_proto_rawDesc), len(file_izci_ingest_v1_event_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   43,
+			NumEnums:      2,
+			NumMessages:   45,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

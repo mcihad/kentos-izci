@@ -204,6 +204,7 @@ Birden fazla örneği aynı veritabanıyla bir yük dengeleyicinin arkasında ç
 - Yapay zekâ analizleri ortak kuyruktan alınır; her örnek en çok `AI_MAX_CONCURRENT` analiz yürütür. Her örneğin kendi `IZCI_DATA_DIR` klasörü olmalıdır.
 - Bakım işleri (bölüm oluşturma, saklama, proje temizliği) her örnekte çalışır ve tekrarlanabilir işlerdir.
 - Zamanlanmış görev kontrolü her örnekte çalışır; satırlar kilitlenerek alındığı için bir çalışma yalnız bir kez kaçırılmış sayılır.
+- Her örnek, yığın izi çözmek için kaynak eşlemelerini ve sembol dosyalarını kendi belleğinde önbelleğe alır (`INGEST_SYMBOL_CACHE_MB`, varsayılan 256 MiB). Büyük Flutter uygulamalarının sembol dosyaları çözülmüş hâlde yüz megabaytı bulabilir; bellek sınırlarını buna göre verin.
 
 ## İzleme
 
@@ -246,6 +247,9 @@ scrape_configs:
 | `izci_sentry_attachments_total{outcome}`, `izci_sentry_attachment_bytes_total` | sayaç | Olay ekleri: `stored`, `discarded` (proje ayarı ya da kabul edilmeyen olay), `too_large`; saklanan bayt. |
 | `izci_sentry_feedback_total{outcome}` | sayaç | Kullanıcı geri bildirimleri: `stored`, `duplicate`, `rejected`. |
 | `izci_sentry_sessions_total{outcome}` | sayaç | Sürüm sağlığı oturum güncellemeleri: `accepted`, `invalid` (sürümsüz, çok eski), `filtered` (yok sayılan ortam). |
+| `izci_symbol_uploads_total{outcome}` | sayaç | [Kaynak eşlemesi ve sembol](kaynak-eslemeleri.md) yüklemeleri: `stored`, `duplicate` (zaten vardı), `rejected` (okunamayan ya da kotayı aşan dosya). |
+| `izci_symbolicated_frames_total{kind,outcome}` | sayaç | Çözülmeye çalışılan yığın çerçeveleri; `kind`: `sourcemap`, `native`; `outcome`: `resolved`, `missing`. |
+| `izci_symbol_cache_bytes` | gösterge | Bellekteki çözülmüş kaynak eşlemeleri ve sembol dosyaları (`INGEST_SYMBOL_CACHE_MB` ile sınırlı). |
 | `izci_monitor_checkins_total{outcome}` | sayaç | Zamanlanmış görev check-in'leri: `accepted`, `unknown_monitor` (izleyici yok, yapılandırma da yok), `invalid`, `rate_limited`. |
 | `izci_monitor_missed_total`, `izci_monitor_timeouts_total` | sayaç | İzci'nin kaydettiği kaçırılan ve zaman aşımına uğrayan çalışmalar. |
 | `izci_monitor_incident_events_total`, `izci_monitor_recoveries_total` | sayaç | Zamanlanmış görev sorunları için üretilen hata olayları ve kendiliğinden çözülen kayıtlar. |

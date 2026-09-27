@@ -34,6 +34,9 @@
 | `events` | Olaylar; **günlük bölümlere** ayrılmıştır (aşağıya bakın). |
 | `event_attachments` | Olay ekleri (ekran görüntüsü, günlük dosyası); istemci olay kimliğiyle olaya bağlanır, içerik `bytea` olarak lz4 ile sıkıştırılır. |
 | `user_feedback` | Kullanıcı geri bildirimleri; ilgili olay saklandığında hataya bağlanır. |
+| `artifact_bundles`, `artifact_files` | Yüklenen kaynak eşleme paketleri ve dosyaları (betik, eşleme; debug kimliği, sürüm, adres); içerik `bytea`, lz4 ile sıkıştırılır. |
+| `debug_files` | Flutter ve Dart sembol dosyaları (ELF, Mach-O) ve karıştırma haritaları; debug kimliğiyle aranır. |
+| `upload_chunks` | Birleştirilmeyi bekleyen yükleme parçaları; en çok bir saat tutulur. |
 | `monitors` | Zamanlanmış görev izleyicileri: kısa ad, zamanlama (crontab ya da aralık), saat dilimi, gecikme payı, en uzun süre, eşikler. |
 | `monitor_environments` | İzleyicinin her ortamdaki durumu: son ve beklenen çalışma, art arda hata ve başarı sayısı, açık hata kaydı. |
 | `monitor_checkins` | Çalışmalar (check-in'ler): durum, süre, sürüm, beklenen zaman. `RETENTION_DAYS` kadar saklanır. |

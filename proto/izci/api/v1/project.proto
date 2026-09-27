@@ -330,7 +330,10 @@ enum ApiKeyScope {
   API_KEY_SCOPE_UNSPECIFIED = 0;
   // Send events (IngestService.SendEvent, SendEvents, Sentry endpoints).
   API_KEY_SCOPE_INGEST = 1;
-  // Register releases (IngestService.RegisterRelease), for CI.
+  // Register releases (IngestService.RegisterRelease) and upload source
+  // maps and debug files through the Sentry-compatible upload endpoints
+  // (sentry-cli, bundler plugins), for CI. Keys embedded in browser or mobile
+  // apps should not have it.
   API_KEY_SCOPE_RELEASES = 2;
 }
 

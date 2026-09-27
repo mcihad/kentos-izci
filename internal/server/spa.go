@@ -116,6 +116,14 @@ func NewSPAHandler(fsys fs.FS, cfg *config.Config, log *slog.Logger) http.Handle
 }
 
 func (h *spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// Unknown API paths (Sentry clients probe endpoints izci lacks) get a
+	// JSON 404 instead of the app's HTML.
+	if strings.HasPrefix(r.URL.Path, "/api/") {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = io.WriteString(w, `{"detail":"not found"}`)
+		return
+	}
 	if r.Method != http.MethodGet && r.Method != http.MethodHead {
 		w.Header().Set("Allow", "GET, HEAD")
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)

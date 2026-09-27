@@ -55,7 +55,7 @@ export function ProjectPrivacy({ project }: { project: Project }) {
         update.mutate({ slug: project.slug, settings });
       }}
     >
-      <section className="grid gap-3">
+      <section className="grid grid-cols-1 gap-3">
         <div>
           <h2 className="font-semibold text-lg">İstemci IP adresi</h2>
           <p className="mt-0.5 text-sm text-muted-foreground">

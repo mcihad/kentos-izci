@@ -1,0 +1,216 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+// SymbolService lists and removes the files izci resolves stack traces
+// with: source map bundles of web applications and the debug information
+// files and obfuscation maps of Flutter and Dart builds. They are uploaded
+// with sentry-cli, the Sentry bundler plugins (Vite, webpack, Rollup,
+// esbuild) or sentry_dart_plugin through izci's Sentry-compatible upload
+// endpoints (/api/0/...).
+service SymbolService {
+  // ListArtifactBundles returns a project's source map bundles, newest
+  // first. Requires ROLE_VIEWER.
+  rpc ListArtifactBundles(ListArtifactBundlesRequest) returns (ListArtifactBundlesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // DeleteArtifactBundle removes a bundle with its files; events that
+  // arrive later are no longer resolved with it. Requires ROLE_ADMIN.
+  rpc DeleteArtifactBundle(DeleteArtifactBundleRequest) returns (DeleteArtifactBundleResponse);
+
+  // ListDebugFiles returns a project's debug information files and
+  // obfuscation maps, newest first. Requires ROLE_VIEWER.
+  rpc ListDebugFiles(ListDebugFilesRequest) returns (ListDebugFilesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // DeleteDebugFile removes a debug file. Requires ROLE_ADMIN.
+  rpc DeleteDebugFile(DeleteDebugFileRequest) returns (DeleteDebugFileResponse);
+}
+
+// ArtifactBundle is an upload of minified scripts and their source maps.
+message ArtifactBundle {
+  // Bundle id (UUID).
+  string id = 1;
+
+  // Release the bundle was uploaded for; empty when its files are matched
+  // by debug id only.
+  string release = 2;
+
+  // Distribution within the release, e.g. a build number; often empty.
+  string dist = 3;
+
+  // Number of files.
+  uint32 file_count = 4;
+
+  // Size of the uploaded archive in bytes.
+  uint64 size_bytes = 5;
+
+  // When the bundle was uploaded.
+  google.protobuf.Timestamp created_at = 6;
+
+  // When a file of the bundle last resolved a stack frame (updated at most
+  // hourly); unset when never used.
+  google.protobuf.Timestamp last_used_at = 7;
+
+  // The bundle's files, at most 50 (scripts and maps first).
+  repeated ArtifactFile files = 8;
+}
+
+// ArtifactFile is one file of a bundle.
+message ArtifactFile {
+  // URL the file is served under, usually without host:
+  // "~/assets/index-9f8e.js".
+  string url = 1;
+
+  // What the file is.
+  ArtifactFileKind kind = 2;
+
+  // Debug id linking a script to its source map (UUID); empty for files
+  // matched by release and URL.
+  string debug_id = 3;
+
+  // Size in bytes.
+  uint32 size_bytes = 4;
+}
+
+// ArtifactFileKind classifies bundle files.
+enum ArtifactFileKind {
+  // Not set.
+  ARTIFACT_FILE_KIND_UNSPECIFIED = 0;
+  // A minified (generated) script.
+  ARTIFACT_FILE_KIND_MINIFIED_SOURCE = 1;
+  // A source map.
+  ARTIFACT_FILE_KIND_SOURCE_MAP = 2;
+  // An original source file.
+  ARTIFACT_FILE_KIND_SOURCE = 3;
+}
+
+// DebugFile is a debug information file or an obfuscation map.
+message DebugFile {
+  // File id (UUID).
+  string id = 1;
+
+  // Debug id the file serves (UUID): events carry it in their debug
+  // images.
+  string debug_id = 2;
+
+  // Build id (ELF) or UUID (Mach-O) in hex; empty for obfuscation maps.
+  string code_id = 3;
+
+  // What the file is.
+  DebugFileKind kind = 4;
+
+  // File name as uploaded, e.g. "app.android-arm64.symbols".
+  string name = 5;
+
+  // CPU architecture, e.g. "arm64"; empty for obfuscation maps.
+  string arch = 6;
+
+  // What the file offers: "debug" (functions, files and lines), "symtab"
+  // (symbol table), "mapping" (obfuscated names).
+  repeated string features = 7;
+
+  // Size in bytes.
+  uint64 size_bytes = 8;
+
+  // When the file was uploaded.
+  google.protobuf.Timestamp created_at = 9;
+
+  // When the file last resolved a stack trace (updated at most hourly).
+  google.protobuf.Timestamp last_used_at = 10;
+}
+
+// DebugFileKind classifies debug files.
+enum DebugFileKind {
+  // Not set.
+  DEBUG_FILE_KIND_UNSPECIFIED = 0;
+  // ELF object with DWARF, e.g. the split debug info of an Android build.
+  DEBUG_FILE_KIND_ELF = 1;
+  // Mach-O object (dSYM companion) with DWARF, e.g. of an iOS build.
+  DEBUG_FILE_KIND_MACHO = 2;
+  // Dart obfuscation map (--save-obfuscation-map), for exception types.
+  DEBUG_FILE_KIND_DART_SYMBOL_MAP = 3;
+}
+
+// ListArtifactBundlesRequest names a project and a page.
+message ListArtifactBundlesRequest {
+  // Project slug.
+  string project = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+
+  // Page size, 1-100 (default 20).
+  uint32 page_size = 2 [(buf.validate.field).uint32.lte = 100];
+
+  // Token from a previous response for the next page.
+  string page_token = 3 [(buf.validate.field).string.max_len = 100];
+}
+
+// ListArtifactBundlesResponse is a page of bundles.
+message ListArtifactBundlesResponse {
+  // Bundles, newest first.
+  repeated ArtifactBundle bundles = 1;
+
+  // Token for the next page; empty on the last page.
+  string next_page_token = 2;
+}
+
+// DeleteArtifactBundleRequest names a bundle.
+message DeleteArtifactBundleRequest {
+  // Project slug.
+  string project = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+
+  // Bundle id (UUID).
+  string id = 2 [(buf.validate.field).string.uuid = true];
+}
+
+// DeleteArtifactBundleResponse is empty.
+message DeleteArtifactBundleResponse {}
+
+// ListDebugFilesRequest names a project and a page.
+message ListDebugFilesRequest {
+  // Project slug.
+  string project = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+
+  // Page size, 1-100 (default 20).
+  uint32 page_size = 2 [(buf.validate.field).uint32.lte = 100];
+
+  // Token from a previous response for the next page.
+  string page_token = 3 [(buf.validate.field).string.max_len = 100];
+}
+
+// ListDebugFilesResponse is a page of debug files.
+message ListDebugFilesResponse {
+  // Files, newest first.
+  repeated DebugFile files = 1;
+
+  // Token for the next page; empty on the last page.
+  string next_page_token = 2;
+}
+
+// DeleteDebugFileRequest names a debug file.
+message DeleteDebugFileRequest {
+  // Project slug.
+  string project = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+
+  // File id (UUID).
+  string id = 2 [(buf.validate.field).string.uuid = true];
+}
+
+// DeleteDebugFileResponse is empty.
+message DeleteDebugFileResponse {}

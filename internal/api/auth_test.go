@@ -98,6 +98,7 @@ type client struct {
 	integ     apiv1connect.IntegrationServiceClient
 	feedback  apiv1connect.FeedbackServiceClient
 	monitor   apiv1connect.MonitorServiceClient
+	symbol    apiv1connect.SymbolServiceClient
 	hc        *http.Client
 	hdr       map[string]string
 }
@@ -121,6 +122,7 @@ func (e *env) client(hdr map[string]string) *client {
 		integ:     apiv1connect.NewIntegrationServiceClient(hc, e.srv.URL, opt),
 		feedback:  apiv1connect.NewFeedbackServiceClient(hc, e.srv.URL, opt),
 		monitor:   apiv1connect.NewMonitorServiceClient(hc, e.srv.URL, opt),
+		symbol:    apiv1connect.NewSymbolServiceClient(hc, e.srv.URL, opt),
 		hc:        hc,
 		hdr:       hdr,
 	}

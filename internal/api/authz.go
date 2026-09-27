@@ -70,6 +70,11 @@ var rules = map[string]rule{
 	c.MonitorServiceUpdateMonitorProcedure: orgRule(admin, write),
 	c.MonitorServiceDeleteMonitorProcedure: orgRule(admin, write),
 	c.MonitorServiceListCheckInsProcedure:  orgRule(viewer, read),
+	// SymbolService
+	c.SymbolServiceListArtifactBundlesProcedure:  orgRule(viewer, read),
+	c.SymbolServiceDeleteArtifactBundleProcedure: orgRule(admin, write),
+	c.SymbolServiceListDebugFilesProcedure:       orgRule(viewer, read),
+	c.SymbolServiceDeleteDebugFileProcedure:      orgRule(admin, write),
 
 	// ProjectService
 	c.ProjectServiceListProjectsProcedure:       orgRule(viewer, read),

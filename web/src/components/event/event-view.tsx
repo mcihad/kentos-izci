@@ -1,11 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { InfoIcon } from "lucide-react";
+import { InfoIcon, WandSparklesIcon } from "lucide-react";
 import { useState } from "react";
 import { FeedbackItem } from "@/components/feedback/feedback-list";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import type { EventDetail } from "@/gen/izci/api/v1/event_pb";
-import type { Exception, Thread } from "@/gen/izci/ingest/v1/event_pb";
+import type { Exception, Frame, Stacktrace, Thread } from "@/gen/izci/ingest/v1/event_pb";
 import { toDate } from "@/lib/format";
 import { levels } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
@@ -13,6 +13,7 @@ import { Attachments } from "./attachments";
 import { BreadcrumbTrail } from "./breadcrumbs";
 import { ContextGrid } from "./contexts";
 import { EventSection, JsonTree, KVList } from "./parts";
+import { ProcessingErrors } from "./processing-errors";
 import { RequestView } from "./request";
 import { StackTrail } from "./stack-trail";
 
@@ -26,6 +27,13 @@ export function EventView({ detail }: { detail: EventDetail }) {
   );
   const [appOnly, setAppOnly] = useState(true);
   const [newestFirst, setNewestFirst] = useState(true);
+  // Frames resolved with source maps or debug files keep the form the SDK
+  // sent; the toggle shows it.
+  const hasRaw = !!(
+    ev?.exceptions.some((e) => e.stacktrace?.rawFrames.length) ||
+    ev?.threads.some((t) => t.stacktrace?.rawFrames.length)
+  );
+  const [raw, setRaw] = useState(false);
   if (!ev) return null;
   const color = levels[ev.level].color;
   const chain = [...ev.exceptions].reverse();
@@ -56,11 +64,20 @@ export function EventView({ detail }: { detail: EventDetail }) {
           En yeni çağrı üstte
         </Label>
       </div>
+      {hasRaw ? (
+        <div className="flex items-center gap-2">
+          <Switch id="raw-frames" checked={raw} onCheckedChange={setRaw} />
+          <Label htmlFor="raw-frames" className="font-normal text-sm text-muted-foreground">
+            Ham yığın izi
+          </Label>
+        </div>
+      ) : null}
     </>
   );
 
   return (
     <div className="@container">
+      <ProcessingErrors errors={ev.processingErrors} release={ev.release} images={ev.debugImages} />
       {ev.message?.formatted && chain.length === 0 ? (
         <EventSection title="Mesaj">
           <p className="whitespace-pre-wrap break-words font-mono text-sm">{ev.message.formatted}</p>
@@ -90,6 +107,7 @@ export function EventView({ detail }: { detail: EventDetail }) {
                 color={i === 0 ? color : "var(--muted-foreground)"}
                 appOnly={appOnly}
                 newestFirst={newestFirst}
+                raw={raw}
               />
             ))}
           </div>
@@ -106,7 +124,7 @@ export function EventView({ detail }: { detail: EventDetail }) {
           aside={trailToggles}
         >
           <StackTrail
-            frames={primaryThread.stacktrace?.frames ?? []}
+            frames={framesOf(primaryThread.stacktrace, raw)}
             detail={detail}
             platform={ev.platform}
             levelColor={color}
@@ -276,6 +294,12 @@ export function EventView({ detail }: { detail: EventDetail }) {
   );
 }
 
+/** The frames of a stack trace, or as the SDK sent them when raw. */
+function framesOf(st: Stacktrace | undefined, raw: boolean): Frame[] {
+  if (!st) return [];
+  return raw && st.rawFrames.length > 0 ? st.rawFrames : st.frames;
+}
+
 function ExceptionBlock({
   ex,
   cause,
@@ -284,6 +308,7 @@ function ExceptionBlock({
   color,
   appOnly,
   newestFirst,
+  raw,
 }: {
   ex: Exception;
   cause: boolean;
@@ -292,8 +317,10 @@ function ExceptionBlock({
   color: string;
   appOnly: boolean;
   newestFirst: boolean;
+  raw: boolean;
 }) {
   const m = ex.mechanism;
+  const resolved = (ex.stacktrace?.rawFrames.length ?? 0) > 0;
   return (
     <div>
       {cause ? <p className="mb-2 font-semibold text-sm text-muted-foreground">Nedeni</p> : null}
@@ -324,9 +351,17 @@ function ExceptionBlock({
             ) : null}
           </p>
         ) : null}
+        {resolved ? (
+          <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
+            <WandSparklesIcon className="size-3.5 shrink-0" />
+            {raw
+              ? "Yığın izi SDK'nın gönderdiği hâliyle gösteriliyor."
+              : "Yığın izi yüklenen kaynak eşlemeleri ve sembol dosyalarıyla özgün koda çevrildi."}
+          </p>
+        ) : null}
       </div>
       <StackTrail
-        frames={ex.stacktrace?.frames ?? []}
+        frames={framesOf(ex.stacktrace, raw)}
         detail={detail}
         platform={platform}
         levelColor={color}

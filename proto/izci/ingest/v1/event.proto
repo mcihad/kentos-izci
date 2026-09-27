@@ -182,6 +182,73 @@ message Event {
   // {"github.com/jackc/pgx/v5": "v5.11.0"}. Helps to spot issues caused by a
   // dependency upgrade. Max 500 entries.
   map<string, string> modules = 25;
+
+  // Code the stack traces run in, used to resolve them with uploaded source
+  // maps and debug files: scripts with debug ids and native images with
+  // their load addresses. Max 500 images.
+  //
+  // Sentry equivalent: debug_meta.images.
+  repeated DebugImage debug_images = 26;
+
+  // Problems izci met while resolving the stack traces with uploaded source
+  // maps or debug files, e.g. a missing source map. Set by the server;
+  // ignored on input.
+  repeated ProcessingError processing_errors = 27;
+}
+
+// DebugImage is a script or a native library the application loaded.
+message DebugImage {
+  // Kind of image: "sourcemap" (a script with a debug id), "elf", "macho" or
+  // "pe" (native code).
+  string type = 1;
+
+  // Debug id of the image as a UUID, e.g. the id sentry-cli injected into a
+  // script or the one derived from the build id of a Flutter app.
+  string debug_id = 2;
+
+  // Code id of a native image: its build id (ELF) or UUID (Mach-O) in hex.
+  string code_id = 3;
+
+  // Path or URL of the image, e.g. "https://kalem.example.com/assets/app.js"
+  // or "libapp.so". Frames of a script match its code_file.
+  string code_file = 4;
+
+  // Address the native image was loaded at, in hex, e.g. "0x7a2e400000".
+  string image_addr = 5;
+
+  // Size of the native image in bytes; 0 when unknown.
+  uint64 image_size = 6;
+
+  // CPU architecture of the native image, e.g. "arm64".
+  string arch = 7;
+}
+
+// ProcessingError is a problem met while resolving stack traces.
+message ProcessingError {
+  // What went wrong.
+  ProcessingErrorKind kind = 1;
+
+  // The script URL or the debug id of the native image concerned.
+  string target = 2;
+
+  // Details in English, e.g. the release that was searched or a parse
+  // error.
+  string detail = 3;
+}
+
+// ProcessingErrorKind classifies processing errors.
+enum ProcessingErrorKind {
+  // Not set.
+  PROCESSING_ERROR_KIND_UNSPECIFIED = 0;
+  // No source map was uploaded for a script, neither by debug id nor for
+  // the release and URL.
+  PROCESSING_ERROR_KIND_SOURCE_MAP_MISSING = 1;
+  // The uploaded source map could not be read.
+  PROCESSING_ERROR_KIND_SOURCE_MAP_INVALID = 2;
+  // No debug information file was uploaded for a native image.
+  PROCESSING_ERROR_KIND_DEBUG_FILE_MISSING = 3;
+  // The uploaded debug information file could not be read.
+  PROCESSING_ERROR_KIND_DEBUG_FILE_INVALID = 4;
 }
 
 // Level is the severity of an event, from least to most severe.
@@ -325,6 +392,11 @@ message Stacktrace {
   // CPU register values for native crashes, name → hexadecimal value, e.g.
   // {"rip": "0x00007ff8a1b2c3d4"}.
   map<string, string> registers = 2;
+
+  // The frames as the SDK sent them when izci resolved minified or native
+  // frames with uploaded source maps or debug files; empty otherwise. Set
+  // by the server; ignored on input.
+  repeated Frame raw_frames = 3;
 }
 
 // Frame is a single stack frame.

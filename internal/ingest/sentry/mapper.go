@@ -52,6 +52,24 @@ type sentryEvent struct {
 	Fingerprint []string                   `json:"fingerprint"`
 	SDK         *sdkInfo                   `json:"sdk"`
 	Modules     map[string]any             `json:"modules"`
+	DebugMeta   *debugMeta                 `json:"debug_meta"`
+}
+
+type debugMeta struct {
+	Images []debugImage `json:"images"`
+}
+
+// debugImage is an entry of debug_meta.images: a script with a debug id
+// ("sourcemap") or a native image.
+type debugImage struct {
+	Type      string          `json:"type"`
+	DebugID   string          `json:"debug_id"`
+	UUID      string          `json:"uuid"` // older Apple SDKs
+	CodeID    string          `json:"code_id"`
+	CodeFile  string          `json:"code_file"`
+	ImageAddr json.RawMessage `json:"image_addr"`
+	ImageSize json.Number     `json:"image_size"`
+	Arch      string          `json:"arch"`
 }
 
 type logEntry struct {
@@ -230,7 +248,36 @@ func convert(se *sentryEvent) *ingestv1.Event {
 			ev.Modules[k] = anyString(v)
 		}
 	}
+	if se.DebugMeta != nil {
+		for _, im := range se.DebugMeta.Images {
+			img := &ingestv1.DebugImage{Type: im.Type, DebugId: im.DebugID, CodeId: im.CodeID, CodeFile: im.CodeFile,
+				ImageAddr: address(im.ImageAddr), Arch: im.Arch}
+			if img.DebugId == "" {
+				img.DebugId = im.UUID
+			}
+			if n := number(im.ImageSize); n > 0 {
+				img.ImageSize = uint64(n)
+			}
+			ev.DebugImages = append(ev.DebugImages, img)
+		}
+	}
 	return ev
+}
+
+// address reads an address given as a hex string or as a number.
+func address(raw json.RawMessage) string {
+	raw = bytes.TrimSpace(raw)
+	if len(raw) == 0 || string(raw) == "null" {
+		return ""
+	}
+	if raw[0] == '"' {
+		return rawString(raw)
+	}
+	n, err := strconv.ParseUint(string(raw), 10, 64)
+	if err != nil {
+		return ""
+	}
+	return "0x" + strconv.FormatUint(n, 16)
 }
 
 // applyIzciMapping reads customer and tenant from well-known tags

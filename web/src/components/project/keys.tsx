@@ -37,7 +37,7 @@ import { lines, useInvalidateProjects } from "./use-project";
 const scopeLabels: Record<ApiKeyScope, string> = {
   [ApiKeyScope.UNSPECIFIED]: "",
   [ApiKeyScope.INGEST]: "Olay gönderme",
-  [ApiKeyScope.RELEASES]: "Sürüm kaydı",
+  [ApiKeyScope.RELEASES]: "Sürüm ve dosya yükleme",
 };
 
 export function ProjectKeys({ project }: { project: Project }) {
@@ -269,9 +269,15 @@ function CreateKeyDialog({
                   onCheckedChange={(v) => setReleases(v === true)}
                 />
                 <Label htmlFor="key-releases" className="font-normal text-sm">
-                  CI hattından sürüm kaydına da izin ver
+                  CI hattından sürüm kaydına, kaynak eşlemesi ve sembol yüklemeye de izin ver
                 </Label>
               </div>
+              {releases ? (
+                <p className="-mt-2 text-sm text-muted-foreground">
+                  Bu anahtarı yalnız CI'da kullanın. Tarayıcıya ya da mobil uygulamaya konan anahtar herkese
+                  açıktır; ona bu izni vermeyin.
+                </p>
+              ) : null}
               <Field
                 label="İzin verilen tarayıcı kaynakları"
                 htmlFor="key-origins"

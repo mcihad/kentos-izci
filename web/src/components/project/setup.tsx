@@ -44,7 +44,7 @@ export function ProjectSetup({ project }: { project: Project }) {
 
   return (
     <div className="grid max-w-4xl grid-cols-1 *:min-w-0 gap-8 py-6">
-      <section className="grid gap-3">
+      <section className="grid grid-cols-1 gap-3">
         <h2 className="font-semibold text-lg">Bağlantı bilgileri</h2>
         <dl className="grid grid-cols-1 gap-3 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-x-5">
           <dt className="text-sm text-muted-foreground">Adres</dt>
@@ -74,7 +74,7 @@ export function ProjectSetup({ project }: { project: Project }) {
         </p>
       </section>
 
-      <section className="grid gap-3">
+      <section className="grid grid-cols-1 gap-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <h2 className="font-semibold text-lg">Uygulamanıza ekleyin</h2>
           {canWrite(org.role) ? (
@@ -118,6 +118,17 @@ export function ProjectSetup({ project }: { project: Project }) {
             <CodeBlock code={current.code} lang={current.lang} maxHeight="34rem" />
           </>
         ) : null}
+        <p className="text-sm text-muted-foreground">
+          Küçültülmüş JavaScript ya da karıştırılmış Flutter kodunun yığın izlerini okunur yapmak için{" "}
+          <Link
+            from="/o/$org/projects/$slug"
+            search={{ tab: "symbols" }}
+            className="text-foreground underline underline-offset-4"
+          >
+            Kaynak eşlemeleri
+          </Link>{" "}
+          sekmesine bakın.
+        </p>
       </section>
     </div>
   );

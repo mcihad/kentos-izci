@@ -20,6 +20,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/monitor"
 	"github.com/mcihad/kentos-izci/internal/store"
+	"github.com/mcihad/kentos-izci/internal/symbols"
 	"github.com/mcihad/kentos-izci/internal/testutil"
 	"github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1/ingestv1connect"
 )
@@ -51,7 +52,14 @@ type Env struct {
 	Pipeline *ingest.Pipeline
 	// Monitors processes cron check-ins; its failures become issues.
 	Monitors *monitor.Service
-	Server   *httptest.Server
+	// Symbols resolves stack traces with uploaded source maps and debug
+	// files.
+	Symbols *symbols.Service
+	// Keys resolves API keys.
+	Keys *ingest.KeyResolver
+	// Mux serves Server; tests may mount more handlers on it.
+	Mux    *http.ServeMux
+	Server *httptest.Server
 	// Batches receives committed batches (buffered, best effort).
 	Batches chan *ingest.Batch
 }
@@ -99,13 +107,17 @@ func New(t testing.TB, opts Options) *Env {
 		t.Cleanup(func() { _ = e.Pipeline.Close(context.Background()) })
 	}
 
+	e.Keys = ingest.NewKeyResolver(database, time.Minute)
 	e.Service = ingest.NewService(ingest.ServiceConfig{Durable: !opts.Async, Retention: 90 * 24 * time.Hour}, database, log,
-		ingest.NewKeyResolver(database, time.Minute), ingest.NewRateLimiter(1_000_000), ingest.NewQuotaTracker(database),
+		e.Keys, ingest.NewRateLimiter(1_000_000), ingest.NewQuotaTracker(database),
 		ingest.NewUsageRecorder(), ingest.NewDedupe(10000, time.Hour), e.Pipeline)
+	e.Symbols = symbols.NewService(database, log, symbols.Options{CacheBytes: 64 << 20})
+	e.Service.SetSymbolicator(e.Symbols)
 	e.Monitors = monitor.NewService(database, log, ingest.NewIncidentEmitter(database, e.Pipeline, 90*24*time.Hour))
 	e.Service.SetMonitors(e.Monitors)
 	path, handler := ingestv1connect.NewIngestServiceHandler(e.Service)
 	mux := http.NewServeMux()
+	e.Mux = mux
 	mux.Handle(path, ingest.CORS(handler))
 	if opts.Mount != nil {
 		opts.Mount(mux, e.Service)

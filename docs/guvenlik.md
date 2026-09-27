@@ -42,6 +42,7 @@ Projeye özel ayarlar **Projeler › proje › Gizlilik** bölümündedir:
 
 - Olaylar `RETENTION_DAYS` gün (varsayılan 90) saklanır. Günlük bölümler bütünüyle silinir; silinen olay geri getirilemez.
 - Silinen bir projenin bütün verisi arka planda temizlenir.
+- [Kaynak eşlemeleri ve sembol dosyaları](kaynak-eslemeleri.md) yığın izi çözdükçe tutulur; 90 gün (ya da daha uzunsa `RETENTION_DAYS`) kullanılmayanlar silinir. Kaynak eşlemeleri çoğu zaman uygulamanın kaynak kodunu içerir; organizasyon üyeleri hata sayfasında bu kodun satırlarını görür.
 - Son olayı bu süreden eski olan hatalar da; saatlik sayaçları, etiket dağılımları ve etkilenen kullanıcı kayıtlarıyla birlikte silinir. Organizasyonların kullanım istatistikleri (günlük olay sayıları) 400 gün tutulur.
 
 ## Kimlik doğrulama
@@ -51,6 +52,7 @@ Projeye özel ayarlar **Projeler › proje › Gizlilik** bölümündedir:
 - OpenID Connect akışı PKCE, `state` ve `nonce` kullanır.
 - Yönetim API'si tarayıcıdan yalnızca aynı kökenden çağrılabilir: her istek `Connect-Protocol-Version` başlığını taşımak zorundadır ve CORS izni verilmez. Bu, CSRF'ye karşı korur.
 - Ingest ve kişisel erişim anahtarları veritabanında SHA-256 özeti olarak saklanır.
+- Kaynak eşlemesi ve sembol yükleme, sürüm ve dosya yükleme izni olan proje anahtarı ya da `write` kapsamlı kişisel anahtar ister; tarayıcı oturumlarıyla yapılamaz. Tarayıcıya ve mobil uygulamaya konan anahtarlara bu izni vermeyin. Bir proje en çok 10 GiB yükleme saklayabilir.
 
 ## Şifreleme
 

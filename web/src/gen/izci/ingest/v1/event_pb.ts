@@ -40,7 +40,7 @@ import type { JsonObject, Message as Message$1 } from "@bufbuild/protobuf";
  * Describes the file izci/ingest/v1/event.proto.
  */
 export const file_izci_ingest_v1_event: GenFile = /*@__PURE__*/
-  fileDesc("ChppemNpL2luZ2VzdC92MS9ldmVudC5wcm90bxIOaXpjaS5pbmdlc3QudjEiuwcKBUV2ZW50EhAKCGV2ZW50X2lkGAEgASgJEi0KCXRpbWVzdGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASJAoFbGV2ZWwYAyABKA4yFS5pemNpLmluZ2VzdC52MS5MZXZlbBIQCghwbGF0Zm9ybRgEIAEoCRIOCgZsb2dnZXIYBSABKAkSEwoLdHJhbnNhY3Rpb24YBiABKAkSEwoLc2VydmVyX25hbWUYByABKAkSDwoHcmVsZWFzZRgIIAEoCRIMCgRkaXN0GAkgASgJEhMKC2Vudmlyb25tZW50GAogASgJEioKCGN1c3RvbWVyGAsgASgLMhguaXpjaS5pbmdlc3QudjEuQ3VzdG9tZXISJgoGdGVuYW50GAwgASgLMhYuaXpjaS5pbmdlc3QudjEuVGVuYW50EigKB21lc3NhZ2UYDSABKAsyFy5pemNpLmluZ2VzdC52MS5NZXNzYWdlEi0KCmV4Y2VwdGlvbnMYDiADKAsyGS5pemNpLmluZ2VzdC52MS5FeGNlcHRpb24SJwoHdGhyZWFkcxgPIAMoCzIWLml6Y2kuaW5nZXN0LnYxLlRocmVhZBIvCgticmVhZGNydW1icxgQIAMoCzIaLml6Y2kuaW5nZXN0LnYxLkJyZWFkY3J1bWISKAoHcmVxdWVzdBgRIAEoCzIXLml6Y2kuaW5nZXN0LnYxLlJlcXVlc3QSKgoIcmVzcG9uc2UYEiABKAsyGC5pemNpLmluZ2VzdC52MS5SZXNwb25zZRIiCgR1c2VyGBMgASgLMhQuaXpjaS5pbmdlc3QudjEuVXNlchIqCghjb250ZXh0cxgUIAEoCzIYLml6Y2kuaW5nZXN0LnYxLkNvbnRleHRzEi0KBHRhZ3MYFSADKAsyHy5pemNpLmluZ2VzdC52MS5FdmVudC5UYWdzRW50cnkSJgoFZXh0cmEYFiABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0EhMKC2ZpbmdlcnByaW50GBcgAygJEiAKA3NkaxgYIAEoCzITLml6Y2kuaW5nZXN0LnYxLlNkaxIzCgdtb2R1bGVzGBkgAygLMiIuaXpjaS5pbmdlc3QudjEuRXZlbnQuTW9kdWxlc0VudHJ5GisKCVRhZ3NFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBGi4KDE1vZHVsZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIpUBCghDdXN0b21lchIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEjwKCmF0dHJpYnV0ZXMYAyADKAsyKC5pemNpLmluZ2VzdC52MS5DdXN0b21lci5BdHRyaWJ1dGVzRW50cnkaMQoPQXR0cmlidXRlc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiIgoGVGVuYW50EgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkiPgoHTWVzc2FnZRIRCglmb3JtYXR0ZWQYASABKAkSEAoIdGVtcGxhdGUYAiABKAkSDgoGcGFyYW1zGAMgAygJIqkBCglFeGNlcHRpb24SDAoEdHlwZRgBIAEoCRINCgV2YWx1ZRgCIAEoCRIOCgZtb2R1bGUYAyABKAkSEQoJdGhyZWFkX2lkGAQgASgJEiwKCW1lY2hhbmlzbRgFIAEoCzIZLml6Y2kuaW5nZXN0LnYxLk1lY2hhbmlzbRIuCgpzdGFja3RyYWNlGAYgASgLMhouaXpjaS5pbmdlc3QudjEuU3RhY2t0cmFjZSK+AgoJTWVjaGFuaXNtEgwKBHR5cGUYASABKAkSFAoHaGFuZGxlZBgCIAEoCEgAiAEBEhEKCXN5bnRoZXRpYxgDIAEoCBITCgtkZXNjcmlwdGlvbhgEIAEoCRIRCgloZWxwX2xpbmsYBSABKAkSMQoEZGF0YRgGIAMoCzIjLml6Y2kuaW5nZXN0LnYxLk1lY2hhbmlzbS5EYXRhRW50cnkSFAoMZXhjZXB0aW9uX2lkGAcgASgFEhYKCXBhcmVudF9pZBgIIAEoBUgBiAEBEhoKEmlzX2V4Y2VwdGlvbl9ncm91cBgJIAEoCBIOCgZzb3VyY2UYCiABKAkaKwoJRGF0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCCgoIX2hhbmRsZWRCDAoKX3BhcmVudF9pZCKjAQoKU3RhY2t0cmFjZRIlCgZmcmFtZXMYASADKAsyFS5pemNpLmluZ2VzdC52MS5GcmFtZRI8CglyZWdpc3RlcnMYAiADKAsyKS5pemNpLmluZ2VzdC52MS5TdGFja3RyYWNlLlJlZ2lzdGVyc0VudHJ5GjAKDlJlZ2lzdGVyc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEijAMKBUZyYW1lEhAKCGZ1bmN0aW9uGAEgASgJEhQKDHJhd19mdW5jdGlvbhgCIAEoCRIOCgZtb2R1bGUYAyABKAkSDwoHcGFja2FnZRgEIAEoCRIQCghmaWxlbmFtZRgFIAEoCRIQCghhYnNfcGF0aBgGIAEoCRIOCgZsaW5lbm8YByABKA0SDQoFY29sbm8YCCABKA0SFAoMY29udGV4dF9saW5lGAkgASgJEhMKC3ByZV9jb250ZXh0GAogAygJEhQKDHBvc3RfY29udGV4dBgLIAMoCRITCgZpbl9hcHAYDCABKAhIAIgBARItCgR2YXJzGA0gAygLMh8uaXpjaS5pbmdlc3QudjEuRnJhbWUuVmFyc0VudHJ5EhgKEGluc3RydWN0aW9uX2FkZHIYDiABKAkSDgoGc3ltYm9sGA8gASgJEhAKCHBsYXRmb3JtGBAgASgJGisKCVZhcnNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBQgkKB19pbl9hcHAikQEKBlRocmVhZBIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB2NyYXNoZWQYAyABKAgSDwoHY3VycmVudBgEIAEoCBIMCgRtYWluGAUgASgIEg0KBXN0YXRlGAYgASgJEi4KCnN0YWNrdHJhY2UYByABKAsyGi5pemNpLmluZ2VzdC52MS5TdGFja3RyYWNlIrkBCgpCcmVhZGNydW1iEi0KCXRpbWVzdGFtcBgBIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDAoEdHlwZRgCIAEoCRIQCghjYXRlZ29yeRgDIAEoCRIkCgVsZXZlbBgEIAEoDjIVLml6Y2kuaW5nZXN0LnYxLkxldmVsEg8KB21lc3NhZ2UYBSABKAkSJQoEZGF0YRgGIAEoCzIXLmdvb2dsZS5wcm90b2J1Zi5TdHJ1Y3QikAMKB1JlcXVlc3QSDgoGbWV0aG9kGAEgASgJEgsKA3VybBgCIAEoCRINCgVyb3V0ZRgDIAEoCRIUCgxxdWVyeV9zdHJpbmcYBCABKAkSJwoHaGVhZGVycxgFIAMoCzIWLml6Y2kuaW5nZXN0LnYxLkhlYWRlchI1Cgdjb29raWVzGAYgAygLMiQuaXpjaS5pbmdlc3QudjEuUmVxdWVzdC5Db29raWVzRW50cnkSDAoEYm9keRgHIAEoCRIRCglib2R5X3NpemUYCCABKAMSEAoIcHJvdG9jb2wYCSABKAkSEwoLcmVtb3RlX2FkZHIYCiABKAkSLQoDZW52GAsgAygLMiAuaXpjaS5pbmdlc3QudjEuUmVxdWVzdC5FbnZFbnRyeRIQCghmcmFnbWVudBgMIAEoCRouCgxDb29raWVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ARoqCghFbnZFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIiUKBkhlYWRlchIMCgRuYW1lGAEgASgJEg0KBXZhbHVlGAIgASgJIlsKCFJlc3BvbnNlEhMKC3N0YXR1c19jb2RlGAEgASgNEicKB2hlYWRlcnMYAiADKAsyFi5pemNpLmluZ2VzdC52MS5IZWFkZXISEQoJYm9keV9zaXplGAMgASgDIvUBCgRVc2VyEgoKAmlkGAEgASgJEhAKCHVzZXJuYW1lGAIgASgJEg0KBWVtYWlsGAMgASgJEgwKBG5hbWUYBCABKAkSEgoKaXBfYWRkcmVzcxgFIAEoCRIPCgdzZWdtZW50GAYgASgJEjgKCmF0dHJpYnV0ZXMYByADKAsyJC5pemNpLmluZ2VzdC52MS5Vc2VyLkF0dHJpYnV0ZXNFbnRyeRIgCgNnZW8YCCABKAsyEy5pemNpLmluZ2VzdC52MS5HZW8aMQoPQXR0cmlidXRlc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiOQoDR2VvEhQKDGNvdW50cnlfY29kZRgBIAEoCRIOCgZyZWdpb24YAiABKAkSDAoEY2l0eRgDIAEoCSKBBQoIQ29udGV4dHMSLQoGZGV2aWNlGAEgASgLMh0uaXpjaS5pbmdlc3QudjEuRGV2aWNlQ29udGV4dBIlCgJvcxgCIAEoCzIZLml6Y2kuaW5nZXN0LnYxLk9zQ29udGV4dBIvCgdydW50aW1lGAMgASgLMh4uaXpjaS5pbmdlc3QudjEuUnVudGltZUNvbnRleHQSLwoHYnJvd3NlchgEIAEoCzIeLml6Y2kuaW5nZXN0LnYxLkJyb3dzZXJDb250ZXh0EicKA2FwcBgFIAEoCzIaLml6Y2kuaW5nZXN0LnYxLkFwcENvbnRleHQSLwoHcHJvY2VzcxgGIAEoCzIeLml6Y2kuaW5nZXN0LnYxLlByb2Nlc3NDb250ZXh0EicKA2dwdRgHIAEoCzIaLml6Y2kuaW5nZXN0LnYxLkdwdUNvbnRleHQSLwoHY3VsdHVyZRgIIAEoCzIeLml6Y2kuaW5nZXN0LnYxLkN1bHR1cmVDb250ZXh0EisKBXRyYWNlGAkgASgLMhwuaXpjaS5pbmdlc3QudjEuVHJhY2VDb250ZXh0EjEKCGRhdGFiYXNlGAogASgLMh8uaXpjaS5pbmdlc3QudjEuRGF0YWJhc2VDb250ZXh0EisKBWNsb3VkGAsgASgLMhwuaXpjaS5pbmdlc3QudjEuQ2xvdWRDb250ZXh0EjQKBmN1c3RvbRgMIAMoCzIkLml6Y2kuaW5nZXN0LnYxLkNvbnRleHRzLkN1c3RvbUVudHJ5GkYKC0N1c3RvbUVudHJ5EgsKA2tleRgBIAEoCRImCgV2YWx1ZRgCIAEoCzIXLmdvb2dsZS5wcm90b2J1Zi5TdHJ1Y3Q6AjgBIosECg1EZXZpY2VDb250ZXh0EgwKBG5hbWUYASABKAkSDgoGZmFtaWx5GAIgASgJEg0KBW1vZGVsGAMgASgJEhAKCG1vZGVsX2lkGAQgASgJEhQKDG1hbnVmYWN0dXJlchgFIAEoCRINCgVicmFuZBgGIAEoCRIMCgRhcmNoGAcgASgJEhMKC2RldmljZV90eXBlGAggASgJEhEKCXNpbXVsYXRvchgJIAEoCBITCgtvcmllbnRhdGlvbhgKIAEoCRIaCg1iYXR0ZXJ5X2xldmVsGAsgASgCSACIAQESFQoIY2hhcmdpbmcYDCABKAhIAYgBARITCgZvbmxpbmUYDSABKAhIAogBARIkCgNjcHUYDiABKAsyFy5pemNpLmluZ2VzdC52MS5DcHVJbmZvEioKBm1lbW9yeRgPIAEoCzIaLml6Y2kuaW5nZXN0LnYxLk1lbW9yeUluZm8SLAoHc3RvcmFnZRgQIAEoCzIbLml6Y2kuaW5nZXN0LnYxLlN0b3JhZ2VJbmZvEioKBnNjcmVlbhgRIAEoCzIaLml6Y2kuaW5nZXN0LnYxLlNjcmVlbkluZm8SLQoJYm9vdF90aW1lGBIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIQCg5fYmF0dGVyeV9sZXZlbEILCglfY2hhcmdpbmdCCQoHX29ubGluZSKaAQoHQ3B1SW5mbxINCgVjb3VudBgBIAEoDRIWCg5waHlzaWNhbF9jb3VudBgCIAEoDRINCgVtb2RlbBgDIAEoCRIVCg1mcmVxdWVuY3lfbWh6GAQgASgBEhoKDXVzYWdlX3BlcmNlbnQYBSABKAFIAIgBARIUCgxsb2FkX2F2ZXJhZ2UYBiADKAFCEAoOX3VzYWdlX3BlcmNlbnQi1QEKCk1lbW9yeUluZm8SEwoLdG90YWxfYnl0ZXMYASABKAQSEgoKZnJlZV9ieXRlcxgCIAEoBBIXCg9hdmFpbGFibGVfYnl0ZXMYAyABKAQSEgoKdXNlZF9ieXRlcxgEIAEoBBIZCgx1c2VkX3BlcmNlbnQYBSABKAFIAIgBARIYChBzd2FwX3RvdGFsX2J5dGVzGAYgASgEEhcKD3N3YXBfZnJlZV9ieXRlcxgHIAEoBBISCgpsb3dfbWVtb3J5GAggASgIQg8KDV91c2VkX3BlcmNlbnQiNgoLU3RvcmFnZUluZm8SEwoLdG90YWxfYnl0ZXMYASABKAQSEgoKZnJlZV9ieXRlcxgCIAEoBCJXCgpTY3JlZW5JbmZvEhQKDHdpZHRoX3BpeGVscxgBIAEoDRIVCg1oZWlnaHRfcGl4ZWxzGAIgASgNEg8KB2RlbnNpdHkYAyABKAESCwoDZHBpGAQgASgNIqABCglPc0NvbnRleHQSDAoEbmFtZRgBIAEoCRIPCgd2ZXJzaW9uGAIgASgJEg0KBWJ1aWxkGAMgASgJEhYKDmtlcm5lbF92ZXJzaW9uGAQgASgJEhMKBnJvb3RlZBgFIAEoCEgAiAEBEhcKD3Jhd19kZXNjcmlwdGlvbhgGIAEoCRIUCgxkaXN0cmlidXRpb24YByABKAlCCQoHX3Jvb3RlZCJXCg5SdW50aW1lQ29udGV4dBIMCgRuYW1lGAEgASgJEg8KB3ZlcnNpb24YAiABKAkSDQoFYnVpbGQYAyABKAkSFwoPcmF3X2Rlc2NyaXB0aW9uGAQgASgJIkMKDkJyb3dzZXJDb250ZXh0EgwKBG5hbWUYASABKAkSDwoHdmVyc2lvbhgCIAEoCRISCgp1c2VyX2FnZW50GAMgASgJIroBCgpBcHBDb250ZXh0EgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHdmVyc2lvbhgDIAEoCRINCgVidWlsZBgEIAEoCRIuCgpzdGFydF90aW1lGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaCg1pbl9mb3JlZ3JvdW5kGAYgASgISACIAQESFAoMbWVtb3J5X2J5dGVzGAcgASgEQhAKDl9pbl9mb3JlZ3JvdW5kIogECg5Qcm9jZXNzQ29udGV4dBILCgNwaWQYASABKA0SDAoEbmFtZRgCIAEoCRIUCgxjb21tYW5kX2xpbmUYAyABKAkSLgoKc3RhcnRfdGltZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKQoGdXB0aW1lGAUgASgLMhkuZ29vZ2xlLnByb3RvYnVmLkR1cmF0aW9uEhgKC2NwdV9wZXJjZW50GAYgASgBSACIAQESEQoJcnNzX2J5dGVzGAcgASgEEhgKEGhlYXBfYWxsb2NfYnl0ZXMYCCABKAQSFgoOaGVhcF9zeXNfYnl0ZXMYCSABKAQSEAoIZ2NfY291bnQYCiABKA0SMQoOZ2NfcGF1c2VfdG90YWwYCyABKAsyGS5nb29nbGUucHJvdG9idWYuRHVyYXRpb24SDwoHdGhyZWFkcxgMIAEoDRISCgpnb3JvdXRpbmVzGA0gASgNEhAKCG9wZW5fZmRzGA4gASgNEjAKDWNwdV90aW1lX3VzZXIYDyABKAsyGS5nb29nbGUucHJvdG9idWYuRHVyYXRpb24SMgoPY3B1X3RpbWVfc3lzdGVtGBAgASgLMhkuZ29vZ2xlLnByb3RvYnVmLkR1cmF0aW9uEhkKEXdvcmtpbmdfZGlyZWN0b3J5GBEgASgJQg4KDF9jcHVfcGVyY2VudCJvCgpHcHVDb250ZXh0EgwKBG5hbWUYASABKAkSEwoLdmVuZG9yX25hbWUYAiABKAkSFAoMbWVtb3J5X2J5dGVzGAMgASgEEhAKCGFwaV90eXBlGAQgASgJEhYKDmRyaXZlcl92ZXJzaW9uGAUgASgJInoKDkN1bHR1cmVDb250ZXh0Eg4KBmxvY2FsZRgBIAEoCRIQCgh0aW1lem9uZRgCIAEoCRIQCghjYWxlbmRhchgDIAEoCRIeChFpc18yNF9ob3VyX2Zvcm1hdBgEIAEoCEgAiAEBQhQKEl9pc18yNF9ob3VyX2Zvcm1hdCJlCgxUcmFjZUNvbnRleHQSEAoIdHJhY2VfaWQYASABKAkSDwoHc3Bhbl9pZBgCIAEoCRIWCg5wYXJlbnRfc3Bhbl9pZBgDIAEoCRIKCgJvcBgEIAEoCRIOCgZzdGF0dXMYBSABKAkivAEKD0RhdGFiYXNlQ29udGV4dBIOCgZzeXN0ZW0YASABKAkSDAoEbmFtZRgCIAEoCRIRCglzdGF0ZW1lbnQYAyABKAkSEQoJb3BlcmF0aW9uGAQgASgJEhMKC2R1cmF0aW9uX21zGAUgASgBEhIKCnBhcmFtZXRlcnMYBiADKAkSDAoEaG9zdBgHIAEoCRIRCgRyb3dzGAggASgDSACIAQESEgoKZXJyb3JfY29kZRgJIAEoCUIHCgVfcm93cyLYAQoMQ2xvdWRDb250ZXh0EhAKCHByb3ZpZGVyGAEgASgJEg4KBnJlZ2lvbhgCIAEoCRIZChFhdmFpbGFiaWxpdHlfem9uZRgDIAEoCRISCgphY2NvdW50X2lkGAQgASgJEhMKC2luc3RhbmNlX2lkGAUgASgJEhAKCHBsYXRmb3JtGAYgASgJEg8KB2NsdXN0ZXIYByABKAkSEQoJbmFtZXNwYWNlGAggASgJEgsKA3BvZBgJIAEoCRIRCgljb250YWluZXIYCiABKAkSDAoEbm9kZRgLIAEoCSJoCgNTZGsSDAoEbmFtZRgBIAEoCRIPCgd2ZXJzaW9uGAIgASgJEhQKDGludGVncmF0aW9ucxgDIAMoCRIsCghwYWNrYWdlcxgEIAMoCzIaLml6Y2kuaW5nZXN0LnYxLlNka1BhY2thZ2UiKwoKU2RrUGFja2FnZRIMCgRuYW1lGAEgASgJEg8KB3ZlcnNpb24YAiABKAkqdAoFTGV2ZWwSFQoRTEVWRUxfVU5TUEVDSUZJRUQQABIPCgtMRVZFTF9ERUJVRxABEg4KCkxFVkVMX0lORk8QAhIRCg1MRVZFTF9XQVJOSU5HEAMSDwoLTEVWRUxfRVJST1IQBBIPCgtMRVZFTF9GQVRBTBAFQr4BChJjb20uaXpjaS5pbmdlc3QudjFCCkV2ZW50UHJvdG9QAVpCZ2l0aHViLmNvbS9tY2loYWQva2VudG9zLWl6Y2kvc2RrL2dvL3Byb3RvL2l6Y2kvaW5nZXN0L3YxO2luZ2VzdHYxogIDSUlYqgIOSXpjaS5Jbmdlc3QuVjHKAg5JemNpXEluZ2VzdFxWMeICGkl6Y2lcSW5nZXN0XFYxXEdQQk1ldGFkYXRh6gIQSXpjaTo6SW5nZXN0OjpWMWIGcHJvdG8z", [file_google_protobuf_duration, file_google_protobuf_struct, file_google_protobuf_timestamp]);
+  fileDesc("ChppemNpL2luZ2VzdC92MS9ldmVudC5wcm90bxIOaXpjaS5pbmdlc3QudjEiqQgKBUV2ZW50EhAKCGV2ZW50X2lkGAEgASgJEi0KCXRpbWVzdGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASJAoFbGV2ZWwYAyABKA4yFS5pemNpLmluZ2VzdC52MS5MZXZlbBIQCghwbGF0Zm9ybRgEIAEoCRIOCgZsb2dnZXIYBSABKAkSEwoLdHJhbnNhY3Rpb24YBiABKAkSEwoLc2VydmVyX25hbWUYByABKAkSDwoHcmVsZWFzZRgIIAEoCRIMCgRkaXN0GAkgASgJEhMKC2Vudmlyb25tZW50GAogASgJEioKCGN1c3RvbWVyGAsgASgLMhguaXpjaS5pbmdlc3QudjEuQ3VzdG9tZXISJgoGdGVuYW50GAwgASgLMhYuaXpjaS5pbmdlc3QudjEuVGVuYW50EigKB21lc3NhZ2UYDSABKAsyFy5pemNpLmluZ2VzdC52MS5NZXNzYWdlEi0KCmV4Y2VwdGlvbnMYDiADKAsyGS5pemNpLmluZ2VzdC52MS5FeGNlcHRpb24SJwoHdGhyZWFkcxgPIAMoCzIWLml6Y2kuaW5nZXN0LnYxLlRocmVhZBIvCgticmVhZGNydW1icxgQIAMoCzIaLml6Y2kuaW5nZXN0LnYxLkJyZWFkY3J1bWISKAoHcmVxdWVzdBgRIAEoCzIXLml6Y2kuaW5nZXN0LnYxLlJlcXVlc3QSKgoIcmVzcG9uc2UYEiABKAsyGC5pemNpLmluZ2VzdC52MS5SZXNwb25zZRIiCgR1c2VyGBMgASgLMhQuaXpjaS5pbmdlc3QudjEuVXNlchIqCghjb250ZXh0cxgUIAEoCzIYLml6Y2kuaW5nZXN0LnYxLkNvbnRleHRzEi0KBHRhZ3MYFSADKAsyHy5pemNpLmluZ2VzdC52MS5FdmVudC5UYWdzRW50cnkSJgoFZXh0cmEYFiABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0EhMKC2ZpbmdlcnByaW50GBcgAygJEiAKA3NkaxgYIAEoCzITLml6Y2kuaW5nZXN0LnYxLlNkaxIzCgdtb2R1bGVzGBkgAygLMiIuaXpjaS5pbmdlc3QudjEuRXZlbnQuTW9kdWxlc0VudHJ5EjAKDGRlYnVnX2ltYWdlcxgaIAMoCzIaLml6Y2kuaW5nZXN0LnYxLkRlYnVnSW1hZ2USOgoRcHJvY2Vzc2luZ19lcnJvcnMYGyADKAsyHy5pemNpLmluZ2VzdC52MS5Qcm9jZXNzaW5nRXJyb3IaKwoJVGFnc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEaLgoMTW9kdWxlc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEihgEKCkRlYnVnSW1hZ2USDAoEdHlwZRgBIAEoCRIQCghkZWJ1Z19pZBgCIAEoCRIPCgdjb2RlX2lkGAMgASgJEhEKCWNvZGVfZmlsZRgEIAEoCRISCgppbWFnZV9hZGRyGAUgASgJEhIKCmltYWdlX3NpemUYBiABKAQSDAoEYXJjaBgHIAEoCSJkCg9Qcm9jZXNzaW5nRXJyb3ISMQoEa2luZBgBIAEoDjIjLml6Y2kuaW5nZXN0LnYxLlByb2Nlc3NpbmdFcnJvcktpbmQSDgoGdGFyZ2V0GAIgASgJEg4KBmRldGFpbBgDIAEoCSKVAQoIQ3VzdG9tZXISCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRI8CgphdHRyaWJ1dGVzGAMgAygLMiguaXpjaS5pbmdlc3QudjEuQ3VzdG9tZXIuQXR0cmlidXRlc0VudHJ5GjEKD0F0dHJpYnV0ZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIiIKBlRlbmFudBIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJIj4KB01lc3NhZ2USEQoJZm9ybWF0dGVkGAEgASgJEhAKCHRlbXBsYXRlGAIgASgJEg4KBnBhcmFtcxgDIAMoCSKpAQoJRXhjZXB0aW9uEgwKBHR5cGUYASABKAkSDQoFdmFsdWUYAiABKAkSDgoGbW9kdWxlGAMgASgJEhEKCXRocmVhZF9pZBgEIAEoCRIsCgltZWNoYW5pc20YBSABKAsyGS5pemNpLmluZ2VzdC52MS5NZWNoYW5pc20SLgoKc3RhY2t0cmFjZRgGIAEoCzIaLml6Y2kuaW5nZXN0LnYxLlN0YWNrdHJhY2UivgIKCU1lY2hhbmlzbRIMCgR0eXBlGAEgASgJEhQKB2hhbmRsZWQYAiABKAhIAIgBARIRCglzeW50aGV0aWMYAyABKAgSEwoLZGVzY3JpcHRpb24YBCABKAkSEQoJaGVscF9saW5rGAUgASgJEjEKBGRhdGEYBiADKAsyIy5pemNpLmluZ2VzdC52MS5NZWNoYW5pc20uRGF0YUVudHJ5EhQKDGV4Y2VwdGlvbl9pZBgHIAEoBRIWCglwYXJlbnRfaWQYCCABKAVIAYgBARIaChJpc19leGNlcHRpb25fZ3JvdXAYCSABKAgSDgoGc291cmNlGAogASgJGisKCURhdGFFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBQgoKCF9oYW5kbGVkQgwKCl9wYXJlbnRfaWQizgEKClN0YWNrdHJhY2USJQoGZnJhbWVzGAEgAygLMhUuaXpjaS5pbmdlc3QudjEuRnJhbWUSPAoJcmVnaXN0ZXJzGAIgAygLMikuaXpjaS5pbmdlc3QudjEuU3RhY2t0cmFjZS5SZWdpc3RlcnNFbnRyeRIpCgpyYXdfZnJhbWVzGAMgAygLMhUuaXpjaS5pbmdlc3QudjEuRnJhbWUaMAoOUmVnaXN0ZXJzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASKMAwoFRnJhbWUSEAoIZnVuY3Rpb24YASABKAkSFAoMcmF3X2Z1bmN0aW9uGAIgASgJEg4KBm1vZHVsZRgDIAEoCRIPCgdwYWNrYWdlGAQgASgJEhAKCGZpbGVuYW1lGAUgASgJEhAKCGFic19wYXRoGAYgASgJEg4KBmxpbmVubxgHIAEoDRINCgVjb2xubxgIIAEoDRIUCgxjb250ZXh0X2xpbmUYCSABKAkSEwoLcHJlX2NvbnRleHQYCiADKAkSFAoMcG9zdF9jb250ZXh0GAsgAygJEhMKBmluX2FwcBgMIAEoCEgAiAEBEi0KBHZhcnMYDSADKAsyHy5pemNpLmluZ2VzdC52MS5GcmFtZS5WYXJzRW50cnkSGAoQaW5zdHJ1Y3Rpb25fYWRkchgOIAEoCRIOCgZzeW1ib2wYDyABKAkSEAoIcGxhdGZvcm0YECABKAkaKwoJVmFyc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCCQoHX2luX2FwcCKRAQoGVGhyZWFkEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDwoHY3Jhc2hlZBgDIAEoCBIPCgdjdXJyZW50GAQgASgIEgwKBG1haW4YBSABKAgSDQoFc3RhdGUYBiABKAkSLgoKc3RhY2t0cmFjZRgHIAEoCzIaLml6Y2kuaW5nZXN0LnYxLlN0YWNrdHJhY2UiuQEKCkJyZWFkY3J1bWISLQoJdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIMCgR0eXBlGAIgASgJEhAKCGNhdGVnb3J5GAMgASgJEiQKBWxldmVsGAQgASgOMhUuaXpjaS5pbmdlc3QudjEuTGV2ZWwSDwoHbWVzc2FnZRgFIAEoCRIlCgRkYXRhGAYgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdCKQAwoHUmVxdWVzdBIOCgZtZXRob2QYASABKAkSCwoDdXJsGAIgASgJEg0KBXJvdXRlGAMgASgJEhQKDHF1ZXJ5X3N0cmluZxgEIAEoCRInCgdoZWFkZXJzGAUgAygLMhYuaXpjaS5pbmdlc3QudjEuSGVhZGVyEjUKB2Nvb2tpZXMYBiADKAsyJC5pemNpLmluZ2VzdC52MS5SZXF1ZXN0LkNvb2tpZXNFbnRyeRIMCgRib2R5GAcgASgJEhEKCWJvZHlfc2l6ZRgIIAEoAxIQCghwcm90b2NvbBgJIAEoCRITCgtyZW1vdGVfYWRkchgKIAEoCRItCgNlbnYYCyADKAsyIC5pemNpLmluZ2VzdC52MS5SZXF1ZXN0LkVudkVudHJ5EhAKCGZyYWdtZW50GAwgASgJGi4KDENvb2tpZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBGioKCEVudkVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiJQoGSGVhZGVyEgwKBG5hbWUYASABKAkSDQoFdmFsdWUYAiABKAkiWwoIUmVzcG9uc2USEwoLc3RhdHVzX2NvZGUYASABKA0SJwoHaGVhZGVycxgCIAMoCzIWLml6Y2kuaW5nZXN0LnYxLkhlYWRlchIRCglib2R5X3NpemUYAyABKAMi9QEKBFVzZXISCgoCaWQYASABKAkSEAoIdXNlcm5hbWUYAiABKAkSDQoFZW1haWwYAyABKAkSDAoEbmFtZRgEIAEoCRISCgppcF9hZGRyZXNzGAUgASgJEg8KB3NlZ21lbnQYBiABKAkSOAoKYXR0cmlidXRlcxgHIAMoCzIkLml6Y2kuaW5nZXN0LnYxLlVzZXIuQXR0cmlidXRlc0VudHJ5EiAKA2dlbxgIIAEoCzITLml6Y2kuaW5nZXN0LnYxLkdlbxoxCg9BdHRyaWJ1dGVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASI5CgNHZW8SFAoMY291bnRyeV9jb2RlGAEgASgJEg4KBnJlZ2lvbhgCIAEoCRIMCgRjaXR5GAMgASgJIoEFCghDb250ZXh0cxItCgZkZXZpY2UYASABKAsyHS5pemNpLmluZ2VzdC52MS5EZXZpY2VDb250ZXh0EiUKAm9zGAIgASgLMhkuaXpjaS5pbmdlc3QudjEuT3NDb250ZXh0Ei8KB3J1bnRpbWUYAyABKAsyHi5pemNpLmluZ2VzdC52MS5SdW50aW1lQ29udGV4dBIvCgdicm93c2VyGAQgASgLMh4uaXpjaS5pbmdlc3QudjEuQnJvd3NlckNvbnRleHQSJwoDYXBwGAUgASgLMhouaXpjaS5pbmdlc3QudjEuQXBwQ29udGV4dBIvCgdwcm9jZXNzGAYgASgLMh4uaXpjaS5pbmdlc3QudjEuUHJvY2Vzc0NvbnRleHQSJwoDZ3B1GAcgASgLMhouaXpjaS5pbmdlc3QudjEuR3B1Q29udGV4dBIvCgdjdWx0dXJlGAggASgLMh4uaXpjaS5pbmdlc3QudjEuQ3VsdHVyZUNvbnRleHQSKwoFdHJhY2UYCSABKAsyHC5pemNpLmluZ2VzdC52MS5UcmFjZUNvbnRleHQSMQoIZGF0YWJhc2UYCiABKAsyHy5pemNpLmluZ2VzdC52MS5EYXRhYmFzZUNvbnRleHQSKwoFY2xvdWQYCyABKAsyHC5pemNpLmluZ2VzdC52MS5DbG91ZENvbnRleHQSNAoGY3VzdG9tGAwgAygLMiQuaXpjaS5pbmdlc3QudjEuQ29udGV4dHMuQ3VzdG9tRW50cnkaRgoLQ3VzdG9tRW50cnkSCwoDa2V5GAEgASgJEiYKBXZhbHVlGAIgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdDoCOAEiiwQKDURldmljZUNvbnRleHQSDAoEbmFtZRgBIAEoCRIOCgZmYW1pbHkYAiABKAkSDQoFbW9kZWwYAyABKAkSEAoIbW9kZWxfaWQYBCABKAkSFAoMbWFudWZhY3R1cmVyGAUgASgJEg0KBWJyYW5kGAYgASgJEgwKBGFyY2gYByABKAkSEwoLZGV2aWNlX3R5cGUYCCABKAkSEQoJc2ltdWxhdG9yGAkgASgIEhMKC29yaWVudGF0aW9uGAogASgJEhoKDWJhdHRlcnlfbGV2ZWwYCyABKAJIAIgBARIVCghjaGFyZ2luZxgMIAEoCEgBiAEBEhMKBm9ubGluZRgNIAEoCEgCiAEBEiQKA2NwdRgOIAEoCzIXLml6Y2kuaW5nZXN0LnYxLkNwdUluZm8SKgoGbWVtb3J5GA8gASgLMhouaXpjaS5pbmdlc3QudjEuTWVtb3J5SW5mbxIsCgdzdG9yYWdlGBAgASgLMhsuaXpjaS5pbmdlc3QudjEuU3RvcmFnZUluZm8SKgoGc2NyZWVuGBEgASgLMhouaXpjaS5pbmdlc3QudjEuU2NyZWVuSW5mbxItCglib290X3RpbWUYEiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQhAKDl9iYXR0ZXJ5X2xldmVsQgsKCV9jaGFyZ2luZ0IJCgdfb25saW5lIpoBCgdDcHVJbmZvEg0KBWNvdW50GAEgASgNEhYKDnBoeXNpY2FsX2NvdW50GAIgASgNEg0KBW1vZGVsGAMgASgJEhUKDWZyZXF1ZW5jeV9taHoYBCABKAESGgoNdXNhZ2VfcGVyY2VudBgFIAEoAUgAiAEBEhQKDGxvYWRfYXZlcmFnZRgGIAMoAUIQCg5fdXNhZ2VfcGVyY2VudCLVAQoKTWVtb3J5SW5mbxITCgt0b3RhbF9ieXRlcxgBIAEoBBISCgpmcmVlX2J5dGVzGAIgASgEEhcKD2F2YWlsYWJsZV9ieXRlcxgDIAEoBBISCgp1c2VkX2J5dGVzGAQgASgEEhkKDHVzZWRfcGVyY2VudBgFIAEoAUgAiAEBEhgKEHN3YXBfdG90YWxfYnl0ZXMYBiABKAQSFwoPc3dhcF9mcmVlX2J5dGVzGAcgASgEEhIKCmxvd19tZW1vcnkYCCABKAhCDwoNX3VzZWRfcGVyY2VudCI2CgtTdG9yYWdlSW5mbxITCgt0b3RhbF9ieXRlcxgBIAEoBBISCgpmcmVlX2J5dGVzGAIgASgEIlcKClNjcmVlbkluZm8SFAoMd2lkdGhfcGl4ZWxzGAEgASgNEhUKDWhlaWdodF9waXhlbHMYAiABKA0SDwoHZGVuc2l0eRgDIAEoARILCgNkcGkYBCABKA0ioAEKCU9zQ29udGV4dBIMCgRuYW1lGAEgASgJEg8KB3ZlcnNpb24YAiABKAkSDQoFYnVpbGQYAyABKAkSFgoOa2VybmVsX3ZlcnNpb24YBCABKAkSEwoGcm9vdGVkGAUgASgISACIAQESFwoPcmF3X2Rlc2NyaXB0aW9uGAYgASgJEhQKDGRpc3RyaWJ1dGlvbhgHIAEoCUIJCgdfcm9vdGVkIlcKDlJ1bnRpbWVDb250ZXh0EgwKBG5hbWUYASABKAkSDwoHdmVyc2lvbhgCIAEoCRINCgVidWlsZBgDIAEoCRIXCg9yYXdfZGVzY3JpcHRpb24YBCABKAkiQwoOQnJvd3NlckNvbnRleHQSDAoEbmFtZRgBIAEoCRIPCgd2ZXJzaW9uGAIgASgJEhIKCnVzZXJfYWdlbnQYAyABKAkiugEKCkFwcENvbnRleHQSCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIPCgd2ZXJzaW9uGAMgASgJEg0KBWJ1aWxkGAQgASgJEi4KCnN0YXJ0X3RpbWUYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKDWluX2ZvcmVncm91bmQYBiABKAhIAIgBARIUCgxtZW1vcnlfYnl0ZXMYByABKARCEAoOX2luX2ZvcmVncm91bmQiiAQKDlByb2Nlc3NDb250ZXh0EgsKA3BpZBgBIAEoDRIMCgRuYW1lGAIgASgJEhQKDGNvbW1hbmRfbGluZRgDIAEoCRIuCgpzdGFydF90aW1lGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIpCgZ1cHRpbWUYBSABKAsyGS5nb29nbGUucHJvdG9idWYuRHVyYXRpb24SGAoLY3B1X3BlcmNlbnQYBiABKAFIAIgBARIRCglyc3NfYnl0ZXMYByABKAQSGAoQaGVhcF9hbGxvY19ieXRlcxgIIAEoBBIWCg5oZWFwX3N5c19ieXRlcxgJIAEoBBIQCghnY19jb3VudBgKIAEoDRIxCg5nY19wYXVzZV90b3RhbBgLIAEoCzIZLmdvb2dsZS5wcm90b2J1Zi5EdXJhdGlvbhIPCgd0aHJlYWRzGAwgASgNEhIKCmdvcm91dGluZXMYDSABKA0SEAoIb3Blbl9mZHMYDiABKA0SMAoNY3B1X3RpbWVfdXNlchgPIAEoCzIZLmdvb2dsZS5wcm90b2J1Zi5EdXJhdGlvbhIyCg9jcHVfdGltZV9zeXN0ZW0YECABKAsyGS5nb29nbGUucHJvdG9idWYuRHVyYXRpb24SGQoRd29ya2luZ19kaXJlY3RvcnkYESABKAlCDgoMX2NwdV9wZXJjZW50Im8KCkdwdUNvbnRleHQSDAoEbmFtZRgBIAEoCRITCgt2ZW5kb3JfbmFtZRgCIAEoCRIUCgxtZW1vcnlfYnl0ZXMYAyABKAQSEAoIYXBpX3R5cGUYBCABKAkSFgoOZHJpdmVyX3ZlcnNpb24YBSABKAkiegoOQ3VsdHVyZUNvbnRleHQSDgoGbG9jYWxlGAEgASgJEhAKCHRpbWV6b25lGAIgASgJEhAKCGNhbGVuZGFyGAMgASgJEh4KEWlzXzI0X2hvdXJfZm9ybWF0GAQgASgISACIAQFCFAoSX2lzXzI0X2hvdXJfZm9ybWF0ImUKDFRyYWNlQ29udGV4dBIQCgh0cmFjZV9pZBgBIAEoCRIPCgdzcGFuX2lkGAIgASgJEhYKDnBhcmVudF9zcGFuX2lkGAMgASgJEgoKAm9wGAQgASgJEg4KBnN0YXR1cxgFIAEoCSK8AQoPRGF0YWJhc2VDb250ZXh0Eg4KBnN5c3RlbRgBIAEoCRIMCgRuYW1lGAIgASgJEhEKCXN0YXRlbWVudBgDIAEoCRIRCglvcGVyYXRpb24YBCABKAkSEwoLZHVyYXRpb25fbXMYBSABKAESEgoKcGFyYW1ldGVycxgGIAMoCRIMCgRob3N0GAcgASgJEhEKBHJvd3MYCCABKANIAIgBARISCgplcnJvcl9jb2RlGAkgASgJQgcKBV9yb3dzItgBCgxDbG91ZENvbnRleHQSEAoIcHJvdmlkZXIYASABKAkSDgoGcmVnaW9uGAIgASgJEhkKEWF2YWlsYWJpbGl0eV96b25lGAMgASgJEhIKCmFjY291bnRfaWQYBCABKAkSEwoLaW5zdGFuY2VfaWQYBSABKAkSEAoIcGxhdGZvcm0YBiABKAkSDwoHY2x1c3RlchgHIAEoCRIRCgluYW1lc3BhY2UYCCABKAkSCwoDcG9kGAkgASgJEhEKCWNvbnRhaW5lchgKIAEoCRIMCgRub2RlGAsgASgJImgKA1NkaxIMCgRuYW1lGAEgASgJEg8KB3ZlcnNpb24YAiABKAkSFAoMaW50ZWdyYXRpb25zGAMgAygJEiwKCHBhY2thZ2VzGAQgAygLMhouaXpjaS5pbmdlc3QudjEuU2RrUGFja2FnZSIrCgpTZGtQYWNrYWdlEgwKBG5hbWUYASABKAkSDwoHdmVyc2lvbhgCIAEoCSr0AQoTUHJvY2Vzc2luZ0Vycm9yS2luZBIlCiFQUk9DRVNTSU5HX0VSUk9SX0tJTkRfVU5TUEVDSUZJRUQQABIsCihQUk9DRVNTSU5HX0VSUk9SX0tJTkRfU09VUkNFX01BUF9NSVNTSU5HEAESLAooUFJPQ0VTU0lOR19FUlJPUl9LSU5EX1NPVVJDRV9NQVBfSU5WQUxJRBACEiwKKFBST0NFU1NJTkdfRVJST1JfS0lORF9ERUJVR19GSUxFX01JU1NJTkcQAxIsCihQUk9DRVNTSU5HX0VSUk9SX0tJTkRfREVCVUdfRklMRV9JTlZBTElEEAQqdAoFTGV2ZWwSFQoRTEVWRUxfVU5TUEVDSUZJRUQQABIPCgtMRVZFTF9ERUJVRxABEg4KCkxFVkVMX0lORk8QAhIRCg1MRVZFTF9XQVJOSU5HEAMSDwoLTEVWRUxfRVJST1IQBBIPCgtMRVZFTF9GQVRBTBAFQr4BChJjb20uaXpjaS5pbmdlc3QudjFCCkV2ZW50UHJvdG9QAVpCZ2l0aHViLmNvbS9tY2loYWQva2VudG9zLWl6Y2kvc2RrL2dvL3Byb3RvL2l6Y2kvaW5nZXN0L3YxO2luZ2VzdHYxogIDSUlYqgIOSXpjaS5Jbmdlc3QuVjHKAg5JemNpXEluZ2VzdFxWMeICGkl6Y2lcSW5nZXN0XFYxXEdQQk1ldGFkYXRh6gIQSXpjaTo6SW5nZXN0OjpWMWIGcHJvdG8z", [file_google_protobuf_duration, file_google_protobuf_struct, file_google_protobuf_timestamp]);
 
 /**
  * Event is a single occurrence of an error or message reported by an
@@ -295,6 +295,26 @@ export type Event = Message$1<"izci.ingest.v1.Event"> & {
    * @generated from field: map<string, string> modules = 25;
    */
   modules: { [key: string]: string };
+
+  /**
+   * Code the stack traces run in, used to resolve them with uploaded source
+   * maps and debug files: scripts with debug ids and native images with
+   * their load addresses. Max 500 images.
+   *
+   * Sentry equivalent: debug_meta.images.
+   *
+   * @generated from field: repeated izci.ingest.v1.DebugImage debug_images = 26;
+   */
+  debugImages: DebugImage[];
+
+  /**
+   * Problems izci met while resolving the stack traces with uploaded source
+   * maps or debug files, e.g. a missing source map. Set by the server;
+   * ignored on input.
+   *
+   * @generated from field: repeated izci.ingest.v1.ProcessingError processing_errors = 27;
+   */
+  processingErrors: ProcessingError[];
 };
 
 /**
@@ -303,6 +323,108 @@ export type Event = Message$1<"izci.ingest.v1.Event"> & {
  */
 export const EventSchema: GenMessage<Event> = /*@__PURE__*/
   messageDesc(file_izci_ingest_v1_event, 0);
+
+/**
+ * DebugImage is a script or a native library the application loaded.
+ *
+ * @generated from message izci.ingest.v1.DebugImage
+ */
+export type DebugImage = Message$1<"izci.ingest.v1.DebugImage"> & {
+  /**
+   * Kind of image: "sourcemap" (a script with a debug id), "elf", "macho" or
+   * "pe" (native code).
+   *
+   * @generated from field: string type = 1;
+   */
+  type: string;
+
+  /**
+   * Debug id of the image as a UUID, e.g. the id sentry-cli injected into a
+   * script or the one derived from the build id of a Flutter app.
+   *
+   * @generated from field: string debug_id = 2;
+   */
+  debugId: string;
+
+  /**
+   * Code id of a native image: its build id (ELF) or UUID (Mach-O) in hex.
+   *
+   * @generated from field: string code_id = 3;
+   */
+  codeId: string;
+
+  /**
+   * Path or URL of the image, e.g. "https://kalem.example.com/assets/app.js"
+   * or "libapp.so". Frames of a script match its code_file.
+   *
+   * @generated from field: string code_file = 4;
+   */
+  codeFile: string;
+
+  /**
+   * Address the native image was loaded at, in hex, e.g. "0x7a2e400000".
+   *
+   * @generated from field: string image_addr = 5;
+   */
+  imageAddr: string;
+
+  /**
+   * Size of the native image in bytes; 0 when unknown.
+   *
+   * @generated from field: uint64 image_size = 6;
+   */
+  imageSize: bigint;
+
+  /**
+   * CPU architecture of the native image, e.g. "arm64".
+   *
+   * @generated from field: string arch = 7;
+   */
+  arch: string;
+};
+
+/**
+ * Describes the message izci.ingest.v1.DebugImage.
+ * Use `create(DebugImageSchema)` to create a new message.
+ */
+export const DebugImageSchema: GenMessage<DebugImage> = /*@__PURE__*/
+  messageDesc(file_izci_ingest_v1_event, 1);
+
+/**
+ * ProcessingError is a problem met while resolving stack traces.
+ *
+ * @generated from message izci.ingest.v1.ProcessingError
+ */
+export type ProcessingError = Message$1<"izci.ingest.v1.ProcessingError"> & {
+  /**
+   * What went wrong.
+   *
+   * @generated from field: izci.ingest.v1.ProcessingErrorKind kind = 1;
+   */
+  kind: ProcessingErrorKind;
+
+  /**
+   * The script URL or the debug id of the native image concerned.
+   *
+   * @generated from field: string target = 2;
+   */
+  target: string;
+
+  /**
+   * Details in English, e.g. the release that was searched or a parse
+   * error.
+   *
+   * @generated from field: string detail = 3;
+   */
+  detail: string;
+};
+
+/**
+ * Describes the message izci.ingest.v1.ProcessingError.
+ * Use `create(ProcessingErrorSchema)` to create a new message.
+ */
+export const ProcessingErrorSchema: GenMessage<ProcessingError> = /*@__PURE__*/
+  messageDesc(file_izci_ingest_v1_event, 2);
 
 /**
  * Customer identifies the organization on whose behalf the application was
@@ -345,7 +467,7 @@ export type Customer = Message$1<"izci.ingest.v1.Customer"> & {
  * Use `create(CustomerSchema)` to create a new message.
  */
 export const CustomerSchema: GenMessage<Customer> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 1);
+  messageDesc(file_izci_ingest_v1_event, 3);
 
 /**
  * Tenant identifies a logical tenant inside a multi-tenant application.
@@ -374,7 +496,7 @@ export type Tenant = Message$1<"izci.ingest.v1.Tenant"> & {
  * Use `create(TenantSchema)` to create a new message.
  */
 export const TenantSchema: GenMessage<Tenant> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 2);
+  messageDesc(file_izci_ingest_v1_event, 4);
 
 /**
  * Message is a human-readable description of the event.
@@ -412,7 +534,7 @@ export type Message = Message$1<"izci.ingest.v1.Message"> & {
  * Use `create(MessageSchema)` to create a new message.
  */
 export const MessageSchema: GenMessage<Message> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 3);
+  messageDesc(file_izci_ingest_v1_event, 5);
 
 /**
  * Exception is one error in an exception chain.
@@ -472,7 +594,7 @@ export type Exception = Message$1<"izci.ingest.v1.Exception"> & {
  * Use `create(ExceptionSchema)` to create a new message.
  */
 export const ExceptionSchema: GenMessage<Exception> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 4);
+  messageDesc(file_izci_ingest_v1_event, 6);
 
 /**
  * Mechanism describes how an exception was captured.
@@ -566,7 +688,7 @@ export type Mechanism = Message$1<"izci.ingest.v1.Mechanism"> & {
  * Use `create(MechanismSchema)` to create a new message.
  */
 export const MechanismSchema: GenMessage<Mechanism> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 5);
+  messageDesc(file_izci_ingest_v1_event, 7);
 
 /**
  * Stacktrace is a list of stack frames.
@@ -591,6 +713,15 @@ export type Stacktrace = Message$1<"izci.ingest.v1.Stacktrace"> & {
    * @generated from field: map<string, string> registers = 2;
    */
   registers: { [key: string]: string };
+
+  /**
+   * The frames as the SDK sent them when izci resolved minified or native
+   * frames with uploaded source maps or debug files; empty otherwise. Set
+   * by the server; ignored on input.
+   *
+   * @generated from field: repeated izci.ingest.v1.Frame raw_frames = 3;
+   */
+  rawFrames: Frame[];
 };
 
 /**
@@ -598,7 +729,7 @@ export type Stacktrace = Message$1<"izci.ingest.v1.Stacktrace"> & {
  * Use `create(StacktraceSchema)` to create a new message.
  */
 export const StacktraceSchema: GenMessage<Stacktrace> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 6);
+  messageDesc(file_izci_ingest_v1_event, 8);
 
 /**
  * Frame is a single stack frame.
@@ -744,7 +875,7 @@ export type Frame = Message$1<"izci.ingest.v1.Frame"> & {
  * Use `create(FrameSchema)` to create a new message.
  */
 export const FrameSchema: GenMessage<Frame> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 7);
+  messageDesc(file_izci_ingest_v1_event, 9);
 
 /**
  * Thread describes one thread (or goroutine, isolate) of the process.
@@ -807,7 +938,7 @@ export type Thread = Message$1<"izci.ingest.v1.Thread"> & {
  * Use `create(ThreadSchema)` to create a new message.
  */
 export const ThreadSchema: GenMessage<Thread> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 8);
+  messageDesc(file_izci_ingest_v1_event, 10);
 
 /**
  * Breadcrumb is an event that happened before the reported event.
@@ -871,7 +1002,7 @@ export type Breadcrumb = Message$1<"izci.ingest.v1.Breadcrumb"> & {
  * Use `create(BreadcrumbSchema)` to create a new message.
  */
 export const BreadcrumbSchema: GenMessage<Breadcrumb> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 9);
+  messageDesc(file_izci_ingest_v1_event, 11);
 
 /**
  * Request describes the HTTP or RPC request being processed.
@@ -983,7 +1114,7 @@ export type Request = Message$1<"izci.ingest.v1.Request"> & {
  * Use `create(RequestSchema)` to create a new message.
  */
 export const RequestSchema: GenMessage<Request> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 10);
+  messageDesc(file_izci_ingest_v1_event, 12);
 
 /**
  * Header is one HTTP header.
@@ -1011,7 +1142,7 @@ export type Header = Message$1<"izci.ingest.v1.Header"> & {
  * Use `create(HeaderSchema)` to create a new message.
  */
 export const HeaderSchema: GenMessage<Header> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 11);
+  messageDesc(file_izci_ingest_v1_event, 13);
 
 /**
  * Response describes the response to Request.
@@ -1046,7 +1177,7 @@ export type Response = Message$1<"izci.ingest.v1.Response"> & {
  * Use `create(ResponseSchema)` to create a new message.
  */
 export const ResponseSchema: GenMessage<Response> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 12);
+  messageDesc(file_izci_ingest_v1_event, 14);
 
 /**
  * User identifies the end user affected by the event.
@@ -1124,7 +1255,7 @@ export type User = Message$1<"izci.ingest.v1.User"> & {
  * Use `create(UserSchema)` to create a new message.
  */
 export const UserSchema: GenMessage<User> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 13);
+  messageDesc(file_izci_ingest_v1_event, 15);
 
 /**
  * Geo is an approximate geographic location.
@@ -1159,7 +1290,7 @@ export type Geo = Message$1<"izci.ingest.v1.Geo"> & {
  * Use `create(GeoSchema)` to create a new message.
  */
 export const GeoSchema: GenMessage<Geo> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 14);
+  messageDesc(file_izci_ingest_v1_event, 16);
 
 /**
  * Contexts groups structured, well-known context blocks.
@@ -1264,7 +1395,7 @@ export type Contexts = Message$1<"izci.ingest.v1.Contexts"> & {
  * Use `create(ContextsSchema)` to create a new message.
  */
 export const ContextsSchema: GenMessage<Contexts> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 15);
+  messageDesc(file_izci_ingest_v1_event, 17);
 
 /**
  * DeviceContext describes the device the application runs on.
@@ -1404,7 +1535,7 @@ export type DeviceContext = Message$1<"izci.ingest.v1.DeviceContext"> & {
  * Use `create(DeviceContextSchema)` to create a new message.
  */
 export const DeviceContextSchema: GenMessage<DeviceContext> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 16);
+  messageDesc(file_izci_ingest_v1_event, 18);
 
 /**
  * CpuInfo describes the processors and their load.
@@ -1463,7 +1594,7 @@ export type CpuInfo = Message$1<"izci.ingest.v1.CpuInfo"> & {
  * Use `create(CpuInfoSchema)` to create a new message.
  */
 export const CpuInfoSchema: GenMessage<CpuInfo> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 17);
+  messageDesc(file_izci_ingest_v1_event, 19);
 
 /**
  * MemoryInfo describes system memory.
@@ -1534,7 +1665,7 @@ export type MemoryInfo = Message$1<"izci.ingest.v1.MemoryInfo"> & {
  * Use `create(MemoryInfoSchema)` to create a new message.
  */
 export const MemoryInfoSchema: GenMessage<MemoryInfo> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 18);
+  messageDesc(file_izci_ingest_v1_event, 20);
 
 /**
  * StorageInfo describes the main storage volume.
@@ -1562,7 +1693,7 @@ export type StorageInfo = Message$1<"izci.ingest.v1.StorageInfo"> & {
  * Use `create(StorageInfoSchema)` to create a new message.
  */
 export const StorageInfoSchema: GenMessage<StorageInfo> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 19);
+  messageDesc(file_izci_ingest_v1_event, 21);
 
 /**
  * ScreenInfo describes the primary screen.
@@ -1604,7 +1735,7 @@ export type ScreenInfo = Message$1<"izci.ingest.v1.ScreenInfo"> & {
  * Use `create(ScreenInfoSchema)` to create a new message.
  */
 export const ScreenInfoSchema: GenMessage<ScreenInfo> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 20);
+  messageDesc(file_izci_ingest_v1_event, 22);
 
 /**
  * OsContext describes the operating system.
@@ -1668,7 +1799,7 @@ export type OsContext = Message$1<"izci.ingest.v1.OsContext"> & {
  * Use `create(OsContextSchema)` to create a new message.
  */
 export const OsContextSchema: GenMessage<OsContext> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 21);
+  messageDesc(file_izci_ingest_v1_event, 23);
 
 /**
  * RuntimeContext describes the language runtime.
@@ -1710,7 +1841,7 @@ export type RuntimeContext = Message$1<"izci.ingest.v1.RuntimeContext"> & {
  * Use `create(RuntimeContextSchema)` to create a new message.
  */
 export const RuntimeContextSchema: GenMessage<RuntimeContext> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 22);
+  messageDesc(file_izci_ingest_v1_event, 24);
 
 /**
  * BrowserContext describes the web browser.
@@ -1746,7 +1877,7 @@ export type BrowserContext = Message$1<"izci.ingest.v1.BrowserContext"> & {
  * Use `create(BrowserContextSchema)` to create a new message.
  */
 export const BrowserContextSchema: GenMessage<BrowserContext> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 23);
+  messageDesc(file_izci_ingest_v1_event, 25);
 
 /**
  * AppContext describes the application.
@@ -1809,7 +1940,7 @@ export type AppContext = Message$1<"izci.ingest.v1.AppContext"> & {
  * Use `create(AppContextSchema)` to create a new message.
  */
 export const AppContextSchema: GenMessage<AppContext> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 24);
+  messageDesc(file_izci_ingest_v1_event, 26);
 
 /**
  * ProcessContext describes the reporting process and its resource usage.
@@ -1946,7 +2077,7 @@ export type ProcessContext = Message$1<"izci.ingest.v1.ProcessContext"> & {
  * Use `create(ProcessContextSchema)` to create a new message.
  */
 export const ProcessContextSchema: GenMessage<ProcessContext> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 25);
+  messageDesc(file_izci_ingest_v1_event, 27);
 
 /**
  * GpuContext describes the graphics processor.
@@ -1995,7 +2126,7 @@ export type GpuContext = Message$1<"izci.ingest.v1.GpuContext"> & {
  * Use `create(GpuContextSchema)` to create a new message.
  */
 export const GpuContextSchema: GenMessage<GpuContext> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 26);
+  messageDesc(file_izci_ingest_v1_event, 28);
 
 /**
  * CultureContext describes locale settings.
@@ -2037,7 +2168,7 @@ export type CultureContext = Message$1<"izci.ingest.v1.CultureContext"> & {
  * Use `create(CultureContextSchema)` to create a new message.
  */
 export const CultureContextSchema: GenMessage<CultureContext> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 27);
+  messageDesc(file_izci_ingest_v1_event, 29);
 
 /**
  * TraceContext links the event to a distributed trace.
@@ -2086,7 +2217,7 @@ export type TraceContext = Message$1<"izci.ingest.v1.TraceContext"> & {
  * Use `create(TraceContextSchema)` to create a new message.
  */
 export const TraceContextSchema: GenMessage<TraceContext> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 28);
+  messageDesc(file_izci_ingest_v1_event, 30);
 
 /**
  * DatabaseContext describes a database operation related to the event —
@@ -2169,7 +2300,7 @@ export type DatabaseContext = Message$1<"izci.ingest.v1.DatabaseContext"> & {
  * Use `create(DatabaseContextSchema)` to create a new message.
  */
 export const DatabaseContextSchema: GenMessage<DatabaseContext> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 29);
+  messageDesc(file_izci_ingest_v1_event, 31);
 
 /**
  * CloudContext describes the hosting environment.
@@ -2260,7 +2391,7 @@ export type CloudContext = Message$1<"izci.ingest.v1.CloudContext"> & {
  * Use `create(CloudContextSchema)` to create a new message.
  */
 export const CloudContextSchema: GenMessage<CloudContext> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 30);
+  messageDesc(file_izci_ingest_v1_event, 32);
 
 /**
  * Sdk identifies the SDK that produced the event.
@@ -2302,7 +2433,7 @@ export type Sdk = Message$1<"izci.ingest.v1.Sdk"> & {
  * Use `create(SdkSchema)` to create a new message.
  */
 export const SdkSchema: GenMessage<Sdk> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 31);
+  messageDesc(file_izci_ingest_v1_event, 33);
 
 /**
  * SdkPackage is one package of an SDK.
@@ -2330,7 +2461,56 @@ export type SdkPackage = Message$1<"izci.ingest.v1.SdkPackage"> & {
  * Use `create(SdkPackageSchema)` to create a new message.
  */
 export const SdkPackageSchema: GenMessage<SdkPackage> = /*@__PURE__*/
-  messageDesc(file_izci_ingest_v1_event, 32);
+  messageDesc(file_izci_ingest_v1_event, 34);
+
+/**
+ * ProcessingErrorKind classifies processing errors.
+ *
+ * @generated from enum izci.ingest.v1.ProcessingErrorKind
+ */
+export enum ProcessingErrorKind {
+  /**
+   * Not set.
+   *
+   * @generated from enum value: PROCESSING_ERROR_KIND_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * No source map was uploaded for a script, neither by debug id nor for
+   * the release and URL.
+   *
+   * @generated from enum value: PROCESSING_ERROR_KIND_SOURCE_MAP_MISSING = 1;
+   */
+  SOURCE_MAP_MISSING = 1,
+
+  /**
+   * The uploaded source map could not be read.
+   *
+   * @generated from enum value: PROCESSING_ERROR_KIND_SOURCE_MAP_INVALID = 2;
+   */
+  SOURCE_MAP_INVALID = 2,
+
+  /**
+   * No debug information file was uploaded for a native image.
+   *
+   * @generated from enum value: PROCESSING_ERROR_KIND_DEBUG_FILE_MISSING = 3;
+   */
+  DEBUG_FILE_MISSING = 3,
+
+  /**
+   * The uploaded debug information file could not be read.
+   *
+   * @generated from enum value: PROCESSING_ERROR_KIND_DEBUG_FILE_INVALID = 4;
+   */
+  DEBUG_FILE_INVALID = 4,
+}
+
+/**
+ * Describes the enum izci.ingest.v1.ProcessingErrorKind.
+ */
+export const ProcessingErrorKindSchema: GenEnum<ProcessingErrorKind> = /*@__PURE__*/
+  enumDesc(file_izci_ingest_v1_event, 0);
 
 /**
  * Level is the severity of an event, from least to most severe.
@@ -2386,5 +2566,5 @@ export enum Level {
  * Describes the enum izci.ingest.v1.Level.
  */
 export const LevelSchema: GenEnum<Level> = /*@__PURE__*/
-  enumDesc(file_izci_ingest_v1_event, 0);
+  enumDesc(file_izci_ingest_v1_event, 1);
 

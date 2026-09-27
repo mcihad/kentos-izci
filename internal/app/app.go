@@ -36,8 +36,10 @@ import (
 	"github.com/mcihad/kentos-izci/internal/monitor"
 	"github.com/mcihad/kentos-izci/internal/realtime"
 	"github.com/mcihad/kentos-izci/internal/secret"
+	"github.com/mcihad/kentos-izci/internal/sentryapi"
 	"github.com/mcihad/kentos-izci/internal/server"
 	"github.com/mcihad/kentos-izci/internal/store"
+	"github.com/mcihad/kentos-izci/internal/symbols"
 	"github.com/mcihad/kentos-izci/internal/telegram"
 	"github.com/mcihad/kentos-izci/internal/version"
 	"github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1/ingestv1connect"
@@ -66,6 +68,9 @@ type App struct {
 	AI *ai.Runner
 	// Monitors processes cron check-ins and sweeps overdue runs.
 	Monitors *monitor.Service
+	// Symbols resolves stack traces with uploaded source maps and debug
+	// files and assembles those uploads.
+	Symbols *symbols.Service
 
 	jobs  *jobs.Runner
 	usage *ingest.UsageRecorder
@@ -145,6 +150,10 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	a.Monitors = monitor.NewService(database, log,
 		ingest.NewIncidentEmitter(database, a.Pipeline, time.Duration(cfg.Retention.Days)*24*time.Hour))
 	a.Ingest.SetMonitors(a.Monitors)
+	// Minified scripts and native Flutter builds: stack traces are resolved
+	// with uploaded source maps and debug files before grouping.
+	a.Symbols = symbols.NewService(database, log, symbols.Options{CacheBytes: cfg.Ingest.SymbolCacheMB << 20})
+	a.Ingest.SetSymbolicator(a.Symbols)
 
 	a.Server = server.New(server.Options{Config: cfg, Logger: log, DB: database, UI: opts.UI})
 	path, handler := ingestv1connect.NewIngestServiceHandler(a.Ingest,
@@ -165,6 +174,7 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 		m.Gauge("izci_ingest_queue_capacity", func() float64 { return float64(a.Pipeline.QueueCapacity()) })
 		m.Gauge("izci_live_subscribers", func() float64 { return float64(a.Hub.Subscribers()) })
 		m.Gauge("izci_ai_runs_running", func() float64 { return float64(a.AI.Running()) })
+		m.Gauge("izci_symbol_cache_bytes", func() float64 { return float64(a.Symbols.CacheBytes()) })
 		m.Pool(database.Pool)
 		a.Server.Handle("GET /metrics", m.Handler(cfg.Metrics.Token.Value()))
 	}
@@ -172,10 +182,13 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	docs.Register(a.Server.Handle, cfg.PublicURL)
 	a.Auth = auth.NewService(database, cfg, box, log)
 	a.Auth.RegisterRoutes(a.Server.Handle)
+	// sentry-cli and the Sentry bundler plugins upload source maps, debug
+	// files and releases through a subset of Sentry's web API.
+	sentryapi.New(database, a.keys, a.Auth, a.Symbols, log).Register(a.Server.Handle)
 	deps := api.Deps{
 		DB: database, Auth: a.Auth, Config: cfg, Log: log,
 		Hub: a.Hub, Pipeline: a.Pipeline, Keys: a.keys, StreamsDone: a.Server.StreamsDone(), Alerts: a.Alerts,
-		AI: a.AI, GitHub: a.GitHub,
+		AI: a.AI, GitHub: a.GitHub, Symbols: a.Symbols,
 	}
 	if a.Bot != nil {
 		deps.Notifier = a.Bot

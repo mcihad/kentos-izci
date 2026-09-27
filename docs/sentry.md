@@ -130,6 +130,7 @@ let _guard = sentry::init(("https://izk_…@izci.example.com/7", options));
 | Kullanıcı geri bildirimi (`feedback`; eski SDK'larda `user_report`) | **Geri bildirim** sayfası ve hatanın **Geri bildirim** sekmesi; ilgili olay biliniyorsa hataya bağlanır. |
 | Oturum (`session`, sunucu SDK'larında `sessions`) | **Projeler › Sürümler**: çökmesiz oturum ve kullanıcı oranı, oturum sayısı, benimsenme. |
 | İstemci raporu (`client_report`) | SDK'nın göndermeden attığı verinin sayısı, [metrik](operasyon.md#metrikler) olarak. |
+| Kaynak eşlemesi ve sembol bilgisi (`debug_meta`): debug kimlikli betikler, Flutter uygulama görüntüsü | Yığın izleri yüklenen kaynak eşlemeleri ve sembol dosyalarıyla özgün koda çevrilir; bkz. [Kaynak eşlemeleri ve semboller](kaynak-eslemeleri.md). |
 | Cron kontrolü (`check_in`): `CaptureCheckIn`, `withMonitor`, `@monitor` | **Zamanlanmış görevler**: çalışmalar, kaçırılan ve zaman aşımına uğrayan çalışmalar; sorun olunca hata kaydı ve uyarı. Bkz. [Zamanlanmış görev izleme](cron.md). |
 | Performans işlemleri ve span'ler, profiller, oturum kayıtları (replay), loglar | Kabul edilir, saklanmaz. Bunlar Sentry'nin hata izleme dışındaki ürünleridir. |
 
@@ -183,6 +184,7 @@ Bir oturum; mobil ya da masaüstü uygulamanın bir çalışması, tarayıcıda 
 | `POST /api/{proje}/envelope/` | Güncel SDK'ların kullandığı zarf (envelope) biçimi. |
 | `POST /api/{proje}/store/` | Eski SDK'ların tek olay biçimi. |
 | `POST /api/{proje}/cron/{izleyici}/{anahtar}/` | SDK'sı olmayan işler için check-in (GET de kabul edilir); bkz. [HTTP ile](cron.md#http-ile). |
+| `/api/0/…` | `sentry-cli` ve derleme eklentilerinin yükleme uçları; bkz. [Kaynak eşlemeleri](kaynak-eslemeleri.md#uç-noktalar). |
 
 Anahtar şu sırayla aranır: `X-Sentry-Auth` başlığındaki `sentry_key`, `Authorization`, `?sentry_key=` sorgu parametresi, zarf başlığındaki `dsn`. Gövde `gzip`, `deflate`, `br` ya da `zstd` ile sıkıştırılabilir; sıkıştırılmış gövde 20 MiB, açılmış hâli 40 MiB ile sınırlıdır. Bir zarf en çok 100 olay taşır.
 
@@ -196,7 +198,7 @@ Sınır aşılırsa İzci `429` ile birlikte Sentry SDK'larının anladığı ba
 
 ## Sınırlamalar
 
-- **Sembol çözme yok:** Kaynak eşlemeleri (source map), .NET PDB yüklemeleri (`SentryUploadSymbols`, `sentry-cli debug-files upload`) ve yerel sembol dosyaları işlenmez. Küçültülmüş tarayıcı kodunun yığın izi gönderildiği biçimde görünür. PDB'leri uygulamayla dağıtmayan .NET uygulamalarında satır numarası olmaz.
+- **Sembol çözme kısmen var:** JavaScript kaynak eşlemeleri ile Flutter ve Dart sembol dosyaları işlenir ([Kaynak eşlemeleri ve semboller](kaynak-eslemeleri.md)). .NET PDB yüklemeleri (`SentryUploadSymbols`), Android ProGuard/R8 eşlemeleri ve diğer yerel sembol dosyaları işlenmez; PDB'leri uygulamayla dağıtmayan .NET uygulamalarında satır numarası olmaz.
 - **Ek uç noktalar yok:** CSP raporları (`/api/{proje}/security/`), minidump (`/api/{proje}/minidump/`), Unreal ve OTLP uç noktaları sunulmaz.
 - **Eski rapor penceresi yok:** JavaScript SDK'sının `showReportDialog()` penceresi Sentry'nin sunduğu bir sayfayı yükler; İzci'de çalışmaz. Yerine geri bildirim düğmesini (`feedbackIntegration`) ya da `captureFeedback` çağrısını kullanın.
-- **Sentry'nin web API'si yok:** `sentry-cli` ile sürüm kaydı yerine [RegisterRelease](ingest.md) kullanılır.
+- **Sentry'nin web API'si kısmen var:** Yalnız `sentry-cli`, derleme eklentileri ve `sentry_dart_plugin`'in kaynak eşlemesi, sembol, sürüm ve dağıtım yüklemek için kullandığı uçlar sunulur ([Uç noktalar](kaynak-eslemeleri.md#uç-noktalar)). Hataları ya da olayları okuyan Sentry API'leri yoktur; bunun için İzci'nin kendi API'si ve [MCP sunucusu](mcp.md) vardır.

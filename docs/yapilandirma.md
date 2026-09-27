@@ -50,6 +50,7 @@ Hatalı bir değer sunucunun açılmasını engeller; hata mesajı hangi değiş
 | `INGEST_QUEUE_SIZE` | `5000` | Yazıcı başına kuyruk. Dolarsa istemci `UNAVAILABLE` alır ve yeniden dener. |
 | `INGEST_BATCH_SIZE` | `500` | Tek veritabanı işlemindeki en çok olay (1–5000). |
 | `INGEST_ATTACHMENT_MAX_BYTES` | `10485760` | Olayla gelen bir ekin (ekran görüntüsü, günlük dosyası) en büyük boyutu, bayt (en çok 40 MiB). Büyük ekler atılır. |
+| `INGEST_SYMBOL_CACHE_MB` | `256` | Yığın izlerini çözmek için bellekte tutulan [kaynak eşlemeleri ve sembol dosyalarının](kaynak-eslemeleri.md) en çok boyutu, MiB (16–16384). |
 | `INGEST_LINGER` | `0s` | Toplu yazmadan önce daha fazla olay için bekleme. `0s` doğal toplama demektir: yazıcı meşgulken biriken olaylar bir sonraki işlemde yazılır. |
 | `INGEST_ACK` | `durable` | `durable`: olay veritabanına yazılınca yanıt verilir. `async`: kuyruğa alınınca yanıt verilir (daha hızlı, kapanışta kayıp riski). |
 | `INGEST_ACK_TIMEOUT` | `15s` | `durable` modunda yazmayı bekleme süresi. |

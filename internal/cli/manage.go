@@ -206,7 +206,7 @@ func newKeyCmd(a *cliApp) *cobra.Command {
 	create.Flags().StringVar(&name, "name", "cli", "descriptive name")
 	create.Flags().StringSliceVar(&origins, "origin", nil, "allowed browser origin (repeatable), e.g. https://app.example.com")
 	create.Flags().Int32Var(&rate, "rate-limit", 0, "events per minute for this key (0 = project limit)")
-	create.Flags().BoolVar(&releases, "releases", true, "also allow registering releases")
+	create.Flags().BoolVar(&releases, "releases", true, "also allow registering releases and uploading source maps and debug files (CI keys; not for keys embedded in apps)")
 	cmd.AddCommand(create)
 	return cmd
 }

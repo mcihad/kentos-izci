@@ -53,8 +53,11 @@ Olay, Sentry olay modeline bilinçli olarak yakındır. En önemli alanlar:
 | `user` | `id`, `email`, `username`, `ipAddress`, `segment`. |
 | `contexts` | `device` (CPU, bellek, disk), `os`, `runtime`, `browser`, `app`, `process`, `database` (hatalı SQL), `cloud`, `trace` ve serbest `custom` blokları. |
 | `tags`, `extra`, `fingerprint` | Serbest etiketler, ek veri ve isteğe bağlı gruplama anahtarı (bkz. [Gruplama](gruplama.md)). |
+| `debugImages` | Yığın izinin çalıştığı kod: debug kimlikli betikler (`type: "sourcemap"`, `codeFile`, `debugId`) ve yerel görüntüler. Küçültülmüş kodun [kaynak eşlemeleriyle](kaynak-eslemeleri.md) çözülmesi için. |
 
 Alanların tamamı, birimleri, sınırları ve Sentry karşılıkları [Ingest API başvurusunda](api/izci.ingest.v1.md) açıklanır. JSON'da alan adları `lowerCamelCase` ya da proto'daki `snake_case` biçiminde yazılabilir. Zamanlar RFC 3339'dur; enum'lar ad (`"LEVEL_ERROR"`) ya da sayı olarak verilebilir.
+
+Küçültülmüş tarayıcı kodu gönderen istemciler olaya `release` ya da `debugImages` eklerse yığın izleri yüklenen kaynak eşlemeleriyle çözülür; sunucu çevirdiği çerçevelerin gönderildiği hâlini `stacktrace.rawFrames`, çeviri sorunlarını `processingErrors` alanına yazar (bu iki alan istemciden kabul edilmez).
 
 `eventId` ve `timestamp` verilmezse sunucu üretir. İstemci her olaya bir `eventId` (UUID) verirse, ağ hatasından sonraki yeniden gönderimler tekrar sayılmaz.
 

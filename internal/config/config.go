@@ -128,6 +128,9 @@ type IngestConfig struct {
 	// MaxAttachmentBytes bounds one file sent with an event (screenshots,
 	// logs); larger files are dropped.
 	MaxAttachmentBytes int `env:"INGEST_ATTACHMENT_MAX_BYTES" envDefault:"10485760"`
+	// SymbolCacheMB bounds the memory of parsed source maps and debug files
+	// kept to resolve stack traces.
+	SymbolCacheMB int `env:"INGEST_SYMBOL_CACHE_MB" envDefault:"256"`
 }
 
 // AuthConfig configures sign-in.
@@ -408,6 +411,9 @@ func (c *Config) finalize() error {
 	}
 	if c.Ingest.MaxAttachmentBytes < 1 || c.Ingest.MaxAttachmentBytes > 40<<20 {
 		errs = append(errs, fmt.Errorf("INGEST_ATTACHMENT_MAX_BYTES must be between 1 and 41943040 (got %d)", c.Ingest.MaxAttachmentBytes))
+	}
+	if c.Ingest.SymbolCacheMB < 16 || c.Ingest.SymbolCacheMB > 16384 {
+		errs = append(errs, fmt.Errorf("INGEST_SYMBOL_CACHE_MB must be between 16 and 16384 (got %d)", c.Ingest.SymbolCacheMB))
 	}
 	if c.Ingest.BatchSize < 1 || c.Ingest.BatchSize > 5000 {
 		errs = append(errs, fmt.Errorf("INGEST_BATCH_SIZE must be between 1 and 5000 (got %d)", c.Ingest.BatchSize))

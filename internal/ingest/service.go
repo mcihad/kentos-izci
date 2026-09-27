@@ -13,6 +13,7 @@ import (
 
 	"connectrpc.com/connect"
 	connectcors "connectrpc.com/cors"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -58,7 +59,17 @@ type Service struct {
 	pipeline *Pipeline
 	sessions *SessionRecorder
 	monitors *monitor.Service
+	symbols  Symbolicator
 }
+
+// Symbolicator resolves minified and native stack traces with uploaded
+// source maps and debug files before events are grouped (internal/symbols).
+type Symbolicator interface {
+	Symbolicate(ctx context.Context, orgID, projectID uuid.UUID, ev *ingestv1.Event)
+}
+
+// SetSymbolicator connects stack trace resolution.
+func (s *Service) SetSymbolicator(sym Symbolicator) { s.symbols = sym }
 
 var _ ingestv1connect.IngestServiceHandler = (*Service)(nil)
 
@@ -211,6 +222,10 @@ func (s *Service) Accept(ctx context.Context, c *Caller, events []*ingestv1.Even
 			retry = max(retry, untilNextMonth())
 			s.usage.RateLimited(rk.Key.OrgID, 1)
 			continue
+		}
+		ResetDerived(ev)
+		if s.symbols != nil {
+			s.symbols.Symbolicate(ctx, project.OrgID, project.ProjectID, ev)
 		}
 		p, err := Normalize(ev, NormalizeOptions{Project: project, TransportIP: transport, Retention: s.cfg.Retention})
 		if err != nil {

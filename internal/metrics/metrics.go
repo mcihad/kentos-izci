@@ -106,6 +106,19 @@ var (
 	MonitorRecoveries = shared.NewCounter("izci_monitor_recoveries_total")
 )
 
+// Source maps and debug files: uploads by outcome and stack frames resolved
+// with them.
+var (
+	SymbolUploadsStored    = shared.NewCounter(`izci_symbol_uploads_total{outcome="stored"}`)
+	SymbolUploadsDuplicate = shared.NewCounter(`izci_symbol_uploads_total{outcome="duplicate"}`)
+	SymbolUploadsRejected  = shared.NewCounter(`izci_symbol_uploads_total{outcome="rejected"}`)
+
+	FramesResolvedSourceMap = shared.NewCounter(`izci_symbolicated_frames_total{kind="sourcemap",outcome="resolved"}`)
+	FramesMissingSourceMap  = shared.NewCounter(`izci_symbolicated_frames_total{kind="sourcemap",outcome="missing"}`)
+	FramesResolvedNative    = shared.NewCounter(`izci_symbolicated_frames_total{kind="native",outcome="resolved"}`)
+	FramesMissingNative     = shared.NewCounter(`izci_symbolicated_frames_total{kind="native",outcome="missing"}`)
+)
+
 // Sentry items other than events.
 var (
 	SessionsAccepted = shared.NewCounter(`izci_sentry_sessions_total{outcome="accepted"}`)

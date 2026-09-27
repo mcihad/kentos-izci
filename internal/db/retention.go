@@ -39,6 +39,12 @@ func (d *DB) ApplyRetention(ctx context.Context, cutoff time.Time) (RetentionRes
 		{"user_feedback", `DELETE FROM user_feedback WHERE created_at < $1`},
 		{"release_sessions", `DELETE FROM release_sessions WHERE hour < $1`},
 		{"monitor_checkins", `DELETE FROM monitor_checkins WHERE created_at < $1 AND status <> 'in_progress'`},
+		// Source maps and debug files stay while they resolve frames, and
+		// at least 90 days after upload or last use.
+		{"artifact_bundles", `DELETE FROM artifact_bundles WHERE coalesce(last_used_at, created_at) < least($1, now() - interval '90 days')`},
+		{"debug_files", `DELETE FROM debug_files WHERE coalesce(last_used_at, created_at) < least($1, now() - interval '90 days')`},
+		// Chunks of uploads that were never assembled.
+		{"upload_chunks", `DELETE FROM upload_chunks WHERE created_at < greatest($1, now() - interval '1 hour')`},
 		{"release_session_users", `DELETE FROM release_session_users WHERE day < $1::date`},
 		{"usage_daily", `DELETE FROM usage_daily WHERE day < ($1::timestamptz - interval '400 days')::date`},
 	}

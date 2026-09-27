@@ -203,7 +203,10 @@ const (
 	ApiKeyScope_API_KEY_SCOPE_UNSPECIFIED ApiKeyScope = 0
 	// Send events (IngestService.SendEvent, SendEvents, Sentry endpoints).
 	ApiKeyScope_API_KEY_SCOPE_INGEST ApiKeyScope = 1
-	// Register releases (IngestService.RegisterRelease), for CI.
+	// Register releases (IngestService.RegisterRelease) and upload source
+	// maps and debug files through the Sentry-compatible upload endpoints
+	// (sentry-cli, bundler plugins), for CI. Keys embedded in browser or mobile
+	// apps should not have it.
 	ApiKeyScope_API_KEY_SCOPE_RELEASES ApiKeyScope = 2
 )
 

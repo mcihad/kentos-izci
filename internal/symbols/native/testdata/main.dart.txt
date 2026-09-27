@@ -1,0 +1,27 @@
+class InvoiceException implements Exception {
+  InvoiceException(this.message);
+  final String message;
+  @override
+  String toString() => 'InvoiceException: $message';
+}
+
+class InvoiceService {
+  int total(List<int> lines) {
+    if (lines.isEmpty) {
+      throw InvoiceException('Fatura satırı yok');
+    }
+    return lines.reduce((a, b) => a + b);
+  }
+}
+
+@pragma('vm:never-inline')
+int computeTotals(InvoiceService s) => s.total(<int>[]);
+
+void main() {
+  try {
+    computeTotals(InvoiceService());
+  } catch (e, st) {
+    print(e.runtimeType);
+    print(st);
+  }
+}

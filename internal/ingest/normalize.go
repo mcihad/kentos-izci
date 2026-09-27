@@ -181,6 +181,7 @@ func Normalize(ev *ingestv1.Event, opt NormalizeOptions) (*Processed, error) {
 	normalizeUser(ev, w, opt.TransportIP)
 	normalizeContexts(ev, w, scrub)
 	normalizeTagsExtra(ev, w, scrub)
+	normalizeDebugImages(ev, w)
 
 	p.UA = ParseUserAgent(UserAgentOf(ev))
 	enrichFromUserAgent(ev, p)
@@ -344,12 +345,23 @@ func normalizeThreads(ev *ingestv1.Event, platform string, rules InAppRules, w *
 }
 
 func normalizeStacktrace(st *ingestv1.Stacktrace, field, platform string, rules InAppRules, w *warnings, s *Scrubber) {
-	frames := st.GetFrames()
+	st.Frames = cleanFrames(st.GetFrames(), field, w, s)
+	resolveInApp(st.Frames, platform, rules)
+	if len(st.GetRawFrames()) > 0 {
+		st.RawFrames = cleanFrames(st.GetRawFrames(), field+".raw", w, s)
+	}
+	if len(st.GetRegisters()) > 0 {
+		st.Registers = w.clampMap(field+".stacktrace.registers", st.GetRegisters(), 64, maxShortString, maxShortString)
+	}
+}
+
+// cleanFrames trims a frame list to the frame limit (keeping the oldest and
+// newest frames) and clamps and scrubs the fields of each frame.
+func cleanFrames(frames []*ingestv1.Frame, field string, w *warnings, s *Scrubber) []*ingestv1.Frame {
 	if len(frames) > maxFrames {
 		w.addf("%s.stacktrace: %d frames trimmed to %d", field, len(frames), maxFrames)
 		keepNew := maxFrames - keepOldFrames
 		frames = append(frames[:keepOldFrames:keepOldFrames], frames[len(frames)-keepNew:]...)
-		st.Frames = frames
 	}
 	for _, f := range frames {
 		f.Function = w.clean(field+".frame.function", f.GetFunction(), maxFrameField)
@@ -369,9 +381,50 @@ func normalizeStacktrace(st *ingestv1.Stacktrace, field, platform string, rules 
 			s.Map(f.Vars)
 		}
 	}
-	resolveInApp(frames, platform, rules)
-	if len(st.GetRegisters()) > 0 {
-		st.Registers = w.clampMap(field+".stacktrace.registers", st.GetRegisters(), 64, maxShortString, maxShortString)
+	return frames
+}
+
+// maxDebugImages and maxProcessingErrors bound the lists of those fields.
+const (
+	maxDebugImages      = 500
+	maxProcessingErrors = 20
+)
+
+// ResetDerived clears the fields only the server fills (resolution errors
+// and the frames as sent), so that clients cannot inject them.
+func ResetDerived(ev *ingestv1.Event) {
+	ev.ProcessingErrors = nil
+	for _, ex := range ev.GetExceptions() {
+		if st := ex.GetStacktrace(); st != nil {
+			st.RawFrames = nil
+		}
+	}
+	for _, th := range ev.GetThreads() {
+		if st := th.GetStacktrace(); st != nil {
+			st.RawFrames = nil
+		}
+	}
+}
+
+func normalizeDebugImages(ev *ingestv1.Event, w *warnings) {
+	if len(ev.GetDebugImages()) > maxDebugImages {
+		w.addf("debug_images: %d images trimmed to %d", len(ev.GetDebugImages()), maxDebugImages)
+		ev.DebugImages = ev.DebugImages[:maxDebugImages]
+	}
+	for _, im := range ev.GetDebugImages() {
+		im.Type = strings.ToLower(w.clean("debug_images.type", im.GetType(), maxPlatform))
+		im.DebugId = w.clean("debug_images.debug_id", im.GetDebugId(), maxShortString)
+		im.CodeId = w.clean("debug_images.code_id", im.GetCodeId(), maxShortString)
+		im.CodeFile = w.clean("debug_images.code_file", im.GetCodeFile(), maxAbsPath)
+		im.ImageAddr = w.clean("debug_images.image_addr", im.GetImageAddr(), maxShortString)
+		im.Arch = w.clean("debug_images.arch", im.GetArch(), maxPlatform)
+	}
+	if len(ev.GetProcessingErrors()) > maxProcessingErrors {
+		ev.ProcessingErrors = ev.ProcessingErrors[:maxProcessingErrors]
+	}
+	for _, e := range ev.GetProcessingErrors() {
+		e.Target = truncateUTF8(e.GetTarget(), maxAbsPath)
+		e.Detail = truncateUTF8(e.GetDetail(), maxMessage)
 	}
 }
 
@@ -1000,6 +1053,19 @@ func marshalBounded(ev *ingestv1.Event, w *warnings) ([]byte, error) {
 		name string
 		drop func()
 	}{
+		{"frames as sent before symbolication", func() {
+			for _, ex := range ev.Exceptions {
+				if st := ex.GetStacktrace(); st != nil {
+					st.RawFrames = nil
+				}
+			}
+			for _, th := range ev.Threads {
+				if st := th.GetStacktrace(); st != nil {
+					st.RawFrames = nil
+				}
+			}
+		}},
+		{"debug images", func() { ev.DebugImages = nil }},
 		{"extra", func() { ev.Extra = nil }},
 		{"threads", func() { ev.Threads = nil }},
 		{"breadcrumbs", func() { ev.Breadcrumbs = ev.Breadcrumbs[max(0, len(ev.Breadcrumbs)-20):] }},

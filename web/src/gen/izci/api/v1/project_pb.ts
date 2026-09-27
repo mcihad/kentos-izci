@@ -1768,7 +1768,10 @@ export enum ApiKeyScope {
   INGEST = 1,
 
   /**
-   * Register releases (IngestService.RegisterRelease), for CI.
+   * Register releases (IngestService.RegisterRelease) and upload source
+   * maps and debug files through the Sentry-compatible upload endpoints
+   * (sentry-cli, bundler plugins), for CI. Keys embedded in browser or mobile
+   * apps should not have it.
    *
    * @generated from enum value: API_KEY_SCOPE_RELEASES = 2;
    */

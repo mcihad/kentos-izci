@@ -269,6 +269,8 @@ const actionLabels: Record<string, string> = {
   "member.remove": "Üyeyi çıkardı",
   "member.update": "Üyenin rolünü değiştirdi",
   "monitor.create": "Zamanlanmış görev izleyicisi oluşturdu",
+  "symbols.bundle.delete": "Kaynak eşleme paketini sildi",
+  "symbols.debug_file.delete": "Sembol dosyasını sildi",
   "monitor.delete": "Zamanlanmış görev izleyicisini sildi",
   "monitor.update": "Zamanlanmış görev izleyicisini değiştirdi",
   "organization.plan_update": "Planı değiştirdi",

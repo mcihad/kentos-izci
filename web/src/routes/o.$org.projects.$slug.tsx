@@ -11,6 +11,7 @@ import { ProjectPrivacy } from "@/components/project/privacy";
 import { ProjectReleases } from "@/components/project/releases";
 import { ProjectRepository } from "@/components/project/repository";
 import { ProjectSetup } from "@/components/project/setup";
+import { ProjectSymbols } from "@/components/project/symbols";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 import { isNotFound } from "@/lib/errors";
@@ -23,6 +24,7 @@ const tabs = [
   { id: "setup", label: "Kurulum" },
   { id: "keys", label: "Anahtarlar" },
   { id: "releases", label: "Sürümler" },
+  { id: "symbols", label: "Kaynak eşlemeleri" },
   { id: "repository", label: "Depo" },
   { id: "privacy", label: "Gizlilik" },
   { id: "ai", label: "Yapay zekâ" },
@@ -108,6 +110,7 @@ function ProjectPage() {
           {tab === "setup" ? <ProjectSetup project={project} /> : null}
           {tab === "keys" ? <ProjectKeys project={project} /> : null}
           {tab === "releases" ? <ProjectReleases project={project} /> : null}
+          {tab === "symbols" ? <ProjectSymbols project={project} /> : null}
           {tab === "repository" ? <ProjectRepository project={project} /> : null}
           {tab === "privacy" ? <ProjectPrivacy project={project} /> : null}
           {tab === "ai" ? <ProjectAi project={project} /> : null}

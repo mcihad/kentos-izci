@@ -34,9 +34,9 @@ Conventions used throughout this package:
 
 **Services:** [IngestService](#izci-ingest-v1-ingestservice)
 
-**Messages:** [AppContext](#izci-ingest-v1-appcontext) · [Breadcrumb](#izci-ingest-v1-breadcrumb) · [BrowserContext](#izci-ingest-v1-browsercontext) · [CheckIn](#izci-ingest-v1-checkin) · [CloudContext](#izci-ingest-v1-cloudcontext) · [Contexts](#izci-ingest-v1-contexts) · [CpuInfo](#izci-ingest-v1-cpuinfo) · [CultureContext](#izci-ingest-v1-culturecontext) · [Customer](#izci-ingest-v1-customer) · [DatabaseContext](#izci-ingest-v1-databasecontext) · [DeviceContext](#izci-ingest-v1-devicecontext) · [Event](#izci-ingest-v1-event) · [EventResult](#izci-ingest-v1-eventresult) · [Exception](#izci-ingest-v1-exception) · [Frame](#izci-ingest-v1-frame) · [Geo](#izci-ingest-v1-geo) · [GetClientConfigRequest](#izci-ingest-v1-getclientconfigrequest) · [GetClientConfigResponse](#izci-ingest-v1-getclientconfigresponse) · [GpuContext](#izci-ingest-v1-gpucontext) · [Header](#izci-ingest-v1-header) · [Mechanism](#izci-ingest-v1-mechanism) · [MemoryInfo](#izci-ingest-v1-memoryinfo) · [Message](#izci-ingest-v1-message) · [MonitorConfig](#izci-ingest-v1-monitorconfig) · [MonitorInterval](#izci-ingest-v1-monitorinterval) · [OsContext](#izci-ingest-v1-oscontext) · [ProcessContext](#izci-ingest-v1-processcontext) · [RegisterReleaseRequest](#izci-ingest-v1-registerreleaserequest) · [RegisterReleaseResponse](#izci-ingest-v1-registerreleaseresponse) · [Request](#izci-ingest-v1-request) · [Response](#izci-ingest-v1-response) · [RuntimeContext](#izci-ingest-v1-runtimecontext) · [ScreenInfo](#izci-ingest-v1-screeninfo) · [Sdk](#izci-ingest-v1-sdk) · [SdkPackage](#izci-ingest-v1-sdkpackage) · [SendCheckInRequest](#izci-ingest-v1-sendcheckinrequest) · [SendCheckInResponse](#izci-ingest-v1-sendcheckinresponse) · [SendEventRequest](#izci-ingest-v1-sendeventrequest) · [SendEventResponse](#izci-ingest-v1-sendeventresponse) · [SendEventsRequest](#izci-ingest-v1-sendeventsrequest) · [SendEventsResponse](#izci-ingest-v1-sendeventsresponse) · [Stacktrace](#izci-ingest-v1-stacktrace) · [StorageInfo](#izci-ingest-v1-storageinfo) · [Tenant](#izci-ingest-v1-tenant) · [Thread](#izci-ingest-v1-thread) · [TraceContext](#izci-ingest-v1-tracecontext) · [User](#izci-ingest-v1-user)
+**Messages:** [AppContext](#izci-ingest-v1-appcontext) · [Breadcrumb](#izci-ingest-v1-breadcrumb) · [BrowserContext](#izci-ingest-v1-browsercontext) · [CheckIn](#izci-ingest-v1-checkin) · [CloudContext](#izci-ingest-v1-cloudcontext) · [Contexts](#izci-ingest-v1-contexts) · [CpuInfo](#izci-ingest-v1-cpuinfo) · [CultureContext](#izci-ingest-v1-culturecontext) · [Customer](#izci-ingest-v1-customer) · [DatabaseContext](#izci-ingest-v1-databasecontext) · [DebugImage](#izci-ingest-v1-debugimage) · [DeviceContext](#izci-ingest-v1-devicecontext) · [Event](#izci-ingest-v1-event) · [EventResult](#izci-ingest-v1-eventresult) · [Exception](#izci-ingest-v1-exception) · [Frame](#izci-ingest-v1-frame) · [Geo](#izci-ingest-v1-geo) · [GetClientConfigRequest](#izci-ingest-v1-getclientconfigrequest) · [GetClientConfigResponse](#izci-ingest-v1-getclientconfigresponse) · [GpuContext](#izci-ingest-v1-gpucontext) · [Header](#izci-ingest-v1-header) · [Mechanism](#izci-ingest-v1-mechanism) · [MemoryInfo](#izci-ingest-v1-memoryinfo) · [Message](#izci-ingest-v1-message) · [MonitorConfig](#izci-ingest-v1-monitorconfig) · [MonitorInterval](#izci-ingest-v1-monitorinterval) · [OsContext](#izci-ingest-v1-oscontext) · [ProcessContext](#izci-ingest-v1-processcontext) · [ProcessingError](#izci-ingest-v1-processingerror) · [RegisterReleaseRequest](#izci-ingest-v1-registerreleaserequest) · [RegisterReleaseResponse](#izci-ingest-v1-registerreleaseresponse) · [Request](#izci-ingest-v1-request) · [Response](#izci-ingest-v1-response) · [RuntimeContext](#izci-ingest-v1-runtimecontext) · [ScreenInfo](#izci-ingest-v1-screeninfo) · [Sdk](#izci-ingest-v1-sdk) · [SdkPackage](#izci-ingest-v1-sdkpackage) · [SendCheckInRequest](#izci-ingest-v1-sendcheckinrequest) · [SendCheckInResponse](#izci-ingest-v1-sendcheckinresponse) · [SendEventRequest](#izci-ingest-v1-sendeventrequest) · [SendEventResponse](#izci-ingest-v1-sendeventresponse) · [SendEventsRequest](#izci-ingest-v1-sendeventsrequest) · [SendEventsResponse](#izci-ingest-v1-sendeventsresponse) · [Stacktrace](#izci-ingest-v1-stacktrace) · [StorageInfo](#izci-ingest-v1-storageinfo) · [Tenant](#izci-ingest-v1-tenant) · [Thread](#izci-ingest-v1-thread) · [TraceContext](#izci-ingest-v1-tracecontext) · [User](#izci-ingest-v1-user)
 
-**Enums:** [CheckInStatus](#izci-ingest-v1-checkinstatus) · [EventOutcome](#izci-ingest-v1-eventoutcome) · [IntervalUnit](#izci-ingest-v1-intervalunit) · [Level](#izci-ingest-v1-level)
+**Enums:** [CheckInStatus](#izci-ingest-v1-checkinstatus) · [EventOutcome](#izci-ingest-v1-eventoutcome) · [IntervalUnit](#izci-ingest-v1-intervalunit) · [Level](#izci-ingest-v1-level) · [ProcessingErrorKind](#izci-ingest-v1-processingerrorkind)
 
 ## Services
 
@@ -340,6 +340,22 @@ typically the query that failed.
 | `rows` | optional `int64` | Number of rows returned or affected, when known. |
 | `error_code` | `string` | Database-specific error code, e.g. PostgreSQL SQLSTATE "23505" or SQL Server error number "2627". |
 
+<a id="izci-ingest-v1-debugimage"></a>
+
+### DebugImage
+
+DebugImage is a script or a native library the application loaded.
+
+| Field | Type | Description |
+|---|---|---|
+| `type` | `string` | Kind of image: "sourcemap" (a script with a debug id), "elf", "macho" or "pe" (native code). |
+| `debug_id` | `string` | Debug id of the image as a UUID, e.g. the id sentry-cli injected into a script or the one derived from the build id of a Flutter app. |
+| `code_id` | `string` | Code id of a native image: its build id (ELF) or UUID (Mach-O) in hex. |
+| `code_file` | `string` | Path or URL of the image, e.g. "https://kalem.example.com/assets/app.js" or "libapp.so". Frames of a script match its code_file. |
+| `image_addr` | `string` | Address the native image was loaded at, in hex, e.g. "0x7a2e400000". |
+| `image_size` | `uint64` | Size of the native image in bytes; 0 when unknown. |
+| `arch` | `string` | CPU architecture of the native image, e.g. "arm64". |
+
 <a id="izci-ingest-v1-devicecontext"></a>
 
 ### DeviceContext
@@ -407,6 +423,8 @@ Sentry equivalent: the error event payload.
 | `fingerprint` | repeated `string` | Custom grouping fingerprint. When set, events with an identical fingerprint are grouped into the same issue regardless of their stack traces. The special element "{{ default }}" stands for the fingerprint izci would have computed, so ["{{ default }}", "tenant-a"] splits the default group per tenant. Max 16 elements of 256 characters each.<br><br>Sentry equivalent: fingerprint. |
 | `sdk` | [Sdk](#izci-ingest-v1-sdk) | SDK that produced the event. |
 | `modules` | map&lt;`string`, `string`&gt; | Versions of the libraries loaded by the application, name → version, e.g. {"github.com/jackc/pgx/v5": "v5.11.0"}. Helps to spot issues caused by a dependency upgrade. Max 500 entries. |
+| `debug_images` | repeated [DebugImage](#izci-ingest-v1-debugimage) | Code the stack traces run in, used to resolve them with uploaded source maps and debug files: scripts with debug ids and native images with their load addresses. Max 500 images.<br><br>Sentry equivalent: debug_meta.images. |
+| `processing_errors` | repeated [ProcessingError](#izci-ingest-v1-processingerror) | Problems izci met while resolving the stack traces with uploaded source maps or debug files, e.g. a missing source map. Set by the server; ignored on input. |
 
 <a id="izci-ingest-v1-eventresult"></a>
 
@@ -658,6 +676,18 @@ ProcessContext describes the reporting process and its resource usage.
 | `cpu_time_system` | [google.protobuf.Duration](https://protobuf.dev/reference/protobuf/google.protobuf/#duration) | Kernel-mode CPU time consumed by the process. |
 | `working_directory` | `string` | Working directory of the process. |
 
+<a id="izci-ingest-v1-processingerror"></a>
+
+### ProcessingError
+
+ProcessingError is a problem met while resolving stack traces.
+
+| Field | Type | Description |
+|---|---|---|
+| `kind` | [ProcessingErrorKind](#izci-ingest-v1-processingerrorkind) | What went wrong. |
+| `target` | `string` | The script URL or the debug id of the native image concerned. |
+| `detail` | `string` | Details in English, e.g. the release that was searched or a parse error. |
+
 <a id="izci-ingest-v1-registerreleaserequest"></a>
 
 ### RegisterReleaseRequest
@@ -839,6 +869,7 @@ Stacktrace is a list of stack frames.
 |---|---|---|
 | `frames` | repeated [Frame](#izci-ingest-v1-frame) | Frames ordered from the OLDEST call (e.g. main or the thread entry point) to the NEWEST call (the function that raised the error), so the crashing frame is the LAST element. Max 250 frames per stack trace; when longer, the oldest 50 and the newest 200 are kept. |
 | `registers` | map&lt;`string`, `string`&gt; | CPU register values for native crashes, name → hexadecimal value, e.g. {"rip": "0x00007ff8a1b2c3d4"}. |
+| `raw_frames` | repeated [Frame](#izci-ingest-v1-frame) | The frames as the SDK sent them when izci resolved minified or native frames with uploaded source maps or debug files; empty otherwise. Set by the server; ignored on input. |
 
 <a id="izci-ingest-v1-storageinfo"></a>
 
@@ -972,4 +1003,18 @@ Level is the severity of an event, from least to most severe.
 | `LEVEL_WARNING` | 3 | Something unexpected happened but the operation continued. |
 | `LEVEL_ERROR` | 4 | An operation failed. The default for exceptions. |
 | `LEVEL_FATAL` | 5 | The application (or a critical part of it) crashed or became unusable. |
+
+<a id="izci-ingest-v1-processingerrorkind"></a>
+
+### ProcessingErrorKind
+
+ProcessingErrorKind classifies processing errors.
+
+| Name | Number | Description |
+|---|---|---|
+| `PROCESSING_ERROR_KIND_UNSPECIFIED` | 0 | Not set. |
+| `PROCESSING_ERROR_KIND_SOURCE_MAP_MISSING` | 1 | No source map was uploaded for a script, neither by debug id nor for the release and URL. |
+| `PROCESSING_ERROR_KIND_SOURCE_MAP_INVALID` | 2 | The uploaded source map could not be read. |
+| `PROCESSING_ERROR_KIND_DEBUG_FILE_MISSING` | 3 | No debug information file was uploaded for a native image. |
+| `PROCESSING_ERROR_KIND_DEBUG_FILE_INVALID` | 4 | The uploaded debug information file could not be read. |
 

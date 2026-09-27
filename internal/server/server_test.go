@@ -106,6 +106,10 @@ func TestSPARouting(t *testing.T) {
 	if rec.Code != http.StatusMethodNotAllowed {
 		t.Fatalf("POST to the SPA must be 405, got %d", rec.Code)
 	}
+	rec = do(t, h, http.MethodGet, "/api/0/organizations/kentos/releases/1.0/previous-with-commits/", nil)
+	if rec.Code != http.StatusNotFound || rec.Header().Get("Content-Type") != "application/json" {
+		t.Fatalf("unknown API paths must be JSON 404s, got %d %q", rec.Code, rec.Header().Get("Content-Type"))
+	}
 }
 
 func TestSPAAssetsPrecompressedAndCached(t *testing.T) {

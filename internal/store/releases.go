@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 // ReleaseInput is release metadata registered by CI.
@@ -53,4 +54,50 @@ func RegisterRelease(ctx context.Context, q Querier, in ReleaseInput) (uuid.UUID
 		}
 	}
 	return id, created, nil
+}
+
+// ReleaseInfo is a release with its deploys, as the Sentry web API reports
+// it to sentry-cli.
+type ReleaseInfo struct {
+	ID          uuid.UUID
+	ProjectSlug string
+	ProjectName string
+	Version     string
+	CommitSHA   string
+	Repository  string
+	URL         string
+	NewIssues   int
+	CreatedAt   time.Time
+	LastSeen    time.Time
+	Deploys     int
+	LastDeploy  *time.Time
+	LastEnv     string
+}
+
+// GetReleaseInfo returns a project's release by version.
+func GetReleaseInfo(ctx context.Context, q Querier, projectID uuid.UUID, version string) (*ReleaseInfo, error) {
+	var r ReleaseInfo
+	err := q.QueryRow(ctx, `
+		SELECT r.id, p.slug, p.name, r.version, r.commit_sha, r.repository, r.url, r.new_issues, r.created_at, r.last_seen,
+		  (SELECT count(*) FROM deploys d WHERE d.release_id = r.id),
+		  (SELECT max(d.deployed_at) FROM deploys d WHERE d.release_id = r.id),
+		  coalesce((SELECT d.environment FROM deploys d WHERE d.release_id = r.id ORDER BY d.deployed_at DESC LIMIT 1), '')
+		FROM releases r JOIN projects p ON p.id = r.project_id
+		WHERE r.project_id = $1 AND r.version = $2`, projectID, version).Scan(&r.ID, &r.ProjectSlug, &r.ProjectName, &r.Version,
+		&r.CommitSHA, &r.Repository, &r.URL, &r.NewIssues, &r.CreatedAt, &r.LastSeen, &r.Deploys, &r.LastDeploy, &r.LastEnv)
+	if err != nil {
+		return nil, notFound(err)
+	}
+	return &r, nil
+}
+
+// ProjectsWithRelease returns the projects of an organization that have a
+// release version.
+func ProjectsWithRelease(ctx context.Context, q Querier, orgID uuid.UUID, version string) ([]uuid.UUID, error) {
+	rows, err := q.Query(ctx, `SELECT r.project_id FROM releases r JOIN projects p ON p.id = r.project_id
+		WHERE r.org_id = $1 AND r.version = $2 AND p.deleted_at IS NULL`, orgID, version)
+	if err != nil {
+		return nil, err
+	}
+	return pgx.CollectRows(rows, pgx.RowTo[uuid.UUID])
 }
