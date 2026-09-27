@@ -1,6 +1,6 @@
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
-import { UserPlusIcon } from "lucide-react";
+import { ShieldCheckIcon, UserPlusIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { SecretValue } from "@/components/common/copy-button";
@@ -49,8 +49,11 @@ function useInvalidateOrg() {
 }
 
 export function Members() {
-  const me = useSession()?.user?.id;
+  const session = useSession();
+  const me = session?.user?.id;
   const org = useOrg();
+  const requires =
+    session?.memberships.find((m) => m.organization?.slug === org.slug)?.requiresTwoFactor ?? false;
   const members = useQuery(OrganizationService.method.listMembers, {});
   const invalidate = useInvalidateOrg();
   const [inviting, setInviting] = useState(false);
@@ -109,13 +112,21 @@ export function Members() {
                 <div className="min-w-0 flex-[1_1_14rem]">
                   <p className="truncate font-medium text-md">
                     {m.user?.name || m.user?.email}
+                    {m.twoFactorEnabled ? (
+                      <span title="İki adımlı doğrulama açık" className="ml-1.5 inline-flex text-brand-ink">
+                        <ShieldCheckIcon className="size-3.5" aria-hidden />
+                        <span className="sr-only">İki adımlı doğrulama açık</span>
+                      </span>
+                    ) : null}
                     {self ? (
                       <span className="ml-2 font-normal text-muted-foreground text-sm">siz</span>
                     ) : null}
                   </p>
                   <p className="truncate text-sm text-muted-foreground">
                     {m.user?.email}
-                    {m.lastSeenAt ? (
+                    {requires && !m.twoFactorEnabled ? (
+                      <span className="text-(--status-warning-fg)">, iki adımlı doğrulama kapalı</span>
+                    ) : m.lastSeenAt ? (
                       <>
                         {", son etkinlik "}
                         <RelativeTime value={m.lastSeenAt} />

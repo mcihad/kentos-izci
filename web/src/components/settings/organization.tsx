@@ -1,6 +1,7 @@
 import { create } from "@bufbuild/protobuf";
 import { createConnectQueryKey, useInfiniteQuery, useMutation, useQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { StackedBars } from "@/components/charts/stacked-bars";
@@ -11,8 +12,10 @@ import { EmptyState } from "@/components/common/states";
 import { thClass, theadClass, trClass } from "@/components/common/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { Role } from "@/gen/izci/api/v1/common_pb";
 import {
   type DailyUsage,
@@ -23,7 +26,7 @@ import { errorMessage } from "@/lib/errors";
 import { formatCompact, formatNumber } from "@/lib/format";
 import { roleLabels } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
-import { sessionQuery } from "@/lib/session";
+import { sessionQuery, useSession } from "@/lib/session";
 
 const timezones = (() => {
   try {
@@ -57,6 +60,7 @@ export function OrganizationGeneral() {
         tz: o.settings?.timezone || "Europe/Istanbul",
         domains: o.settings?.autoJoinDomains.join(", ") ?? "",
         role: o.settings?.autoJoinRole || Role.MEMBER,
+        requireTwoFactor: o.settings?.requireTwoFactor ?? false,
       }}
       plan={o.plan}
       onSaved={onSaved}
@@ -69,15 +73,17 @@ function GeneralForm({
   plan,
   onSaved,
 }: {
-  initial: { name: string; tz: string; domains: string; role: Role };
+  initial: { name: string; tz: string; domains: string; role: Role; requireTwoFactor: boolean };
   plan: string;
   onSaved: () => void;
 }) {
   const org = useOrg();
+  const myTwoFactor = useSession()?.user?.twoFactorEnabled ?? false;
   const [name, setName] = useState(initial.name);
   const [tz, setTz] = useState(initial.tz);
   const [domains, setDomains] = useState(initial.domains);
   const [role, setRole] = useState(initial.role);
+  const [requireTwoFactor, setRequireTwoFactor] = useState(initial.requireTwoFactor);
   const update = useMutation(OrganizationService.method.updateOrganization, {
     onSuccess: () => {
       toast.success("Organizasyon ayarları kaydedildi");
@@ -99,6 +105,7 @@ function GeneralForm({
               .map((d) => d.trim().toLowerCase())
               .filter(Boolean),
             autoJoinRole: role,
+            requireTwoFactor,
           }),
         });
       }}
@@ -153,6 +160,39 @@ function GeneralForm({
           </SelectContent>
         </Select>
       </Field>
+      <div className="flex items-start gap-3">
+        <Switch
+          id="org-2fa"
+          checked={requireTwoFactor}
+          disabled={!requireTwoFactor && !myTwoFactor}
+          onCheckedChange={setRequireTwoFactor}
+          className="mt-0.5"
+        />
+        <div className="grid gap-0.5">
+          <Label htmlFor="org-2fa" className="text-md">
+            İki adımlı doğrulama zorunlu
+          </Label>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Açmamış üyeler, açana kadar organizasyona erişemez; girişte kurulum ekranını görür. Erişim
+            anahtarları da sahibinin iki adımlı doğrulamasına bağlıdır.
+            {!requireTwoFactor && !myTwoFactor ? (
+              <>
+                {" "}
+                Zorunlu tutmak için önce{" "}
+                <Link
+                  to="/o/$org/account"
+                  params={{ org: org.slug }}
+                  search={{ tab: "two-factor" }}
+                  className="font-medium text-foreground underline-offset-4 hover:underline"
+                >
+                  kendi hesabınızda açın
+                </Link>
+                .
+              </>
+            ) : null}
+          </p>
+        </div>
+      </div>
       <p className="text-sm text-muted-foreground">
         Plan: <span className="text-foreground">{plan || "varsayılan"}</span>
       </p>
@@ -286,6 +326,9 @@ const actionLabels: Record<string, string> = {
   "project.update": "Proje ayarlarını değiştirdi",
   "symbols.bundle.delete": "Kaynak eşleme paketini sildi",
   "symbols.debug_file.delete": "Sembol dosyasını sildi",
+  "user.two_factor.disable": "İki adımlı doğrulamayı kapattı",
+  "user.two_factor.enable": "İki adımlı doğrulamayı açtı",
+  "user.two_factor.recovery_codes": "Yeni kurtarma kodları oluşturdu",
 };
 
 export function AuditLog() {

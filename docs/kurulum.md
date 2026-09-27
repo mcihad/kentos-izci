@@ -59,7 +59,7 @@ IZCI_SECRET_KEY=$(openssl rand -base64 32)   # bir kez üretin, saklayın, deği
 DATABASE_URL=postgres://izci:…@db:5432/izci?sslmode=require
 ```
 
-`IZCI_SECRET_KEY`, saklanan GitHub erişim anahtarlarını şifreler ve imzalar üretir. Anahtar kaybolursa bu kayıtlar yeniden girilmelidir. Geliştirmede boş bırakılırsa her açılışta geçici bir anahtar üretilir.
+`IZCI_SECRET_KEY`, saklanan GitHub erişim anahtarlarını ve iki adımlı doğrulama anahtarlarını şifreler, imzalar üretir. Anahtar kaybolursa bu kayıtlar yeniden girilmeli, kullanıcıların [iki adımlı doğrulaması](iki-adimli-dogrulama.md#nasıl-saklanır) sıfırlanmalıdır. Geliştirmede boş bırakılırsa her açılışta geçici bir anahtar üretilir.
 
 ## 4. Sunucuyu başlatın
 

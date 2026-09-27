@@ -148,6 +148,9 @@ func (h *Handler) authenticate(r *http.Request, orgSlug string) (*caller, *apiEr
 			return c, nil
 		}
 		t, err := h.auth.ResolveTenant(ctx, p, orgSlug)
+		if errors.Is(err, auth.ErrTwoFactorRequired) {
+			return nil, &apiError{http.StatusForbidden, "the organization requires two-factor authentication; turn it on for your izci account"}
+		}
 		if err != nil {
 			return nil, &apiError{http.StatusNotFound, "organization not found"}
 		}

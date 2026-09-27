@@ -175,7 +175,7 @@ pg_dump -Fc -d "$DATABASE_URL" --exclude-table-data='events_*' -f izci-ayarlar-$
 pg_restore -d "$DATABASE_URL" --no-owner --role=izci izci-2026-09-27.dump
 ```
 
-**`IZCI_SECRET_KEY`'i ayrıca ve güvenle yedekleyin.** Anahtar olmadan saklanan GitHub erişim anahtarları çözülemez; bu durumda bağlantılar yeniden kurulmalıdır. `IZCI_DATA_DIR` yedeklenmek zorunda değildir: içindeki depo aynaları gerektiğinde yeniden oluşturulur.
+**`IZCI_SECRET_KEY`'i ayrıca ve güvenle yedekleyin.** Anahtar olmadan saklanan GitHub erişim anahtarları, bildirim kanalı sırları ve iki adımlı doğrulama anahtarları çözülemez; bu durumda bağlantılar yeniden kurulmalı, kullanıcıların iki adımlı doğrulaması `izci user reset-2fa` ile sıfırlanmalıdır. `IZCI_DATA_DIR` yedeklenmek zorunda değildir: içindeki depo aynaları gerektiğinde yeniden oluşturulur.
 
 ## Sürüm yükseltme
 

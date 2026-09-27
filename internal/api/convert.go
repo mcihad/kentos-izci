@@ -40,6 +40,7 @@ func toUser(u *store.User, providers []string) *apiv1.User {
 	out := &apiv1.User{
 		Id: u.ID.String(), Email: u.Email, Name: u.Name, AvatarUrl: u.AvatarURL, Superadmin: u.Superadmin,
 		HasPassword: u.PasswordHash != nil, LinkedProviders: providers, CreatedAt: ts(u.CreatedAt),
+		TwoFactorEnabled: u.TwoFactor(),
 	}
 	if u.TelegramUserID != nil {
 		out.Telegram = &apiv1.TelegramAccount{UserId: *u.TelegramUserID, Username: u.TelegramUsername, LinkedAt: tsp(u.TelegramLinkedAt)}

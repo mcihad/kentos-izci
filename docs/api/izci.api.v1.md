@@ -37,7 +37,7 @@ empty on the last page.
 
 **Services:** [AuthService](#izci-api-v1-authservice) · [OrganizationService](#izci-api-v1-organizationservice) · [AdminService](#izci-api-v1-adminservice) · [FeedbackService](#izci-api-v1-feedbackservice) · [EventService](#izci-api-v1-eventservice) · [IssueService](#izci-api-v1-issueservice) · [AiService](#izci-api-v1-aiservice) · [AlertService](#izci-api-v1-alertservice) · [CustomerService](#izci-api-v1-customerservice) · [DashboardService](#izci-api-v1-dashboardservice) · [IntegrationService](#izci-api-v1-integrationservice) · [MonitorService](#izci-api-v1-monitorservice) · [ProjectService](#izci-api-v1-projectservice) · [SymbolService](#izci-api-v1-symbolservice) · [UserService](#izci-api-v1-userservice)
 
-**Messages:** [AcceptInvitationRequest](#izci-api-v1-acceptinvitationrequest) · [AcceptInvitationResponse](#izci-api-v1-acceptinvitationresponse) · [AccessToken](#izci-api-v1-accesstoken) · [AddIssueCommentRequest](#izci-api-v1-addissuecommentrequest) · [AddIssueCommentResponse](#izci-api-v1-addissuecommentresponse) · [AdminOrganization](#izci-api-v1-adminorganization) · [AdminUser](#izci-api-v1-adminuser) · [AiLogEntry](#izci-api-v1-ailogentry) · [AiResult](#izci-api-v1-airesult) · [AiRun](#izci-api-v1-airun) · [AiSettings](#izci-api-v1-aisettings) · [AiUsage](#izci-api-v1-aiusage) · [AlertFilters](#izci-api-v1-alertfilters) · [AlertRule](#izci-api-v1-alertrule) · [AlertRuleInput](#izci-api-v1-alertruleinput) · [AlertTrigger](#izci-api-v1-alerttrigger) · [ApiKey](#izci-api-v1-apikey) · [ArtifactBundle](#izci-api-v1-artifactbundle) · [ArtifactFile](#izci-api-v1-artifactfile) · [AuditLogEntry](#izci-api-v1-auditlogentry) · [AuthProvider](#izci-api-v1-authprovider) · [CancelRunRequest](#izci-api-v1-cancelrunrequest) · [CancelRunResponse](#izci-api-v1-cancelrunresponse) · [ChangePasswordRequest](#izci-api-v1-changepasswordrequest) · [ChangePasswordResponse](#izci-api-v1-changepasswordresponse) · [ChangedFile](#izci-api-v1-changedfile) · [Channel](#izci-api-v1-channel) · [ChannelSettings](#izci-api-v1-channelsettings) · [CheckIn](#izci-api-v1-checkin) · [CompleteSetupRequest](#izci-api-v1-completesetuprequest) · [CompleteSetupResponse](#izci-api-v1-completesetupresponse) · [ConnectGitHubTokenRequest](#izci-api-v1-connectgithubtokenrequest) · [ConnectGitHubTokenResponse](#izci-api-v1-connectgithubtokenresponse) · [CreateAccessTokenRequest](#izci-api-v1-createaccesstokenrequest) · [CreateAccessTokenResponse](#izci-api-v1-createaccesstokenresponse) · [CreateAlertRuleRequest](#izci-api-v1-createalertrulerequest) · [CreateAlertRuleResponse](#izci-api-v1-createalertruleresponse) · [CreateApiKeyRequest](#izci-api-v1-createapikeyrequest) · [CreateApiKeyResponse](#izci-api-v1-createapikeyresponse) · [CreateBranchRequest](#izci-api-v1-createbranchrequest) · [CreateBranchResponse](#izci-api-v1-createbranchresponse) · [CreateChannelRequest](#izci-api-v1-createchannelrequest) · [CreateChannelResponse](#izci-api-v1-createchannelresponse) · [CreateMonitorRequest](#izci-api-v1-createmonitorrequest) · [CreateMonitorResponse](#izci-api-v1-createmonitorresponse) · [CreateOrganizationRequest](#izci-api-v1-createorganizationrequest) · [CreateOrganizationResponse](#izci-api-v1-createorganizationresponse) · [CreateProjectRequest](#izci-api-v1-createprojectrequest) · [CreateProjectResponse](#izci-api-v1-createprojectresponse) · [CreatePullRequestRequest](#izci-api-v1-createpullrequestrequest) · [CreatePullRequestResponse](#izci-api-v1-createpullrequestresponse) · [CreateTelegramAccountLinkCodeRequest](#izci-api-v1-createtelegramaccountlinkcoderequest) · [CreateTelegramAccountLinkCodeResponse](#izci-api-v1-createtelegramaccountlinkcoderesponse) · [CreateTelegramLinkCodeRequest](#izci-api-v1-createtelegramlinkcoderequest) · [CreateTelegramLinkCodeResponse](#izci-api-v1-createtelegramlinkcoderesponse) · [CreateTicketRequest](#izci-api-v1-createticketrequest) · [CreateTicketResponse](#izci-api-v1-createticketresponse) · [Customer](#izci-api-v1-customer) · [CustomerProjectBreakdown](#izci-api-v1-customerprojectbreakdown) · [CustomerRef](#izci-api-v1-customerref) · [CustomerSummary](#izci-api-v1-customersummary) · [DailyUsage](#izci-api-v1-dailyusage) · [DebugFile](#izci-api-v1-debugfile) · [DeleteAlertRuleRequest](#izci-api-v1-deletealertrulerequest) · [DeleteAlertRuleResponse](#izci-api-v1-deletealertruleresponse) · [DeleteArtifactBundleRequest](#izci-api-v1-deleteartifactbundlerequest) · [DeleteArtifactBundleResponse](#izci-api-v1-deleteartifactbundleresponse) · [DeleteChannelRequest](#izci-api-v1-deletechannelrequest) · [DeleteChannelResponse](#izci-api-v1-deletechannelresponse) · [DeleteDebugFileRequest](#izci-api-v1-deletedebugfilerequest) · [DeleteDebugFileResponse](#izci-api-v1-deletedebugfileresponse) · [DeleteIntegrationRequest](#izci-api-v1-deleteintegrationrequest) · [DeleteIntegrationResponse](#izci-api-v1-deleteintegrationresponse) · [DeleteMonitorRequest](#izci-api-v1-deletemonitorrequest) · [DeleteMonitorResponse](#izci-api-v1-deletemonitorresponse) · [DeleteProjectRequest](#izci-api-v1-deleteprojectrequest) · [DeleteProjectResponse](#izci-api-v1-deleteprojectresponse) · [Deploy](#izci-api-v1-deploy) · [EmailSettings](#izci-api-v1-emailsettings) · [Environment](#izci-api-v1-environment) · [ErrorDetail](#izci-api-v1-errordetail) · [EventAttachment](#izci-api-v1-eventattachment) · [EventDetail](#izci-api-v1-eventdetail) · [EventSummary](#izci-api-v1-eventsummary) · [FeatureFlags](#izci-api-v1-featureflags) · [FilterDay](#izci-api-v1-filterday) · [FilterStat](#izci-api-v1-filterstat) · [GetAiStatusRequest](#izci-api-v1-getaistatusrequest) · [GetAiStatusResponse](#izci-api-v1-getaistatusresponse) · [GetCustomerRequest](#izci-api-v1-getcustomerrequest) · [GetCustomerResponse](#izci-api-v1-getcustomerresponse) · [GetEventRequest](#izci-api-v1-geteventrequest) · [GetEventResponse](#izci-api-v1-geteventresponse) · [GetFilterStatsRequest](#izci-api-v1-getfilterstatsrequest) · [GetFilterStatsResponse](#izci-api-v1-getfilterstatsresponse) · [GetGitHubStatusRequest](#izci-api-v1-getgithubstatusrequest) · [GetGitHubStatusResponse](#izci-api-v1-getgithubstatusresponse) · [GetIngestEndpointsRequest](#izci-api-v1-getingestendpointsrequest) · [GetIngestEndpointsResponse](#izci-api-v1-getingestendpointsresponse) · [GetInstanceInfoRequest](#izci-api-v1-getinstanceinforequest) · [GetInstanceInfoResponse](#izci-api-v1-getinstanceinforesponse) · [GetInvitationRequest](#izci-api-v1-getinvitationrequest) · [GetInvitationResponse](#izci-api-v1-getinvitationresponse) · [GetIssueRequest](#izci-api-v1-getissuerequest) · [GetIssueResponse](#izci-api-v1-getissueresponse) · [GetIssueStatsRequest](#izci-api-v1-getissuestatsrequest) · [GetIssueStatsResponse](#izci-api-v1-getissuestatsresponse) · [GetIssueTagFacetsRequest](#izci-api-v1-getissuetagfacetsrequest) · [GetIssueTagFacetsResponse](#izci-api-v1-getissuetagfacetsresponse) · [GetMonitorRequest](#izci-api-v1-getmonitorrequest) · [GetMonitorResponse](#izci-api-v1-getmonitorresponse) · [GetNotificationStatusRequest](#izci-api-v1-getnotificationstatusrequest) · [GetNotificationStatusResponse](#izci-api-v1-getnotificationstatusresponse) · [GetOrganizationRequest](#izci-api-v1-getorganizationrequest) · [GetOrganizationResponse](#izci-api-v1-getorganizationresponse) · [GetOverviewRequest](#izci-api-v1-getoverviewrequest) · [GetOverviewResponse](#izci-api-v1-getoverviewresponse) · [GetProjectRequest](#izci-api-v1-getprojectrequest) · [GetProjectResponse](#izci-api-v1-getprojectresponse) · [GetRawEventRequest](#izci-api-v1-getraweventrequest) · [GetRawEventResponse](#izci-api-v1-getraweventresponse) · [GetRunRequest](#izci-api-v1-getrunrequest) · [GetRunResponse](#izci-api-v1-getrunresponse) · [GetSessionRequest](#izci-api-v1-getsessionrequest) · [GetSessionResponse](#izci-api-v1-getsessionresponse) · [GetSetupStateRequest](#izci-api-v1-getsetupstaterequest) · [GetSetupStateResponse](#izci-api-v1-getsetupstateresponse) · [GetUsageRequest](#izci-api-v1-getusagerequest) · [GetUsageResponse](#izci-api-v1-getusageresponse) · [Grouping](#izci-api-v1-grouping) · [IgnoreOptions](#izci-api-v1-ignoreoptions) · [InAppRules](#izci-api-v1-inapprules) · [InboundFilters](#izci-api-v1-inboundfilters) · [Integration](#izci-api-v1-integration) · [Invitation](#izci-api-v1-invitation) · [InviteMemberRequest](#izci-api-v1-invitememberrequest) · [InviteMemberResponse](#izci-api-v1-invitememberresponse) · [Issue](#izci-api-v1-issue) · [IssueActivity](#izci-api-v1-issueactivity) · [IssueLocation](#izci-api-v1-issuelocation) · [IssueRef](#izci-api-v1-issueref) · [IssueSummary](#izci-api-v1-issuesummary) · [JiraInput](#izci-api-v1-jirainput) · [JiraSettings](#izci-api-v1-jirasettings) · [LevelSeries](#izci-api-v1-levelseries) · [LinkRepositoryRequest](#izci-api-v1-linkrepositoryrequest) · [LinkRepositoryResponse](#izci-api-v1-linkrepositoryresponse) · [ListAccessTokensRequest](#izci-api-v1-listaccesstokensrequest) · [ListAccessTokensResponse](#izci-api-v1-listaccesstokensresponse) · [ListAlertRulesRequest](#izci-api-v1-listalertrulesrequest) · [ListAlertRulesResponse](#izci-api-v1-listalertrulesresponse) · [ListApiKeysRequest](#izci-api-v1-listapikeysrequest) · [ListApiKeysResponse](#izci-api-v1-listapikeysresponse) · [ListArtifactBundlesRequest](#izci-api-v1-listartifactbundlesrequest) · [ListArtifactBundlesResponse](#izci-api-v1-listartifactbundlesresponse) · [ListAuditLogRequest](#izci-api-v1-listauditlogrequest) · [ListAuditLogResponse](#izci-api-v1-listauditlogresponse) · [ListAuthProvidersRequest](#izci-api-v1-listauthprovidersrequest) · [ListAuthProvidersResponse](#izci-api-v1-listauthprovidersresponse) · [ListChannelsRequest](#izci-api-v1-listchannelsrequest) · [ListChannelsResponse](#izci-api-v1-listchannelsresponse) · [ListCheckInsRequest](#izci-api-v1-listcheckinsrequest) · [ListCheckInsResponse](#izci-api-v1-listcheckinsresponse) · [ListCustomersRequest](#izci-api-v1-listcustomersrequest) · [ListCustomersResponse](#izci-api-v1-listcustomersresponse) · [ListDebugFilesRequest](#izci-api-v1-listdebugfilesrequest) · [ListDebugFilesResponse](#izci-api-v1-listdebugfilesresponse) · [ListEnvironmentsRequest](#izci-api-v1-listenvironmentsrequest) · [ListEnvironmentsResponse](#izci-api-v1-listenvironmentsresponse) · [ListFeedbackRequest](#izci-api-v1-listfeedbackrequest) · [ListFeedbackResponse](#izci-api-v1-listfeedbackresponse) · [ListIntegrationsRequest](#izci-api-v1-listintegrationsrequest) · [ListIntegrationsResponse](#izci-api-v1-listintegrationsresponse) · [ListIssueActivityRequest](#izci-api-v1-listissueactivityrequest) · [ListIssueActivityResponse](#izci-api-v1-listissueactivityresponse) · [ListIssueEventsRequest](#izci-api-v1-listissueeventsrequest) · [ListIssueEventsResponse](#izci-api-v1-listissueeventsresponse) · [ListIssuesRequest](#izci-api-v1-listissuesrequest) · [ListIssuesResponse](#izci-api-v1-listissuesresponse) · [ListMembersRequest](#izci-api-v1-listmembersrequest) · [ListMembersResponse](#izci-api-v1-listmembersresponse) · [ListMonitorsRequest](#izci-api-v1-listmonitorsrequest) · [ListMonitorsResponse](#izci-api-v1-listmonitorsresponse) · [ListOrganizationsRequest](#izci-api-v1-listorganizationsrequest) · [ListOrganizationsResponse](#izci-api-v1-listorganizationsresponse) · [ListProjectsRequest](#izci-api-v1-listprojectsrequest) · [ListProjectsResponse](#izci-api-v1-listprojectsresponse) · [ListReleasesRequest](#izci-api-v1-listreleasesrequest) · [ListReleasesResponse](#izci-api-v1-listreleasesresponse) · [ListRepositoriesRequest](#izci-api-v1-listrepositoriesrequest) · [ListRepositoriesResponse](#izci-api-v1-listrepositoriesresponse) · [ListRunsRequest](#izci-api-v1-listrunsrequest) · [ListRunsResponse](#izci-api-v1-listrunsresponse) · [ListSessionsRequest](#izci-api-v1-listsessionsrequest) · [ListSessionsResponse](#izci-api-v1-listsessionsresponse) · [ListUsersRequest](#izci-api-v1-listusersrequest) · [ListUsersResponse](#izci-api-v1-listusersresponse) · [LoginRequest](#izci-api-v1-loginrequest) · [LoginResponse](#izci-api-v1-loginresponse) · [LogoutRequest](#izci-api-v1-logoutrequest) · [LogoutResponse](#izci-api-v1-logoutresponse) · [Member](#izci-api-v1-member) · [Membership](#izci-api-v1-membership) · [Monitor](#izci-api-v1-monitor) · [MonitorEnvironment](#izci-api-v1-monitorenvironment) · [MonitorInterval](#izci-api-v1-monitorinterval) · [MonitorSchedule](#izci-api-v1-monitorschedule) · [Organization](#izci-api-v1-organization) · [OrganizationLimits](#izci-api-v1-organizationlimits) · [OrganizationRef](#izci-api-v1-organizationref) · [OrganizationSettings](#izci-api-v1-organizationsettings) · [OverviewTotals](#izci-api-v1-overviewtotals) · [PathMapping](#izci-api-v1-pathmapping) · [PathRewrite](#izci-api-v1-pathrewrite) · [PrivacySettings](#izci-api-v1-privacysettings) · [Project](#izci-api-v1-project) · [ProjectHealth](#izci-api-v1-projecthealth) · [ProjectRef](#izci-api-v1-projectref) · [ProjectRepository](#izci-api-v1-projectrepository) · [ProjectSettings](#izci-api-v1-projectsettings) · [ProjectStats](#izci-api-v1-projectstats) · [PullRequestRef](#izci-api-v1-pullrequestref) · [Release](#izci-api-v1-release) · [ReleaseHealth](#izci-api-v1-releasehealth) · [RemoveMemberRequest](#izci-api-v1-removememberrequest) · [RemoveMemberResponse](#izci-api-v1-removememberresponse) · [Repository](#izci-api-v1-repository) · [ResolveOptions](#izci-api-v1-resolveoptions) · [RevokeAccessTokenRequest](#izci-api-v1-revokeaccesstokenrequest) · [RevokeAccessTokenResponse](#izci-api-v1-revokeaccesstokenresponse) · [RevokeApiKeyRequest](#izci-api-v1-revokeapikeyrequest) · [RevokeApiKeyResponse](#izci-api-v1-revokeapikeyresponse) · [RevokeInvitationRequest](#izci-api-v1-revokeinvitationrequest) · [RevokeInvitationResponse](#izci-api-v1-revokeinvitationresponse) · [RevokeSessionRequest](#izci-api-v1-revokesessionrequest) · [RevokeSessionResponse](#izci-api-v1-revokesessionresponse) · [SearchSuggestion](#izci-api-v1-searchsuggestion) · [SendTestEventRequest](#izci-api-v1-sendtesteventrequest) · [SendTestEventResponse](#izci-api-v1-sendtesteventresponse) · [SendTestNotificationRequest](#izci-api-v1-sendtestnotificationrequest) · [SendTestNotificationResponse](#izci-api-v1-sendtestnotificationresponse) · [Series](#izci-api-v1-series) · [Session](#izci-api-v1-session) · [SessionInfo](#izci-api-v1-sessioninfo) · [SignUpRequest](#izci-api-v1-signuprequest) · [SignUpResponse](#izci-api-v1-signupresponse) · [Snooze](#izci-api-v1-snooze) · [StartGitHubAppInstallationRequest](#izci-api-v1-startgithubappinstallationrequest) · [StartGitHubAppInstallationResponse](#izci-api-v1-startgithubappinstallationresponse) · [StartRunRequest](#izci-api-v1-startrunrequest) · [StartRunResponse](#izci-api-v1-startrunresponse) · [SuggestSearchRequest](#izci-api-v1-suggestsearchrequest) · [SuggestSearchResponse](#izci-api-v1-suggestsearchresponse) · [TagFacet](#izci-api-v1-tagfacet) · [TagValueCount](#izci-api-v1-tagvaluecount) · [TelegramAccount](#izci-api-v1-telegramaccount) · [TelegramChat](#izci-api-v1-telegramchat) · [TicketRef](#izci-api-v1-ticketref) · [UnlinkRepositoryRequest](#izci-api-v1-unlinkrepositoryrequest) · [UnlinkRepositoryResponse](#izci-api-v1-unlinkrepositoryresponse) · [UnlinkTelegramAccountRequest](#izci-api-v1-unlinktelegramaccountrequest) · [UnlinkTelegramAccountResponse](#izci-api-v1-unlinktelegramaccountresponse) · [UpdateAlertRuleRequest](#izci-api-v1-updatealertrulerequest) · [UpdateAlertRuleResponse](#izci-api-v1-updatealertruleresponse) · [UpdateApiKeyRequest](#izci-api-v1-updateapikeyrequest) · [UpdateApiKeyResponse](#izci-api-v1-updateapikeyresponse) · [UpdateChannelRequest](#izci-api-v1-updatechannelrequest) · [UpdateChannelResponse](#izci-api-v1-updatechannelresponse) · [UpdateCustomerRequest](#izci-api-v1-updatecustomerrequest) · [UpdateCustomerResponse](#izci-api-v1-updatecustomerresponse) · [UpdateIssuesRequest](#izci-api-v1-updateissuesrequest) · [UpdateIssuesResponse](#izci-api-v1-updateissuesresponse) · [UpdateMemberRequest](#izci-api-v1-updatememberrequest) · [UpdateMemberResponse](#izci-api-v1-updatememberresponse) · [UpdateMonitorRequest](#izci-api-v1-updatemonitorrequest) · [UpdateMonitorResponse](#izci-api-v1-updatemonitorresponse) · [UpdateOrganizationPlanRequest](#izci-api-v1-updateorganizationplanrequest) · [UpdateOrganizationPlanResponse](#izci-api-v1-updateorganizationplanresponse) · [UpdateOrganizationRequest](#izci-api-v1-updateorganizationrequest) · [UpdateOrganizationResponse](#izci-api-v1-updateorganizationresponse) · [UpdateProfileRequest](#izci-api-v1-updateprofilerequest) · [UpdateProfileResponse](#izci-api-v1-updateprofileresponse) · [UpdateProjectRequest](#izci-api-v1-updateprojectrequest) · [UpdateProjectResponse](#izci-api-v1-updateprojectresponse) · [UpdateUserRequest](#izci-api-v1-updateuserrequest) · [UpdateUserResponse](#izci-api-v1-updateuserresponse) · [User](#izci-api-v1-user) · [UserAgentInfo](#izci-api-v1-useragentinfo) · [UserFeedback](#izci-api-v1-userfeedback) · [UserRef](#izci-api-v1-userref) · [WatchLiveRequest](#izci-api-v1-watchliverequest) · [WatchLiveResponse](#izci-api-v1-watchliveresponse) · [WatchRunRequest](#izci-api-v1-watchrunrequest) · [WatchRunResponse](#izci-api-v1-watchrunresponse) · [WebhookSettings](#izci-api-v1-webhooksettings)
+**Messages:** [AcceptInvitationRequest](#izci-api-v1-acceptinvitationrequest) · [AcceptInvitationResponse](#izci-api-v1-acceptinvitationresponse) · [AccessToken](#izci-api-v1-accesstoken) · [AddIssueCommentRequest](#izci-api-v1-addissuecommentrequest) · [AddIssueCommentResponse](#izci-api-v1-addissuecommentresponse) · [AdminOrganization](#izci-api-v1-adminorganization) · [AdminUser](#izci-api-v1-adminuser) · [AiLogEntry](#izci-api-v1-ailogentry) · [AiResult](#izci-api-v1-airesult) · [AiRun](#izci-api-v1-airun) · [AiSettings](#izci-api-v1-aisettings) · [AiUsage](#izci-api-v1-aiusage) · [AlertFilters](#izci-api-v1-alertfilters) · [AlertRule](#izci-api-v1-alertrule) · [AlertRuleInput](#izci-api-v1-alertruleinput) · [AlertTrigger](#izci-api-v1-alerttrigger) · [ApiKey](#izci-api-v1-apikey) · [ArtifactBundle](#izci-api-v1-artifactbundle) · [ArtifactFile](#izci-api-v1-artifactfile) · [AuditLogEntry](#izci-api-v1-auditlogentry) · [AuthProvider](#izci-api-v1-authprovider) · [BeginTwoFactorSetupRequest](#izci-api-v1-begintwofactorsetuprequest) · [BeginTwoFactorSetupResponse](#izci-api-v1-begintwofactorsetupresponse) · [CancelRunRequest](#izci-api-v1-cancelrunrequest) · [CancelRunResponse](#izci-api-v1-cancelrunresponse) · [ChangePasswordRequest](#izci-api-v1-changepasswordrequest) · [ChangePasswordResponse](#izci-api-v1-changepasswordresponse) · [ChangedFile](#izci-api-v1-changedfile) · [Channel](#izci-api-v1-channel) · [ChannelSettings](#izci-api-v1-channelsettings) · [CheckIn](#izci-api-v1-checkin) · [CompleteSetupRequest](#izci-api-v1-completesetuprequest) · [CompleteSetupResponse](#izci-api-v1-completesetupresponse) · [ConnectGitHubTokenRequest](#izci-api-v1-connectgithubtokenrequest) · [ConnectGitHubTokenResponse](#izci-api-v1-connectgithubtokenresponse) · [CreateAccessTokenRequest](#izci-api-v1-createaccesstokenrequest) · [CreateAccessTokenResponse](#izci-api-v1-createaccesstokenresponse) · [CreateAlertRuleRequest](#izci-api-v1-createalertrulerequest) · [CreateAlertRuleResponse](#izci-api-v1-createalertruleresponse) · [CreateApiKeyRequest](#izci-api-v1-createapikeyrequest) · [CreateApiKeyResponse](#izci-api-v1-createapikeyresponse) · [CreateBranchRequest](#izci-api-v1-createbranchrequest) · [CreateBranchResponse](#izci-api-v1-createbranchresponse) · [CreateChannelRequest](#izci-api-v1-createchannelrequest) · [CreateChannelResponse](#izci-api-v1-createchannelresponse) · [CreateMonitorRequest](#izci-api-v1-createmonitorrequest) · [CreateMonitorResponse](#izci-api-v1-createmonitorresponse) · [CreateOrganizationRequest](#izci-api-v1-createorganizationrequest) · [CreateOrganizationResponse](#izci-api-v1-createorganizationresponse) · [CreateProjectRequest](#izci-api-v1-createprojectrequest) · [CreateProjectResponse](#izci-api-v1-createprojectresponse) · [CreatePullRequestRequest](#izci-api-v1-createpullrequestrequest) · [CreatePullRequestResponse](#izci-api-v1-createpullrequestresponse) · [CreateTelegramAccountLinkCodeRequest](#izci-api-v1-createtelegramaccountlinkcoderequest) · [CreateTelegramAccountLinkCodeResponse](#izci-api-v1-createtelegramaccountlinkcoderesponse) · [CreateTelegramLinkCodeRequest](#izci-api-v1-createtelegramlinkcoderequest) · [CreateTelegramLinkCodeResponse](#izci-api-v1-createtelegramlinkcoderesponse) · [CreateTicketRequest](#izci-api-v1-createticketrequest) · [CreateTicketResponse](#izci-api-v1-createticketresponse) · [Customer](#izci-api-v1-customer) · [CustomerProjectBreakdown](#izci-api-v1-customerprojectbreakdown) · [CustomerRef](#izci-api-v1-customerref) · [CustomerSummary](#izci-api-v1-customersummary) · [DailyUsage](#izci-api-v1-dailyusage) · [DebugFile](#izci-api-v1-debugfile) · [DeleteAlertRuleRequest](#izci-api-v1-deletealertrulerequest) · [DeleteAlertRuleResponse](#izci-api-v1-deletealertruleresponse) · [DeleteArtifactBundleRequest](#izci-api-v1-deleteartifactbundlerequest) · [DeleteArtifactBundleResponse](#izci-api-v1-deleteartifactbundleresponse) · [DeleteChannelRequest](#izci-api-v1-deletechannelrequest) · [DeleteChannelResponse](#izci-api-v1-deletechannelresponse) · [DeleteDebugFileRequest](#izci-api-v1-deletedebugfilerequest) · [DeleteDebugFileResponse](#izci-api-v1-deletedebugfileresponse) · [DeleteIntegrationRequest](#izci-api-v1-deleteintegrationrequest) · [DeleteIntegrationResponse](#izci-api-v1-deleteintegrationresponse) · [DeleteMonitorRequest](#izci-api-v1-deletemonitorrequest) · [DeleteMonitorResponse](#izci-api-v1-deletemonitorresponse) · [DeleteProjectRequest](#izci-api-v1-deleteprojectrequest) · [DeleteProjectResponse](#izci-api-v1-deleteprojectresponse) · [Deploy](#izci-api-v1-deploy) · [DisableTwoFactorRequest](#izci-api-v1-disabletwofactorrequest) · [DisableTwoFactorResponse](#izci-api-v1-disabletwofactorresponse) · [EmailSettings](#izci-api-v1-emailsettings) · [EnableTwoFactorRequest](#izci-api-v1-enabletwofactorrequest) · [EnableTwoFactorResponse](#izci-api-v1-enabletwofactorresponse) · [Environment](#izci-api-v1-environment) · [ErrorDetail](#izci-api-v1-errordetail) · [EventAttachment](#izci-api-v1-eventattachment) · [EventDetail](#izci-api-v1-eventdetail) · [EventSummary](#izci-api-v1-eventsummary) · [FeatureFlags](#izci-api-v1-featureflags) · [FilterDay](#izci-api-v1-filterday) · [FilterStat](#izci-api-v1-filterstat) · [GetAiStatusRequest](#izci-api-v1-getaistatusrequest) · [GetAiStatusResponse](#izci-api-v1-getaistatusresponse) · [GetCustomerRequest](#izci-api-v1-getcustomerrequest) · [GetCustomerResponse](#izci-api-v1-getcustomerresponse) · [GetEventRequest](#izci-api-v1-geteventrequest) · [GetEventResponse](#izci-api-v1-geteventresponse) · [GetFilterStatsRequest](#izci-api-v1-getfilterstatsrequest) · [GetFilterStatsResponse](#izci-api-v1-getfilterstatsresponse) · [GetGitHubStatusRequest](#izci-api-v1-getgithubstatusrequest) · [GetGitHubStatusResponse](#izci-api-v1-getgithubstatusresponse) · [GetIngestEndpointsRequest](#izci-api-v1-getingestendpointsrequest) · [GetIngestEndpointsResponse](#izci-api-v1-getingestendpointsresponse) · [GetInstanceInfoRequest](#izci-api-v1-getinstanceinforequest) · [GetInstanceInfoResponse](#izci-api-v1-getinstanceinforesponse) · [GetInvitationRequest](#izci-api-v1-getinvitationrequest) · [GetInvitationResponse](#izci-api-v1-getinvitationresponse) · [GetIssueRequest](#izci-api-v1-getissuerequest) · [GetIssueResponse](#izci-api-v1-getissueresponse) · [GetIssueStatsRequest](#izci-api-v1-getissuestatsrequest) · [GetIssueStatsResponse](#izci-api-v1-getissuestatsresponse) · [GetIssueTagFacetsRequest](#izci-api-v1-getissuetagfacetsrequest) · [GetIssueTagFacetsResponse](#izci-api-v1-getissuetagfacetsresponse) · [GetMonitorRequest](#izci-api-v1-getmonitorrequest) · [GetMonitorResponse](#izci-api-v1-getmonitorresponse) · [GetNotificationStatusRequest](#izci-api-v1-getnotificationstatusrequest) · [GetNotificationStatusResponse](#izci-api-v1-getnotificationstatusresponse) · [GetOrganizationRequest](#izci-api-v1-getorganizationrequest) · [GetOrganizationResponse](#izci-api-v1-getorganizationresponse) · [GetOverviewRequest](#izci-api-v1-getoverviewrequest) · [GetOverviewResponse](#izci-api-v1-getoverviewresponse) · [GetProjectRequest](#izci-api-v1-getprojectrequest) · [GetProjectResponse](#izci-api-v1-getprojectresponse) · [GetRawEventRequest](#izci-api-v1-getraweventrequest) · [GetRawEventResponse](#izci-api-v1-getraweventresponse) · [GetRunRequest](#izci-api-v1-getrunrequest) · [GetRunResponse](#izci-api-v1-getrunresponse) · [GetSessionRequest](#izci-api-v1-getsessionrequest) · [GetSessionResponse](#izci-api-v1-getsessionresponse) · [GetSetupStateRequest](#izci-api-v1-getsetupstaterequest) · [GetSetupStateResponse](#izci-api-v1-getsetupstateresponse) · [GetUsageRequest](#izci-api-v1-getusagerequest) · [GetUsageResponse](#izci-api-v1-getusageresponse) · [Grouping](#izci-api-v1-grouping) · [IgnoreOptions](#izci-api-v1-ignoreoptions) · [InAppRules](#izci-api-v1-inapprules) · [InboundFilters](#izci-api-v1-inboundfilters) · [Integration](#izci-api-v1-integration) · [Invitation](#izci-api-v1-invitation) · [InviteMemberRequest](#izci-api-v1-invitememberrequest) · [InviteMemberResponse](#izci-api-v1-invitememberresponse) · [Issue](#izci-api-v1-issue) · [IssueActivity](#izci-api-v1-issueactivity) · [IssueLocation](#izci-api-v1-issuelocation) · [IssueRef](#izci-api-v1-issueref) · [IssueSummary](#izci-api-v1-issuesummary) · [JiraInput](#izci-api-v1-jirainput) · [JiraSettings](#izci-api-v1-jirasettings) · [LevelSeries](#izci-api-v1-levelseries) · [LinkRepositoryRequest](#izci-api-v1-linkrepositoryrequest) · [LinkRepositoryResponse](#izci-api-v1-linkrepositoryresponse) · [ListAccessTokensRequest](#izci-api-v1-listaccesstokensrequest) · [ListAccessTokensResponse](#izci-api-v1-listaccesstokensresponse) · [ListAlertRulesRequest](#izci-api-v1-listalertrulesrequest) · [ListAlertRulesResponse](#izci-api-v1-listalertrulesresponse) · [ListApiKeysRequest](#izci-api-v1-listapikeysrequest) · [ListApiKeysResponse](#izci-api-v1-listapikeysresponse) · [ListArtifactBundlesRequest](#izci-api-v1-listartifactbundlesrequest) · [ListArtifactBundlesResponse](#izci-api-v1-listartifactbundlesresponse) · [ListAuditLogRequest](#izci-api-v1-listauditlogrequest) · [ListAuditLogResponse](#izci-api-v1-listauditlogresponse) · [ListAuthProvidersRequest](#izci-api-v1-listauthprovidersrequest) · [ListAuthProvidersResponse](#izci-api-v1-listauthprovidersresponse) · [ListChannelsRequest](#izci-api-v1-listchannelsrequest) · [ListChannelsResponse](#izci-api-v1-listchannelsresponse) · [ListCheckInsRequest](#izci-api-v1-listcheckinsrequest) · [ListCheckInsResponse](#izci-api-v1-listcheckinsresponse) · [ListCustomersRequest](#izci-api-v1-listcustomersrequest) · [ListCustomersResponse](#izci-api-v1-listcustomersresponse) · [ListDebugFilesRequest](#izci-api-v1-listdebugfilesrequest) · [ListDebugFilesResponse](#izci-api-v1-listdebugfilesresponse) · [ListEnvironmentsRequest](#izci-api-v1-listenvironmentsrequest) · [ListEnvironmentsResponse](#izci-api-v1-listenvironmentsresponse) · [ListFeedbackRequest](#izci-api-v1-listfeedbackrequest) · [ListFeedbackResponse](#izci-api-v1-listfeedbackresponse) · [ListIntegrationsRequest](#izci-api-v1-listintegrationsrequest) · [ListIntegrationsResponse](#izci-api-v1-listintegrationsresponse) · [ListIssueActivityRequest](#izci-api-v1-listissueactivityrequest) · [ListIssueActivityResponse](#izci-api-v1-listissueactivityresponse) · [ListIssueEventsRequest](#izci-api-v1-listissueeventsrequest) · [ListIssueEventsResponse](#izci-api-v1-listissueeventsresponse) · [ListIssuesRequest](#izci-api-v1-listissuesrequest) · [ListIssuesResponse](#izci-api-v1-listissuesresponse) · [ListMembersRequest](#izci-api-v1-listmembersrequest) · [ListMembersResponse](#izci-api-v1-listmembersresponse) · [ListMonitorsRequest](#izci-api-v1-listmonitorsrequest) · [ListMonitorsResponse](#izci-api-v1-listmonitorsresponse) · [ListOrganizationsRequest](#izci-api-v1-listorganizationsrequest) · [ListOrganizationsResponse](#izci-api-v1-listorganizationsresponse) · [ListProjectsRequest](#izci-api-v1-listprojectsrequest) · [ListProjectsResponse](#izci-api-v1-listprojectsresponse) · [ListReleasesRequest](#izci-api-v1-listreleasesrequest) · [ListReleasesResponse](#izci-api-v1-listreleasesresponse) · [ListRepositoriesRequest](#izci-api-v1-listrepositoriesrequest) · [ListRepositoriesResponse](#izci-api-v1-listrepositoriesresponse) · [ListRunsRequest](#izci-api-v1-listrunsrequest) · [ListRunsResponse](#izci-api-v1-listrunsresponse) · [ListSessionsRequest](#izci-api-v1-listsessionsrequest) · [ListSessionsResponse](#izci-api-v1-listsessionsresponse) · [ListUsersRequest](#izci-api-v1-listusersrequest) · [ListUsersResponse](#izci-api-v1-listusersresponse) · [LoginRequest](#izci-api-v1-loginrequest) · [LoginResponse](#izci-api-v1-loginresponse) · [LogoutRequest](#izci-api-v1-logoutrequest) · [LogoutResponse](#izci-api-v1-logoutresponse) · [Member](#izci-api-v1-member) · [Membership](#izci-api-v1-membership) · [Monitor](#izci-api-v1-monitor) · [MonitorEnvironment](#izci-api-v1-monitorenvironment) · [MonitorInterval](#izci-api-v1-monitorinterval) · [MonitorSchedule](#izci-api-v1-monitorschedule) · [Organization](#izci-api-v1-organization) · [OrganizationLimits](#izci-api-v1-organizationlimits) · [OrganizationRef](#izci-api-v1-organizationref) · [OrganizationSettings](#izci-api-v1-organizationsettings) · [OverviewTotals](#izci-api-v1-overviewtotals) · [PathMapping](#izci-api-v1-pathmapping) · [PathRewrite](#izci-api-v1-pathrewrite) · [PrivacySettings](#izci-api-v1-privacysettings) · [Project](#izci-api-v1-project) · [ProjectHealth](#izci-api-v1-projecthealth) · [ProjectRef](#izci-api-v1-projectref) · [ProjectRepository](#izci-api-v1-projectrepository) · [ProjectSettings](#izci-api-v1-projectsettings) · [ProjectStats](#izci-api-v1-projectstats) · [PullRequestRef](#izci-api-v1-pullrequestref) · [RegenerateRecoveryCodesRequest](#izci-api-v1-regeneraterecoverycodesrequest) · [RegenerateRecoveryCodesResponse](#izci-api-v1-regeneraterecoverycodesresponse) · [Release](#izci-api-v1-release) · [ReleaseHealth](#izci-api-v1-releasehealth) · [RemoveMemberRequest](#izci-api-v1-removememberrequest) · [RemoveMemberResponse](#izci-api-v1-removememberresponse) · [Repository](#izci-api-v1-repository) · [ResolveOptions](#izci-api-v1-resolveoptions) · [RevokeAccessTokenRequest](#izci-api-v1-revokeaccesstokenrequest) · [RevokeAccessTokenResponse](#izci-api-v1-revokeaccesstokenresponse) · [RevokeApiKeyRequest](#izci-api-v1-revokeapikeyrequest) · [RevokeApiKeyResponse](#izci-api-v1-revokeapikeyresponse) · [RevokeInvitationRequest](#izci-api-v1-revokeinvitationrequest) · [RevokeInvitationResponse](#izci-api-v1-revokeinvitationresponse) · [RevokeSessionRequest](#izci-api-v1-revokesessionrequest) · [RevokeSessionResponse](#izci-api-v1-revokesessionresponse) · [SearchSuggestion](#izci-api-v1-searchsuggestion) · [SendTestEventRequest](#izci-api-v1-sendtesteventrequest) · [SendTestEventResponse](#izci-api-v1-sendtesteventresponse) · [SendTestNotificationRequest](#izci-api-v1-sendtestnotificationrequest) · [SendTestNotificationResponse](#izci-api-v1-sendtestnotificationresponse) · [Series](#izci-api-v1-series) · [Session](#izci-api-v1-session) · [SessionInfo](#izci-api-v1-sessioninfo) · [SignUpRequest](#izci-api-v1-signuprequest) · [SignUpResponse](#izci-api-v1-signupresponse) · [Snooze](#izci-api-v1-snooze) · [StartGitHubAppInstallationRequest](#izci-api-v1-startgithubappinstallationrequest) · [StartGitHubAppInstallationResponse](#izci-api-v1-startgithubappinstallationresponse) · [StartRunRequest](#izci-api-v1-startrunrequest) · [StartRunResponse](#izci-api-v1-startrunresponse) · [SuggestSearchRequest](#izci-api-v1-suggestsearchrequest) · [SuggestSearchResponse](#izci-api-v1-suggestsearchresponse) · [TagFacet](#izci-api-v1-tagfacet) · [TagValueCount](#izci-api-v1-tagvaluecount) · [TelegramAccount](#izci-api-v1-telegramaccount) · [TelegramChat](#izci-api-v1-telegramchat) · [TicketRef](#izci-api-v1-ticketref) · [UnlinkRepositoryRequest](#izci-api-v1-unlinkrepositoryrequest) · [UnlinkRepositoryResponse](#izci-api-v1-unlinkrepositoryresponse) · [UnlinkTelegramAccountRequest](#izci-api-v1-unlinktelegramaccountrequest) · [UnlinkTelegramAccountResponse](#izci-api-v1-unlinktelegramaccountresponse) · [UpdateAlertRuleRequest](#izci-api-v1-updatealertrulerequest) · [UpdateAlertRuleResponse](#izci-api-v1-updatealertruleresponse) · [UpdateApiKeyRequest](#izci-api-v1-updateapikeyrequest) · [UpdateApiKeyResponse](#izci-api-v1-updateapikeyresponse) · [UpdateChannelRequest](#izci-api-v1-updatechannelrequest) · [UpdateChannelResponse](#izci-api-v1-updatechannelresponse) · [UpdateCustomerRequest](#izci-api-v1-updatecustomerrequest) · [UpdateCustomerResponse](#izci-api-v1-updatecustomerresponse) · [UpdateIssuesRequest](#izci-api-v1-updateissuesrequest) · [UpdateIssuesResponse](#izci-api-v1-updateissuesresponse) · [UpdateMemberRequest](#izci-api-v1-updatememberrequest) · [UpdateMemberResponse](#izci-api-v1-updatememberresponse) · [UpdateMonitorRequest](#izci-api-v1-updatemonitorrequest) · [UpdateMonitorResponse](#izci-api-v1-updatemonitorresponse) · [UpdateOrganizationPlanRequest](#izci-api-v1-updateorganizationplanrequest) · [UpdateOrganizationPlanResponse](#izci-api-v1-updateorganizationplanresponse) · [UpdateOrganizationRequest](#izci-api-v1-updateorganizationrequest) · [UpdateOrganizationResponse](#izci-api-v1-updateorganizationresponse) · [UpdateProfileRequest](#izci-api-v1-updateprofilerequest) · [UpdateProfileResponse](#izci-api-v1-updateprofileresponse) · [UpdateProjectRequest](#izci-api-v1-updateprojectrequest) · [UpdateProjectResponse](#izci-api-v1-updateprojectresponse) · [UpdateUserRequest](#izci-api-v1-updateuserrequest) · [UpdateUserResponse](#izci-api-v1-updateuserresponse) · [User](#izci-api-v1-user) · [UserAgentInfo](#izci-api-v1-useragentinfo) · [UserFeedback](#izci-api-v1-userfeedback) · [UserRef](#izci-api-v1-userref) · [VerifyTwoFactorRequest](#izci-api-v1-verifytwofactorrequest) · [VerifyTwoFactorResponse](#izci-api-v1-verifytwofactorresponse) · [WatchLiveRequest](#izci-api-v1-watchliverequest) · [WatchLiveResponse](#izci-api-v1-watchliveresponse) · [WatchRunRequest](#izci-api-v1-watchrunrequest) · [WatchRunResponse](#izci-api-v1-watchrunresponse) · [WebhookSettings](#izci-api-v1-webhooksettings)
 
 **Enums:** [ActivityKind](#izci-api-v1-activitykind) · [AiLogKind](#izci-api-v1-ailogkind) · [AiRunMode](#izci-api-v1-airunmode) · [AiRunStatus](#izci-api-v1-airunstatus) · [AiRunTrigger](#izci-api-v1-airuntrigger) · [AiState](#izci-api-v1-aistate) · [ApiKeyScope](#izci-api-v1-apikeyscope) · [ArtifactFileKind](#izci-api-v1-artifactfilekind) · [AutoAction](#izci-api-v1-autoaction) · [AutoAnalyze](#izci-api-v1-autoanalyze) · [ChannelKind](#izci-api-v1-channelkind) · [CheckInStatus](#izci-api-v1-checkinstatus) · [CustomerSort](#izci-api-v1-customersort) · [DebugFileKind](#izci-api-v1-debugfilekind) · [ErrorReason](#izci-api-v1-errorreason) · [EventPick](#izci-api-v1-eventpick) · [FilterReason](#izci-api-v1-filterreason) · [Health](#izci-api-v1-health) · [IntegrationAuth](#izci-api-v1-integrationauth) · [IpStorage](#izci-api-v1-ipstorage) · [IssueSort](#izci-api-v1-issuesort) · [IssueStatus](#izci-api-v1-issuestatus) · [IssueSubstatus](#izci-api-v1-issuesubstatus) · [LiveEventKind](#izci-api-v1-liveeventkind) · [MonitorIntervalUnit](#izci-api-v1-monitorintervalunit) · [MonitorStatus](#izci-api-v1-monitorstatus) · [Priority](#izci-api-v1-priority) · [Risk](#izci-api-v1-risk) · [Role](#izci-api-v1-role) · [SignupMode](#izci-api-v1-signupmode) · [StatsPeriod](#izci-api-v1-statsperiod) · [SuggestionKind](#izci-api-v1-suggestionkind) · [TokenScope](#izci-api-v1-tokenscope) · [TriggerKind](#izci-api-v1-triggerkind)
 
@@ -50,10 +50,11 @@ empty on the last page.
 AuthService handles first-run setup, sign-in and sessions.
 
 Methods of this service do not require the Izci-Org header. Login,
-CompleteSetup, SignUp and AcceptInvitation set the "izci_session" cookie
-(HttpOnly, Secure, SameSite=Lax); Logout clears it. OpenID Connect sign-in
-is a browser redirect flow outside of this service: open
-AuthProvider.login_url.
+VerifyTwoFactor, CompleteSetup, SignUp and AcceptInvitation set the
+"izci_session" cookie (HttpOnly, Secure, SameSite=Lax); Logout clears it.
+OpenID Connect sign-in is a browser redirect flow outside of this service:
+open AuthProvider.login_url. For accounts with two-factor authentication
+it ends on "/login?two_factor=1", where VerifyTwoFactor completes it.
 
 | Method | Request | Response | Summary |
 |---|---|---|---|
@@ -61,6 +62,7 @@ AuthProvider.login_url.
 | [CompleteSetup](#izci-api-v1-authservice-completesetup) | [CompleteSetupRequest](#izci-api-v1-completesetuprequest) | [CompleteSetupResponse](#izci-api-v1-completesetupresponse) | CompleteSetup creates the first user (an instance superadmin and owner), the first organization and the first project, then signs the user in. |
 | [ListAuthProviders](#izci-api-v1-authservice-listauthproviders) | [ListAuthProvidersRequest](#izci-api-v1-listauthprovidersrequest) | [ListAuthProvidersResponse](#izci-api-v1-listauthprovidersresponse) | ListAuthProviders lists the sign-in options shown on the login page. |
 | [Login](#izci-api-v1-authservice-login) | [LoginRequest](#izci-api-v1-loginrequest) | [LoginResponse](#izci-api-v1-loginresponse) | Login signs in with email and password. |
+| [VerifyTwoFactor](#izci-api-v1-authservice-verifytwofactor) | [VerifyTwoFactorRequest](#izci-api-v1-verifytwofactorrequest) | [VerifyTwoFactorResponse](#izci-api-v1-verifytwofactorresponse) | VerifyTwoFactor completes a sign-in waiting for its second step (the "izci_2fa" cookie) with a code from the authenticator app or a recovery code, and starts the session. |
 | [Logout](#izci-api-v1-authservice-logout) | [LogoutRequest](#izci-api-v1-logoutrequest) | [LogoutResponse](#izci-api-v1-logoutresponse) | Logout ends the current session. |
 | [GetSession](#izci-api-v1-authservice-getsession) | [GetSessionRequest](#izci-api-v1-getsessionrequest) | [GetSessionResponse](#izci-api-v1-getsessionresponse) | GetSession returns the signed-in user and their organizations. |
 | [ChangePassword](#izci-api-v1-authservice-changepassword) | [ChangePasswordRequest](#izci-api-v1-changepasswordrequest) | [ChangePasswordResponse](#izci-api-v1-changepasswordresponse) | ChangePassword changes (or, for accounts created through OpenID Connect, sets) the password of the signed-in user and ends their other sessions. |
@@ -108,7 +110,24 @@ _Side-effect free: may be called with HTTP GET over the Connect protocol._
 
 Login signs in with email and password. Repeated failures are rate
 limited per account and per client address
-(ERROR_REASON_TOO_MANY_ATTEMPTS).
+(ERROR_REASON_TOO_MANY_ATTEMPTS). For accounts with two-factor
+authentication the response has two_factor_required instead of a
+session, and sets the "izci_2fa" cookie (HttpOnly, 10 minutes) that
+VerifyTwoFactor needs.
+
+<a id="izci-api-v1-authservice-verifytwofactor"></a>
+
+#### AuthService.VerifyTwoFactor
+
+`rpc VerifyTwoFactor(VerifyTwoFactorRequest) returns (VerifyTwoFactorResponse)`
+
+VerifyTwoFactor completes a sign-in waiting for its second step (the
+"izci_2fa" cookie) with a code from the authenticator app or a recovery
+code, and starts the session. Fails with
+ERROR_REASON_INVALID_TWO_FACTOR_CODE for a wrong code,
+ERROR_REASON_TWO_FACTOR_EXPIRED when the sign-in is older than 10
+minutes, and ERROR_REASON_TOO_MANY_ATTEMPTS after repeated wrong codes
+(the lockout grows from 5 minutes to a day).
 
 <a id="izci-api-v1-authservice-logout"></a>
 
@@ -1263,8 +1282,8 @@ DeleteDebugFile removes a debug file. Requires ROLE_ADMIN.
 ### UserService
 
 UserService manages the signed-in user's own account: profile, personal
-access tokens, sessions and the linked Telegram account. It does not use
-the Izci-Org header.
+access tokens, sessions, two-factor authentication and the linked
+Telegram account. It does not use the Izci-Org header.
 
 | Method | Request | Response | Summary |
 |---|---|---|---|
@@ -1276,6 +1295,10 @@ the Izci-Org header.
 | [RevokeSession](#izci-api-v1-userservice-revokesession) | [RevokeSessionRequest](#izci-api-v1-revokesessionrequest) | [RevokeSessionResponse](#izci-api-v1-revokesessionresponse) | RevokeSession ends one of the user's sessions (or all other sessions). |
 | [CreateTelegramAccountLinkCode](#izci-api-v1-userservice-createtelegramaccountlinkcode) | [CreateTelegramAccountLinkCodeRequest](#izci-api-v1-createtelegramaccountlinkcoderequest) | [CreateTelegramAccountLinkCodeResponse](#izci-api-v1-createtelegramaccountlinkcoderesponse) | CreateTelegramAccountLinkCode creates a one-time code (valid 15 minutes) that links the user's Telegram account: send "/ben <code>" to the bot. |
 | [UnlinkTelegramAccount](#izci-api-v1-userservice-unlinktelegramaccount) | [UnlinkTelegramAccountRequest](#izci-api-v1-unlinktelegramaccountrequest) | [UnlinkTelegramAccountResponse](#izci-api-v1-unlinktelegramaccountresponse) | UnlinkTelegramAccount removes the linked Telegram account. |
+| [BeginTwoFactorSetup](#izci-api-v1-userservice-begintwofactorsetup) | [BeginTwoFactorSetupRequest](#izci-api-v1-begintwofactorsetuprequest) | [BeginTwoFactorSetupResponse](#izci-api-v1-begintwofactorsetupresponse) | BeginTwoFactorSetup starts turning on two-factor authentication: it returns a new secret for an authenticator app, which EnableTwoFactor confirms within an hour. |
+| [EnableTwoFactor](#izci-api-v1-userservice-enabletwofactor) | [EnableTwoFactorRequest](#izci-api-v1-enabletwofactorrequest) | [EnableTwoFactorResponse](#izci-api-v1-enabletwofactorresponse) | EnableTwoFactor confirms the setup with a code from the authenticator app and turns two-factor authentication on. |
+| [DisableTwoFactor](#izci-api-v1-userservice-disabletwofactor) | [DisableTwoFactorRequest](#izci-api-v1-disabletwofactorrequest) | [DisableTwoFactorResponse](#izci-api-v1-disabletwofactorresponse) | DisableTwoFactor turns two-factor authentication off, given a current code or a recovery code. |
+| [RegenerateRecoveryCodes](#izci-api-v1-userservice-regeneraterecoverycodes) | [RegenerateRecoveryCodesRequest](#izci-api-v1-regeneraterecoverycodesrequest) | [RegenerateRecoveryCodesResponse](#izci-api-v1-regeneraterecoverycodesresponse) | RegenerateRecoveryCodes replaces the recovery codes, given a current code; the old codes stop working. |
 
 <a id="izci-api-v1-userservice-updateprofile"></a>
 
@@ -1347,6 +1370,46 @@ that links the user's Telegram account: send "/ben <code>" to the bot.
 `rpc UnlinkTelegramAccount(UnlinkTelegramAccountRequest) returns (UnlinkTelegramAccountResponse)`
 
 UnlinkTelegramAccount removes the linked Telegram account.
+
+<a id="izci-api-v1-userservice-begintwofactorsetup"></a>
+
+#### UserService.BeginTwoFactorSetup
+
+`rpc BeginTwoFactorSetup(BeginTwoFactorSetupRequest) returns (BeginTwoFactorSetupResponse)`
+
+BeginTwoFactorSetup starts turning on two-factor authentication: it
+returns a new secret for an authenticator app, which EnableTwoFactor
+confirms within an hour. Browser sessions only; fails with
+ERROR_REASON_CONFLICT when two-factor authentication is on already.
+
+<a id="izci-api-v1-userservice-enabletwofactor"></a>
+
+#### UserService.EnableTwoFactor
+
+`rpc EnableTwoFactor(EnableTwoFactorRequest) returns (EnableTwoFactorResponse)`
+
+EnableTwoFactor confirms the setup with a code from the authenticator
+app and turns two-factor authentication on. The response carries the
+recovery codes, which are never shown again. Browser sessions only.
+
+<a id="izci-api-v1-userservice-disabletwofactor"></a>
+
+#### UserService.DisableTwoFactor
+
+`rpc DisableTwoFactor(DisableTwoFactorRequest) returns (DisableTwoFactorResponse)`
+
+DisableTwoFactor turns two-factor authentication off, given a current
+code or a recovery code. Organizations requiring it turn the user away
+until it is on again. Browser sessions only.
+
+<a id="izci-api-v1-userservice-regeneraterecoverycodes"></a>
+
+#### UserService.RegenerateRecoveryCodes
+
+`rpc RegenerateRecoveryCodes(RegenerateRecoveryCodesRequest) returns (RegenerateRecoveryCodesResponse)`
+
+RegenerateRecoveryCodes replaces the recovery codes, given a current
+code; the old codes stop working. Browser sessions only.
 
 ## Messages
 
@@ -1662,6 +1725,25 @@ AuthProvider is an OpenID Connect identity provider.
 | `display_name` | `string` | Button label, e.g. "KentOS Kimlik". |
 | `icon` | `string` | Icon hint for the button: "kimlik", "google", "microsoft", "keycloak", "github" or "generic". |
 | `login_url` | `string` | Relative URL that starts the sign-in redirect, e.g. "/auth/oidc/kimlik/start". Append "?next=/path" to return to a page. |
+
+<a id="izci-api-v1-begintwofactorsetuprequest"></a>
+
+### BeginTwoFactorSetupRequest
+
+BeginTwoFactorSetupRequest has no fields.
+
+_No fields._
+
+<a id="izci-api-v1-begintwofactorsetupresponse"></a>
+
+### BeginTwoFactorSetupResponse
+
+BeginTwoFactorSetupResponse carries the secret for the authenticator app.
+
+| Field | Type | Description |
+|---|---|---|
+| `secret` | `string` | Secret in base32, for typing into the app when the QR code cannot be scanned. |
+| `uri` | `string` | otpauth:// URI (SHA-1, 6 digits, 30 seconds) to show as a QR code. |
 
 <a id="izci-api-v1-cancelrunrequest"></a>
 
@@ -2325,6 +2407,24 @@ Deploy is a deployment of a release to an environment.
 | `deployed_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When it was deployed. |
 | `deployed_by` | `string` | Who or what deployed it. |
 
+<a id="izci-api-v1-disabletwofactorrequest"></a>
+
+### DisableTwoFactorRequest
+
+DisableTwoFactorRequest proves the second factor.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `code` | `string` | Code from the authenticator app, or a recovery code. | min length 6, max length 32 |
+
+<a id="izci-api-v1-disabletwofactorresponse"></a>
+
+### DisableTwoFactorResponse
+
+DisableTwoFactorResponse has no fields.
+
+_No fields._
+
 <a id="izci-api-v1-emailsettings"></a>
 
 ### EmailSettings
@@ -2334,6 +2434,26 @@ EmailSettings lists e-mail recipients.
 | Field | Type | Description | Constraints |
 |---|---|---|---|
 | `recipients` | repeated `string` | 1 to 20 addresses. | min 1 items, max 20 items, each max length 254, each email |
+
+<a id="izci-api-v1-enabletwofactorrequest"></a>
+
+### EnableTwoFactorRequest
+
+EnableTwoFactorRequest confirms the setup.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `code` | `string` | Six-digit code the authenticator app shows for the new secret. | min length 6, max length 16 |
+
+<a id="izci-api-v1-enabletwofactorresponse"></a>
+
+### EnableTwoFactorResponse
+
+EnableTwoFactorResponse returns the recovery codes.
+
+| Field | Type | Description |
+|---|---|---|
+| `recovery_codes` | repeated `string` | Ten single-use recovery codes ("xxxxx-xxxxx") that sign in when the authenticator app is lost. Shown only once. |
 
 <a id="izci-api-v1-environment"></a>
 
@@ -3762,11 +3882,12 @@ LoginRequest holds credentials.
 
 ### LoginResponse
 
-LoginResponse returns the new session.
+LoginResponse returns the new session, or asks for the second step.
 
 | Field | Type | Description |
 |---|---|---|
-| `session` | [Session](#izci-api-v1-session) | Session of the signed-in user. |
+| `session` | [Session](#izci-api-v1-session) | Session of the signed-in user; unset when two_factor_required. |
+| `two_factor_required` | `bool` | The account uses two-factor authentication: send a code with VerifyTwoFactor to finish signing in. |
 
 <a id="izci-api-v1-logoutrequest"></a>
 
@@ -3796,6 +3917,7 @@ Member is a user's membership in the organization.
 | `role` | [Role](#izci-api-v1-role) | Role in the organization. |
 | `joined_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the user joined. |
 | `last_seen_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the user was last active in izci. |
+| `two_factor_enabled` | `bool` | Whether the user signs in with two-factor authentication. |
 
 <a id="izci-api-v1-membership"></a>
 
@@ -3807,6 +3929,7 @@ Membership is a user's role in one organization.
 |---|---|---|
 | `organization` | [OrganizationRef](#izci-api-v1-organizationref) | The organization. |
 | `role` | [Role](#izci-api-v1-role) | The user's role in it. |
+| `requires_two_factor` | `bool` | The organization requires two-factor authentication (OrganizationSettings.require_two_factor). While the user has not turned it on, calls in the organization fail with ERROR_REASON_TWO_FACTOR_REQUIRED. |
 
 <a id="izci-api-v1-monitor"></a>
 
@@ -3926,6 +4049,7 @@ OrganizationSettings are editable organization settings.
 | `timezone` | `string` | IANA timezone used for notifications, digests and day boundaries in charts, e.g. "Europe/Istanbul". | max length 64 |
 | `auto_join_domains` | repeated `string` | Email domains whose users join the organization automatically when they first sign in with OpenID Connect, e.g. ["kentos.com.tr"]. | max 20 items, each hostname |
 | `auto_join_role` | [Role](#izci-api-v1-role) | Role granted to users who join through auto_join_domains. |  |
+| `require_two_factor` | `bool` | Members must turn on two-factor authentication. Until they do, every call in the organization (sessions and access tokens alike) fails with ERROR_REASON_TWO_FACTOR_REQUIRED. Only a caller who uses two-factor authentication may turn this on. |  |
 
 <a id="izci-api-v1-overviewtotals"></a>
 
@@ -4087,6 +4211,26 @@ PullRequestRef is a branch or pull request created for an issue.
 | `draft` | `bool` | Whether the pull request is a draft. |
 | `state` | `string` | State: "open", "closed", "merged" or "branch". |
 | `ai_run_id` | `string` | AI run that produced it. |
+
+<a id="izci-api-v1-regeneraterecoverycodesrequest"></a>
+
+### RegenerateRecoveryCodesRequest
+
+RegenerateRecoveryCodesRequest proves the second factor.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `code` | `string` | Code from the authenticator app, or a recovery code. | min length 6, max length 32 |
+
+<a id="izci-api-v1-regeneraterecoverycodesresponse"></a>
+
+### RegenerateRecoveryCodesResponse
+
+RegenerateRecoveryCodesResponse returns the new recovery codes.
+
+| Field | Type | Description |
+|---|---|---|
+| `recovery_codes` | repeated `string` | Ten new single-use recovery codes. Shown only once. |
 
 <a id="izci-api-v1-release"></a>
 
@@ -4810,6 +4954,7 @@ UpdateUserRequest changes a user.
 | `user_id` | `string` | User id. | UUID |
 | `superadmin` | optional `bool` | New superadmin flag; unchanged when unset. |  |
 | `disabled` | optional `bool` | New disabled flag; unchanged when unset. |  |
+| `reset_two_factor` | `bool` | Turns the user's two-factor authentication off and deletes their recovery codes, for a user who lost both. They can sign in with their password alone and set it up again. |  |
 
 <a id="izci-api-v1-updateuserresponse"></a>
 
@@ -4838,6 +4983,8 @@ User is an izci account.
 | `linked_providers` | repeated `string` | Identity providers linked to the account, e.g. ["kimlik"]. |
 | `telegram` | [TelegramAccount](#izci-api-v1-telegramaccount) | Linked Telegram account, when any. |
 | `created_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the account was created. |
+| `two_factor_enabled` | `bool` | Whether sign-ins ask for a code from an authenticator app (TOTP). |
+| `recovery_codes_left` | `uint32` | Unused recovery codes; set only on the signed-in user's own account (GetSession) while two-factor authentication is on. |
 
 <a id="izci-api-v1-useragentinfo"></a>
 
@@ -4893,6 +5040,26 @@ UserRef is a compact reference to a user.
 | `name` | `string` | Display name. |
 | `email` | `string` | Email address. |
 | `avatar_url` | `string` | Avatar image URL, empty when none. |
+
+<a id="izci-api-v1-verifytwofactorrequest"></a>
+
+### VerifyTwoFactorRequest
+
+VerifyTwoFactorRequest carries the second step of a sign-in.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `code` | `string` | Six-digit code from the authenticator app, or a recovery code ("xxxxx-xxxxx"). Spaces and dashes are ignored. | min length 6, max length 32 |
+
+<a id="izci-api-v1-verifytwofactorresponse"></a>
+
+### VerifyTwoFactorResponse
+
+VerifyTwoFactorResponse returns the new session.
+
+| Field | Type | Description |
+|---|---|---|
+| `session` | [Session](#izci-api-v1-session) | Session of the signed-in user. |
 
 <a id="izci-api-v1-watchliverequest"></a>
 
@@ -5196,6 +5363,9 @@ reason to a localized message.
 | `ERROR_REASON_CONFLICT` | 29 | The resource was modified concurrently; reload and retry. |
 | `ERROR_REASON_INTERNAL` | 30 | Unexpected server error. |
 | `ERROR_REASON_CHANNEL_UNAVAILABLE` | 31 | The channel kind is not available on this server (e-mail without an SMTP server). |
+| `ERROR_REASON_TWO_FACTOR_REQUIRED` | 32 | The organization requires two-factor authentication and the caller has not turned it on (UserService.BeginTwoFactorSetup). |
+| `ERROR_REASON_INVALID_TWO_FACTOR_CODE` | 33 | The two-factor code (from the authenticator app, or a recovery code) is wrong or was used already. |
+| `ERROR_REASON_TWO_FACTOR_EXPIRED` | 34 | The sign-in or setup waiting for a two-factor code expired; sign in or start the setup again. |
 
 <a id="izci-api-v1-eventpick"></a>
 

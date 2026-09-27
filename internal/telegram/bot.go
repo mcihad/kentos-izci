@@ -492,6 +492,7 @@ func (b *Bot) handleCallback(ctx context.Context, cq *CallbackQuery) {
 		userName  string
 		orgID     uuid.UUID
 		role      int16
+		needs2FA  bool
 		errNoUser = errors.New("no linked user")
 	)
 	err := b.db.InSystem(ctx, func(tx pgx.Tx) error {
@@ -506,7 +507,10 @@ func (b *Bot) handleCallback(ctx context.Context, cq *CallbackQuery) {
 		if err := tx.QueryRow(ctx, `SELECT org_id FROM issues WHERE id = $1`, issueID).Scan(&orgID); err != nil {
 			return err
 		}
-		err = tx.QueryRow(ctx, `SELECT role FROM org_members WHERE org_id = $1 AND user_id = $2`, orgID, userID).Scan(&role)
+		err = tx.QueryRow(ctx, `
+			SELECT m.role, coalesce((o.settings->>'require_two_factor')::boolean, false) AND u.totp_enabled_at IS NULL
+			FROM org_members m JOIN organizations o ON o.id = m.org_id JOIN users u ON u.id = m.user_id
+			WHERE m.org_id = $1 AND m.user_id = $2`, orgID, userID).Scan(&role, &needs2FA)
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil
 		}
@@ -525,6 +529,9 @@ func (b *Bot) handleCallback(ctx context.Context, cq *CallbackQuery) {
 		return
 	case role < int16(apiv1.Role_ROLE_MEMBER):
 		b.answer(ctx, cq, "Bu işlem için yetkiniz yok.", true)
+		return
+	case needs2FA:
+		b.answer(ctx, cq, "Bu organizasyon iki adımlı doğrulama istiyor. Önce İzci'de Hesabım › İki adımlı doğrulama bölümünden açın.", true)
 		return
 	}
 

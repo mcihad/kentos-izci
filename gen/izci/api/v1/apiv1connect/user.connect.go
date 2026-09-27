@@ -57,6 +57,18 @@ const (
 	// UserServiceUnlinkTelegramAccountProcedure is the fully-qualified name of the UserService's
 	// UnlinkTelegramAccount RPC.
 	UserServiceUnlinkTelegramAccountProcedure = "/izci.api.v1.UserService/UnlinkTelegramAccount"
+	// UserServiceBeginTwoFactorSetupProcedure is the fully-qualified name of the UserService's
+	// BeginTwoFactorSetup RPC.
+	UserServiceBeginTwoFactorSetupProcedure = "/izci.api.v1.UserService/BeginTwoFactorSetup"
+	// UserServiceEnableTwoFactorProcedure is the fully-qualified name of the UserService's
+	// EnableTwoFactor RPC.
+	UserServiceEnableTwoFactorProcedure = "/izci.api.v1.UserService/EnableTwoFactor"
+	// UserServiceDisableTwoFactorProcedure is the fully-qualified name of the UserService's
+	// DisableTwoFactor RPC.
+	UserServiceDisableTwoFactorProcedure = "/izci.api.v1.UserService/DisableTwoFactor"
+	// UserServiceRegenerateRecoveryCodesProcedure is the fully-qualified name of the UserService's
+	// RegenerateRecoveryCodes RPC.
+	UserServiceRegenerateRecoveryCodesProcedure = "/izci.api.v1.UserService/RegenerateRecoveryCodes"
 )
 
 // UserServiceClient is a client for the izci.api.v1.UserService service.
@@ -80,6 +92,22 @@ type UserServiceClient interface {
 	CreateTelegramAccountLinkCode(context.Context, *connect.Request[v1.CreateTelegramAccountLinkCodeRequest]) (*connect.Response[v1.CreateTelegramAccountLinkCodeResponse], error)
 	// UnlinkTelegramAccount removes the linked Telegram account.
 	UnlinkTelegramAccount(context.Context, *connect.Request[v1.UnlinkTelegramAccountRequest]) (*connect.Response[v1.UnlinkTelegramAccountResponse], error)
+	// BeginTwoFactorSetup starts turning on two-factor authentication: it
+	// returns a new secret for an authenticator app, which EnableTwoFactor
+	// confirms within an hour. Browser sessions only; fails with
+	// ERROR_REASON_CONFLICT when two-factor authentication is on already.
+	BeginTwoFactorSetup(context.Context, *connect.Request[v1.BeginTwoFactorSetupRequest]) (*connect.Response[v1.BeginTwoFactorSetupResponse], error)
+	// EnableTwoFactor confirms the setup with a code from the authenticator
+	// app and turns two-factor authentication on. The response carries the
+	// recovery codes, which are never shown again. Browser sessions only.
+	EnableTwoFactor(context.Context, *connect.Request[v1.EnableTwoFactorRequest]) (*connect.Response[v1.EnableTwoFactorResponse], error)
+	// DisableTwoFactor turns two-factor authentication off, given a current
+	// code or a recovery code. Organizations requiring it turn the user away
+	// until it is on again. Browser sessions only.
+	DisableTwoFactor(context.Context, *connect.Request[v1.DisableTwoFactorRequest]) (*connect.Response[v1.DisableTwoFactorResponse], error)
+	// RegenerateRecoveryCodes replaces the recovery codes, given a current
+	// code; the old codes stop working. Browser sessions only.
+	RegenerateRecoveryCodes(context.Context, *connect.Request[v1.RegenerateRecoveryCodesRequest]) (*connect.Response[v1.RegenerateRecoveryCodesResponse], error)
 }
 
 // NewUserServiceClient constructs a client for the izci.api.v1.UserService service. By default, it
@@ -143,6 +171,30 @@ func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(userServiceMethods.ByName("UnlinkTelegramAccount")),
 			connect.WithClientOptions(opts...),
 		),
+		beginTwoFactorSetup: connect.NewClient[v1.BeginTwoFactorSetupRequest, v1.BeginTwoFactorSetupResponse](
+			httpClient,
+			baseURL+UserServiceBeginTwoFactorSetupProcedure,
+			connect.WithSchema(userServiceMethods.ByName("BeginTwoFactorSetup")),
+			connect.WithClientOptions(opts...),
+		),
+		enableTwoFactor: connect.NewClient[v1.EnableTwoFactorRequest, v1.EnableTwoFactorResponse](
+			httpClient,
+			baseURL+UserServiceEnableTwoFactorProcedure,
+			connect.WithSchema(userServiceMethods.ByName("EnableTwoFactor")),
+			connect.WithClientOptions(opts...),
+		),
+		disableTwoFactor: connect.NewClient[v1.DisableTwoFactorRequest, v1.DisableTwoFactorResponse](
+			httpClient,
+			baseURL+UserServiceDisableTwoFactorProcedure,
+			connect.WithSchema(userServiceMethods.ByName("DisableTwoFactor")),
+			connect.WithClientOptions(opts...),
+		),
+		regenerateRecoveryCodes: connect.NewClient[v1.RegenerateRecoveryCodesRequest, v1.RegenerateRecoveryCodesResponse](
+			httpClient,
+			baseURL+UserServiceRegenerateRecoveryCodesProcedure,
+			connect.WithSchema(userServiceMethods.ByName("RegenerateRecoveryCodes")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -156,6 +208,10 @@ type userServiceClient struct {
 	revokeSession                 *connect.Client[v1.RevokeSessionRequest, v1.RevokeSessionResponse]
 	createTelegramAccountLinkCode *connect.Client[v1.CreateTelegramAccountLinkCodeRequest, v1.CreateTelegramAccountLinkCodeResponse]
 	unlinkTelegramAccount         *connect.Client[v1.UnlinkTelegramAccountRequest, v1.UnlinkTelegramAccountResponse]
+	beginTwoFactorSetup           *connect.Client[v1.BeginTwoFactorSetupRequest, v1.BeginTwoFactorSetupResponse]
+	enableTwoFactor               *connect.Client[v1.EnableTwoFactorRequest, v1.EnableTwoFactorResponse]
+	disableTwoFactor              *connect.Client[v1.DisableTwoFactorRequest, v1.DisableTwoFactorResponse]
+	regenerateRecoveryCodes       *connect.Client[v1.RegenerateRecoveryCodesRequest, v1.RegenerateRecoveryCodesResponse]
 }
 
 // UpdateProfile calls izci.api.v1.UserService.UpdateProfile.
@@ -198,6 +254,26 @@ func (c *userServiceClient) UnlinkTelegramAccount(ctx context.Context, req *conn
 	return c.unlinkTelegramAccount.CallUnary(ctx, req)
 }
 
+// BeginTwoFactorSetup calls izci.api.v1.UserService.BeginTwoFactorSetup.
+func (c *userServiceClient) BeginTwoFactorSetup(ctx context.Context, req *connect.Request[v1.BeginTwoFactorSetupRequest]) (*connect.Response[v1.BeginTwoFactorSetupResponse], error) {
+	return c.beginTwoFactorSetup.CallUnary(ctx, req)
+}
+
+// EnableTwoFactor calls izci.api.v1.UserService.EnableTwoFactor.
+func (c *userServiceClient) EnableTwoFactor(ctx context.Context, req *connect.Request[v1.EnableTwoFactorRequest]) (*connect.Response[v1.EnableTwoFactorResponse], error) {
+	return c.enableTwoFactor.CallUnary(ctx, req)
+}
+
+// DisableTwoFactor calls izci.api.v1.UserService.DisableTwoFactor.
+func (c *userServiceClient) DisableTwoFactor(ctx context.Context, req *connect.Request[v1.DisableTwoFactorRequest]) (*connect.Response[v1.DisableTwoFactorResponse], error) {
+	return c.disableTwoFactor.CallUnary(ctx, req)
+}
+
+// RegenerateRecoveryCodes calls izci.api.v1.UserService.RegenerateRecoveryCodes.
+func (c *userServiceClient) RegenerateRecoveryCodes(ctx context.Context, req *connect.Request[v1.RegenerateRecoveryCodesRequest]) (*connect.Response[v1.RegenerateRecoveryCodesResponse], error) {
+	return c.regenerateRecoveryCodes.CallUnary(ctx, req)
+}
+
 // UserServiceHandler is an implementation of the izci.api.v1.UserService service.
 type UserServiceHandler interface {
 	// UpdateProfile changes the display name.
@@ -219,6 +295,22 @@ type UserServiceHandler interface {
 	CreateTelegramAccountLinkCode(context.Context, *connect.Request[v1.CreateTelegramAccountLinkCodeRequest]) (*connect.Response[v1.CreateTelegramAccountLinkCodeResponse], error)
 	// UnlinkTelegramAccount removes the linked Telegram account.
 	UnlinkTelegramAccount(context.Context, *connect.Request[v1.UnlinkTelegramAccountRequest]) (*connect.Response[v1.UnlinkTelegramAccountResponse], error)
+	// BeginTwoFactorSetup starts turning on two-factor authentication: it
+	// returns a new secret for an authenticator app, which EnableTwoFactor
+	// confirms within an hour. Browser sessions only; fails with
+	// ERROR_REASON_CONFLICT when two-factor authentication is on already.
+	BeginTwoFactorSetup(context.Context, *connect.Request[v1.BeginTwoFactorSetupRequest]) (*connect.Response[v1.BeginTwoFactorSetupResponse], error)
+	// EnableTwoFactor confirms the setup with a code from the authenticator
+	// app and turns two-factor authentication on. The response carries the
+	// recovery codes, which are never shown again. Browser sessions only.
+	EnableTwoFactor(context.Context, *connect.Request[v1.EnableTwoFactorRequest]) (*connect.Response[v1.EnableTwoFactorResponse], error)
+	// DisableTwoFactor turns two-factor authentication off, given a current
+	// code or a recovery code. Organizations requiring it turn the user away
+	// until it is on again. Browser sessions only.
+	DisableTwoFactor(context.Context, *connect.Request[v1.DisableTwoFactorRequest]) (*connect.Response[v1.DisableTwoFactorResponse], error)
+	// RegenerateRecoveryCodes replaces the recovery codes, given a current
+	// code; the old codes stop working. Browser sessions only.
+	RegenerateRecoveryCodes(context.Context, *connect.Request[v1.RegenerateRecoveryCodesRequest]) (*connect.Response[v1.RegenerateRecoveryCodesResponse], error)
 }
 
 // NewUserServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -278,6 +370,30 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(userServiceMethods.ByName("UnlinkTelegramAccount")),
 		connect.WithHandlerOptions(opts...),
 	)
+	userServiceBeginTwoFactorSetupHandler := connect.NewUnaryHandler(
+		UserServiceBeginTwoFactorSetupProcedure,
+		svc.BeginTwoFactorSetup,
+		connect.WithSchema(userServiceMethods.ByName("BeginTwoFactorSetup")),
+		connect.WithHandlerOptions(opts...),
+	)
+	userServiceEnableTwoFactorHandler := connect.NewUnaryHandler(
+		UserServiceEnableTwoFactorProcedure,
+		svc.EnableTwoFactor,
+		connect.WithSchema(userServiceMethods.ByName("EnableTwoFactor")),
+		connect.WithHandlerOptions(opts...),
+	)
+	userServiceDisableTwoFactorHandler := connect.NewUnaryHandler(
+		UserServiceDisableTwoFactorProcedure,
+		svc.DisableTwoFactor,
+		connect.WithSchema(userServiceMethods.ByName("DisableTwoFactor")),
+		connect.WithHandlerOptions(opts...),
+	)
+	userServiceRegenerateRecoveryCodesHandler := connect.NewUnaryHandler(
+		UserServiceRegenerateRecoveryCodesProcedure,
+		svc.RegenerateRecoveryCodes,
+		connect.WithSchema(userServiceMethods.ByName("RegenerateRecoveryCodes")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/izci.api.v1.UserService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case UserServiceUpdateProfileProcedure:
@@ -296,6 +412,14 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 			userServiceCreateTelegramAccountLinkCodeHandler.ServeHTTP(w, r)
 		case UserServiceUnlinkTelegramAccountProcedure:
 			userServiceUnlinkTelegramAccountHandler.ServeHTTP(w, r)
+		case UserServiceBeginTwoFactorSetupProcedure:
+			userServiceBeginTwoFactorSetupHandler.ServeHTTP(w, r)
+		case UserServiceEnableTwoFactorProcedure:
+			userServiceEnableTwoFactorHandler.ServeHTTP(w, r)
+		case UserServiceDisableTwoFactorProcedure:
+			userServiceDisableTwoFactorHandler.ServeHTTP(w, r)
+		case UserServiceRegenerateRecoveryCodesProcedure:
+			userServiceRegenerateRecoveryCodesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -335,4 +459,20 @@ func (UnimplementedUserServiceHandler) CreateTelegramAccountLinkCode(context.Con
 
 func (UnimplementedUserServiceHandler) UnlinkTelegramAccount(context.Context, *connect.Request[v1.UnlinkTelegramAccountRequest]) (*connect.Response[v1.UnlinkTelegramAccountResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.UserService.UnlinkTelegramAccount is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) BeginTwoFactorSetup(context.Context, *connect.Request[v1.BeginTwoFactorSetupRequest]) (*connect.Response[v1.BeginTwoFactorSetupResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.UserService.BeginTwoFactorSetup is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) EnableTwoFactor(context.Context, *connect.Request[v1.EnableTwoFactorRequest]) (*connect.Response[v1.EnableTwoFactorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.UserService.EnableTwoFactor is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) DisableTwoFactor(context.Context, *connect.Request[v1.DisableTwoFactorRequest]) (*connect.Response[v1.DisableTwoFactorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.UserService.DisableTwoFactor is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) RegenerateRecoveryCodes(context.Context, *connect.Request[v1.RegenerateRecoveryCodesRequest]) (*connect.Response[v1.RegenerateRecoveryCodesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.UserService.RegenerateRecoveryCodes is not implemented"))
 }

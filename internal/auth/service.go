@@ -171,7 +171,11 @@ func (s *Service) Login(ctx context.Context, email, password string, ip netip.Ad
 		return nil, ErrAccountDisabled
 	}
 	s.resetThrottle("email:" + email)
-	_ = store.MarkUserLogin(ctx, s.db.Pool, u.ID)
+	// With two-factor authentication the sign-in completes in
+	// CompleteChallenge.
+	if !u.TwoFactor() {
+		_ = store.MarkUserLogin(ctx, s.db.Pool, u.ID)
+	}
 	return u, nil
 }
 
@@ -235,7 +239,9 @@ func (s *Service) EndSession(ctx context.Context, p *Principal) error {
 
 // ResolveTenant returns the organization named by slug and the caller's
 // role in it. Superadmins act as owners of every organization; tokens bound
-// to an organization cannot reach others.
+// to an organization cannot reach others. Organizations requiring
+// two-factor authentication turn away users without it
+// (ErrTwoFactorRequired).
 func (s *Service) ResolveTenant(ctx context.Context, p *Principal, slug string) (*Tenant, error) {
 	org, err := store.GetOrganizationBySlug(ctx, s.db.Pool, strings.ToLower(strings.TrimSpace(slug)))
 	if errors.Is(err, store.ErrNotFound) {
@@ -255,6 +261,9 @@ func (s *Service) ResolveTenant(ctx context.Context, p *Principal, slug string) 
 		return nil, ErrOrgNotFound
 	case err != nil:
 		return nil, err
+	}
+	if org.Settings.GetRequireTwoFactor() && !p.User.TwoFactor() {
+		return nil, ErrTwoFactorRequired
 	}
 	return &Tenant{Org: org, Role: role}, nil
 }

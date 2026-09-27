@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"strconv"
 	"strings"
 	"time"
 
@@ -112,6 +113,13 @@ func (s *OrganizationServer) UpdateOrganization(ctx context.Context, req *connec
 				settings.AutoJoinDomains[i] = strings.ToLower(strings.TrimSpace(d))
 			}
 		}
+		// Requiring two-factor authentication without using it would lock
+		// the caller out.
+		before, after := t.Org.Settings.GetRequireTwoFactor(), settings.GetRequireTwoFactor()
+		if after && !before && !auth.PrincipalFrom(ctx).User.TwoFactor() {
+			return apiError(connect.CodeFailedPrecondition, apiv1.ErrorReason_ERROR_REASON_TWO_FACTOR_REQUIRED,
+				"turn on two-factor authentication for your own account first")
+		}
 		org, err := store.UpdateOrganization(ctx, tx, t.OrgID(), name, settings)
 		if err != nil {
 			return err
@@ -121,7 +129,11 @@ func (s *OrganizationServer) UpdateOrganization(ctx context.Context, req *connec
 		if err != nil {
 			return err
 		}
-		return s.audit(ctx, tx, "organization.update", "organization", org.ID.String(), org.Name, nil)
+		var meta map[string]string
+		if before != after {
+			meta = map[string]string{"require_two_factor": strconv.FormatBool(after)}
+		}
+		return s.audit(ctx, tx, "organization.update", "organization", org.ID.String(), org.Name, meta)
 	})
 	if err != nil {
 		return nil, internal(ctx, s.log, "update organization", err)
@@ -138,7 +150,8 @@ func (s *OrganizationServer) ListMembers(ctx context.Context, _ *connect.Request
 			return err
 		}
 		for _, m := range members {
-			out.Members = append(out.Members, &apiv1.Member{User: toUserRef(m.User), Role: m.Role, JoinedAt: ts(m.JoinedAt), LastSeenAt: tsp(m.User.LastSeenAt)})
+			out.Members = append(out.Members, &apiv1.Member{User: toUserRef(m.User), Role: m.Role, JoinedAt: ts(m.JoinedAt),
+				LastSeenAt: tsp(m.User.LastSeenAt), TwoFactorEnabled: m.User.TwoFactor()})
 		}
 		if t.Role < apiv1.Role_ROLE_ADMIN {
 			return nil

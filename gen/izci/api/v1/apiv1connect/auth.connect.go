@@ -44,6 +44,9 @@ const (
 	AuthServiceListAuthProvidersProcedure = "/izci.api.v1.AuthService/ListAuthProviders"
 	// AuthServiceLoginProcedure is the fully-qualified name of the AuthService's Login RPC.
 	AuthServiceLoginProcedure = "/izci.api.v1.AuthService/Login"
+	// AuthServiceVerifyTwoFactorProcedure is the fully-qualified name of the AuthService's
+	// VerifyTwoFactor RPC.
+	AuthServiceVerifyTwoFactorProcedure = "/izci.api.v1.AuthService/VerifyTwoFactor"
 	// AuthServiceLogoutProcedure is the fully-qualified name of the AuthService's Logout RPC.
 	AuthServiceLogoutProcedure = "/izci.api.v1.AuthService/Logout"
 	// AuthServiceGetSessionProcedure is the fully-qualified name of the AuthService's GetSession RPC.
@@ -75,8 +78,19 @@ type AuthServiceClient interface {
 	ListAuthProviders(context.Context, *connect.Request[v1.ListAuthProvidersRequest]) (*connect.Response[v1.ListAuthProvidersResponse], error)
 	// Login signs in with email and password. Repeated failures are rate
 	// limited per account and per client address
-	// (ERROR_REASON_TOO_MANY_ATTEMPTS).
+	// (ERROR_REASON_TOO_MANY_ATTEMPTS). For accounts with two-factor
+	// authentication the response has two_factor_required instead of a
+	// session, and sets the "izci_2fa" cookie (HttpOnly, 10 minutes) that
+	// VerifyTwoFactor needs.
 	Login(context.Context, *connect.Request[v1.LoginRequest]) (*connect.Response[v1.LoginResponse], error)
+	// VerifyTwoFactor completes a sign-in waiting for its second step (the
+	// "izci_2fa" cookie) with a code from the authenticator app or a recovery
+	// code, and starts the session. Fails with
+	// ERROR_REASON_INVALID_TWO_FACTOR_CODE for a wrong code,
+	// ERROR_REASON_TWO_FACTOR_EXPIRED when the sign-in is older than 10
+	// minutes, and ERROR_REASON_TOO_MANY_ATTEMPTS after repeated wrong codes
+	// (the lockout grows from 5 minutes to a day).
+	VerifyTwoFactor(context.Context, *connect.Request[v1.VerifyTwoFactorRequest]) (*connect.Response[v1.VerifyTwoFactorResponse], error)
 	// Logout ends the current session.
 	Logout(context.Context, *connect.Request[v1.LogoutRequest]) (*connect.Response[v1.LogoutResponse], error)
 	// GetSession returns the signed-in user and their organizations. Fails
@@ -134,6 +148,12 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(authServiceMethods.ByName("Login")),
 			connect.WithClientOptions(opts...),
 		),
+		verifyTwoFactor: connect.NewClient[v1.VerifyTwoFactorRequest, v1.VerifyTwoFactorResponse](
+			httpClient,
+			baseURL+AuthServiceVerifyTwoFactorProcedure,
+			connect.WithSchema(authServiceMethods.ByName("VerifyTwoFactor")),
+			connect.WithClientOptions(opts...),
+		),
 		logout: connect.NewClient[v1.LogoutRequest, v1.LogoutResponse](
 			httpClient,
 			baseURL+AuthServiceLogoutProcedure,
@@ -181,6 +201,7 @@ type authServiceClient struct {
 	completeSetup     *connect.Client[v1.CompleteSetupRequest, v1.CompleteSetupResponse]
 	listAuthProviders *connect.Client[v1.ListAuthProvidersRequest, v1.ListAuthProvidersResponse]
 	login             *connect.Client[v1.LoginRequest, v1.LoginResponse]
+	verifyTwoFactor   *connect.Client[v1.VerifyTwoFactorRequest, v1.VerifyTwoFactorResponse]
 	logout            *connect.Client[v1.LogoutRequest, v1.LogoutResponse]
 	getSession        *connect.Client[v1.GetSessionRequest, v1.GetSessionResponse]
 	changePassword    *connect.Client[v1.ChangePasswordRequest, v1.ChangePasswordResponse]
@@ -207,6 +228,11 @@ func (c *authServiceClient) ListAuthProviders(ctx context.Context, req *connect.
 // Login calls izci.api.v1.AuthService.Login.
 func (c *authServiceClient) Login(ctx context.Context, req *connect.Request[v1.LoginRequest]) (*connect.Response[v1.LoginResponse], error) {
 	return c.login.CallUnary(ctx, req)
+}
+
+// VerifyTwoFactor calls izci.api.v1.AuthService.VerifyTwoFactor.
+func (c *authServiceClient) VerifyTwoFactor(ctx context.Context, req *connect.Request[v1.VerifyTwoFactorRequest]) (*connect.Response[v1.VerifyTwoFactorResponse], error) {
+	return c.verifyTwoFactor.CallUnary(ctx, req)
 }
 
 // Logout calls izci.api.v1.AuthService.Logout.
@@ -253,8 +279,19 @@ type AuthServiceHandler interface {
 	ListAuthProviders(context.Context, *connect.Request[v1.ListAuthProvidersRequest]) (*connect.Response[v1.ListAuthProvidersResponse], error)
 	// Login signs in with email and password. Repeated failures are rate
 	// limited per account and per client address
-	// (ERROR_REASON_TOO_MANY_ATTEMPTS).
+	// (ERROR_REASON_TOO_MANY_ATTEMPTS). For accounts with two-factor
+	// authentication the response has two_factor_required instead of a
+	// session, and sets the "izci_2fa" cookie (HttpOnly, 10 minutes) that
+	// VerifyTwoFactor needs.
 	Login(context.Context, *connect.Request[v1.LoginRequest]) (*connect.Response[v1.LoginResponse], error)
+	// VerifyTwoFactor completes a sign-in waiting for its second step (the
+	// "izci_2fa" cookie) with a code from the authenticator app or a recovery
+	// code, and starts the session. Fails with
+	// ERROR_REASON_INVALID_TWO_FACTOR_CODE for a wrong code,
+	// ERROR_REASON_TWO_FACTOR_EXPIRED when the sign-in is older than 10
+	// minutes, and ERROR_REASON_TOO_MANY_ATTEMPTS after repeated wrong codes
+	// (the lockout grows from 5 minutes to a day).
+	VerifyTwoFactor(context.Context, *connect.Request[v1.VerifyTwoFactorRequest]) (*connect.Response[v1.VerifyTwoFactorResponse], error)
 	// Logout ends the current session.
 	Logout(context.Context, *connect.Request[v1.LogoutRequest]) (*connect.Response[v1.LogoutResponse], error)
 	// GetSession returns the signed-in user and their organizations. Fails
@@ -308,6 +345,12 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(authServiceMethods.ByName("Login")),
 		connect.WithHandlerOptions(opts...),
 	)
+	authServiceVerifyTwoFactorHandler := connect.NewUnaryHandler(
+		AuthServiceVerifyTwoFactorProcedure,
+		svc.VerifyTwoFactor,
+		connect.WithSchema(authServiceMethods.ByName("VerifyTwoFactor")),
+		connect.WithHandlerOptions(opts...),
+	)
 	authServiceLogoutHandler := connect.NewUnaryHandler(
 		AuthServiceLogoutProcedure,
 		svc.Logout,
@@ -356,6 +399,8 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 			authServiceListAuthProvidersHandler.ServeHTTP(w, r)
 		case AuthServiceLoginProcedure:
 			authServiceLoginHandler.ServeHTTP(w, r)
+		case AuthServiceVerifyTwoFactorProcedure:
+			authServiceVerifyTwoFactorHandler.ServeHTTP(w, r)
 		case AuthServiceLogoutProcedure:
 			authServiceLogoutHandler.ServeHTTP(w, r)
 		case AuthServiceGetSessionProcedure:
@@ -391,6 +436,10 @@ func (UnimplementedAuthServiceHandler) ListAuthProviders(context.Context, *conne
 
 func (UnimplementedAuthServiceHandler) Login(context.Context, *connect.Request[v1.LoginRequest]) (*connect.Response[v1.LoginResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.AuthService.Login is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) VerifyTwoFactor(context.Context, *connect.Request[v1.VerifyTwoFactorRequest]) (*connect.Response[v1.VerifyTwoFactorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.AuthService.VerifyTwoFactor is not implemented"))
 }
 
 func (UnimplementedAuthServiceHandler) Logout(context.Context, *connect.Request[v1.LogoutRequest]) (*connect.Response[v1.LogoutResponse], error) {

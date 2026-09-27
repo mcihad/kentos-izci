@@ -9,10 +9,11 @@ import "izci/api/v1/common.proto";
 // AuthService handles first-run setup, sign-in and sessions.
 //
 // Methods of this service do not require the Izci-Org header. Login,
-// CompleteSetup, SignUp and AcceptInvitation set the "izci_session" cookie
-// (HttpOnly, Secure, SameSite=Lax); Logout clears it. OpenID Connect sign-in
-// is a browser redirect flow outside of this service: open
-// AuthProvider.login_url.
+// VerifyTwoFactor, CompleteSetup, SignUp and AcceptInvitation set the
+// "izci_session" cookie (HttpOnly, Secure, SameSite=Lax); Logout clears it.
+// OpenID Connect sign-in is a browser redirect flow outside of this service:
+// open AuthProvider.login_url. For accounts with two-factor authentication
+// it ends on "/login?two_factor=1", where VerifyTwoFactor completes it.
 service AuthService {
   // GetSetupState tells whether the instance still needs its initial setup
   // (no user exists yet). Callable without authentication.
@@ -33,8 +34,20 @@ service AuthService {
 
   // Login signs in with email and password. Repeated failures are rate
   // limited per account and per client address
-  // (ERROR_REASON_TOO_MANY_ATTEMPTS).
+  // (ERROR_REASON_TOO_MANY_ATTEMPTS). For accounts with two-factor
+  // authentication the response has two_factor_required instead of a
+  // session, and sets the "izci_2fa" cookie (HttpOnly, 10 minutes) that
+  // VerifyTwoFactor needs.
   rpc Login(LoginRequest) returns (LoginResponse);
+
+  // VerifyTwoFactor completes a sign-in waiting for its second step (the
+  // "izci_2fa" cookie) with a code from the authenticator app or a recovery
+  // code, and starts the session. Fails with
+  // ERROR_REASON_INVALID_TWO_FACTOR_CODE for a wrong code,
+  // ERROR_REASON_TWO_FACTOR_EXPIRED when the sign-in is older than 10
+  // minutes, and ERROR_REASON_TOO_MANY_ATTEMPTS after repeated wrong codes
+  // (the lockout grows from 5 minutes to a day).
+  rpc VerifyTwoFactor(VerifyTwoFactorRequest) returns (VerifyTwoFactorResponse);
 
   // Logout ends the current session.
   rpc Logout(LogoutRequest) returns (LogoutResponse);
@@ -107,6 +120,13 @@ message User {
 
   // When the account was created.
   google.protobuf.Timestamp created_at = 9;
+
+  // Whether sign-ins ask for a code from an authenticator app (TOTP).
+  bool two_factor_enabled = 10;
+
+  // Unused recovery codes; set only on the signed-in user's own account
+  // (GetSession) while two-factor authentication is on.
+  uint32 recovery_codes_left = 11;
 }
 
 // TelegramAccount is a Telegram user linked to an izci account, which lets
@@ -129,6 +149,12 @@ message Membership {
 
   // The user's role in it.
   Role role = 2;
+
+  // The organization requires two-factor authentication
+  // (OrganizationSettings.require_two_factor). While the user has not
+  // turned it on, calls in the organization fail with
+  // ERROR_REASON_TWO_FACTOR_REQUIRED.
+  bool requires_two_factor = 3;
 }
 
 // Session describes the signed-in user.
@@ -282,8 +308,28 @@ message LoginRequest {
   }];
 }
 
-// LoginResponse returns the new session.
+// LoginResponse returns the new session, or asks for the second step.
 message LoginResponse {
+  // Session of the signed-in user; unset when two_factor_required.
+  Session session = 1;
+
+  // The account uses two-factor authentication: send a code with
+  // VerifyTwoFactor to finish signing in.
+  bool two_factor_required = 2;
+}
+
+// VerifyTwoFactorRequest carries the second step of a sign-in.
+message VerifyTwoFactorRequest {
+  // Six-digit code from the authenticator app, or a recovery code
+  // ("xxxxx-xxxxx"). Spaces and dashes are ignored.
+  string code = 1 [(buf.validate.field).string = {
+    min_len: 6
+    max_len: 32
+  }];
+}
+
+// VerifyTwoFactorResponse returns the new session.
+message VerifyTwoFactorResponse {
   // Session of the signed-in user.
   Session session = 1;
 }

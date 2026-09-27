@@ -219,6 +219,11 @@ func (s *AdminServer) UpdateUser(ctx context.Context, req *connect.Request[apiv1
 				return err
 			}
 		}
+		if m.GetResetTwoFactor() {
+			if err := store.DisableTwoFactor(ctx, tx, id); err != nil {
+				return err
+			}
+		}
 		u, err := store.UserStatsByID(ctx, tx, id)
 		if err != nil {
 			return err
@@ -230,6 +235,9 @@ func (s *AdminServer) UpdateUser(ctx context.Context, req *connect.Request[apiv1
 		}
 		if m.Disabled != nil {
 			meta["disabled"] = strconv.FormatBool(m.GetDisabled())
+		}
+		if m.GetResetTwoFactor() {
+			meta["reset_two_factor"] = "true"
 		}
 		return s.adminAudit(ctx, tx, nil, "user.admin_update", "user", id.String(), u.User.Email, meta)
 	})

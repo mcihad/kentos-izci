@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
+	"encoding/base32"
 	"encoding/base64"
 	"encoding/json"
 	"log/slog"
@@ -163,6 +164,40 @@ func TestOIDCLoginFlow(t *testing.T) {
 	database.Pool.QueryRow(ctx, `SELECT count(*) FROM users`).Scan(&users)
 	if users != 1 || idp.logins != 2 {
 		t.Fatalf("users=%d logins=%d", users, idp.logins)
+	}
+
+	// With two-factor authentication the flow ends on the login page with a
+	// challenge cookie, and the code completes the sign-in.
+	zeynep, err := store.GetUserByEmail(ctx, database.Pool, "zeynep@kentos.com.tr")
+	if err != nil {
+		t.Fatal(err)
+	}
+	setup, err := svc.BeginTOTP(ctx, zeynep)
+	if err != nil {
+		t.Fatal(err)
+	}
+	totpSecret, _ := base32.StdEncoding.WithPadding(base32.NoPadding).DecodeString(setup.Secret)
+	now := auth.TOTPStep(time.Now())
+	if _, err := svc.EnableTOTP(ctx, zeynep.ID, auth.TOTPCode(totpSecret, now-1)); err != nil {
+		t.Fatal(err)
+	}
+	jar2, _ := cookiejar.New(nil)
+	phone := &http.Client{Jar: jar2}
+	res, err = phone.Get(izci.URL + "/auth/oidc/kimlik/start?next=/o/kentos")
+	if err != nil {
+		t.Fatal(err)
+	}
+	res.Body.Close()
+	if res.Request.URL.Path != "/login" || res.Request.URL.Query().Get("two_factor") != "1" || res.Request.URL.Query().Get("redirect") != "/o/kentos" {
+		t.Fatalf("two-factor sign-in ended at %s", res.Request.URL)
+	}
+	phoneAuth := apiv1connect.NewAuthServiceClient(phone, izci.URL)
+	if _, err := phoneAuth.GetSession(ctx, connect.NewRequest(&apiv1.GetSessionRequest{})); err == nil {
+		t.Fatal("session before the second step")
+	}
+	done, err := phoneAuth.VerifyTwoFactor(ctx, connect.NewRequest(&apiv1.VerifyTwoFactorRequest{Code: auth.TOTPCode(totpSecret, now+1)}))
+	if err != nil || done.Msg.GetSession().GetUser().GetEmail() != "zeynep@kentos.com.tr" || !done.Msg.GetSession().GetUser().GetTwoFactorEnabled() {
+		t.Fatalf("second step: %v %v", done, err)
 	}
 
 	// A forged callback (state mismatch) is rejected.

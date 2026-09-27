@@ -108,23 +108,16 @@ type SessionWithUser struct {
 
 // LookupSession finds an unexpired session by cookie token.
 func LookupSession(ctx context.Context, q Querier, token string) (*SessionWithUser, error) {
-	row := q.QueryRow(ctx, `
-		SELECT s.id, s.user_id, s.ip_address, s.user_agent, s.created_at, s.last_seen_at, s.expires_at,
-		       u.id, u.email, u.name, u.avatar_url, u.password_hash, u.superadmin, u.disabled,
-		       u.telegram_user_id, u.telegram_username, u.telegram_linked_at, u.last_login_at, u.last_seen_at,
-		       u.created_at, u.updated_at
-		FROM sessions s JOIN users u ON u.id = s.user_id
-		WHERE s.token_hash = $1 AND s.expires_at > now()`, secret.Hash(token))
 	var s Session
-	var u User
-	err := row.Scan(&s.ID, &s.UserID, &s.IPAddress, &s.UserAgent, &s.CreatedAt, &s.LastSeenAt, &s.ExpiresAt,
-		&u.ID, &u.Email, &u.Name, &u.AvatarURL, &u.PasswordHash, &u.Superadmin, &u.Disabled,
-		&u.TelegramUserID, &u.TelegramUsername, &u.TelegramLinkedAt, &u.LastLoginAt, &u.LastSeenAt,
-		&u.CreatedAt, &u.UpdatedAt)
+	u, err := scanUser(extraScanner{q.QueryRow(ctx, `
+		SELECT `+prefixed("u.", userColumns)+`, `+prefixed("s.", sessionColumns)+`
+		FROM sessions s JOIN users u ON u.id = s.user_id
+		WHERE s.token_hash = $1 AND s.expires_at > now()`, secret.Hash(token)),
+		[]any{&s.ID, &s.UserID, &s.IPAddress, &s.UserAgent, &s.CreatedAt, &s.LastSeenAt, &s.ExpiresAt}})
 	if err != nil {
-		return nil, notFound(err)
+		return nil, err
 	}
-	return &SessionWithUser{Session: &s, User: &u}, nil
+	return &SessionWithUser{Session: &s, User: u}, nil
 }
 
 // TouchSession extends a session (sliding expiration).
@@ -242,24 +235,21 @@ type TokenWithUser struct {
 
 // LookupPersonalToken finds an unrevoked, unexpired token by secret.
 func LookupPersonalToken(ctx context.Context, q Querier, token string) (*TokenWithUser, error) {
-	row := q.QueryRow(ctx, `
-		SELECT t.id, t.user_id, t.org_id, t.name, t.prefix, t.scopes, t.created_at, t.last_used_at, t.expires_at, t.revoked_at,
-		       `+prefixed("u.", userColumns)+`
-		FROM personal_tokens t JOIN users u ON u.id = t.user_id
-		WHERE t.token_hash = $1 AND t.revoked_at IS NULL AND (t.expires_at IS NULL OR t.expires_at > now())`, secret.Hash(token))
 	var t PersonalToken
-	var u User
 	var scopes []int16
-	err := row.Scan(&t.ID, &t.UserID, &t.OrgID, &t.Name, &t.Prefix, &scopes, &t.CreatedAt, &t.LastUsedAt, &t.ExpiresAt, &t.RevokedAt,
-		&u.ID, &u.Email, &u.Name, &u.AvatarURL, &u.PasswordHash, &u.Superadmin, &u.Disabled,
-		&u.TelegramUserID, &u.TelegramUsername, &u.TelegramLinkedAt, &u.LastLoginAt, &u.LastSeenAt, &u.CreatedAt, &u.UpdatedAt)
+	u, err := scanUser(extraScanner{q.QueryRow(ctx, `
+		SELECT `+prefixed("u.", userColumns)+`,
+		       t.id, t.user_id, t.org_id, t.name, t.prefix, t.scopes, t.created_at, t.last_used_at, t.expires_at, t.revoked_at
+		FROM personal_tokens t JOIN users u ON u.id = t.user_id
+		WHERE t.token_hash = $1 AND t.revoked_at IS NULL AND (t.expires_at IS NULL OR t.expires_at > now())`, secret.Hash(token)),
+		[]any{&t.ID, &t.UserID, &t.OrgID, &t.Name, &t.Prefix, &scopes, &t.CreatedAt, &t.LastUsedAt, &t.ExpiresAt, &t.RevokedAt}})
 	if err != nil {
-		return nil, notFound(err)
+		return nil, err
 	}
 	for _, s := range scopes {
 		t.Scopes = append(t.Scopes, apiv1.TokenScope(s))
 	}
-	return &TokenWithUser{Token: &t, User: &u}, nil
+	return &TokenWithUser{Token: &t, User: u}, nil
 }
 
 // TouchPersonalToken records token usage (at most once a minute).
@@ -404,15 +394,13 @@ func ListMembers(ctx context.Context, q Querier, orgID uuid.UUID) ([]*Member, er
 	defer rows.Close()
 	var out []*Member
 	for rows.Next() {
-		var u User
 		var m Member
 		var role int16
-		if err := rows.Scan(&u.ID, &u.Email, &u.Name, &u.AvatarURL, &u.PasswordHash, &u.Superadmin, &u.Disabled,
-			&u.TelegramUserID, &u.TelegramUsername, &u.TelegramLinkedAt, &u.LastLoginAt, &u.LastSeenAt,
-			&u.CreatedAt, &u.UpdatedAt, &role, &m.JoinedAt); err != nil {
+		u, err := scanUser(extraScanner{rows, []any{&role, &m.JoinedAt}})
+		if err != nil {
 			return nil, err
 		}
-		m.User, m.Role = &u, apiv1.Role(role)
+		m.User, m.Role = u, apiv1.Role(role)
 		out = append(out, &m)
 	}
 	return out, rows.Err()

@@ -151,9 +151,14 @@ type OrganizationSettings struct {
 	// first sign in with OpenID Connect, e.g. ["kentos.com.tr"].
 	AutoJoinDomains []string `protobuf:"bytes,2,rep,name=auto_join_domains,json=autoJoinDomains,proto3" json:"auto_join_domains,omitempty"`
 	// Role granted to users who join through auto_join_domains.
-	AutoJoinRole  Role `protobuf:"varint,3,opt,name=auto_join_role,json=autoJoinRole,proto3,enum=izci.api.v1.Role" json:"auto_join_role,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	AutoJoinRole Role `protobuf:"varint,3,opt,name=auto_join_role,json=autoJoinRole,proto3,enum=izci.api.v1.Role" json:"auto_join_role,omitempty"`
+	// Members must turn on two-factor authentication. Until they do, every
+	// call in the organization (sessions and access tokens alike) fails with
+	// ERROR_REASON_TWO_FACTOR_REQUIRED. Only a caller who uses two-factor
+	// authentication may turn this on.
+	RequireTwoFactor bool `protobuf:"varint,4,opt,name=require_two_factor,json=requireTwoFactor,proto3" json:"require_two_factor,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *OrganizationSettings) Reset() {
@@ -205,6 +210,13 @@ func (x *OrganizationSettings) GetAutoJoinRole() Role {
 		return x.AutoJoinRole
 	}
 	return Role_ROLE_UNSPECIFIED
+}
+
+func (x *OrganizationSettings) GetRequireTwoFactor() bool {
+	if x != nil {
+		return x.RequireTwoFactor
+	}
+	return false
 }
 
 // OrganizationLimits are the plan limits of an organization. Zero means
@@ -300,9 +312,11 @@ type Member struct {
 	// When the user joined.
 	JoinedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=joined_at,json=joinedAt,proto3" json:"joined_at,omitempty"`
 	// When the user was last active in izci.
-	LastSeenAt    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=last_seen_at,json=lastSeenAt,proto3" json:"last_seen_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	LastSeenAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=last_seen_at,json=lastSeenAt,proto3" json:"last_seen_at,omitempty"`
+	// Whether the user signs in with two-factor authentication.
+	TwoFactorEnabled bool `protobuf:"varint,5,opt,name=two_factor_enabled,json=twoFactorEnabled,proto3" json:"two_factor_enabled,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *Member) Reset() {
@@ -361,6 +375,13 @@ func (x *Member) GetLastSeenAt() *timestamppb.Timestamp {
 		return x.LastSeenAt
 	}
 	return nil
+}
+
+func (x *Member) GetTwoFactorEnabled() bool {
+	if x != nil {
+		return x.TwoFactorEnabled
+	}
+	return false
 }
 
 // DailyUsage is the usage of one day.
@@ -1581,24 +1602,26 @@ const file_izci_api_v1_organization_proto_rawDesc = "" +
 	"\rproject_count\x18\a \x01(\rR\fprojectCount\x12!\n" +
 	"\fmember_count\x18\b \x01(\rR\vmemberCount\x129\n" +
 	"\n" +
-	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xb0\x01\n" +
+	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xde\x01\n" +
 	"\x14OrganizationSettings\x12#\n" +
 	"\btimezone\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x18@R\btimezone\x12:\n" +
 	"\x11auto_join_domains\x18\x02 \x03(\tB\x0e\xbaH\v\x92\x01\b\x10\x14\"\x04r\x02h\x01R\x0fautoJoinDomains\x127\n" +
-	"\x0eauto_join_role\x18\x03 \x01(\x0e2\x11.izci.api.v1.RoleR\fautoJoinRole\"\xce\x01\n" +
+	"\x0eauto_join_role\x18\x03 \x01(\x0e2\x11.izci.api.v1.RoleR\fautoJoinRole\x12,\n" +
+	"\x12require_two_factor\x18\x04 \x01(\bR\x10requireTwoFactor\"\xce\x01\n" +
 	"\x12OrganizationLimits\x12%\n" +
 	"\x0emonthly_events\x18\x01 \x01(\x04R\rmonthlyEvents\x12%\n" +
 	"\x0eretention_days\x18\x02 \x01(\rR\rretentionDays\x12!\n" +
 	"\fmax_projects\x18\x03 \x01(\rR\vmaxProjects\x12\x1f\n" +
 	"\vmax_members\x18\x04 \x01(\rR\n" +
 	"maxMembers\x12&\n" +
-	"\x0fmonthly_ai_runs\x18\x05 \x01(\rR\rmonthlyAiRuns\"\xd0\x01\n" +
+	"\x0fmonthly_ai_runs\x18\x05 \x01(\rR\rmonthlyAiRuns\"\xfe\x01\n" +
 	"\x06Member\x12(\n" +
 	"\x04user\x18\x01 \x01(\v2\x14.izci.api.v1.UserRefR\x04user\x12%\n" +
 	"\x04role\x18\x02 \x01(\x0e2\x11.izci.api.v1.RoleR\x04role\x127\n" +
 	"\tjoined_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\bjoinedAt\x12<\n" +
 	"\flast_seen_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"lastSeenAt\"{\n" +
+	"lastSeenAt\x12,\n" +
+	"\x12two_factor_enabled\x18\x05 \x01(\bR\x10twoFactorEnabled\"{\n" +
 	"\n" +
 	"DailyUsage\x12\x12\n" +
 	"\x04date\x18\x01 \x01(\tR\x04date\x12\x1a\n" +

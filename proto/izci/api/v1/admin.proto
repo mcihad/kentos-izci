@@ -187,6 +187,11 @@ message UpdateUserRequest {
 
   // New disabled flag; unchanged when unset.
   optional bool disabled = 3;
+
+  // Turns the user's two-factor authentication off and deletes their
+  // recovery codes, for a user who lost both. They can sign in with their
+  // password alone and set it up again.
+  bool reset_two_factor = 4;
 }
 
 // UpdateUserResponse returns the user.

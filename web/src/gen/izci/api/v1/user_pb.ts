@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file izci/api/v1/user.proto.
  */
 export const file_izci_api_v1_user: GenFile = /*@__PURE__*/
-  fileDesc("ChZpemNpL2FwaS92MS91c2VyLnByb3RvEgtpemNpLmFwaS52MSKmAgoLQWNjZXNzVG9rZW4SCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIOCgZwcmVmaXgYAyABKAkSMgoMb3JnYW5pemF0aW9uGAQgASgLMhwuaXpjaS5hcGkudjEuT3JnYW5pemF0aW9uUmVmEicKBnNjb3BlcxgFIAMoDjIXLml6Y2kuYXBpLnYxLlRva2VuU2NvcGUSLgoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMbGFzdF91c2VkX2F0GAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpleHBpcmVzX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCLgAQoLU2Vzc2lvbkluZm8SCgoCaWQYASABKAkSDwoHY3VycmVudBgCIAEoCBISCgppcF9hZGRyZXNzGAMgASgJEg4KBmNsaWVudBgEIAEoCRIuCgpjcmVhdGVkX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxsYXN0X3NlZW5fYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmV4cGlyZXNfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIjAKFFVwZGF0ZVByb2ZpbGVSZXF1ZXN0EhgKBG5hbWUYASABKAlCCrpIB3IFEAEYyAEiOAoVVXBkYXRlUHJvZmlsZVJlc3BvbnNlEh8KBHVzZXIYASABKAsyES5pemNpLmFwaS52MS5Vc2VyIhkKF0xpc3RBY2Nlc3NUb2tlbnNSZXF1ZXN0IkQKGExpc3RBY2Nlc3NUb2tlbnNSZXNwb25zZRIoCgZ0b2tlbnMYASADKAsyGC5pemNpLmFwaS52MS5BY2Nlc3NUb2tlbiK2AQoYQ3JlYXRlQWNjZXNzVG9rZW5SZXF1ZXN0EhcKBG5hbWUYASABKAlCCbpIBnIEEAEYZBIdCgxvcmdhbml6YXRpb24YAiABKAlCB7pIBHICGDISMwoGc2NvcGVzGAMgAygOMhcuaXpjaS5hcGkudjEuVG9rZW5TY29wZUIKukgHkgEECAEQAxItCgpleHBpcmVzX2luGAQgASgLMhkuZ29vZ2xlLnByb3RvYnVmLkR1cmF0aW9uIlQKGUNyZWF0ZUFjY2Vzc1Rva2VuUmVzcG9uc2USJwoFdG9rZW4YASABKAsyGC5pemNpLmFwaS52MS5BY2Nlc3NUb2tlbhIOCgZzZWNyZXQYAiABKAkiMAoYUmV2b2tlQWNjZXNzVG9rZW5SZXF1ZXN0EhQKAmlkGAEgASgJQgi6SAVyA7ABASIbChlSZXZva2VBY2Nlc3NUb2tlblJlc3BvbnNlIhUKE0xpc3RTZXNzaW9uc1JlcXVlc3QiQgoUTGlzdFNlc3Npb25zUmVzcG9uc2USKgoIc2Vzc2lvbnMYASADKAsyGC5pemNpLmFwaS52MS5TZXNzaW9uSW5mbyI2ChRSZXZva2VTZXNzaW9uUmVxdWVzdBIKCgJpZBgBIAEoCRISCgphbGxfb3RoZXJzGAIgASgIIigKFVJldm9rZVNlc3Npb25SZXNwb25zZRIPCgdyZXZva2VkGAEgASgNIiYKJENyZWF0ZVRlbGVncmFtQWNjb3VudExpbmtDb2RlUmVxdWVzdCKJAQolQ3JlYXRlVGVsZWdyYW1BY2NvdW50TGlua0NvZGVSZXNwb25zZRIMCgRjb2RlGAEgASgJEhQKDGJvdF91c2VybmFtZRgCIAEoCRIMCgRsaW5rGAMgASgJEi4KCmV4cGlyZXNfYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIh4KHFVubGlua1RlbGVncmFtQWNjb3VudFJlcXVlc3QiHwodVW5saW5rVGVsZWdyYW1BY2NvdW50UmVzcG9uc2UqagoKVG9rZW5TY29wZRIbChdUT0tFTl9TQ09QRV9VTlNQRUNJRklFRBAAEhQKEFRPS0VOX1NDT1BFX1JFQUQQARIVChFUT0tFTl9TQ09QRV9XUklURRACEhIKDlRPS0VOX1NDT1BFX0FJEAMyvgYKC1VzZXJTZXJ2aWNlElYKDVVwZGF0ZVByb2ZpbGUSIS5pemNpLmFwaS52MS5VcGRhdGVQcm9maWxlUmVxdWVzdBoiLml6Y2kuYXBpLnYxLlVwZGF0ZVByb2ZpbGVSZXNwb25zZRJkChBMaXN0QWNjZXNzVG9rZW5zEiQuaXpjaS5hcGkudjEuTGlzdEFjY2Vzc1Rva2Vuc1JlcXVlc3QaJS5pemNpLmFwaS52MS5MaXN0QWNjZXNzVG9rZW5zUmVzcG9uc2UiA5ACARJiChFDcmVhdGVBY2Nlc3NUb2tlbhIlLml6Y2kuYXBpLnYxLkNyZWF0ZUFjY2Vzc1Rva2VuUmVxdWVzdBomLml6Y2kuYXBpLnYxLkNyZWF0ZUFjY2Vzc1Rva2VuUmVzcG9uc2USYgoRUmV2b2tlQWNjZXNzVG9rZW4SJS5pemNpLmFwaS52MS5SZXZva2VBY2Nlc3NUb2tlblJlcXVlc3QaJi5pemNpLmFwaS52MS5SZXZva2VBY2Nlc3NUb2tlblJlc3BvbnNlElgKDExpc3RTZXNzaW9ucxIgLml6Y2kuYXBpLnYxLkxpc3RTZXNzaW9uc1JlcXVlc3QaIS5pemNpLmFwaS52MS5MaXN0U2Vzc2lvbnNSZXNwb25zZSIDkAIBElYKDVJldm9rZVNlc3Npb24SIS5pemNpLmFwaS52MS5SZXZva2VTZXNzaW9uUmVxdWVzdBoiLml6Y2kuYXBpLnYxLlJldm9rZVNlc3Npb25SZXNwb25zZRKGAQodQ3JlYXRlVGVsZWdyYW1BY2NvdW50TGlua0NvZGUSMS5pemNpLmFwaS52MS5DcmVhdGVUZWxlZ3JhbUFjY291bnRMaW5rQ29kZVJlcXVlc3QaMi5pemNpLmFwaS52MS5DcmVhdGVUZWxlZ3JhbUFjY291bnRMaW5rQ29kZVJlc3BvbnNlEm4KFVVubGlua1RlbGVncmFtQWNjb3VudBIpLml6Y2kuYXBpLnYxLlVubGlua1RlbGVncmFtQWNjb3VudFJlcXVlc3QaKi5pemNpLmFwaS52MS5VbmxpbmtUZWxlZ3JhbUFjY291bnRSZXNwb25zZUKfAQoPY29tLml6Y2kuYXBpLnYxQglVc2VyUHJvdG9QAVozZ2l0aHViLmNvbS9tY2loYWQva2VudG9zLWl6Y2kvZ2VuL2l6Y2kvYXBpL3YxO2FwaXYxogIDSUFYqgILSXpjaS5BcGkuVjHKAgtJemNpXEFwaVxWMeICF0l6Y2lcQXBpXFYxXEdQQk1ldGFkYXRh6gINSXpjaTo6QXBpOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_duration, file_google_protobuf_timestamp, file_izci_api_v1_auth, file_izci_api_v1_common]);
+  fileDesc("ChZpemNpL2FwaS92MS91c2VyLnByb3RvEgtpemNpLmFwaS52MSKmAgoLQWNjZXNzVG9rZW4SCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIOCgZwcmVmaXgYAyABKAkSMgoMb3JnYW5pemF0aW9uGAQgASgLMhwuaXpjaS5hcGkudjEuT3JnYW5pemF0aW9uUmVmEicKBnNjb3BlcxgFIAMoDjIXLml6Y2kuYXBpLnYxLlRva2VuU2NvcGUSLgoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMbGFzdF91c2VkX2F0GAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpleHBpcmVzX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCLgAQoLU2Vzc2lvbkluZm8SCgoCaWQYASABKAkSDwoHY3VycmVudBgCIAEoCBISCgppcF9hZGRyZXNzGAMgASgJEg4KBmNsaWVudBgEIAEoCRIuCgpjcmVhdGVkX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxsYXN0X3NlZW5fYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmV4cGlyZXNfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIjAKFFVwZGF0ZVByb2ZpbGVSZXF1ZXN0EhgKBG5hbWUYASABKAlCCrpIB3IFEAEYyAEiOAoVVXBkYXRlUHJvZmlsZVJlc3BvbnNlEh8KBHVzZXIYASABKAsyES5pemNpLmFwaS52MS5Vc2VyIhkKF0xpc3RBY2Nlc3NUb2tlbnNSZXF1ZXN0IkQKGExpc3RBY2Nlc3NUb2tlbnNSZXNwb25zZRIoCgZ0b2tlbnMYASADKAsyGC5pemNpLmFwaS52MS5BY2Nlc3NUb2tlbiK2AQoYQ3JlYXRlQWNjZXNzVG9rZW5SZXF1ZXN0EhcKBG5hbWUYASABKAlCCbpIBnIEEAEYZBIdCgxvcmdhbml6YXRpb24YAiABKAlCB7pIBHICGDISMwoGc2NvcGVzGAMgAygOMhcuaXpjaS5hcGkudjEuVG9rZW5TY29wZUIKukgHkgEECAEQAxItCgpleHBpcmVzX2luGAQgASgLMhkuZ29vZ2xlLnByb3RvYnVmLkR1cmF0aW9uIlQKGUNyZWF0ZUFjY2Vzc1Rva2VuUmVzcG9uc2USJwoFdG9rZW4YASABKAsyGC5pemNpLmFwaS52MS5BY2Nlc3NUb2tlbhIOCgZzZWNyZXQYAiABKAkiMAoYUmV2b2tlQWNjZXNzVG9rZW5SZXF1ZXN0EhQKAmlkGAEgASgJQgi6SAVyA7ABASIbChlSZXZva2VBY2Nlc3NUb2tlblJlc3BvbnNlIhUKE0xpc3RTZXNzaW9uc1JlcXVlc3QiQgoUTGlzdFNlc3Npb25zUmVzcG9uc2USKgoIc2Vzc2lvbnMYASADKAsyGC5pemNpLmFwaS52MS5TZXNzaW9uSW5mbyI2ChRSZXZva2VTZXNzaW9uUmVxdWVzdBIKCgJpZBgBIAEoCRISCgphbGxfb3RoZXJzGAIgASgIIigKFVJldm9rZVNlc3Npb25SZXNwb25zZRIPCgdyZXZva2VkGAEgASgNIiYKJENyZWF0ZVRlbGVncmFtQWNjb3VudExpbmtDb2RlUmVxdWVzdCKJAQolQ3JlYXRlVGVsZWdyYW1BY2NvdW50TGlua0NvZGVSZXNwb25zZRIMCgRjb2RlGAEgASgJEhQKDGJvdF91c2VybmFtZRgCIAEoCRIMCgRsaW5rGAMgASgJEi4KCmV4cGlyZXNfYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIh4KHFVubGlua1RlbGVncmFtQWNjb3VudFJlcXVlc3QiHwodVW5saW5rVGVsZWdyYW1BY2NvdW50UmVzcG9uc2UiHAoaQmVnaW5Ud29GYWN0b3JTZXR1cFJlcXVlc3QiOgobQmVnaW5Ud29GYWN0b3JTZXR1cFJlc3BvbnNlEg4KBnNlY3JldBgBIAEoCRILCgN1cmkYAiABKAkiMQoWRW5hYmxlVHdvRmFjdG9yUmVxdWVzdBIXCgRjb2RlGAEgASgJQgm6SAZyBBAGGBAiMQoXRW5hYmxlVHdvRmFjdG9yUmVzcG9uc2USFgoOcmVjb3ZlcnlfY29kZXMYASADKAkiMgoXRGlzYWJsZVR3b0ZhY3RvclJlcXVlc3QSFwoEY29kZRgBIAEoCUIJukgGcgQQBhggIhoKGERpc2FibGVUd29GYWN0b3JSZXNwb25zZSI5Ch5SZWdlbmVyYXRlUmVjb3ZlcnlDb2Rlc1JlcXVlc3QSFwoEY29kZRgBIAEoCUIJukgGcgQQBhggIjkKH1JlZ2VuZXJhdGVSZWNvdmVyeUNvZGVzUmVzcG9uc2USFgoOcmVjb3ZlcnlfY29kZXMYASADKAkqagoKVG9rZW5TY29wZRIbChdUT0tFTl9TQ09QRV9VTlNQRUNJRklFRBAAEhQKEFRPS0VOX1NDT1BFX1JFQUQQARIVChFUT0tFTl9TQ09QRV9XUklURRACEhIKDlRPS0VOX1NDT1BFX0FJEAMy3QkKC1VzZXJTZXJ2aWNlElYKDVVwZGF0ZVByb2ZpbGUSIS5pemNpLmFwaS52MS5VcGRhdGVQcm9maWxlUmVxdWVzdBoiLml6Y2kuYXBpLnYxLlVwZGF0ZVByb2ZpbGVSZXNwb25zZRJkChBMaXN0QWNjZXNzVG9rZW5zEiQuaXpjaS5hcGkudjEuTGlzdEFjY2Vzc1Rva2Vuc1JlcXVlc3QaJS5pemNpLmFwaS52MS5MaXN0QWNjZXNzVG9rZW5zUmVzcG9uc2UiA5ACARJiChFDcmVhdGVBY2Nlc3NUb2tlbhIlLml6Y2kuYXBpLnYxLkNyZWF0ZUFjY2Vzc1Rva2VuUmVxdWVzdBomLml6Y2kuYXBpLnYxLkNyZWF0ZUFjY2Vzc1Rva2VuUmVzcG9uc2USYgoRUmV2b2tlQWNjZXNzVG9rZW4SJS5pemNpLmFwaS52MS5SZXZva2VBY2Nlc3NUb2tlblJlcXVlc3QaJi5pemNpLmFwaS52MS5SZXZva2VBY2Nlc3NUb2tlblJlc3BvbnNlElgKDExpc3RTZXNzaW9ucxIgLml6Y2kuYXBpLnYxLkxpc3RTZXNzaW9uc1JlcXVlc3QaIS5pemNpLmFwaS52MS5MaXN0U2Vzc2lvbnNSZXNwb25zZSIDkAIBElYKDVJldm9rZVNlc3Npb24SIS5pemNpLmFwaS52MS5SZXZva2VTZXNzaW9uUmVxdWVzdBoiLml6Y2kuYXBpLnYxLlJldm9rZVNlc3Npb25SZXNwb25zZRKGAQodQ3JlYXRlVGVsZWdyYW1BY2NvdW50TGlua0NvZGUSMS5pemNpLmFwaS52MS5DcmVhdGVUZWxlZ3JhbUFjY291bnRMaW5rQ29kZVJlcXVlc3QaMi5pemNpLmFwaS52MS5DcmVhdGVUZWxlZ3JhbUFjY291bnRMaW5rQ29kZVJlc3BvbnNlEm4KFVVubGlua1RlbGVncmFtQWNjb3VudBIpLml6Y2kuYXBpLnYxLlVubGlua1RlbGVncmFtQWNjb3VudFJlcXVlc3QaKi5pemNpLmFwaS52MS5VbmxpbmtUZWxlZ3JhbUFjY291bnRSZXNwb25zZRJoChNCZWdpblR3b0ZhY3RvclNldHVwEicuaXpjaS5hcGkudjEuQmVnaW5Ud29GYWN0b3JTZXR1cFJlcXVlc3QaKC5pemNpLmFwaS52MS5CZWdpblR3b0ZhY3RvclNldHVwUmVzcG9uc2USXAoPRW5hYmxlVHdvRmFjdG9yEiMuaXpjaS5hcGkudjEuRW5hYmxlVHdvRmFjdG9yUmVxdWVzdBokLml6Y2kuYXBpLnYxLkVuYWJsZVR3b0ZhY3RvclJlc3BvbnNlEl8KEERpc2FibGVUd29GYWN0b3ISJC5pemNpLmFwaS52MS5EaXNhYmxlVHdvRmFjdG9yUmVxdWVzdBolLml6Y2kuYXBpLnYxLkRpc2FibGVUd29GYWN0b3JSZXNwb25zZRJ0ChdSZWdlbmVyYXRlUmVjb3ZlcnlDb2RlcxIrLml6Y2kuYXBpLnYxLlJlZ2VuZXJhdGVSZWNvdmVyeUNvZGVzUmVxdWVzdBosLml6Y2kuYXBpLnYxLlJlZ2VuZXJhdGVSZWNvdmVyeUNvZGVzUmVzcG9uc2VCnwEKD2NvbS5pemNpLmFwaS52MUIJVXNlclByb3RvUAFaM2dpdGh1Yi5jb20vbWNpaGFkL2tlbnRvcy1pemNpL2dlbi9pemNpL2FwaS92MTthcGl2MaICA0lBWKoCC0l6Y2kuQXBpLlYxygILSXpjaVxBcGlcVjHiAhdJemNpXEFwaVxWMVxHUEJNZXRhZGF0YeoCDUl6Y2k6OkFwaTo6VjFiBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_duration, file_google_protobuf_timestamp, file_izci_api_v1_auth, file_izci_api_v1_common]);
 
 /**
  * AccessToken is a personal access token.
@@ -511,6 +511,171 @@ export const UnlinkTelegramAccountResponseSchema: GenMessage<UnlinkTelegramAccou
   messageDesc(file_izci_api_v1_user, 17);
 
 /**
+ * BeginTwoFactorSetupRequest has no fields.
+ *
+ * @generated from message izci.api.v1.BeginTwoFactorSetupRequest
+ */
+export type BeginTwoFactorSetupRequest = Message<"izci.api.v1.BeginTwoFactorSetupRequest"> & {
+};
+
+/**
+ * Describes the message izci.api.v1.BeginTwoFactorSetupRequest.
+ * Use `create(BeginTwoFactorSetupRequestSchema)` to create a new message.
+ */
+export const BeginTwoFactorSetupRequestSchema: GenMessage<BeginTwoFactorSetupRequest> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 18);
+
+/**
+ * BeginTwoFactorSetupResponse carries the secret for the authenticator app.
+ *
+ * @generated from message izci.api.v1.BeginTwoFactorSetupResponse
+ */
+export type BeginTwoFactorSetupResponse = Message<"izci.api.v1.BeginTwoFactorSetupResponse"> & {
+  /**
+   * Secret in base32, for typing into the app when the QR code cannot be
+   * scanned.
+   *
+   * @generated from field: string secret = 1;
+   */
+  secret: string;
+
+  /**
+   * otpauth:// URI (SHA-1, 6 digits, 30 seconds) to show as a QR code.
+   *
+   * @generated from field: string uri = 2;
+   */
+  uri: string;
+};
+
+/**
+ * Describes the message izci.api.v1.BeginTwoFactorSetupResponse.
+ * Use `create(BeginTwoFactorSetupResponseSchema)` to create a new message.
+ */
+export const BeginTwoFactorSetupResponseSchema: GenMessage<BeginTwoFactorSetupResponse> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 19);
+
+/**
+ * EnableTwoFactorRequest confirms the setup.
+ *
+ * @generated from message izci.api.v1.EnableTwoFactorRequest
+ */
+export type EnableTwoFactorRequest = Message<"izci.api.v1.EnableTwoFactorRequest"> & {
+  /**
+   * Six-digit code the authenticator app shows for the new secret.
+   *
+   * @generated from field: string code = 1;
+   */
+  code: string;
+};
+
+/**
+ * Describes the message izci.api.v1.EnableTwoFactorRequest.
+ * Use `create(EnableTwoFactorRequestSchema)` to create a new message.
+ */
+export const EnableTwoFactorRequestSchema: GenMessage<EnableTwoFactorRequest> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 20);
+
+/**
+ * EnableTwoFactorResponse returns the recovery codes.
+ *
+ * @generated from message izci.api.v1.EnableTwoFactorResponse
+ */
+export type EnableTwoFactorResponse = Message<"izci.api.v1.EnableTwoFactorResponse"> & {
+  /**
+   * Ten single-use recovery codes ("xxxxx-xxxxx") that sign in when the
+   * authenticator app is lost. Shown only once.
+   *
+   * @generated from field: repeated string recovery_codes = 1;
+   */
+  recoveryCodes: string[];
+};
+
+/**
+ * Describes the message izci.api.v1.EnableTwoFactorResponse.
+ * Use `create(EnableTwoFactorResponseSchema)` to create a new message.
+ */
+export const EnableTwoFactorResponseSchema: GenMessage<EnableTwoFactorResponse> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 21);
+
+/**
+ * DisableTwoFactorRequest proves the second factor.
+ *
+ * @generated from message izci.api.v1.DisableTwoFactorRequest
+ */
+export type DisableTwoFactorRequest = Message<"izci.api.v1.DisableTwoFactorRequest"> & {
+  /**
+   * Code from the authenticator app, or a recovery code.
+   *
+   * @generated from field: string code = 1;
+   */
+  code: string;
+};
+
+/**
+ * Describes the message izci.api.v1.DisableTwoFactorRequest.
+ * Use `create(DisableTwoFactorRequestSchema)` to create a new message.
+ */
+export const DisableTwoFactorRequestSchema: GenMessage<DisableTwoFactorRequest> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 22);
+
+/**
+ * DisableTwoFactorResponse has no fields.
+ *
+ * @generated from message izci.api.v1.DisableTwoFactorResponse
+ */
+export type DisableTwoFactorResponse = Message<"izci.api.v1.DisableTwoFactorResponse"> & {
+};
+
+/**
+ * Describes the message izci.api.v1.DisableTwoFactorResponse.
+ * Use `create(DisableTwoFactorResponseSchema)` to create a new message.
+ */
+export const DisableTwoFactorResponseSchema: GenMessage<DisableTwoFactorResponse> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 23);
+
+/**
+ * RegenerateRecoveryCodesRequest proves the second factor.
+ *
+ * @generated from message izci.api.v1.RegenerateRecoveryCodesRequest
+ */
+export type RegenerateRecoveryCodesRequest = Message<"izci.api.v1.RegenerateRecoveryCodesRequest"> & {
+  /**
+   * Code from the authenticator app, or a recovery code.
+   *
+   * @generated from field: string code = 1;
+   */
+  code: string;
+};
+
+/**
+ * Describes the message izci.api.v1.RegenerateRecoveryCodesRequest.
+ * Use `create(RegenerateRecoveryCodesRequestSchema)` to create a new message.
+ */
+export const RegenerateRecoveryCodesRequestSchema: GenMessage<RegenerateRecoveryCodesRequest> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 24);
+
+/**
+ * RegenerateRecoveryCodesResponse returns the new recovery codes.
+ *
+ * @generated from message izci.api.v1.RegenerateRecoveryCodesResponse
+ */
+export type RegenerateRecoveryCodesResponse = Message<"izci.api.v1.RegenerateRecoveryCodesResponse"> & {
+  /**
+   * Ten new single-use recovery codes. Shown only once.
+   *
+   * @generated from field: repeated string recovery_codes = 1;
+   */
+  recoveryCodes: string[];
+};
+
+/**
+ * Describes the message izci.api.v1.RegenerateRecoveryCodesResponse.
+ * Use `create(RegenerateRecoveryCodesResponseSchema)` to create a new message.
+ */
+export const RegenerateRecoveryCodesResponseSchema: GenMessage<RegenerateRecoveryCodesResponse> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 25);
+
+/**
  * TokenScope is a permission of a personal access token.
  *
  * @generated from enum izci.api.v1.TokenScope
@@ -553,8 +718,8 @@ export const TokenScopeSchema: GenEnum<TokenScope> = /*@__PURE__*/
 
 /**
  * UserService manages the signed-in user's own account: profile, personal
- * access tokens, sessions and the linked Telegram account. It does not use
- * the Izci-Org header.
+ * access tokens, sessions, two-factor authentication and the linked
+ * Telegram account. It does not use the Izci-Org header.
  *
  * @generated from service izci.api.v1.UserService
  */
@@ -641,6 +806,54 @@ export const UserService: GenService<{
     methodKind: "unary";
     input: typeof UnlinkTelegramAccountRequestSchema;
     output: typeof UnlinkTelegramAccountResponseSchema;
+  },
+  /**
+   * BeginTwoFactorSetup starts turning on two-factor authentication: it
+   * returns a new secret for an authenticator app, which EnableTwoFactor
+   * confirms within an hour. Browser sessions only; fails with
+   * ERROR_REASON_CONFLICT when two-factor authentication is on already.
+   *
+   * @generated from rpc izci.api.v1.UserService.BeginTwoFactorSetup
+   */
+  beginTwoFactorSetup: {
+    methodKind: "unary";
+    input: typeof BeginTwoFactorSetupRequestSchema;
+    output: typeof BeginTwoFactorSetupResponseSchema;
+  },
+  /**
+   * EnableTwoFactor confirms the setup with a code from the authenticator
+   * app and turns two-factor authentication on. The response carries the
+   * recovery codes, which are never shown again. Browser sessions only.
+   *
+   * @generated from rpc izci.api.v1.UserService.EnableTwoFactor
+   */
+  enableTwoFactor: {
+    methodKind: "unary";
+    input: typeof EnableTwoFactorRequestSchema;
+    output: typeof EnableTwoFactorResponseSchema;
+  },
+  /**
+   * DisableTwoFactor turns two-factor authentication off, given a current
+   * code or a recovery code. Organizations requiring it turn the user away
+   * until it is on again. Browser sessions only.
+   *
+   * @generated from rpc izci.api.v1.UserService.DisableTwoFactor
+   */
+  disableTwoFactor: {
+    methodKind: "unary";
+    input: typeof DisableTwoFactorRequestSchema;
+    output: typeof DisableTwoFactorResponseSchema;
+  },
+  /**
+   * RegenerateRecoveryCodes replaces the recovery codes, given a current
+   * code; the old codes stop working. Browser sessions only.
+   *
+   * @generated from rpc izci.api.v1.UserService.RegenerateRecoveryCodes
+   */
+  regenerateRecoveryCodes: {
+    methodKind: "unary";
+    input: typeof RegenerateRecoveryCodesRequestSchema;
+    output: typeof RegenerateRecoveryCodesResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_izci_api_v1_user, 0);

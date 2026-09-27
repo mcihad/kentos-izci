@@ -3,12 +3,14 @@ import { Profile } from "@/components/account/profile";
 import { Sessions } from "@/components/account/sessions";
 import { Telegram } from "@/components/account/telegram";
 import { Tokens } from "@/components/account/tokens";
+import { TwoFactor } from "@/components/account/two-factor";
 import { gutter, PageHeader } from "@/components/app/page";
 import { TabbedCard, TabNav } from "@/components/common/tab-nav";
 import { useSession } from "@/lib/session";
 
 const tabs = [
   { id: "profile", label: "Profil" },
+  { id: "two-factor", label: "İki adımlı doğrulama" },
   { id: "sessions", label: "Oturumlar" },
   { id: "tokens", label: "Erişim anahtarları" },
   { id: "telegram", label: "Telegram" },
@@ -41,6 +43,7 @@ function AccountPage() {
           }
         >
           {tab === "profile" ? <Profile /> : null}
+          {tab === "two-factor" ? <TwoFactor /> : null}
           {tab === "sessions" ? <Sessions /> : null}
           {tab === "tokens" ? <Tokens /> : null}
           {tab === "telegram" ? <Telegram /> : null}

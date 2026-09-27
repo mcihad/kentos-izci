@@ -332,6 +332,25 @@ func TestLinkNotifyAndTriage(t *testing.T) {
 	if answers := f.api.take("answerCallbackQuery"); len(answers) != 1 || !strings.Contains(answers[0].params["text"].(string), "geçerli değil") {
 		t.Fatalf("forged button answer: %+v", answers)
 	}
+	// Organizations requiring two-factor authentication ignore members
+	// without it.
+	requireTwoFactor := func(on bool) {
+		t.Helper()
+		err := f.db.InSystem(ctx, func(tx pgx.Tx) error {
+			_, err := tx.Exec(ctx, `UPDATE organizations SET settings = settings || jsonb_build_object('require_two_factor', $2::boolean) WHERE id = $1`,
+				f.org.ID, on)
+			return err
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	requireTwoFactor(true)
+	press(555, btn["✅ Çöz"])
+	if answers := f.api.take("answerCallbackQuery"); len(answers) != 1 || !strings.Contains(answers[0].params["text"].(string), "iki adımlı doğrulama") {
+		t.Fatalf("member without 2FA: %+v", answers)
+	}
+	requireTwoFactor(false)
 	press(555, btn["✅ Çöz"])
 	if answers := f.api.take("answerCallbackQuery"); len(answers) != 1 || answers[0].params["text"] != "Çözüldü olarak işaretlendi" {
 		t.Fatalf("resolve answer: %+v", answers)

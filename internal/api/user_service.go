@@ -69,11 +69,8 @@ func (s *UserServer) CreateAccessToken(ctx context.Context, req *connect.Request
 	var orgID *uuid.UUID
 	if m.GetOrganization() != "" {
 		t, err := s.auth.ResolveTenant(ctx, p, m.GetOrganization())
-		if errors.Is(err, auth.ErrOrgNotFound) {
-			return nil, apiError(connect.CodePermissionDenied, apiv1.ErrorReason_ERROR_REASON_ORGANIZATION_REQUIRED, "not a member of this organization")
-		}
 		if err != nil {
-			return nil, internal(ctx, s.log, "resolve organization", err)
+			return nil, tenantError(ctx, s.log, err)
 		}
 		org, orgID = t.Org, &t.Org.ID
 	}

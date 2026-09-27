@@ -273,4 +273,13 @@ enum ErrorReason {
   // The channel kind is not available on this server (e-mail without an
   // SMTP server).
   ERROR_REASON_CHANNEL_UNAVAILABLE = 31;
+  // The organization requires two-factor authentication and the caller has
+  // not turned it on (UserService.BeginTwoFactorSetup).
+  ERROR_REASON_TWO_FACTOR_REQUIRED = 32;
+  // The two-factor code (from the authenticator app, or a recovery code) is
+  // wrong or was used already.
+  ERROR_REASON_INVALID_TWO_FACTOR_CODE = 33;
+  // The sign-in or setup waiting for a two-factor code expired; sign in or
+  // start the setup again.
+  ERROR_REASON_TWO_FACTOR_EXPIRED = 34;
 }

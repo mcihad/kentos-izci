@@ -2,6 +2,7 @@ import { TransportProvider } from "@connectrpc/connect-query";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { AppShell } from "@/components/app/app-shell";
+import { TwoFactorGate } from "@/components/app/two-factor-gate";
 import { orgTransport } from "@/lib/api";
 import { OrgContext } from "@/lib/org";
 import { firstOrganization, loadSession, useSession } from "@/lib/session";
@@ -34,6 +35,10 @@ function OrgLayout() {
     }),
     [org, membership],
   );
+  // The server turns every call away until two-factor authentication is on.
+  if (membership.requiresTwoFactor && session?.user?.twoFactorEnabled === false) {
+    return <TwoFactorGate orgName={value.name} />;
+  }
   return (
     <OrgContext.Provider value={value}>
       <TransportProvider transport={value.transport}>

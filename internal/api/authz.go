@@ -44,6 +44,7 @@ var rules = map[string]rule{
 	c.AuthServiceCompleteSetupProcedure:     {public: true},
 	c.AuthServiceListAuthProvidersProcedure: {public: true},
 	c.AuthServiceLoginProcedure:             {public: true},
+	c.AuthServiceVerifyTwoFactorProcedure:   {public: true},
 	c.AuthServiceLogoutProcedure:            {optional: true},
 	c.AuthServiceGetSessionProcedure:        {scope: read},
 	c.AuthServiceChangePasswordProcedure:    {scope: write},
@@ -162,6 +163,11 @@ var rules = map[string]rule{
 	c.UserServiceRevokeSessionProcedure:                 {scope: write},
 	c.UserServiceCreateTelegramAccountLinkCodeProcedure: {scope: write},
 	c.UserServiceUnlinkTelegramAccountProcedure:         {scope: write},
+	// Browser sessions only (checked in the handlers).
+	c.UserServiceBeginTwoFactorSetupProcedure:     {scope: write},
+	c.UserServiceEnableTwoFactorProcedure:         {scope: write},
+	c.UserServiceDisableTwoFactorProcedure:        {scope: write},
+	c.UserServiceRegenerateRecoveryCodesProcedure: {scope: write},
 
 	// AdminService
 	c.AdminServiceGetInstanceInfoProcedure:        {superadmin: true, scope: read},

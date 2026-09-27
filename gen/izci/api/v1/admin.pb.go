@@ -762,9 +762,13 @@ type UpdateUserRequest struct {
 	// New superadmin flag; unchanged when unset.
 	Superadmin *bool `protobuf:"varint,2,opt,name=superadmin,proto3,oneof" json:"superadmin,omitempty"`
 	// New disabled flag; unchanged when unset.
-	Disabled      *bool `protobuf:"varint,3,opt,name=disabled,proto3,oneof" json:"disabled,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Disabled *bool `protobuf:"varint,3,opt,name=disabled,proto3,oneof" json:"disabled,omitempty"`
+	// Turns the user's two-factor authentication off and deletes their
+	// recovery codes, for a user who lost both. They can sign in with their
+	// password alone and set it up again.
+	ResetTwoFactor bool `protobuf:"varint,4,opt,name=reset_two_factor,json=resetTwoFactor,proto3" json:"reset_two_factor,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *UpdateUserRequest) Reset() {
@@ -814,6 +818,13 @@ func (x *UpdateUserRequest) GetSuperadmin() bool {
 func (x *UpdateUserRequest) GetDisabled() bool {
 	if x != nil && x.Disabled != nil {
 		return *x.Disabled
+	}
+	return false
+}
+
+func (x *UpdateUserRequest) GetResetTwoFactor() bool {
+	if x != nil {
+		return x.ResetTwoFactor
 	}
 	return false
 }
@@ -923,13 +934,14 @@ const file_izci_api_v1_admin_proto_rawDesc = "" +
 	"page_token\x18\x03 \x01(\tR\tpageToken\"i\n" +
 	"\x11ListUsersResponse\x12,\n" +
 	"\x05users\x18\x01 \x03(\v2\x16.izci.api.v1.AdminUserR\x05users\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x98\x01\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xc2\x01\n" +
 	"\x11UpdateUserRequest\x12!\n" +
 	"\auser_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06userId\x12#\n" +
 	"\n" +
 	"superadmin\x18\x02 \x01(\bH\x00R\n" +
 	"superadmin\x88\x01\x01\x12\x1f\n" +
-	"\bdisabled\x18\x03 \x01(\bH\x01R\bdisabled\x88\x01\x01B\r\n" +
+	"\bdisabled\x18\x03 \x01(\bH\x01R\bdisabled\x88\x01\x01\x12(\n" +
+	"\x10reset_two_factor\x18\x04 \x01(\bR\x0eresetTwoFactorB\r\n" +
 	"\v_superadminB\v\n" +
 	"\t_disabled\"@\n" +
 	"\x12UpdateUserResponse\x12*\n" +

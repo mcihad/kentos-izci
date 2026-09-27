@@ -9,8 +9,8 @@ import "izci/api/v1/auth.proto";
 import "izci/api/v1/common.proto";
 
 // UserService manages the signed-in user's own account: profile, personal
-// access tokens, sessions and the linked Telegram account. It does not use
-// the Izci-Org header.
+// access tokens, sessions, two-factor authentication and the linked
+// Telegram account. It does not use the Izci-Org header.
 service UserService {
   // UpdateProfile changes the display name.
   rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
@@ -42,6 +42,26 @@ service UserService {
 
   // UnlinkTelegramAccount removes the linked Telegram account.
   rpc UnlinkTelegramAccount(UnlinkTelegramAccountRequest) returns (UnlinkTelegramAccountResponse);
+
+  // BeginTwoFactorSetup starts turning on two-factor authentication: it
+  // returns a new secret for an authenticator app, which EnableTwoFactor
+  // confirms within an hour. Browser sessions only; fails with
+  // ERROR_REASON_CONFLICT when two-factor authentication is on already.
+  rpc BeginTwoFactorSetup(BeginTwoFactorSetupRequest) returns (BeginTwoFactorSetupResponse);
+
+  // EnableTwoFactor confirms the setup with a code from the authenticator
+  // app and turns two-factor authentication on. The response carries the
+  // recovery codes, which are never shown again. Browser sessions only.
+  rpc EnableTwoFactor(EnableTwoFactorRequest) returns (EnableTwoFactorResponse);
+
+  // DisableTwoFactor turns two-factor authentication off, given a current
+  // code or a recovery code. Organizations requiring it turn the user away
+  // until it is on again. Browser sessions only.
+  rpc DisableTwoFactor(DisableTwoFactorRequest) returns (DisableTwoFactorResponse);
+
+  // RegenerateRecoveryCodes replaces the recovery codes, given a current
+  // code; the old codes stop working. Browser sessions only.
+  rpc RegenerateRecoveryCodes(RegenerateRecoveryCodesRequest) returns (RegenerateRecoveryCodesResponse);
 }
 
 // AccessToken is a personal access token.
@@ -219,3 +239,59 @@ message UnlinkTelegramAccountRequest {}
 
 // UnlinkTelegramAccountResponse has no fields.
 message UnlinkTelegramAccountResponse {}
+
+// BeginTwoFactorSetupRequest has no fields.
+message BeginTwoFactorSetupRequest {}
+
+// BeginTwoFactorSetupResponse carries the secret for the authenticator app.
+message BeginTwoFactorSetupResponse {
+  // Secret in base32, for typing into the app when the QR code cannot be
+  // scanned.
+  string secret = 1;
+
+  // otpauth:// URI (SHA-1, 6 digits, 30 seconds) to show as a QR code.
+  string uri = 2;
+}
+
+// EnableTwoFactorRequest confirms the setup.
+message EnableTwoFactorRequest {
+  // Six-digit code the authenticator app shows for the new secret.
+  string code = 1 [(buf.validate.field).string = {
+    min_len: 6
+    max_len: 16
+  }];
+}
+
+// EnableTwoFactorResponse returns the recovery codes.
+message EnableTwoFactorResponse {
+  // Ten single-use recovery codes ("xxxxx-xxxxx") that sign in when the
+  // authenticator app is lost. Shown only once.
+  repeated string recovery_codes = 1;
+}
+
+// DisableTwoFactorRequest proves the second factor.
+message DisableTwoFactorRequest {
+  // Code from the authenticator app, or a recovery code.
+  string code = 1 [(buf.validate.field).string = {
+    min_len: 6
+    max_len: 32
+  }];
+}
+
+// DisableTwoFactorResponse has no fields.
+message DisableTwoFactorResponse {}
+
+// RegenerateRecoveryCodesRequest proves the second factor.
+message RegenerateRecoveryCodesRequest {
+  // Code from the authenticator app, or a recovery code.
+  string code = 1 [(buf.validate.field).string = {
+    min_len: 6
+    max_len: 32
+  }];
+}
+
+// RegenerateRecoveryCodesResponse returns the new recovery codes.
+message RegenerateRecoveryCodesResponse {
+  // Ten new single-use recovery codes. Shown only once.
+  repeated string recovery_codes = 1;
+}

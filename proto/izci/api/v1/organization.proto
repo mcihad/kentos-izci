@@ -107,6 +107,12 @@ message OrganizationSettings {
 
   // Role granted to users who join through auto_join_domains.
   Role auto_join_role = 3;
+
+  // Members must turn on two-factor authentication. Until they do, every
+  // call in the organization (sessions and access tokens alike) fails with
+  // ERROR_REASON_TWO_FACTOR_REQUIRED. Only a caller who uses two-factor
+  // authentication may turn this on.
+  bool require_two_factor = 4;
 }
 
 // OrganizationLimits are the plan limits of an organization. Zero means
@@ -141,6 +147,9 @@ message Member {
 
   // When the user was last active in izci.
   google.protobuf.Timestamp last_seen_at = 4;
+
+  // Whether the user signs in with two-factor authentication.
+  bool two_factor_enabled = 5;
 }
 
 // DailyUsage is the usage of one day.

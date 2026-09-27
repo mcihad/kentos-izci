@@ -39,6 +39,7 @@ var Guides = []Guide{
 	{"yapay-zeka", "GitHub ve yapay zekâ analizi", "GitHub bağlantısı, opencode ile analiz, dal ve çekme isteği.", "Kullanım"},
 	{"mcp", "MCP ile yapay zekâ asistanları", "Claude Code, opencode ve Cursor'dan İzci'yi kullanma.", "Kullanım"},
 	{"cok-kiracilik", "Organizasyonlar ve roller", "Çoklu kiracılık, roller, erişim anahtarları ve kapsamlar.", "Yönetim"},
+	{"iki-adimli-dogrulama", "İki adımlı doğrulama", "Doğrulama uygulamasıyla giriş, kurtarma kodları, sıfırlama ve organizasyonda zorunlu tutma.", "Yönetim"},
 	{"guvenlik", "Güvenlik ve KVKK", "Maskeleme, IP saklama, şifreleme ve yapay zekâ güvenliği.", "Yönetim"},
 	{"operasyon", "İşletim", "Dağıtım, ters vekil, yedekleme, saklama süresi ve ölçekleme.", "Yönetim"},
 	{"veri-modeli", "Veri modeli", "Tablolar, bölümleme ve satır düzeyi güvenlik.", "Yönetim"},

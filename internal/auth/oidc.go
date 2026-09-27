@@ -258,6 +258,23 @@ func (s *Service) oidcCallback(w http.ResponseWriter, r *http.Request) {
 		loginRedirect(w, r, "account_disabled")
 		return
 	}
+	// Accounts with two-factor authentication finish on the login page,
+	// which asks for the code.
+	if user.TwoFactor() {
+		cookie, err := s.BeginChallenge(ctx, user.ID)
+		if err != nil {
+			s.log.Error("oidc sign-in failed", slog.String("provider", id), slog.Any("err", err))
+			loginRedirect(w, r, "oidc_internal")
+			return
+		}
+		http.SetCookie(w, cookie)
+		target := "/login?two_factor=1"
+		if st.Next != "/" {
+			target += "&redirect=" + url.QueryEscape(st.Next)
+		}
+		http.Redirect(w, r, target, http.StatusFound)
+		return
+	}
 	_ = store.MarkUserLogin(ctx, s.db.Pool, user.ID)
 	ip := clientip.Resolve(r.RemoteAddr, r.Header, s.cfg.HTTP.TrustedProxies)
 	cookie, _, err := s.StartSession(ctx, user.ID, ip, r.UserAgent())

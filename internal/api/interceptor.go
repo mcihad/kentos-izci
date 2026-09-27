@@ -150,11 +150,8 @@ func (i *Interceptor) authorize(ctx context.Context, procedure string, h http.He
 			return ctx, apiError(connect.CodePermissionDenied, apiv1.ErrorReason_ERROR_REASON_ORGANIZATION_REQUIRED, "Izci-Org header required")
 		}
 	}
-	if errors.Is(err, auth.ErrOrgNotFound) {
-		return ctx, apiError(connect.CodePermissionDenied, apiv1.ErrorReason_ERROR_REASON_ORGANIZATION_REQUIRED, "not a member of this organization")
-	}
 	if err != nil {
-		return ctx, internal(ctx, i.log, "resolve organization", err)
+		return ctx, tenantError(ctx, i.log, err)
 	}
 	if t.Role < r.role {
 		return ctx, errPermission("requires the " + strings.ToLower(strings.TrimPrefix(r.role.String(), "ROLE_")) + " role")

@@ -16,7 +16,8 @@ type RetentionResult struct {
 
 // ApplyRetention removes data older than cutoff: whole event partitions,
 // then counters, facets and issues not seen since, and expired
-// housekeeping rows (sessions, link codes, delivered notifications).
+// housekeeping rows (sessions, link codes, sign-in challenges, delivered
+// notifications).
 func (d *DB) ApplyRetention(ctx context.Context, cutoff time.Time) (RetentionResult, error) {
 	res := RetentionResult{Rows: map[string]int64{}}
 	dropped, err := d.DropEventPartitionsBefore(ctx, cutoff)
@@ -64,8 +65,12 @@ func (d *DB) ApplyRetention(ctx context.Context, cutoff time.Time) (RetentionRes
 	}
 	// Instance-wide housekeeping outside tenant scope.
 	for name, sql := range map[string]string{
-		"sessions":   `DELETE FROM sessions WHERE expires_at < now()`,
-		"link_codes": `DELETE FROM link_codes WHERE expires_at < now() - interval '1 day'`,
+		"sessions":         `DELETE FROM sessions WHERE expires_at < now()`,
+		"link_codes":       `DELETE FROM link_codes WHERE expires_at < now() - interval '1 day'`,
+		"login_challenges": `DELETE FROM login_challenges WHERE expires_at < now()`,
+		// Two-factor setups that were started but never confirmed.
+		"totp_pending": `UPDATE users SET totp_pending_secret = NULL, totp_pending_at = NULL
+			WHERE totp_pending_at < now() - interval '1 day'`,
 	} {
 		tag, err := d.Pool.Exec(ctx, sql)
 		if err != nil {

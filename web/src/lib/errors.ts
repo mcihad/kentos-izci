@@ -36,6 +36,11 @@ const reasonMessages: Partial<Record<ErrorReason, string>> = {
   [ErrorReason.INTERNAL]: "Sunucuda beklenmeyen bir hata oluştu. Yeniden deneyin.",
   [ErrorReason.CHANNEL_UNAVAILABLE]:
     "Bu bildirim türü sunucuda yapılandırılmamış. E-posta için sunucu yöneticisinin SMTP ayarlarını yapması gerekir.",
+  [ErrorReason.TWO_FACTOR_REQUIRED]:
+    "Bu organizasyon iki adımlı doğrulama istiyor. Önce hesabınızda iki adımlı doğrulamayı açın.",
+  [ErrorReason.INVALID_TWO_FACTOR_CODE]:
+    "Kod hatalı ya da daha önce kullanılmış. Uygulamadaki güncel kodu girin.",
+  [ErrorReason.TWO_FACTOR_EXPIRED]: "İşlemin süresi doldu. Baştan başlayın.",
 };
 
 /** The ErrorDetail attached to an API error, if any. */
@@ -52,6 +57,14 @@ export function errorReason(err: unknown): ErrorReason {
 /** A user-facing Turkish message for any error thrown by an API call. */
 export function errorMessage(err: unknown): string {
   const reason = errorReason(err);
+  if (reason === ErrorReason.TOO_MANY_ATTEMPTS) {
+    const seconds = Number(errorDetail(err)?.metadata.retry_after_seconds ?? "0");
+    if (seconds > 90) {
+      const minutes = Math.ceil(seconds / 60);
+      const wait = minutes >= 90 ? `${Math.ceil(minutes / 60)} saat` : `${minutes} dakika`;
+      return `Çok fazla deneme yapıldı. ${wait} sonra yeniden deneyin.`;
+    }
+  }
   const known = reasonMessages[reason];
   if (known) return known;
   if (err instanceof ConnectError) {

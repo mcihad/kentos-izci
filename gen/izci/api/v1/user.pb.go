@@ -1046,6 +1046,367 @@ func (*UnlinkTelegramAccountResponse) Descriptor() ([]byte, []int) {
 	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{17}
 }
 
+// BeginTwoFactorSetupRequest has no fields.
+type BeginTwoFactorSetupRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BeginTwoFactorSetupRequest) Reset() {
+	*x = BeginTwoFactorSetupRequest{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BeginTwoFactorSetupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BeginTwoFactorSetupRequest) ProtoMessage() {}
+
+func (x *BeginTwoFactorSetupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BeginTwoFactorSetupRequest.ProtoReflect.Descriptor instead.
+func (*BeginTwoFactorSetupRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{18}
+}
+
+// BeginTwoFactorSetupResponse carries the secret for the authenticator app.
+type BeginTwoFactorSetupResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Secret in base32, for typing into the app when the QR code cannot be
+	// scanned.
+	Secret string `protobuf:"bytes,1,opt,name=secret,proto3" json:"secret,omitempty"`
+	// otpauth:// URI (SHA-1, 6 digits, 30 seconds) to show as a QR code.
+	Uri           string `protobuf:"bytes,2,opt,name=uri,proto3" json:"uri,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BeginTwoFactorSetupResponse) Reset() {
+	*x = BeginTwoFactorSetupResponse{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BeginTwoFactorSetupResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BeginTwoFactorSetupResponse) ProtoMessage() {}
+
+func (x *BeginTwoFactorSetupResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BeginTwoFactorSetupResponse.ProtoReflect.Descriptor instead.
+func (*BeginTwoFactorSetupResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *BeginTwoFactorSetupResponse) GetSecret() string {
+	if x != nil {
+		return x.Secret
+	}
+	return ""
+}
+
+func (x *BeginTwoFactorSetupResponse) GetUri() string {
+	if x != nil {
+		return x.Uri
+	}
+	return ""
+}
+
+// EnableTwoFactorRequest confirms the setup.
+type EnableTwoFactorRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Six-digit code the authenticator app shows for the new secret.
+	Code          string `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EnableTwoFactorRequest) Reset() {
+	*x = EnableTwoFactorRequest{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EnableTwoFactorRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EnableTwoFactorRequest) ProtoMessage() {}
+
+func (x *EnableTwoFactorRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EnableTwoFactorRequest.ProtoReflect.Descriptor instead.
+func (*EnableTwoFactorRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *EnableTwoFactorRequest) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+// EnableTwoFactorResponse returns the recovery codes.
+type EnableTwoFactorResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Ten single-use recovery codes ("xxxxx-xxxxx") that sign in when the
+	// authenticator app is lost. Shown only once.
+	RecoveryCodes []string `protobuf:"bytes,1,rep,name=recovery_codes,json=recoveryCodes,proto3" json:"recovery_codes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EnableTwoFactorResponse) Reset() {
+	*x = EnableTwoFactorResponse{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EnableTwoFactorResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EnableTwoFactorResponse) ProtoMessage() {}
+
+func (x *EnableTwoFactorResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EnableTwoFactorResponse.ProtoReflect.Descriptor instead.
+func (*EnableTwoFactorResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *EnableTwoFactorResponse) GetRecoveryCodes() []string {
+	if x != nil {
+		return x.RecoveryCodes
+	}
+	return nil
+}
+
+// DisableTwoFactorRequest proves the second factor.
+type DisableTwoFactorRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Code from the authenticator app, or a recovery code.
+	Code          string `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DisableTwoFactorRequest) Reset() {
+	*x = DisableTwoFactorRequest{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DisableTwoFactorRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DisableTwoFactorRequest) ProtoMessage() {}
+
+func (x *DisableTwoFactorRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DisableTwoFactorRequest.ProtoReflect.Descriptor instead.
+func (*DisableTwoFactorRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *DisableTwoFactorRequest) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+// DisableTwoFactorResponse has no fields.
+type DisableTwoFactorResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DisableTwoFactorResponse) Reset() {
+	*x = DisableTwoFactorResponse{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DisableTwoFactorResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DisableTwoFactorResponse) ProtoMessage() {}
+
+func (x *DisableTwoFactorResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DisableTwoFactorResponse.ProtoReflect.Descriptor instead.
+func (*DisableTwoFactorResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{23}
+}
+
+// RegenerateRecoveryCodesRequest proves the second factor.
+type RegenerateRecoveryCodesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Code from the authenticator app, or a recovery code.
+	Code          string `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegenerateRecoveryCodesRequest) Reset() {
+	*x = RegenerateRecoveryCodesRequest{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegenerateRecoveryCodesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegenerateRecoveryCodesRequest) ProtoMessage() {}
+
+func (x *RegenerateRecoveryCodesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegenerateRecoveryCodesRequest.ProtoReflect.Descriptor instead.
+func (*RegenerateRecoveryCodesRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *RegenerateRecoveryCodesRequest) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+// RegenerateRecoveryCodesResponse returns the new recovery codes.
+type RegenerateRecoveryCodesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Ten new single-use recovery codes. Shown only once.
+	RecoveryCodes []string `protobuf:"bytes,1,rep,name=recovery_codes,json=recoveryCodes,proto3" json:"recovery_codes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegenerateRecoveryCodesResponse) Reset() {
+	*x = RegenerateRecoveryCodesResponse{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegenerateRecoveryCodesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegenerateRecoveryCodesResponse) ProtoMessage() {}
+
+func (x *RegenerateRecoveryCodesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegenerateRecoveryCodesResponse.ProtoReflect.Descriptor instead.
+func (*RegenerateRecoveryCodesResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *RegenerateRecoveryCodesResponse) GetRecoveryCodes() []string {
+	if x != nil {
+		return x.RecoveryCodes
+	}
+	return nil
+}
+
 var File_izci_api_v1_user_proto protoreflect.FileDescriptor
 
 const file_izci_api_v1_user_proto_rawDesc = "" +
@@ -1113,13 +1474,28 @@ const file_izci_api_v1_user_proto_rawDesc = "" +
 	"\n" +
 	"expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"\x1e\n" +
 	"\x1cUnlinkTelegramAccountRequest\"\x1f\n" +
-	"\x1dUnlinkTelegramAccountResponse*j\n" +
+	"\x1dUnlinkTelegramAccountResponse\"\x1c\n" +
+	"\x1aBeginTwoFactorSetupRequest\"G\n" +
+	"\x1bBeginTwoFactorSetupResponse\x12\x16\n" +
+	"\x06secret\x18\x01 \x01(\tR\x06secret\x12\x10\n" +
+	"\x03uri\x18\x02 \x01(\tR\x03uri\"7\n" +
+	"\x16EnableTwoFactorRequest\x12\x1d\n" +
+	"\x04code\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x06\x18\x10R\x04code\"@\n" +
+	"\x17EnableTwoFactorResponse\x12%\n" +
+	"\x0erecovery_codes\x18\x01 \x03(\tR\rrecoveryCodes\"8\n" +
+	"\x17DisableTwoFactorRequest\x12\x1d\n" +
+	"\x04code\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x06\x18 R\x04code\"\x1a\n" +
+	"\x18DisableTwoFactorResponse\"?\n" +
+	"\x1eRegenerateRecoveryCodesRequest\x12\x1d\n" +
+	"\x04code\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x06\x18 R\x04code\"H\n" +
+	"\x1fRegenerateRecoveryCodesResponse\x12%\n" +
+	"\x0erecovery_codes\x18\x01 \x03(\tR\rrecoveryCodes*j\n" +
 	"\n" +
 	"TokenScope\x12\x1b\n" +
 	"\x17TOKEN_SCOPE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10TOKEN_SCOPE_READ\x10\x01\x12\x15\n" +
 	"\x11TOKEN_SCOPE_WRITE\x10\x02\x12\x12\n" +
-	"\x0eTOKEN_SCOPE_AI\x10\x032\xbe\x06\n" +
+	"\x0eTOKEN_SCOPE_AI\x10\x032\xdd\t\n" +
 	"\vUserService\x12V\n" +
 	"\rUpdateProfile\x12!.izci.api.v1.UpdateProfileRequest\x1a\".izci.api.v1.UpdateProfileResponse\x12d\n" +
 	"\x10ListAccessTokens\x12$.izci.api.v1.ListAccessTokensRequest\x1a%.izci.api.v1.ListAccessTokensResponse\"\x03\x90\x02\x01\x12b\n" +
@@ -1128,7 +1504,11 @@ const file_izci_api_v1_user_proto_rawDesc = "" +
 	"\fListSessions\x12 .izci.api.v1.ListSessionsRequest\x1a!.izci.api.v1.ListSessionsResponse\"\x03\x90\x02\x01\x12V\n" +
 	"\rRevokeSession\x12!.izci.api.v1.RevokeSessionRequest\x1a\".izci.api.v1.RevokeSessionResponse\x12\x86\x01\n" +
 	"\x1dCreateTelegramAccountLinkCode\x121.izci.api.v1.CreateTelegramAccountLinkCodeRequest\x1a2.izci.api.v1.CreateTelegramAccountLinkCodeResponse\x12n\n" +
-	"\x15UnlinkTelegramAccount\x12).izci.api.v1.UnlinkTelegramAccountRequest\x1a*.izci.api.v1.UnlinkTelegramAccountResponseB\x9f\x01\n" +
+	"\x15UnlinkTelegramAccount\x12).izci.api.v1.UnlinkTelegramAccountRequest\x1a*.izci.api.v1.UnlinkTelegramAccountResponse\x12h\n" +
+	"\x13BeginTwoFactorSetup\x12'.izci.api.v1.BeginTwoFactorSetupRequest\x1a(.izci.api.v1.BeginTwoFactorSetupResponse\x12\\\n" +
+	"\x0fEnableTwoFactor\x12#.izci.api.v1.EnableTwoFactorRequest\x1a$.izci.api.v1.EnableTwoFactorResponse\x12_\n" +
+	"\x10DisableTwoFactor\x12$.izci.api.v1.DisableTwoFactorRequest\x1a%.izci.api.v1.DisableTwoFactorResponse\x12t\n" +
+	"\x17RegenerateRecoveryCodes\x12+.izci.api.v1.RegenerateRecoveryCodesRequest\x1a,.izci.api.v1.RegenerateRecoveryCodesResponseB\x9f\x01\n" +
 	"\x0fcom.izci.api.v1B\tUserProtoP\x01Z3github.com/mcihad/kentos-izci/gen/izci/api/v1;apiv1\xa2\x02\x03IAX\xaa\x02\vIzci.Api.V1\xca\x02\vIzci\\Api\\V1\xe2\x02\x17Izci\\Api\\V1\\GPBMetadata\xea\x02\rIzci::Api::V1b\x06proto3"
 
 var (
@@ -1144,7 +1524,7 @@ func file_izci_api_v1_user_proto_rawDescGZIP() []byte {
 }
 
 var file_izci_api_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_izci_api_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_izci_api_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_izci_api_v1_user_proto_goTypes = []any{
 	(TokenScope)(0),                               // 0: izci.api.v1.TokenScope
 	(*AccessToken)(nil),                           // 1: izci.api.v1.AccessToken
@@ -1165,27 +1545,35 @@ var file_izci_api_v1_user_proto_goTypes = []any{
 	(*CreateTelegramAccountLinkCodeResponse)(nil), // 16: izci.api.v1.CreateTelegramAccountLinkCodeResponse
 	(*UnlinkTelegramAccountRequest)(nil),          // 17: izci.api.v1.UnlinkTelegramAccountRequest
 	(*UnlinkTelegramAccountResponse)(nil),         // 18: izci.api.v1.UnlinkTelegramAccountResponse
-	(*OrganizationRef)(nil),                       // 19: izci.api.v1.OrganizationRef
-	(*timestamppb.Timestamp)(nil),                 // 20: google.protobuf.Timestamp
-	(*User)(nil),                                  // 21: izci.api.v1.User
-	(*durationpb.Duration)(nil),                   // 22: google.protobuf.Duration
+	(*BeginTwoFactorSetupRequest)(nil),            // 19: izci.api.v1.BeginTwoFactorSetupRequest
+	(*BeginTwoFactorSetupResponse)(nil),           // 20: izci.api.v1.BeginTwoFactorSetupResponse
+	(*EnableTwoFactorRequest)(nil),                // 21: izci.api.v1.EnableTwoFactorRequest
+	(*EnableTwoFactorResponse)(nil),               // 22: izci.api.v1.EnableTwoFactorResponse
+	(*DisableTwoFactorRequest)(nil),               // 23: izci.api.v1.DisableTwoFactorRequest
+	(*DisableTwoFactorResponse)(nil),              // 24: izci.api.v1.DisableTwoFactorResponse
+	(*RegenerateRecoveryCodesRequest)(nil),        // 25: izci.api.v1.RegenerateRecoveryCodesRequest
+	(*RegenerateRecoveryCodesResponse)(nil),       // 26: izci.api.v1.RegenerateRecoveryCodesResponse
+	(*OrganizationRef)(nil),                       // 27: izci.api.v1.OrganizationRef
+	(*timestamppb.Timestamp)(nil),                 // 28: google.protobuf.Timestamp
+	(*User)(nil),                                  // 29: izci.api.v1.User
+	(*durationpb.Duration)(nil),                   // 30: google.protobuf.Duration
 }
 var file_izci_api_v1_user_proto_depIdxs = []int32{
-	19, // 0: izci.api.v1.AccessToken.organization:type_name -> izci.api.v1.OrganizationRef
+	27, // 0: izci.api.v1.AccessToken.organization:type_name -> izci.api.v1.OrganizationRef
 	0,  // 1: izci.api.v1.AccessToken.scopes:type_name -> izci.api.v1.TokenScope
-	20, // 2: izci.api.v1.AccessToken.created_at:type_name -> google.protobuf.Timestamp
-	20, // 3: izci.api.v1.AccessToken.last_used_at:type_name -> google.protobuf.Timestamp
-	20, // 4: izci.api.v1.AccessToken.expires_at:type_name -> google.protobuf.Timestamp
-	20, // 5: izci.api.v1.SessionInfo.created_at:type_name -> google.protobuf.Timestamp
-	20, // 6: izci.api.v1.SessionInfo.last_seen_at:type_name -> google.protobuf.Timestamp
-	20, // 7: izci.api.v1.SessionInfo.expires_at:type_name -> google.protobuf.Timestamp
-	21, // 8: izci.api.v1.UpdateProfileResponse.user:type_name -> izci.api.v1.User
+	28, // 2: izci.api.v1.AccessToken.created_at:type_name -> google.protobuf.Timestamp
+	28, // 3: izci.api.v1.AccessToken.last_used_at:type_name -> google.protobuf.Timestamp
+	28, // 4: izci.api.v1.AccessToken.expires_at:type_name -> google.protobuf.Timestamp
+	28, // 5: izci.api.v1.SessionInfo.created_at:type_name -> google.protobuf.Timestamp
+	28, // 6: izci.api.v1.SessionInfo.last_seen_at:type_name -> google.protobuf.Timestamp
+	28, // 7: izci.api.v1.SessionInfo.expires_at:type_name -> google.protobuf.Timestamp
+	29, // 8: izci.api.v1.UpdateProfileResponse.user:type_name -> izci.api.v1.User
 	1,  // 9: izci.api.v1.ListAccessTokensResponse.tokens:type_name -> izci.api.v1.AccessToken
 	0,  // 10: izci.api.v1.CreateAccessTokenRequest.scopes:type_name -> izci.api.v1.TokenScope
-	22, // 11: izci.api.v1.CreateAccessTokenRequest.expires_in:type_name -> google.protobuf.Duration
+	30, // 11: izci.api.v1.CreateAccessTokenRequest.expires_in:type_name -> google.protobuf.Duration
 	1,  // 12: izci.api.v1.CreateAccessTokenResponse.token:type_name -> izci.api.v1.AccessToken
 	2,  // 13: izci.api.v1.ListSessionsResponse.sessions:type_name -> izci.api.v1.SessionInfo
-	20, // 14: izci.api.v1.CreateTelegramAccountLinkCodeResponse.expires_at:type_name -> google.protobuf.Timestamp
+	28, // 14: izci.api.v1.CreateTelegramAccountLinkCodeResponse.expires_at:type_name -> google.protobuf.Timestamp
 	3,  // 15: izci.api.v1.UserService.UpdateProfile:input_type -> izci.api.v1.UpdateProfileRequest
 	5,  // 16: izci.api.v1.UserService.ListAccessTokens:input_type -> izci.api.v1.ListAccessTokensRequest
 	7,  // 17: izci.api.v1.UserService.CreateAccessToken:input_type -> izci.api.v1.CreateAccessTokenRequest
@@ -1194,16 +1582,24 @@ var file_izci_api_v1_user_proto_depIdxs = []int32{
 	13, // 20: izci.api.v1.UserService.RevokeSession:input_type -> izci.api.v1.RevokeSessionRequest
 	15, // 21: izci.api.v1.UserService.CreateTelegramAccountLinkCode:input_type -> izci.api.v1.CreateTelegramAccountLinkCodeRequest
 	17, // 22: izci.api.v1.UserService.UnlinkTelegramAccount:input_type -> izci.api.v1.UnlinkTelegramAccountRequest
-	4,  // 23: izci.api.v1.UserService.UpdateProfile:output_type -> izci.api.v1.UpdateProfileResponse
-	6,  // 24: izci.api.v1.UserService.ListAccessTokens:output_type -> izci.api.v1.ListAccessTokensResponse
-	8,  // 25: izci.api.v1.UserService.CreateAccessToken:output_type -> izci.api.v1.CreateAccessTokenResponse
-	10, // 26: izci.api.v1.UserService.RevokeAccessToken:output_type -> izci.api.v1.RevokeAccessTokenResponse
-	12, // 27: izci.api.v1.UserService.ListSessions:output_type -> izci.api.v1.ListSessionsResponse
-	14, // 28: izci.api.v1.UserService.RevokeSession:output_type -> izci.api.v1.RevokeSessionResponse
-	16, // 29: izci.api.v1.UserService.CreateTelegramAccountLinkCode:output_type -> izci.api.v1.CreateTelegramAccountLinkCodeResponse
-	18, // 30: izci.api.v1.UserService.UnlinkTelegramAccount:output_type -> izci.api.v1.UnlinkTelegramAccountResponse
-	23, // [23:31] is the sub-list for method output_type
-	15, // [15:23] is the sub-list for method input_type
+	19, // 23: izci.api.v1.UserService.BeginTwoFactorSetup:input_type -> izci.api.v1.BeginTwoFactorSetupRequest
+	21, // 24: izci.api.v1.UserService.EnableTwoFactor:input_type -> izci.api.v1.EnableTwoFactorRequest
+	23, // 25: izci.api.v1.UserService.DisableTwoFactor:input_type -> izci.api.v1.DisableTwoFactorRequest
+	25, // 26: izci.api.v1.UserService.RegenerateRecoveryCodes:input_type -> izci.api.v1.RegenerateRecoveryCodesRequest
+	4,  // 27: izci.api.v1.UserService.UpdateProfile:output_type -> izci.api.v1.UpdateProfileResponse
+	6,  // 28: izci.api.v1.UserService.ListAccessTokens:output_type -> izci.api.v1.ListAccessTokensResponse
+	8,  // 29: izci.api.v1.UserService.CreateAccessToken:output_type -> izci.api.v1.CreateAccessTokenResponse
+	10, // 30: izci.api.v1.UserService.RevokeAccessToken:output_type -> izci.api.v1.RevokeAccessTokenResponse
+	12, // 31: izci.api.v1.UserService.ListSessions:output_type -> izci.api.v1.ListSessionsResponse
+	14, // 32: izci.api.v1.UserService.RevokeSession:output_type -> izci.api.v1.RevokeSessionResponse
+	16, // 33: izci.api.v1.UserService.CreateTelegramAccountLinkCode:output_type -> izci.api.v1.CreateTelegramAccountLinkCodeResponse
+	18, // 34: izci.api.v1.UserService.UnlinkTelegramAccount:output_type -> izci.api.v1.UnlinkTelegramAccountResponse
+	20, // 35: izci.api.v1.UserService.BeginTwoFactorSetup:output_type -> izci.api.v1.BeginTwoFactorSetupResponse
+	22, // 36: izci.api.v1.UserService.EnableTwoFactor:output_type -> izci.api.v1.EnableTwoFactorResponse
+	24, // 37: izci.api.v1.UserService.DisableTwoFactor:output_type -> izci.api.v1.DisableTwoFactorResponse
+	26, // 38: izci.api.v1.UserService.RegenerateRecoveryCodes:output_type -> izci.api.v1.RegenerateRecoveryCodesResponse
+	27, // [27:39] is the sub-list for method output_type
+	15, // [15:27] is the sub-list for method input_type
 	15, // [15:15] is the sub-list for extension type_name
 	15, // [15:15] is the sub-list for extension extendee
 	0,  // [0:15] is the sub-list for field type_name
@@ -1222,7 +1618,7 @@ func file_izci_api_v1_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_api_v1_user_proto_rawDesc), len(file_izci_api_v1_user_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   18,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

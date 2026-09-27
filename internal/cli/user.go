@@ -199,13 +199,13 @@ func newUserCmd(a *cliApp) *cobra.Command {
 				return err
 			}
 			tw := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 4, 2, ' ', 0)
-			fmt.Fprintln(tw, "EMAIL\tNAME\tSUPERADMIN\tDISABLED\tLAST LOGIN")
+			fmt.Fprintln(tw, "EMAIL\tNAME\tSUPERADMIN\tDISABLED\t2FA\tLAST LOGIN")
 			for _, u := range users {
 				last := "-"
 				if u.LastLoginAt != nil {
 					last = u.LastLoginAt.Format("2006-01-02 15:04")
 				}
-				fmt.Fprintf(tw, "%s\t%s\t%v\t%v\t%s\n", u.Email, u.Name, u.Superadmin, u.Disabled, last)
+				fmt.Fprintf(tw, "%s\t%s\t%v\t%v\t%v\t%s\n", u.Email, u.Name, u.Superadmin, u.Disabled, u.TwoFactor(), last)
 			}
 			return tw.Flush()
 		},
@@ -246,6 +246,36 @@ func newUserCmd(a *cliApp) *cobra.Command {
 	}
 	reset.Flags().StringVar(&resetPassword, "password", "", "new password (or IZCI_PASSWORD / stdin)")
 
+	reset2FA := &cobra.Command{
+		Use:   "reset-2fa EMAIL",
+		Short: "Turn off two-factor authentication for a user who lost their authenticator and recovery codes",
+		Long: `Turn off two-factor authentication and delete the recovery codes of a user
+who lost both. They sign in with their password alone and can set it up
+again; organizations requiring two-factor authentication turn them away
+until they do.`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			database, err := a.openDB(cmd.Context())
+			if err != nil {
+				return err
+			}
+			defer database.Close()
+			u, err := store.GetUserByEmail(cmd.Context(), database.Pool, args[0])
+			if err != nil {
+				return fmt.Errorf("user %s: %w", args[0], err)
+			}
+			if !u.TwoFactor() {
+				fmt.Fprintf(cmd.OutOrStdout(), "two-factor authentication of %s is already off\n", u.Email)
+				return nil
+			}
+			if err := store.DisableTwoFactor(cmd.Context(), database.Pool, u.ID); err != nil {
+				return err
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "two-factor authentication of %s turned off\n", u.Email)
+			return nil
+		},
+	}
+
 	var revoke bool
 	admin := &cobra.Command{
 		Use:   "superadmin EMAIL",
@@ -271,6 +301,6 @@ func newUserCmd(a *cliApp) *cobra.Command {
 	}
 	admin.Flags().BoolVar(&revoke, "revoke", false, "remove instead of grant")
 
-	cmd.AddCommand(create, list, reset, admin)
+	cmd.AddCommand(create, list, reset, reset2FA, admin)
 	return cmd
 }

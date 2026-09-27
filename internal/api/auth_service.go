@@ -161,8 +161,7 @@ func (s *AuthServer) Login(ctx context.Context, req *connect.Request[apiv1.Login
 	var tooMany *auth.TooManyAttemptsError
 	switch {
 	case errors.As(err, &tooMany):
-		return nil, apiError(connect.CodeResourceExhausted, apiv1.ErrorReason_ERROR_REASON_TOO_MANY_ATTEMPTS, tooMany.Error(),
-			"retry_after_seconds", strconv.Itoa(int(tooMany.RetryAfter.Seconds())+1))
+		return nil, tooManyAttempts(tooMany)
 	case errors.Is(err, auth.ErrInvalidCredentials):
 		return nil, apiError(connect.CodeUnauthenticated, apiv1.ErrorReason_ERROR_REASON_INVALID_CREDENTIALS, err.Error())
 	case errors.Is(err, auth.ErrAccountDisabled):
@@ -173,6 +172,15 @@ func (s *AuthServer) Login(ctx context.Context, req *connect.Request[apiv1.Login
 		return nil, internal(ctx, s.log, "login", err)
 	}
 	resp := connect.NewResponse(&apiv1.LoginResponse{})
+	if u.TwoFactor() {
+		cookie, err := s.auth.BeginChallenge(ctx, u.ID)
+		if err != nil {
+			return nil, internal(ctx, s.log, "begin two-factor sign-in", err)
+		}
+		resp.Header().Add("Set-Cookie", cookie.String())
+		resp.Msg.TwoFactorRequired = true
+		return resp, nil
+	}
 	if resp.Msg.Session, err = s.startSession(ctx, resp.Header(), u); err != nil {
 		return nil, internal(ctx, s.log, "start session", err)
 	}
@@ -201,11 +209,19 @@ func (s *AuthServer) session(ctx context.Context, u *store.User, sess *store.Ses
 		return nil, err
 	}
 	out := &apiv1.Session{User: toUser(u, providers)}
+	if u.TwoFactor() {
+		left, err := store.RecoveryCodesLeft(ctx, s.db.Pool, u.ID)
+		if err != nil {
+			return nil, err
+		}
+		out.User.RecoveryCodesLeft = uint32(left)
+	}
 	if sess != nil {
 		out.ExpiresAt = ts(sess.ExpiresAt)
 	}
 	for _, m := range memberships {
-		out.Memberships = append(out.Memberships, &apiv1.Membership{Organization: toOrgRef(m.Organization), Role: m.Role})
+		out.Memberships = append(out.Memberships, &apiv1.Membership{Organization: toOrgRef(m.Organization), Role: m.Role,
+			RequiresTwoFactor: m.Organization.Settings.GetRequireTwoFactor()})
 	}
 	return out, nil
 }

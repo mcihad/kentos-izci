@@ -14,8 +14,10 @@
 
 | Tablo | İçerik |
 |---|---|
-| `users` | Kullanıcılar; argon2id parola özeti, sunucu yöneticisi bayrağı, bağlı Telegram hesabı. |
+| `users` | Kullanıcılar; argon2id parola özeti, sunucu yöneticisi bayrağı, bağlı Telegram hesabı, şifreli iki adımlı doğrulama anahtarı ve hatalı kod sayacı. |
 | `sessions` | Tarayıcı oturumları (çerezin özeti). |
+| `recovery_codes` | [İki adımlı doğrulamanın](iki-adimli-dogrulama.md) kurtarma kodları (anahtarlı özet, kullanılma zamanı). |
+| `login_challenges` | İkinci adımını bekleyen girişler (çerezin özeti); 10 dakikada geçersiz olur. |
 | `oidc_identities` | OpenID Connect hesap bağlantıları. |
 | `personal_tokens` | Kişisel erişim anahtarları (özet, kapsamlar, organizasyon sınırı). |
 | `organizations`, `org_members` | Organizasyonlar, planlar, sınırlar ve roller. |

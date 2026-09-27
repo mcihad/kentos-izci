@@ -21,17 +21,24 @@ type User struct {
 	TelegramLinkedAt *time.Time
 	LastLoginAt      *time.Time
 	LastSeenAt       *time.Time
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
+	// TwoFactorAt is when two-factor authentication was turned on; nil
+	// while it is off.
+	TwoFactorAt *time.Time
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
+// TwoFactor reports whether the user signs in with a second factor.
+func (u *User) TwoFactor() bool { return u.TwoFactorAt != nil }
+
 const userColumns = `id, email, name, avatar_url, password_hash, superadmin, disabled,
-	telegram_user_id, telegram_username, telegram_linked_at, last_login_at, last_seen_at, created_at, updated_at`
+	telegram_user_id, telegram_username, telegram_linked_at, last_login_at, last_seen_at, totp_enabled_at,
+	created_at, updated_at`
 
 func scanUser(row interface{ Scan(...any) error }) (*User, error) {
 	var u User
 	if err := row.Scan(&u.ID, &u.Email, &u.Name, &u.AvatarURL, &u.PasswordHash, &u.Superadmin, &u.Disabled,
-		&u.TelegramUserID, &u.TelegramUsername, &u.TelegramLinkedAt, &u.LastLoginAt, &u.LastSeenAt,
+		&u.TelegramUserID, &u.TelegramUsername, &u.TelegramLinkedAt, &u.LastLoginAt, &u.LastSeenAt, &u.TwoFactorAt,
 		&u.CreatedAt, &u.UpdatedAt); err != nil {
 		return nil, notFound(err)
 	}

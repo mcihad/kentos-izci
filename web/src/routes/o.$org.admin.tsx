@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { type AdminOrganization, AdminService } from "@/gen/izci/api/v1/admin_pb";
+import { type AdminOrganization, AdminService, type AdminUser } from "@/gen/izci/api/v1/admin_pb";
 import { OrganizationLimitsSchema } from "@/gen/izci/api/v1/organization_pb";
 import { baseTransport } from "@/lib/api";
 import { errorMessage } from "@/lib/errors";
@@ -317,6 +317,7 @@ function Users() {
   const qc = useQueryClient();
   const me = useSession()?.user?.id;
   const [query, setQuery] = useState("");
+  const [resetting, setResetting] = useState<AdminUser>();
   const q = useQuery(
     AdminService.method.listUsers,
     { query, pageSize: 100 },
@@ -355,7 +356,7 @@ function Users() {
                 src={u.user?.avatarUrl}
                 className="size-8"
               />
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-[1_1_14rem]">
                 <p className="truncate font-medium text-md">{u.user?.name || u.user?.email}</p>
                 <p className="truncate text-xs text-muted-foreground">
                   {u.user?.email}, {u.organizationCount} organizasyon,{" "}
@@ -366,8 +367,14 @@ function Users() {
                   ) : (
                     "hiç giriş yapmadı"
                   )}
+                  {u.user?.twoFactorEnabled ? ", iki adımlı doğrulama açık" : null}
                 </p>
               </div>
+              {u.user?.twoFactorEnabled ? (
+                <Button variant="ghost" size="sm" onClick={() => setResetting(u)}>
+                  İki adımlı doğrulamayı sıfırla
+                </Button>
+              ) : null}
               <div className="flex items-center gap-2">
                 <Switch
                   id={`sa-${u.user?.id}`}
@@ -394,6 +401,35 @@ function Users() {
           );
         })}
       </ul>
+      <Dialog open={resetting !== undefined} onOpenChange={(v) => (v ? undefined : setResetting(undefined))}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>İki adımlı doğrulamayı sıfırla</DialogTitle>
+            <DialogDescription>
+              {resetting?.user?.email} artık yalnız parolasıyla giriş yapar ve kurtarma kodları silinir. Bunu
+              yalnız telefonunu ve kurtarma kodlarını kaybeden, kimliğini başka yoldan doğruladığınız
+              kullanıcılar için yapın.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setResetting(undefined)}>
+              Vazgeç
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={update.isPending}
+              onClick={() =>
+                update.mutate(
+                  { userId: resetting?.user?.id ?? "", resetTwoFactor: true },
+                  { onSuccess: () => setResetting(undefined) },
+                )
+              }
+            >
+              Sıfırla
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
