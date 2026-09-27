@@ -1,6 +1,6 @@
 # Telegram bildirimleri
 
-İzci; yeni, geri dönen ya da hızla tekrarlayan hataları Telegram gruplarına ve özel sohbetlere bildirir. Geliştiriciler bildirimdeki düğmelerle hatayı Telegram'dan çözebilir, yoksayabilir ya da yapay zekâ analizini başlatabilir.
+İzci; yeni, geri dönen ya da hızla tekrarlayan hataları Telegram gruplarına ve özel sohbetlere bildirir. Geliştiriciler bildirimdeki düğmelerle hatayı Telegram'dan çözebilir, yoksayabilir ya da yapay zekâ analizini başlatabilir. E-posta, Slack, Teams, webhook ve Jira kanalları [Bildirim kanalları](bildirimler.md) rehberinde anlatılır; kurallar bütün kanallar için aynıdır.
 
 ## 1. Botu oluşturun
 

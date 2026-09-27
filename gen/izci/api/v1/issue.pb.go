@@ -185,6 +185,9 @@ const (
 	ActivityKind_ACTIVITY_KIND_PULL_REQUEST_OPENED ActivityKind = 9
 	// A notification was sent.
 	ActivityKind_ACTIVITY_KIND_NOTIFIED ActivityKind = 10
+	// A ticket was created in an external tracker (Jira); data carries
+	// "channel", "key" and "url".
+	ActivityKind_ACTIVITY_KIND_TICKET_CREATED ActivityKind = 11
 )
 
 // Enum value maps for ActivityKind.
@@ -201,6 +204,7 @@ var (
 		8:  "ACTIVITY_KIND_BRANCH_CREATED",
 		9:  "ACTIVITY_KIND_PULL_REQUEST_OPENED",
 		10: "ACTIVITY_KIND_NOTIFIED",
+		11: "ACTIVITY_KIND_TICKET_CREATED",
 	}
 	ActivityKind_value = map[string]int32{
 		"ACTIVITY_KIND_UNSPECIFIED":         0,
@@ -214,6 +218,7 @@ var (
 		"ACTIVITY_KIND_BRANCH_CREATED":      8,
 		"ACTIVITY_KIND_PULL_REQUEST_OPENED": 9,
 		"ACTIVITY_KIND_NOTIFIED":            10,
+		"ACTIVITY_KIND_TICKET_CREATED":      11,
 	}
 )
 
@@ -572,7 +577,9 @@ type Issue struct {
 	// Id of the latest event.
 	LatestEventId string `protobuf:"bytes,10,opt,name=latest_event_id,json=latestEventId,proto3" json:"latest_event_id,omitempty"`
 	// Branches and pull requests created for this issue.
-	PullRequests  []*PullRequestRef `protobuf:"bytes,11,rep,name=pull_requests,json=pullRequests,proto3" json:"pull_requests,omitempty"`
+	PullRequests []*PullRequestRef `protobuf:"bytes,11,rep,name=pull_requests,json=pullRequests,proto3" json:"pull_requests,omitempty"`
+	// Tickets created for this issue in external trackers.
+	Tickets       []*TicketRef `protobuf:"bytes,12,rep,name=tickets,proto3" json:"tickets,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -684,6 +691,95 @@ func (x *Issue) GetPullRequests() []*PullRequestRef {
 	return nil
 }
 
+func (x *Issue) GetTickets() []*TicketRef {
+	if x != nil {
+		return x.Tickets
+	}
+	return nil
+}
+
+// TicketRef is a ticket in an external tracker (Jira).
+type TicketRef struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Ticket key, e.g. "KALEM-123".
+	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	// Link to the ticket.
+	Url string `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	// Channel the ticket was created through.
+	ChannelId string `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	// Name of that channel.
+	ChannelName string `protobuf:"bytes,4,opt,name=channel_name,json=channelName,proto3" json:"channel_name,omitempty"`
+	// When the ticket was created.
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TicketRef) Reset() {
+	*x = TicketRef{}
+	mi := &file_izci_api_v1_issue_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TicketRef) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TicketRef) ProtoMessage() {}
+
+func (x *TicketRef) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_issue_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TicketRef.ProtoReflect.Descriptor instead.
+func (*TicketRef) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *TicketRef) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *TicketRef) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *TicketRef) GetChannelId() string {
+	if x != nil {
+		return x.ChannelId
+	}
+	return ""
+}
+
+func (x *TicketRef) GetChannelName() string {
+	if x != nil {
+		return x.ChannelName
+	}
+	return ""
+}
+
+func (x *TicketRef) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
 // Snooze describes when an ignored issue becomes unresolved again.
 type Snooze struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -701,7 +797,7 @@ type Snooze struct {
 
 func (x *Snooze) Reset() {
 	*x = Snooze{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[2]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -713,7 +809,7 @@ func (x *Snooze) String() string {
 func (*Snooze) ProtoMessage() {}
 
 func (x *Snooze) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[2]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -726,7 +822,7 @@ func (x *Snooze) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Snooze.ProtoReflect.Descriptor instead.
 func (*Snooze) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{2}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Snooze) GetUntil() *timestamppb.Timestamp {
@@ -775,7 +871,7 @@ type Grouping struct {
 
 func (x *Grouping) Reset() {
 	*x = Grouping{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[3]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -787,7 +883,7 @@ func (x *Grouping) String() string {
 func (*Grouping) ProtoMessage() {}
 
 func (x *Grouping) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[3]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -800,7 +896,7 @@ func (x *Grouping) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Grouping.ProtoReflect.Descriptor instead.
 func (*Grouping) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{3}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Grouping) GetVersion() uint32 {
@@ -848,7 +944,7 @@ type IssueLocation struct {
 
 func (x *IssueLocation) Reset() {
 	*x = IssueLocation{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[4]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -860,7 +956,7 @@ func (x *IssueLocation) String() string {
 func (*IssueLocation) ProtoMessage() {}
 
 func (x *IssueLocation) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[4]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -873,7 +969,7 @@ func (x *IssueLocation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IssueLocation.ProtoReflect.Descriptor instead.
 func (*IssueLocation) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{4}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *IssueLocation) GetFilename() string {
@@ -927,7 +1023,7 @@ type PullRequestRef struct {
 
 func (x *PullRequestRef) Reset() {
 	*x = PullRequestRef{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[5]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -939,7 +1035,7 @@ func (x *PullRequestRef) String() string {
 func (*PullRequestRef) ProtoMessage() {}
 
 func (x *PullRequestRef) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[5]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -952,7 +1048,7 @@ func (x *PullRequestRef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PullRequestRef.ProtoReflect.Descriptor instead.
 func (*PullRequestRef) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{5}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *PullRequestRef) GetNumber() uint32 {
@@ -1021,7 +1117,7 @@ type TagFacet struct {
 
 func (x *TagFacet) Reset() {
 	*x = TagFacet{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[6]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1033,7 +1129,7 @@ func (x *TagFacet) String() string {
 func (*TagFacet) ProtoMessage() {}
 
 func (x *TagFacet) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[6]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1046,7 +1142,7 @@ func (x *TagFacet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TagFacet.ProtoReflect.Descriptor instead.
 func (*TagFacet) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{6}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *TagFacet) GetKey() string {
@@ -1096,7 +1192,7 @@ type TagValueCount struct {
 
 func (x *TagValueCount) Reset() {
 	*x = TagValueCount{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[7]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1108,7 +1204,7 @@ func (x *TagValueCount) String() string {
 func (*TagValueCount) ProtoMessage() {}
 
 func (x *TagValueCount) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[7]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1121,7 +1217,7 @@ func (x *TagValueCount) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TagValueCount.ProtoReflect.Descriptor instead.
 func (*TagValueCount) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{7}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *TagValueCount) GetValue() string {
@@ -1181,7 +1277,7 @@ type IssueActivity struct {
 
 func (x *IssueActivity) Reset() {
 	*x = IssueActivity{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[8]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1193,7 +1289,7 @@ func (x *IssueActivity) String() string {
 func (*IssueActivity) ProtoMessage() {}
 
 func (x *IssueActivity) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[8]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1206,7 +1302,7 @@ func (x *IssueActivity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IssueActivity.ProtoReflect.Descriptor instead.
 func (*IssueActivity) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{8}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *IssueActivity) GetId() string {
@@ -1272,7 +1368,7 @@ type SearchSuggestion struct {
 
 func (x *SearchSuggestion) Reset() {
 	*x = SearchSuggestion{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[9]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1284,7 +1380,7 @@ func (x *SearchSuggestion) String() string {
 func (*SearchSuggestion) ProtoMessage() {}
 
 func (x *SearchSuggestion) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[9]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1297,7 +1393,7 @@ func (x *SearchSuggestion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchSuggestion.ProtoReflect.Descriptor instead.
 func (*SearchSuggestion) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{9}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *SearchSuggestion) GetText() string {
@@ -1361,7 +1457,7 @@ type ListIssuesRequest struct {
 
 func (x *ListIssuesRequest) Reset() {
 	*x = ListIssuesRequest{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[10]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1373,7 +1469,7 @@ func (x *ListIssuesRequest) String() string {
 func (*ListIssuesRequest) ProtoMessage() {}
 
 func (x *ListIssuesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[10]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1386,7 +1482,7 @@ func (x *ListIssuesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListIssuesRequest.ProtoReflect.Descriptor instead.
 func (*ListIssuesRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{10}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListIssuesRequest) GetQuery() string {
@@ -1460,7 +1556,7 @@ type ListIssuesResponse struct {
 
 func (x *ListIssuesResponse) Reset() {
 	*x = ListIssuesResponse{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[11]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1472,7 +1568,7 @@ func (x *ListIssuesResponse) String() string {
 func (*ListIssuesResponse) ProtoMessage() {}
 
 func (x *ListIssuesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[11]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1485,7 +1581,7 @@ func (x *ListIssuesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListIssuesResponse.ProtoReflect.Descriptor instead.
 func (*ListIssuesResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{11}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListIssuesResponse) GetIssues() []*IssueSummary {
@@ -1522,7 +1618,7 @@ type GetIssueRequest struct {
 
 func (x *GetIssueRequest) Reset() {
 	*x = GetIssueRequest{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[12]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1534,7 +1630,7 @@ func (x *GetIssueRequest) String() string {
 func (*GetIssueRequest) ProtoMessage() {}
 
 func (x *GetIssueRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[12]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1547,7 +1643,7 @@ func (x *GetIssueRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIssueRequest.ProtoReflect.Descriptor instead.
 func (*GetIssueRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{12}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetIssueRequest) GetIssue() string {
@@ -1575,7 +1671,7 @@ type GetIssueResponse struct {
 
 func (x *GetIssueResponse) Reset() {
 	*x = GetIssueResponse{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[13]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1587,7 +1683,7 @@ func (x *GetIssueResponse) String() string {
 func (*GetIssueResponse) ProtoMessage() {}
 
 func (x *GetIssueResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[13]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1600,7 +1696,7 @@ func (x *GetIssueResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIssueResponse.ProtoReflect.Descriptor instead.
 func (*GetIssueResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{13}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetIssueResponse) GetIssue() *Issue {
@@ -1632,7 +1728,7 @@ type UpdateIssuesRequest struct {
 
 func (x *UpdateIssuesRequest) Reset() {
 	*x = UpdateIssuesRequest{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[14]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1644,7 +1740,7 @@ func (x *UpdateIssuesRequest) String() string {
 func (*UpdateIssuesRequest) ProtoMessage() {}
 
 func (x *UpdateIssuesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[14]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1657,7 +1753,7 @@ func (x *UpdateIssuesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateIssuesRequest.ProtoReflect.Descriptor instead.
 func (*UpdateIssuesRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{14}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *UpdateIssuesRequest) GetIssueIds() []string {
@@ -1716,7 +1812,7 @@ type ResolveOptions struct {
 
 func (x *ResolveOptions) Reset() {
 	*x = ResolveOptions{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[15]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1728,7 +1824,7 @@ func (x *ResolveOptions) String() string {
 func (*ResolveOptions) ProtoMessage() {}
 
 func (x *ResolveOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[15]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1741,7 +1837,7 @@ func (x *ResolveOptions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResolveOptions.ProtoReflect.Descriptor instead.
 func (*ResolveOptions) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{15}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ResolveOptions) GetInNextRelease() bool {
@@ -1773,7 +1869,7 @@ type IgnoreOptions struct {
 
 func (x *IgnoreOptions) Reset() {
 	*x = IgnoreOptions{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[16]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1785,7 +1881,7 @@ func (x *IgnoreOptions) String() string {
 func (*IgnoreOptions) ProtoMessage() {}
 
 func (x *IgnoreOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[16]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1798,7 +1894,7 @@ func (x *IgnoreOptions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IgnoreOptions.ProtoReflect.Descriptor instead.
 func (*IgnoreOptions) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{16}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *IgnoreOptions) GetDuration() *durationpb.Duration {
@@ -1833,7 +1929,7 @@ type UpdateIssuesResponse struct {
 
 func (x *UpdateIssuesResponse) Reset() {
 	*x = UpdateIssuesResponse{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[17]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1845,7 +1941,7 @@ func (x *UpdateIssuesResponse) String() string {
 func (*UpdateIssuesResponse) ProtoMessage() {}
 
 func (x *UpdateIssuesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[17]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1858,7 +1954,7 @@ func (x *UpdateIssuesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateIssuesResponse.ProtoReflect.Descriptor instead.
 func (*UpdateIssuesResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{17}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *UpdateIssuesResponse) GetIssues() []*IssueSummary {
@@ -1886,7 +1982,7 @@ type ListIssueEventsRequest struct {
 
 func (x *ListIssueEventsRequest) Reset() {
 	*x = ListIssueEventsRequest{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[18]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1898,7 +1994,7 @@ func (x *ListIssueEventsRequest) String() string {
 func (*ListIssueEventsRequest) ProtoMessage() {}
 
 func (x *ListIssueEventsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[18]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1911,7 +2007,7 @@ func (x *ListIssueEventsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListIssueEventsRequest.ProtoReflect.Descriptor instead.
 func (*ListIssueEventsRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{18}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListIssueEventsRequest) GetIssueId() string {
@@ -1955,7 +2051,7 @@ type ListIssueEventsResponse struct {
 
 func (x *ListIssueEventsResponse) Reset() {
 	*x = ListIssueEventsResponse{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[19]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1967,7 +2063,7 @@ func (x *ListIssueEventsResponse) String() string {
 func (*ListIssueEventsResponse) ProtoMessage() {}
 
 func (x *ListIssueEventsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[19]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1980,7 +2076,7 @@ func (x *ListIssueEventsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListIssueEventsResponse.ProtoReflect.Descriptor instead.
 func (*ListIssueEventsResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{19}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ListIssueEventsResponse) GetEvents() []*EventSummary {
@@ -2012,7 +2108,7 @@ type GetIssueStatsRequest struct {
 
 func (x *GetIssueStatsRequest) Reset() {
 	*x = GetIssueStatsRequest{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[20]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2024,7 +2120,7 @@ func (x *GetIssueStatsRequest) String() string {
 func (*GetIssueStatsRequest) ProtoMessage() {}
 
 func (x *GetIssueStatsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[20]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2037,7 +2133,7 @@ func (x *GetIssueStatsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIssueStatsRequest.ProtoReflect.Descriptor instead.
 func (*GetIssueStatsRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{20}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetIssueStatsRequest) GetIssueId() string {
@@ -2074,7 +2170,7 @@ type GetIssueStatsResponse struct {
 
 func (x *GetIssueStatsResponse) Reset() {
 	*x = GetIssueStatsResponse{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[21]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2086,7 +2182,7 @@ func (x *GetIssueStatsResponse) String() string {
 func (*GetIssueStatsResponse) ProtoMessage() {}
 
 func (x *GetIssueStatsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[21]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2099,7 +2195,7 @@ func (x *GetIssueStatsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIssueStatsResponse.ProtoReflect.Descriptor instead.
 func (*GetIssueStatsResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{21}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetIssueStatsResponse) GetSeries() *Series {
@@ -2133,7 +2229,7 @@ type GetIssueTagFacetsRequest struct {
 
 func (x *GetIssueTagFacetsRequest) Reset() {
 	*x = GetIssueTagFacetsRequest{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[22]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2145,7 +2241,7 @@ func (x *GetIssueTagFacetsRequest) String() string {
 func (*GetIssueTagFacetsRequest) ProtoMessage() {}
 
 func (x *GetIssueTagFacetsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[22]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2158,7 +2254,7 @@ func (x *GetIssueTagFacetsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIssueTagFacetsRequest.ProtoReflect.Descriptor instead.
 func (*GetIssueTagFacetsRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{22}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetIssueTagFacetsRequest) GetIssueId() string {
@@ -2193,7 +2289,7 @@ type GetIssueTagFacetsResponse struct {
 
 func (x *GetIssueTagFacetsResponse) Reset() {
 	*x = GetIssueTagFacetsResponse{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[23]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2205,7 +2301,7 @@ func (x *GetIssueTagFacetsResponse) String() string {
 func (*GetIssueTagFacetsResponse) ProtoMessage() {}
 
 func (x *GetIssueTagFacetsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[23]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2218,7 +2314,7 @@ func (x *GetIssueTagFacetsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIssueTagFacetsResponse.ProtoReflect.Descriptor instead.
 func (*GetIssueTagFacetsResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{23}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GetIssueTagFacetsResponse) GetFacets() []*TagFacet {
@@ -2243,7 +2339,7 @@ type ListIssueActivityRequest struct {
 
 func (x *ListIssueActivityRequest) Reset() {
 	*x = ListIssueActivityRequest{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[24]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2255,7 +2351,7 @@ func (x *ListIssueActivityRequest) String() string {
 func (*ListIssueActivityRequest) ProtoMessage() {}
 
 func (x *ListIssueActivityRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[24]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2268,7 +2364,7 @@ func (x *ListIssueActivityRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListIssueActivityRequest.ProtoReflect.Descriptor instead.
 func (*ListIssueActivityRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{24}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ListIssueActivityRequest) GetIssueId() string {
@@ -2305,7 +2401,7 @@ type ListIssueActivityResponse struct {
 
 func (x *ListIssueActivityResponse) Reset() {
 	*x = ListIssueActivityResponse{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[25]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2317,7 +2413,7 @@ func (x *ListIssueActivityResponse) String() string {
 func (*ListIssueActivityResponse) ProtoMessage() {}
 
 func (x *ListIssueActivityResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[25]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2330,7 +2426,7 @@ func (x *ListIssueActivityResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListIssueActivityResponse.ProtoReflect.Descriptor instead.
 func (*ListIssueActivityResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{25}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ListIssueActivityResponse) GetActivities() []*IssueActivity {
@@ -2360,7 +2456,7 @@ type AddIssueCommentRequest struct {
 
 func (x *AddIssueCommentRequest) Reset() {
 	*x = AddIssueCommentRequest{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[26]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2372,7 +2468,7 @@ func (x *AddIssueCommentRequest) String() string {
 func (*AddIssueCommentRequest) ProtoMessage() {}
 
 func (x *AddIssueCommentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[26]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2385,7 +2481,7 @@ func (x *AddIssueCommentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddIssueCommentRequest.ProtoReflect.Descriptor instead.
 func (*AddIssueCommentRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{26}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *AddIssueCommentRequest) GetIssueId() string {
@@ -2413,7 +2509,7 @@ type AddIssueCommentResponse struct {
 
 func (x *AddIssueCommentResponse) Reset() {
 	*x = AddIssueCommentResponse{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[27]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2425,7 +2521,7 @@ func (x *AddIssueCommentResponse) String() string {
 func (*AddIssueCommentResponse) ProtoMessage() {}
 
 func (x *AddIssueCommentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[27]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2438,7 +2534,7 @@ func (x *AddIssueCommentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddIssueCommentResponse.ProtoReflect.Descriptor instead.
 func (*AddIssueCommentResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{27}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *AddIssueCommentResponse) GetActivity() *IssueActivity {
@@ -2446,6 +2542,116 @@ func (x *AddIssueCommentResponse) GetActivity() *IssueActivity {
 		return x.Activity
 	}
 	return nil
+}
+
+// CreateTicketRequest names the issue and the Jira channel.
+type CreateTicketRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Issue id (UUID) or short id.
+	Issue string `protobuf:"bytes,1,opt,name=issue,proto3" json:"issue,omitempty"`
+	// Jira channel id (UUID).
+	ChannelId     string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateTicketRequest) Reset() {
+	*x = CreateTicketRequest{}
+	mi := &file_izci_api_v1_issue_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateTicketRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateTicketRequest) ProtoMessage() {}
+
+func (x *CreateTicketRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_issue_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateTicketRequest.ProtoReflect.Descriptor instead.
+func (*CreateTicketRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *CreateTicketRequest) GetIssue() string {
+	if x != nil {
+		return x.Issue
+	}
+	return ""
+}
+
+func (x *CreateTicketRequest) GetChannelId() string {
+	if x != nil {
+		return x.ChannelId
+	}
+	return ""
+}
+
+// CreateTicketResponse returns the ticket.
+type CreateTicketResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The ticket.
+	Ticket *TicketRef `protobuf:"bytes,1,opt,name=ticket,proto3" json:"ticket,omitempty"`
+	// False when the issue already had a ticket in this channel.
+	Created       bool `protobuf:"varint,2,opt,name=created,proto3" json:"created,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateTicketResponse) Reset() {
+	*x = CreateTicketResponse{}
+	mi := &file_izci_api_v1_issue_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateTicketResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateTicketResponse) ProtoMessage() {}
+
+func (x *CreateTicketResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_issue_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateTicketResponse.ProtoReflect.Descriptor instead.
+func (*CreateTicketResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *CreateTicketResponse) GetTicket() *TicketRef {
+	if x != nil {
+		return x.Ticket
+	}
+	return nil
+}
+
+func (x *CreateTicketResponse) GetCreated() bool {
+	if x != nil {
+		return x.Created
+	}
+	return false
 }
 
 // SuggestSearchRequest describes the search box state.
@@ -2463,7 +2669,7 @@ type SuggestSearchRequest struct {
 
 func (x *SuggestSearchRequest) Reset() {
 	*x = SuggestSearchRequest{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[28]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2475,7 +2681,7 @@ func (x *SuggestSearchRequest) String() string {
 func (*SuggestSearchRequest) ProtoMessage() {}
 
 func (x *SuggestSearchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[28]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2488,7 +2694,7 @@ func (x *SuggestSearchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SuggestSearchRequest.ProtoReflect.Descriptor instead.
 func (*SuggestSearchRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{28}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *SuggestSearchRequest) GetQuery() string {
@@ -2527,7 +2733,7 @@ type SuggestSearchResponse struct {
 
 func (x *SuggestSearchResponse) Reset() {
 	*x = SuggestSearchResponse{}
-	mi := &file_izci_api_v1_issue_proto_msgTypes[29]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2539,7 +2745,7 @@ func (x *SuggestSearchResponse) String() string {
 func (*SuggestSearchResponse) ProtoMessage() {}
 
 func (x *SuggestSearchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_issue_proto_msgTypes[29]
+	mi := &file_izci_api_v1_issue_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2552,7 +2758,7 @@ func (x *SuggestSearchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SuggestSearchResponse.ProtoReflect.Descriptor instead.
 func (*SuggestSearchResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{29}
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *SuggestSearchResponse) GetSuggestions() []*SearchSuggestion {
@@ -2608,7 +2814,7 @@ const file_izci_api_v1_issue_proto_rawDesc = "" +
 	"\bassignee\x18\x14 \x01(\v2\x14.izci.api.v1.UserRefR\bassignee\x12\x1c\n" +
 	"\tunhandled\x18\x15 \x01(\bR\tunhandled\x12/\n" +
 	"\bai_state\x18\x16 \x01(\x0e2\x14.izci.api.v1.AiStateR\aaiState\x12\x1c\n" +
-	"\tpermalink\x18\x17 \x01(\tR\tpermalink\"\xaa\x04\n" +
+	"\tpermalink\x18\x17 \x01(\tR\tpermalink\"\xdc\x04\n" +
 	"\x05Issue\x123\n" +
 	"\asummary\x18\x01 \x01(\v2\x19.izci.api.v1.IssueSummaryR\asummary\x12#\n" +
 	"\rfirst_release\x18\x02 \x01(\tR\ffirstRelease\x12!\n" +
@@ -2623,7 +2829,16 @@ const file_izci_api_v1_issue_proto_rawDesc = "" +
 	"\blocation\x18\t \x01(\v2\x1a.izci.api.v1.IssueLocationR\blocation\x12&\n" +
 	"\x0flatest_event_id\x18\n" +
 	" \x01(\tR\rlatestEventId\x12@\n" +
-	"\rpull_requests\x18\v \x03(\v2\x1b.izci.api.v1.PullRequestRefR\fpullRequests\"\xa7\x01\n" +
+	"\rpull_requests\x18\v \x03(\v2\x1b.izci.api.v1.PullRequestRefR\fpullRequests\x120\n" +
+	"\atickets\x18\f \x03(\v2\x16.izci.api.v1.TicketRefR\atickets\"\xac\x01\n" +
+	"\tTicketRef\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x10\n" +
+	"\x03url\x18\x02 \x01(\tR\x03url\x12\x1d\n" +
+	"\n" +
+	"channel_id\x18\x03 \x01(\tR\tchannelId\x12!\n" +
+	"\fchannel_name\x18\x04 \x01(\tR\vchannelName\x129\n" +
+	"\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xa7\x01\n" +
 	"\x06Snooze\x120\n" +
 	"\x05until\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x05until\x12\x1f\n" +
 	"\vuntil_count\x18\x02 \x01(\x04R\n" +
@@ -2758,7 +2973,14 @@ const file_izci_api_v1_issue_proto_rawDesc = "" +
 	"\x04text\x18\x02 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\x90NR\x04text\"Q\n" +
 	"\x17AddIssueCommentResponse\x126\n" +
-	"\bactivity\x18\x01 \x01(\v2\x1a.izci.api.v1.IssueActivityR\bactivity\"t\n" +
+	"\bactivity\x18\x01 \x01(\v2\x1a.izci.api.v1.IssueActivityR\bactivity\"_\n" +
+	"\x13CreateTicketRequest\x12\x1f\n" +
+	"\x05issue\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18@R\x05issue\x12'\n" +
+	"\n" +
+	"channel_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\tchannelId\"`\n" +
+	"\x14CreateTicketResponse\x12.\n" +
+	"\x06ticket\x18\x01 \x01(\v2\x16.izci.api.v1.TicketRefR\x06ticket\x12\x18\n" +
+	"\acreated\x18\x02 \x01(\bR\acreated\"t\n" +
 	"\x14SuggestSearchRequest\x12\x1e\n" +
 	"\x05query\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x18\xd0\x0fR\x05query\x12\x16\n" +
 	"\x06cursor\x18\x02 \x01(\rR\x06cursor\x12$\n" +
@@ -2782,7 +3004,7 @@ const file_izci_api_v1_issue_proto_rawDesc = "" +
 	"\x15ISSUE_SORT_FIRST_SEEN\x10\x02\x12\x15\n" +
 	"\x11ISSUE_SORT_EVENTS\x10\x03\x12\x14\n" +
 	"\x10ISSUE_SORT_USERS\x10\x04\x12\x17\n" +
-	"\x13ISSUE_SORT_PRIORITY\x10\x05*\xe6\x02\n" +
+	"\x13ISSUE_SORT_PRIORITY\x10\x05*\x88\x03\n" +
 	"\fActivityKind\x12\x1d\n" +
 	"\x19ACTIVITY_KIND_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15ACTIVITY_KIND_CREATED\x10\x01\x12\x19\n" +
@@ -2795,12 +3017,13 @@ const file_izci_api_v1_issue_proto_rawDesc = "" +
 	"\x1cACTIVITY_KIND_BRANCH_CREATED\x10\b\x12%\n" +
 	"!ACTIVITY_KIND_PULL_REQUEST_OPENED\x10\t\x12\x1a\n" +
 	"\x16ACTIVITY_KIND_NOTIFIED\x10\n" +
-	"*\x80\x01\n" +
+	"\x12 \n" +
+	"\x1cACTIVITY_KIND_TICKET_CREATED\x10\v*\x80\x01\n" +
 	"\x0eSuggestionKind\x12\x1f\n" +
 	"\x1bSUGGESTION_KIND_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13SUGGESTION_KIND_KEY\x10\x01\x12\x19\n" +
 	"\x15SUGGESTION_KIND_VALUE\x10\x02\x12\x19\n" +
-	"\x15SUGGESTION_KIND_QUERY\x10\x032\xd2\x06\n" +
+	"\x15SUGGESTION_KIND_QUERY\x10\x032\xa7\a\n" +
 	"\fIssueService\x12R\n" +
 	"\n" +
 	"ListIssues\x12\x1e.izci.api.v1.ListIssuesRequest\x1a\x1f.izci.api.v1.ListIssuesResponse\"\x03\x90\x02\x01\x12L\n" +
@@ -2810,7 +3033,8 @@ const file_izci_api_v1_issue_proto_rawDesc = "" +
 	"\rGetIssueStats\x12!.izci.api.v1.GetIssueStatsRequest\x1a\".izci.api.v1.GetIssueStatsResponse\"\x03\x90\x02\x01\x12g\n" +
 	"\x11GetIssueTagFacets\x12%.izci.api.v1.GetIssueTagFacetsRequest\x1a&.izci.api.v1.GetIssueTagFacetsResponse\"\x03\x90\x02\x01\x12g\n" +
 	"\x11ListIssueActivity\x12%.izci.api.v1.ListIssueActivityRequest\x1a&.izci.api.v1.ListIssueActivityResponse\"\x03\x90\x02\x01\x12\\\n" +
-	"\x0fAddIssueComment\x12#.izci.api.v1.AddIssueCommentRequest\x1a$.izci.api.v1.AddIssueCommentResponse\x12[\n" +
+	"\x0fAddIssueComment\x12#.izci.api.v1.AddIssueCommentRequest\x1a$.izci.api.v1.AddIssueCommentResponse\x12S\n" +
+	"\fCreateTicket\x12 .izci.api.v1.CreateTicketRequest\x1a!.izci.api.v1.CreateTicketResponse\x12[\n" +
 	"\rSuggestSearch\x12!.izci.api.v1.SuggestSearchRequest\x1a\".izci.api.v1.SuggestSearchResponse\"\x03\x90\x02\x01B\xa0\x01\n" +
 	"\x0fcom.izci.api.v1B\n" +
 	"IssueProtoP\x01Z3github.com/mcihad/kentos-izci/gen/izci/api/v1;apiv1\xa2\x02\x03IAX\xaa\x02\vIzci.Api.V1\xca\x02\vIzci\\Api\\V1\xe2\x02\x17Izci\\Api\\V1\\GPBMetadata\xea\x02\rIzci::Api::V1b\x06proto3"
@@ -2828,7 +3052,7 @@ func file_izci_api_v1_issue_proto_rawDescGZIP() []byte {
 }
 
 var file_izci_api_v1_issue_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_izci_api_v1_issue_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
+var file_izci_api_v1_issue_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
 var file_izci_api_v1_issue_proto_goTypes = []any{
 	(AiState)(0),                      // 0: izci.api.v1.AiState
 	(IssueSort)(0),                    // 1: izci.api.v1.IssueSort
@@ -2836,115 +3060,123 @@ var file_izci_api_v1_issue_proto_goTypes = []any{
 	(SuggestionKind)(0),               // 3: izci.api.v1.SuggestionKind
 	(*IssueSummary)(nil),              // 4: izci.api.v1.IssueSummary
 	(*Issue)(nil),                     // 5: izci.api.v1.Issue
-	(*Snooze)(nil),                    // 6: izci.api.v1.Snooze
-	(*Grouping)(nil),                  // 7: izci.api.v1.Grouping
-	(*IssueLocation)(nil),             // 8: izci.api.v1.IssueLocation
-	(*PullRequestRef)(nil),            // 9: izci.api.v1.PullRequestRef
-	(*TagFacet)(nil),                  // 10: izci.api.v1.TagFacet
-	(*TagValueCount)(nil),             // 11: izci.api.v1.TagValueCount
-	(*IssueActivity)(nil),             // 12: izci.api.v1.IssueActivity
-	(*SearchSuggestion)(nil),          // 13: izci.api.v1.SearchSuggestion
-	(*ListIssuesRequest)(nil),         // 14: izci.api.v1.ListIssuesRequest
-	(*ListIssuesResponse)(nil),        // 15: izci.api.v1.ListIssuesResponse
-	(*GetIssueRequest)(nil),           // 16: izci.api.v1.GetIssueRequest
-	(*GetIssueResponse)(nil),          // 17: izci.api.v1.GetIssueResponse
-	(*UpdateIssuesRequest)(nil),       // 18: izci.api.v1.UpdateIssuesRequest
-	(*ResolveOptions)(nil),            // 19: izci.api.v1.ResolveOptions
-	(*IgnoreOptions)(nil),             // 20: izci.api.v1.IgnoreOptions
-	(*UpdateIssuesResponse)(nil),      // 21: izci.api.v1.UpdateIssuesResponse
-	(*ListIssueEventsRequest)(nil),    // 22: izci.api.v1.ListIssueEventsRequest
-	(*ListIssueEventsResponse)(nil),   // 23: izci.api.v1.ListIssueEventsResponse
-	(*GetIssueStatsRequest)(nil),      // 24: izci.api.v1.GetIssueStatsRequest
-	(*GetIssueStatsResponse)(nil),     // 25: izci.api.v1.GetIssueStatsResponse
-	(*GetIssueTagFacetsRequest)(nil),  // 26: izci.api.v1.GetIssueTagFacetsRequest
-	(*GetIssueTagFacetsResponse)(nil), // 27: izci.api.v1.GetIssueTagFacetsResponse
-	(*ListIssueActivityRequest)(nil),  // 28: izci.api.v1.ListIssueActivityRequest
-	(*ListIssueActivityResponse)(nil), // 29: izci.api.v1.ListIssueActivityResponse
-	(*AddIssueCommentRequest)(nil),    // 30: izci.api.v1.AddIssueCommentRequest
-	(*AddIssueCommentResponse)(nil),   // 31: izci.api.v1.AddIssueCommentResponse
-	(*SuggestSearchRequest)(nil),      // 32: izci.api.v1.SuggestSearchRequest
-	(*SuggestSearchResponse)(nil),     // 33: izci.api.v1.SuggestSearchResponse
-	nil,                               // 34: izci.api.v1.IssueActivity.DataEntry
-	(*ProjectRef)(nil),                // 35: izci.api.v1.ProjectRef
-	(v1.Level)(0),                     // 36: izci.ingest.v1.Level
-	(IssueStatus)(0),                  // 37: izci.api.v1.IssueStatus
-	(IssueSubstatus)(0),               // 38: izci.api.v1.IssueSubstatus
-	(Priority)(0),                     // 39: izci.api.v1.Priority
-	(*timestamppb.Timestamp)(nil),     // 40: google.protobuf.Timestamp
-	(*Series)(nil),                    // 41: izci.api.v1.Series
-	(*UserRef)(nil),                   // 42: izci.api.v1.UserRef
-	(StatsPeriod)(0),                  // 43: izci.api.v1.StatsPeriod
-	(*durationpb.Duration)(nil),       // 44: google.protobuf.Duration
-	(*EventSummary)(nil),              // 45: izci.api.v1.EventSummary
+	(*TicketRef)(nil),                 // 6: izci.api.v1.TicketRef
+	(*Snooze)(nil),                    // 7: izci.api.v1.Snooze
+	(*Grouping)(nil),                  // 8: izci.api.v1.Grouping
+	(*IssueLocation)(nil),             // 9: izci.api.v1.IssueLocation
+	(*PullRequestRef)(nil),            // 10: izci.api.v1.PullRequestRef
+	(*TagFacet)(nil),                  // 11: izci.api.v1.TagFacet
+	(*TagValueCount)(nil),             // 12: izci.api.v1.TagValueCount
+	(*IssueActivity)(nil),             // 13: izci.api.v1.IssueActivity
+	(*SearchSuggestion)(nil),          // 14: izci.api.v1.SearchSuggestion
+	(*ListIssuesRequest)(nil),         // 15: izci.api.v1.ListIssuesRequest
+	(*ListIssuesResponse)(nil),        // 16: izci.api.v1.ListIssuesResponse
+	(*GetIssueRequest)(nil),           // 17: izci.api.v1.GetIssueRequest
+	(*GetIssueResponse)(nil),          // 18: izci.api.v1.GetIssueResponse
+	(*UpdateIssuesRequest)(nil),       // 19: izci.api.v1.UpdateIssuesRequest
+	(*ResolveOptions)(nil),            // 20: izci.api.v1.ResolveOptions
+	(*IgnoreOptions)(nil),             // 21: izci.api.v1.IgnoreOptions
+	(*UpdateIssuesResponse)(nil),      // 22: izci.api.v1.UpdateIssuesResponse
+	(*ListIssueEventsRequest)(nil),    // 23: izci.api.v1.ListIssueEventsRequest
+	(*ListIssueEventsResponse)(nil),   // 24: izci.api.v1.ListIssueEventsResponse
+	(*GetIssueStatsRequest)(nil),      // 25: izci.api.v1.GetIssueStatsRequest
+	(*GetIssueStatsResponse)(nil),     // 26: izci.api.v1.GetIssueStatsResponse
+	(*GetIssueTagFacetsRequest)(nil),  // 27: izci.api.v1.GetIssueTagFacetsRequest
+	(*GetIssueTagFacetsResponse)(nil), // 28: izci.api.v1.GetIssueTagFacetsResponse
+	(*ListIssueActivityRequest)(nil),  // 29: izci.api.v1.ListIssueActivityRequest
+	(*ListIssueActivityResponse)(nil), // 30: izci.api.v1.ListIssueActivityResponse
+	(*AddIssueCommentRequest)(nil),    // 31: izci.api.v1.AddIssueCommentRequest
+	(*AddIssueCommentResponse)(nil),   // 32: izci.api.v1.AddIssueCommentResponse
+	(*CreateTicketRequest)(nil),       // 33: izci.api.v1.CreateTicketRequest
+	(*CreateTicketResponse)(nil),      // 34: izci.api.v1.CreateTicketResponse
+	(*SuggestSearchRequest)(nil),      // 35: izci.api.v1.SuggestSearchRequest
+	(*SuggestSearchResponse)(nil),     // 36: izci.api.v1.SuggestSearchResponse
+	nil,                               // 37: izci.api.v1.IssueActivity.DataEntry
+	(*ProjectRef)(nil),                // 38: izci.api.v1.ProjectRef
+	(v1.Level)(0),                     // 39: izci.ingest.v1.Level
+	(IssueStatus)(0),                  // 40: izci.api.v1.IssueStatus
+	(IssueSubstatus)(0),               // 41: izci.api.v1.IssueSubstatus
+	(Priority)(0),                     // 42: izci.api.v1.Priority
+	(*timestamppb.Timestamp)(nil),     // 43: google.protobuf.Timestamp
+	(*Series)(nil),                    // 44: izci.api.v1.Series
+	(*UserRef)(nil),                   // 45: izci.api.v1.UserRef
+	(StatsPeriod)(0),                  // 46: izci.api.v1.StatsPeriod
+	(*durationpb.Duration)(nil),       // 47: google.protobuf.Duration
+	(*EventSummary)(nil),              // 48: izci.api.v1.EventSummary
 }
 var file_izci_api_v1_issue_proto_depIdxs = []int32{
-	35, // 0: izci.api.v1.IssueSummary.project:type_name -> izci.api.v1.ProjectRef
-	36, // 1: izci.api.v1.IssueSummary.level:type_name -> izci.ingest.v1.Level
-	37, // 2: izci.api.v1.IssueSummary.status:type_name -> izci.api.v1.IssueStatus
-	38, // 3: izci.api.v1.IssueSummary.substatus:type_name -> izci.api.v1.IssueSubstatus
-	39, // 4: izci.api.v1.IssueSummary.priority:type_name -> izci.api.v1.Priority
-	40, // 5: izci.api.v1.IssueSummary.first_seen:type_name -> google.protobuf.Timestamp
-	40, // 6: izci.api.v1.IssueSummary.last_seen:type_name -> google.protobuf.Timestamp
-	41, // 7: izci.api.v1.IssueSummary.series:type_name -> izci.api.v1.Series
-	42, // 8: izci.api.v1.IssueSummary.assignee:type_name -> izci.api.v1.UserRef
+	38, // 0: izci.api.v1.IssueSummary.project:type_name -> izci.api.v1.ProjectRef
+	39, // 1: izci.api.v1.IssueSummary.level:type_name -> izci.ingest.v1.Level
+	40, // 2: izci.api.v1.IssueSummary.status:type_name -> izci.api.v1.IssueStatus
+	41, // 3: izci.api.v1.IssueSummary.substatus:type_name -> izci.api.v1.IssueSubstatus
+	42, // 4: izci.api.v1.IssueSummary.priority:type_name -> izci.api.v1.Priority
+	43, // 5: izci.api.v1.IssueSummary.first_seen:type_name -> google.protobuf.Timestamp
+	43, // 6: izci.api.v1.IssueSummary.last_seen:type_name -> google.protobuf.Timestamp
+	44, // 7: izci.api.v1.IssueSummary.series:type_name -> izci.api.v1.Series
+	45, // 8: izci.api.v1.IssueSummary.assignee:type_name -> izci.api.v1.UserRef
 	0,  // 9: izci.api.v1.IssueSummary.ai_state:type_name -> izci.api.v1.AiState
 	4,  // 10: izci.api.v1.Issue.summary:type_name -> izci.api.v1.IssueSummary
-	40, // 11: izci.api.v1.Issue.resolved_at:type_name -> google.protobuf.Timestamp
-	42, // 12: izci.api.v1.Issue.resolved_by:type_name -> izci.api.v1.UserRef
-	6,  // 13: izci.api.v1.Issue.snooze:type_name -> izci.api.v1.Snooze
-	7,  // 14: izci.api.v1.Issue.grouping:type_name -> izci.api.v1.Grouping
-	8,  // 15: izci.api.v1.Issue.location:type_name -> izci.api.v1.IssueLocation
-	9,  // 16: izci.api.v1.Issue.pull_requests:type_name -> izci.api.v1.PullRequestRef
-	40, // 17: izci.api.v1.Snooze.until:type_name -> google.protobuf.Timestamp
-	11, // 18: izci.api.v1.TagFacet.values:type_name -> izci.api.v1.TagValueCount
-	40, // 19: izci.api.v1.TagValueCount.first_seen:type_name -> google.protobuf.Timestamp
-	40, // 20: izci.api.v1.TagValueCount.last_seen:type_name -> google.protobuf.Timestamp
-	2,  // 21: izci.api.v1.IssueActivity.kind:type_name -> izci.api.v1.ActivityKind
-	42, // 22: izci.api.v1.IssueActivity.actor:type_name -> izci.api.v1.UserRef
-	34, // 23: izci.api.v1.IssueActivity.data:type_name -> izci.api.v1.IssueActivity.DataEntry
-	40, // 24: izci.api.v1.IssueActivity.created_at:type_name -> google.protobuf.Timestamp
-	3,  // 25: izci.api.v1.SearchSuggestion.kind:type_name -> izci.api.v1.SuggestionKind
-	1,  // 26: izci.api.v1.ListIssuesRequest.sort:type_name -> izci.api.v1.IssueSort
-	43, // 27: izci.api.v1.ListIssuesRequest.stats_period:type_name -> izci.api.v1.StatsPeriod
-	4,  // 28: izci.api.v1.ListIssuesResponse.issues:type_name -> izci.api.v1.IssueSummary
-	43, // 29: izci.api.v1.GetIssueRequest.stats_period:type_name -> izci.api.v1.StatsPeriod
-	5,  // 30: izci.api.v1.GetIssueResponse.issue:type_name -> izci.api.v1.Issue
-	37, // 31: izci.api.v1.UpdateIssuesRequest.status:type_name -> izci.api.v1.IssueStatus
-	19, // 32: izci.api.v1.UpdateIssuesRequest.resolve:type_name -> izci.api.v1.ResolveOptions
-	20, // 33: izci.api.v1.UpdateIssuesRequest.ignore:type_name -> izci.api.v1.IgnoreOptions
-	39, // 34: izci.api.v1.UpdateIssuesRequest.priority:type_name -> izci.api.v1.Priority
-	44, // 35: izci.api.v1.IgnoreOptions.duration:type_name -> google.protobuf.Duration
-	4,  // 36: izci.api.v1.UpdateIssuesResponse.issues:type_name -> izci.api.v1.IssueSummary
-	45, // 37: izci.api.v1.ListIssueEventsResponse.events:type_name -> izci.api.v1.EventSummary
-	43, // 38: izci.api.v1.GetIssueStatsRequest.period:type_name -> izci.api.v1.StatsPeriod
-	41, // 39: izci.api.v1.GetIssueStatsResponse.series:type_name -> izci.api.v1.Series
-	10, // 40: izci.api.v1.GetIssueTagFacetsResponse.facets:type_name -> izci.api.v1.TagFacet
-	12, // 41: izci.api.v1.ListIssueActivityResponse.activities:type_name -> izci.api.v1.IssueActivity
-	12, // 42: izci.api.v1.AddIssueCommentResponse.activity:type_name -> izci.api.v1.IssueActivity
-	13, // 43: izci.api.v1.SuggestSearchResponse.suggestions:type_name -> izci.api.v1.SearchSuggestion
-	14, // 44: izci.api.v1.IssueService.ListIssues:input_type -> izci.api.v1.ListIssuesRequest
-	16, // 45: izci.api.v1.IssueService.GetIssue:input_type -> izci.api.v1.GetIssueRequest
-	18, // 46: izci.api.v1.IssueService.UpdateIssues:input_type -> izci.api.v1.UpdateIssuesRequest
-	22, // 47: izci.api.v1.IssueService.ListIssueEvents:input_type -> izci.api.v1.ListIssueEventsRequest
-	24, // 48: izci.api.v1.IssueService.GetIssueStats:input_type -> izci.api.v1.GetIssueStatsRequest
-	26, // 49: izci.api.v1.IssueService.GetIssueTagFacets:input_type -> izci.api.v1.GetIssueTagFacetsRequest
-	28, // 50: izci.api.v1.IssueService.ListIssueActivity:input_type -> izci.api.v1.ListIssueActivityRequest
-	30, // 51: izci.api.v1.IssueService.AddIssueComment:input_type -> izci.api.v1.AddIssueCommentRequest
-	32, // 52: izci.api.v1.IssueService.SuggestSearch:input_type -> izci.api.v1.SuggestSearchRequest
-	15, // 53: izci.api.v1.IssueService.ListIssues:output_type -> izci.api.v1.ListIssuesResponse
-	17, // 54: izci.api.v1.IssueService.GetIssue:output_type -> izci.api.v1.GetIssueResponse
-	21, // 55: izci.api.v1.IssueService.UpdateIssues:output_type -> izci.api.v1.UpdateIssuesResponse
-	23, // 56: izci.api.v1.IssueService.ListIssueEvents:output_type -> izci.api.v1.ListIssueEventsResponse
-	25, // 57: izci.api.v1.IssueService.GetIssueStats:output_type -> izci.api.v1.GetIssueStatsResponse
-	27, // 58: izci.api.v1.IssueService.GetIssueTagFacets:output_type -> izci.api.v1.GetIssueTagFacetsResponse
-	29, // 59: izci.api.v1.IssueService.ListIssueActivity:output_type -> izci.api.v1.ListIssueActivityResponse
-	31, // 60: izci.api.v1.IssueService.AddIssueComment:output_type -> izci.api.v1.AddIssueCommentResponse
-	33, // 61: izci.api.v1.IssueService.SuggestSearch:output_type -> izci.api.v1.SuggestSearchResponse
-	53, // [53:62] is the sub-list for method output_type
-	44, // [44:53] is the sub-list for method input_type
-	44, // [44:44] is the sub-list for extension type_name
-	44, // [44:44] is the sub-list for extension extendee
-	0,  // [0:44] is the sub-list for field type_name
+	43, // 11: izci.api.v1.Issue.resolved_at:type_name -> google.protobuf.Timestamp
+	45, // 12: izci.api.v1.Issue.resolved_by:type_name -> izci.api.v1.UserRef
+	7,  // 13: izci.api.v1.Issue.snooze:type_name -> izci.api.v1.Snooze
+	8,  // 14: izci.api.v1.Issue.grouping:type_name -> izci.api.v1.Grouping
+	9,  // 15: izci.api.v1.Issue.location:type_name -> izci.api.v1.IssueLocation
+	10, // 16: izci.api.v1.Issue.pull_requests:type_name -> izci.api.v1.PullRequestRef
+	6,  // 17: izci.api.v1.Issue.tickets:type_name -> izci.api.v1.TicketRef
+	43, // 18: izci.api.v1.TicketRef.created_at:type_name -> google.protobuf.Timestamp
+	43, // 19: izci.api.v1.Snooze.until:type_name -> google.protobuf.Timestamp
+	12, // 20: izci.api.v1.TagFacet.values:type_name -> izci.api.v1.TagValueCount
+	43, // 21: izci.api.v1.TagValueCount.first_seen:type_name -> google.protobuf.Timestamp
+	43, // 22: izci.api.v1.TagValueCount.last_seen:type_name -> google.protobuf.Timestamp
+	2,  // 23: izci.api.v1.IssueActivity.kind:type_name -> izci.api.v1.ActivityKind
+	45, // 24: izci.api.v1.IssueActivity.actor:type_name -> izci.api.v1.UserRef
+	37, // 25: izci.api.v1.IssueActivity.data:type_name -> izci.api.v1.IssueActivity.DataEntry
+	43, // 26: izci.api.v1.IssueActivity.created_at:type_name -> google.protobuf.Timestamp
+	3,  // 27: izci.api.v1.SearchSuggestion.kind:type_name -> izci.api.v1.SuggestionKind
+	1,  // 28: izci.api.v1.ListIssuesRequest.sort:type_name -> izci.api.v1.IssueSort
+	46, // 29: izci.api.v1.ListIssuesRequest.stats_period:type_name -> izci.api.v1.StatsPeriod
+	4,  // 30: izci.api.v1.ListIssuesResponse.issues:type_name -> izci.api.v1.IssueSummary
+	46, // 31: izci.api.v1.GetIssueRequest.stats_period:type_name -> izci.api.v1.StatsPeriod
+	5,  // 32: izci.api.v1.GetIssueResponse.issue:type_name -> izci.api.v1.Issue
+	40, // 33: izci.api.v1.UpdateIssuesRequest.status:type_name -> izci.api.v1.IssueStatus
+	20, // 34: izci.api.v1.UpdateIssuesRequest.resolve:type_name -> izci.api.v1.ResolveOptions
+	21, // 35: izci.api.v1.UpdateIssuesRequest.ignore:type_name -> izci.api.v1.IgnoreOptions
+	42, // 36: izci.api.v1.UpdateIssuesRequest.priority:type_name -> izci.api.v1.Priority
+	47, // 37: izci.api.v1.IgnoreOptions.duration:type_name -> google.protobuf.Duration
+	4,  // 38: izci.api.v1.UpdateIssuesResponse.issues:type_name -> izci.api.v1.IssueSummary
+	48, // 39: izci.api.v1.ListIssueEventsResponse.events:type_name -> izci.api.v1.EventSummary
+	46, // 40: izci.api.v1.GetIssueStatsRequest.period:type_name -> izci.api.v1.StatsPeriod
+	44, // 41: izci.api.v1.GetIssueStatsResponse.series:type_name -> izci.api.v1.Series
+	11, // 42: izci.api.v1.GetIssueTagFacetsResponse.facets:type_name -> izci.api.v1.TagFacet
+	13, // 43: izci.api.v1.ListIssueActivityResponse.activities:type_name -> izci.api.v1.IssueActivity
+	13, // 44: izci.api.v1.AddIssueCommentResponse.activity:type_name -> izci.api.v1.IssueActivity
+	6,  // 45: izci.api.v1.CreateTicketResponse.ticket:type_name -> izci.api.v1.TicketRef
+	14, // 46: izci.api.v1.SuggestSearchResponse.suggestions:type_name -> izci.api.v1.SearchSuggestion
+	15, // 47: izci.api.v1.IssueService.ListIssues:input_type -> izci.api.v1.ListIssuesRequest
+	17, // 48: izci.api.v1.IssueService.GetIssue:input_type -> izci.api.v1.GetIssueRequest
+	19, // 49: izci.api.v1.IssueService.UpdateIssues:input_type -> izci.api.v1.UpdateIssuesRequest
+	23, // 50: izci.api.v1.IssueService.ListIssueEvents:input_type -> izci.api.v1.ListIssueEventsRequest
+	25, // 51: izci.api.v1.IssueService.GetIssueStats:input_type -> izci.api.v1.GetIssueStatsRequest
+	27, // 52: izci.api.v1.IssueService.GetIssueTagFacets:input_type -> izci.api.v1.GetIssueTagFacetsRequest
+	29, // 53: izci.api.v1.IssueService.ListIssueActivity:input_type -> izci.api.v1.ListIssueActivityRequest
+	31, // 54: izci.api.v1.IssueService.AddIssueComment:input_type -> izci.api.v1.AddIssueCommentRequest
+	33, // 55: izci.api.v1.IssueService.CreateTicket:input_type -> izci.api.v1.CreateTicketRequest
+	35, // 56: izci.api.v1.IssueService.SuggestSearch:input_type -> izci.api.v1.SuggestSearchRequest
+	16, // 57: izci.api.v1.IssueService.ListIssues:output_type -> izci.api.v1.ListIssuesResponse
+	18, // 58: izci.api.v1.IssueService.GetIssue:output_type -> izci.api.v1.GetIssueResponse
+	22, // 59: izci.api.v1.IssueService.UpdateIssues:output_type -> izci.api.v1.UpdateIssuesResponse
+	24, // 60: izci.api.v1.IssueService.ListIssueEvents:output_type -> izci.api.v1.ListIssueEventsResponse
+	26, // 61: izci.api.v1.IssueService.GetIssueStats:output_type -> izci.api.v1.GetIssueStatsResponse
+	28, // 62: izci.api.v1.IssueService.GetIssueTagFacets:output_type -> izci.api.v1.GetIssueTagFacetsResponse
+	30, // 63: izci.api.v1.IssueService.ListIssueActivity:output_type -> izci.api.v1.ListIssueActivityResponse
+	32, // 64: izci.api.v1.IssueService.AddIssueComment:output_type -> izci.api.v1.AddIssueCommentResponse
+	34, // 65: izci.api.v1.IssueService.CreateTicket:output_type -> izci.api.v1.CreateTicketResponse
+	36, // 66: izci.api.v1.IssueService.SuggestSearch:output_type -> izci.api.v1.SuggestSearchResponse
+	57, // [57:67] is the sub-list for method output_type
+	47, // [47:57] is the sub-list for method input_type
+	47, // [47:47] is the sub-list for extension type_name
+	47, // [47:47] is the sub-list for extension extendee
+	0,  // [0:47] is the sub-list for field type_name
 }
 
 func init() { file_izci_api_v1_issue_proto_init() }
@@ -2954,14 +3186,14 @@ func file_izci_api_v1_issue_proto_init() {
 	}
 	file_izci_api_v1_common_proto_init()
 	file_izci_api_v1_event_proto_init()
-	file_izci_api_v1_issue_proto_msgTypes[14].OneofWrappers = []any{}
+	file_izci_api_v1_issue_proto_msgTypes[15].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_api_v1_issue_proto_rawDesc), len(file_izci_api_v1_issue_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   31,
+			NumMessages:   34,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

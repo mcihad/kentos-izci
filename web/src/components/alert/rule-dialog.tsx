@@ -125,7 +125,7 @@ export function RuleDialog({
         <DialogHeader>
           <DialogTitle>{rule ? "Kuralı düzenle" : "Yeni kural"}</DialogTitle>
           <DialogDescription>
-            Hangi durumda, hangi hataların, hangi sohbetlere bildirileceğini seçin.
+            Hangi durumda, hangi hataların, hangi kanallara bildirileceğini seçin.
           </DialogDescription>
         </DialogHeader>
         <form
@@ -249,7 +249,7 @@ export function RuleDialog({
             </Label>
           </div>
           <fieldset className="grid gap-2">
-            <legend className="mb-1 font-medium text-sm">Bildirilecek sohbetler</legend>
+            <legend className="mb-1 font-medium text-sm">Bildirilecek kanallar</legend>
             {channels.map((c) => (
               <div key={c.id} className="flex items-center gap-2">
                 <Checkbox

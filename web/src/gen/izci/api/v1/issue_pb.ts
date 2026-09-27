@@ -19,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file izci/api/v1/issue.proto.
  */
 export const file_izci_api_v1_issue: GenFile = /*@__PURE__*/
-  fileDesc("ChdpemNpL2FwaS92MS9pc3N1ZS5wcm90bxILaXpjaS5hcGkudjEioAUKDElzc3VlU3VtbWFyeRIKCgJpZBgBIAEoCRIQCghzaG9ydF9pZBgCIAEoCRIoCgdwcm9qZWN0GAMgASgLMhcuaXpjaS5hcGkudjEuUHJvamVjdFJlZhINCgV0aXRsZRgEIAEoCRIPCgdjdWxwcml0GAUgASgJEgwKBHR5cGUYBiABKAkSDQoFdmFsdWUYByABKAkSJAoFbGV2ZWwYCCABKA4yFS5pemNpLmluZ2VzdC52MS5MZXZlbBIQCghwbGF0Zm9ybRgJIAEoCRIoCgZzdGF0dXMYCiABKA4yGC5pemNpLmFwaS52MS5Jc3N1ZVN0YXR1cxIuCglzdWJzdGF0dXMYCyABKA4yGy5pemNpLmFwaS52MS5Jc3N1ZVN1YnN0YXR1cxInCghwcmlvcml0eRgMIAEoDjIVLml6Y2kuYXBpLnYxLlByaW9yaXR5Ei4KCmZpcnN0X3NlZW4YDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi0KCWxhc3Rfc2VlbhgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEgoKdGltZXNfc2VlbhgPIAEoBBITCgt1c2Vyc19jb3VudBgQIAEoDRIXCg9jdXN0b21lcnNfY291bnQYESABKA0SFAoMcGVyaW9kX2NvdW50GBIgASgEEiMKBnNlcmllcxgTIAEoCzITLml6Y2kuYXBpLnYxLlNlcmllcxImCghhc3NpZ25lZRgUIAEoCzIULml6Y2kuYXBpLnYxLlVzZXJSZWYSEQoJdW5oYW5kbGVkGBUgASgIEiYKCGFpX3N0YXRlGBYgASgOMhQuaXpjaS5hcGkudjEuQWlTdGF0ZRIRCglwZXJtYWxpbmsYFyABKAkiogMKBUlzc3VlEioKB3N1bW1hcnkYASABKAsyGS5pemNpLmFwaS52MS5Jc3N1ZVN1bW1hcnkSFQoNZmlyc3RfcmVsZWFzZRgCIAEoCRIUCgxsYXN0X3JlbGVhc2UYAyABKAkSLwoLcmVzb2x2ZWRfYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEikKC3Jlc29sdmVkX2J5GAUgASgLMhQuaXpjaS5hcGkudjEuVXNlclJlZhIbChNyZXNvbHZlZF9pbl9yZWxlYXNlGAYgASgJEiMKBnNub296ZRgHIAEoCzITLml6Y2kuYXBpLnYxLlNub296ZRInCghncm91cGluZxgIIAEoCzIVLml6Y2kuYXBpLnYxLkdyb3VwaW5nEiwKCGxvY2F0aW9uGAkgASgLMhouaXpjaS5hcGkudjEuSXNzdWVMb2NhdGlvbhIXCg9sYXRlc3RfZXZlbnRfaWQYCiABKAkSMgoNcHVsbF9yZXF1ZXN0cxgLIAMoCzIbLml6Y2kuYXBpLnYxLlB1bGxSZXF1ZXN0UmVmIncKBlNub296ZRIpCgV1bnRpbBgBIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoLdW50aWxfY291bnQYAiABKAQSEwoLY291bnRfc2luY2UYAyABKAQSGAoQdW50aWxfZXNjYWxhdGluZxgEIAEoCCJWCghHcm91cGluZxIPCgd2ZXJzaW9uGAEgASgNEhAKCHN0cmF0ZWd5GAIgASgJEhMKC2ZpbmdlcnByaW50GAMgASgJEhIKCmNvbXBvbmVudHMYBCADKAkiUwoNSXNzdWVMb2NhdGlvbhIQCghmaWxlbmFtZRgBIAEoCRIQCghmdW5jdGlvbhgCIAEoCRIOCgZtb2R1bGUYAyABKAkSDgoGbGluZW5vGAQgASgNIn0KDlB1bGxSZXF1ZXN0UmVmEg4KBm51bWJlchgBIAEoDRILCgN1cmwYAiABKAkSDQoFdGl0bGUYAyABKAkSDgoGYnJhbmNoGAQgASgJEg0KBWRyYWZ0GAUgASgIEg0KBXN0YXRlGAYgASgJEhEKCWFpX3J1bl9pZBgHIAEoCSJpCghUYWdGYWNldBILCgNrZXkYASABKAkSDQoFdG90YWwYAiABKAQSFQoNdW5pcXVlX3ZhbHVlcxgDIAEoDRIqCgZ2YWx1ZXMYBCADKAsyGi5pemNpLmFwaS52MS5UYWdWYWx1ZUNvdW50IpsBCg1UYWdWYWx1ZUNvdW50Eg0KBXZhbHVlGAEgASgJEg0KBWxhYmVsGAIgASgJEg0KBWNvdW50GAMgASgEEi4KCmZpcnN0X3NlZW4YBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi0KCWxhc3Rfc2VlbhgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiiAIKDUlzc3VlQWN0aXZpdHkSCgoCaWQYASABKAkSJwoEa2luZBgCIAEoDjIZLml6Y2kuYXBpLnYxLkFjdGl2aXR5S2luZBIjCgVhY3RvchgDIAEoCzIULml6Y2kuYXBpLnYxLlVzZXJSZWYSDAoEdGV4dBgEIAEoCRIyCgRkYXRhGAUgAygLMiQuaXpjaS5hcGkudjEuSXNzdWVBY3Rpdml0eS5EYXRhRW50cnkSLgoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAaKwoJRGF0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEifgoQU2VhcmNoU3VnZ2VzdGlvbhIMCgR0ZXh0GAEgASgJEg0KBWxhYmVsGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEikKBGtpbmQYBCABKA4yGy5pemNpLmFwaS52MS5TdWdnZXN0aW9uS2luZBINCgVjb3VudBgFIAEoBCKLAgoRTGlzdElzc3Vlc1JlcXVlc3QSFwoFcXVlcnkYASABKAlCCLpIBXIDGNAPEiQKBHNvcnQYAiABKA4yFi5pemNpLmFwaS52MS5Jc3N1ZVNvcnQSLgoMc3RhdHNfcGVyaW9kGAMgASgOMhguaXpjaS5hcGkudjEuU3RhdHNQZXJpb2QSGgoIcHJvamVjdHMYBCADKAlCCLpIBZIBAhAyEh4KDGVudmlyb25tZW50cxgFIAMoCUIIukgFkgECEBQSGwoJY3VzdG9tZXJzGAYgAygJQgi6SAWSAQIQMhIaCglwYWdlX3NpemUYByABKA1CB7pIBCoCGGQSEgoKcGFnZV90b2tlbhgIIAEoCSJwChJMaXN0SXNzdWVzUmVzcG9uc2USKQoGaXNzdWVzGAEgAygLMhkuaXpjaS5hcGkudjEuSXNzdWVTdW1tYXJ5EhcKD25leHRfcGFnZV90b2tlbhgCIAEoCRIWCg50b3RhbF9lc3RpbWF0ZRgDIAEoDSJbCg9HZXRJc3N1ZVJlcXVlc3QSGAoFaXNzdWUYASABKAlCCbpIBnIEEAEYQBIuCgxzdGF0c19wZXJpb2QYAiABKA4yGC5pemNpLmFwaS52MS5TdGF0c1BlcmlvZCI1ChBHZXRJc3N1ZVJlc3BvbnNlEiEKBWlzc3VlGAEgASgLMhIuaXpjaS5hcGkudjEuSXNzdWUitAIKE1VwZGF0ZUlzc3Vlc1JlcXVlc3QSJAoJaXNzdWVfaWRzGAEgAygJQhG6SA6SAQsIARBkIgVyA7ABARItCgZzdGF0dXMYAiABKA4yGC5pemNpLmFwaS52MS5Jc3N1ZVN0YXR1c0gAiAEBEiwKB3Jlc29sdmUYAyABKAsyGy5pemNpLmFwaS52MS5SZXNvbHZlT3B0aW9ucxIqCgZpZ25vcmUYBCABKAsyGi5pemNpLmFwaS52MS5JZ25vcmVPcHRpb25zEhgKC2Fzc2lnbmVlX2lkGAUgASgJSAGIAQESLAoIcHJpb3JpdHkYBiABKA4yFS5pemNpLmFwaS52MS5Qcmlvcml0eUgCiAEBQgkKB19zdGF0dXNCDgoMX2Fzc2lnbmVlX2lkQgsKCV9wcmlvcml0eSJHCg5SZXNvbHZlT3B0aW9ucxIXCg9pbl9uZXh0X3JlbGVhc2UYASABKAgSHAoKaW5fcmVsZWFzZRgCIAEoCUIIukgFcgMYyAEiZQoNSWdub3JlT3B0aW9ucxIrCghkdXJhdGlvbhgBIAEoCzIZLmdvb2dsZS5wcm90b2J1Zi5EdXJhdGlvbhINCgVjb3VudBgCIAEoBBIYChB1bnRpbF9lc2NhbGF0aW5nGAMgASgIIkEKFFVwZGF0ZUlzc3Vlc1Jlc3BvbnNlEikKBmlzc3VlcxgBIAMoCzIZLml6Y2kuYXBpLnYxLklzc3VlU3VtbWFyeSJ9ChZMaXN0SXNzdWVFdmVudHNSZXF1ZXN0EhoKCGlzc3VlX2lkGAEgASgJQgi6SAVyA7ABARIXCgVxdWVyeRgCIAEoCUIIukgFcgMY0A8SGgoJcGFnZV9zaXplGAMgASgNQge6SAQqAhhkEhIKCnBhZ2VfdG9rZW4YBCABKAkiXQoXTGlzdElzc3VlRXZlbnRzUmVzcG9uc2USKQoGZXZlbnRzGAEgAygLMhkuaXpjaS5hcGkudjEuRXZlbnRTdW1tYXJ5EhcKD25leHRfcGFnZV90b2tlbhgCIAEoCSJ6ChRHZXRJc3N1ZVN0YXRzUmVxdWVzdBIaCghpc3N1ZV9pZBgBIAEoCUIIukgFcgOwAQESKAoGcGVyaW9kGAIgASgOMhguaXpjaS5hcGkudjEuU3RhdHNQZXJpb2QSHAoLZW52aXJvbm1lbnQYAyABKAlCB7pIBHICGEAiSwoVR2V0SXNzdWVTdGF0c1Jlc3BvbnNlEiMKBnNlcmllcxgBIAEoCzITLml6Y2kuYXBpLnYxLlNlcmllcxINCgV0b3RhbBgCIAEoBCJrChhHZXRJc3N1ZVRhZ0ZhY2V0c1JlcXVlc3QSGgoIaXNzdWVfaWQYASABKAlCCLpIBXIDsAEBEhYKBGtleXMYAiADKAlCCLpIBZIBAhAeEhsKCnRvcF92YWx1ZXMYAyABKA1CB7pIBCoCGDIiQgoZR2V0SXNzdWVUYWdGYWNldHNSZXNwb25zZRIlCgZmYWNldHMYASADKAsyFS5pemNpLmFwaS52MS5UYWdGYWNldCJmChhMaXN0SXNzdWVBY3Rpdml0eVJlcXVlc3QSGgoIaXNzdWVfaWQYASABKAlCCLpIBXIDsAEBEhoKCXBhZ2Vfc2l6ZRgCIAEoDUIHukgEKgIYZBISCgpwYWdlX3Rva2VuGAMgASgJImQKGUxpc3RJc3N1ZUFjdGl2aXR5UmVzcG9uc2USLgoKYWN0aXZpdGllcxgBIAMoCzIaLml6Y2kuYXBpLnYxLklzc3VlQWN0aXZpdHkSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIk4KFkFkZElzc3VlQ29tbWVudFJlcXVlc3QSGgoIaXNzdWVfaWQYASABKAlCCLpIBXIDsAEBEhgKBHRleHQYAiABKAlCCrpIB3IFEAEYkE4iRwoXQWRkSXNzdWVDb21tZW50UmVzcG9uc2USLAoIYWN0aXZpdHkYASABKAsyGi5pemNpLmFwaS52MS5Jc3N1ZUFjdGl2aXR5IlsKFFN1Z2dlc3RTZWFyY2hSZXF1ZXN0EhcKBXF1ZXJ5GAEgASgJQgi6SAVyAxjQDxIOCgZjdXJzb3IYAiABKA0SGgoIcHJvamVjdHMYAyADKAlCCLpIBZIBAhAyInUKFVN1Z2dlc3RTZWFyY2hSZXNwb25zZRIyCgtzdWdnZXN0aW9ucxgBIAMoCzIdLml6Y2kuYXBpLnYxLlNlYXJjaFN1Z2dlc3Rpb24SFAoMcmVwbGFjZV9mcm9tGAIgASgNEhIKCnJlcGxhY2VfdG8YAyABKA0qrgEKB0FpU3RhdGUSGAoUQUlfU1RBVEVfVU5TUEVDSUZJRUQQABIRCg1BSV9TVEFURV9OT05FEAESFAoQQUlfU1RBVEVfUlVOTklORxACEhUKEUFJX1NUQVRFX0FOQUxZWkVEEAMSGQoVQUlfU1RBVEVfRklYX1BST1BPU0VEEAQSGQoVQUlfU1RBVEVfUFVMTF9SRVFVRVNUEAUSEwoPQUlfU1RBVEVfRkFJTEVEEAYqogEKCUlzc3VlU29ydBIaChZJU1NVRV9TT1JUX1VOU1BFQ0lGSUVEEAASGAoUSVNTVUVfU09SVF9MQVNUX1NFRU4QARIZChVJU1NVRV9TT1JUX0ZJUlNUX1NFRU4QAhIVChFJU1NVRV9TT1JUX0VWRU5UUxADEhQKEElTU1VFX1NPUlRfVVNFUlMQBBIXChNJU1NVRV9TT1JUX1BSSU9SSVRZEAUq5gIKDEFjdGl2aXR5S2luZBIdChlBQ1RJVklUWV9LSU5EX1VOU1BFQ0lGSUVEEAASGQoVQUNUSVZJVFlfS0lORF9DUkVBVEVEEAESGQoVQUNUSVZJVFlfS0lORF9DT01NRU5UEAISIAocQUNUSVZJVFlfS0lORF9TVEFUVVNfQ0hBTkdFRBADEhoKFkFDVElWSVRZX0tJTkRfQVNTSUdORUQQBBIiCh5BQ1RJVklUWV9LSU5EX1BSSU9SSVRZX0NIQU5HRUQQBRIbChdBQ1RJVklUWV9LSU5EX1JFR1JFU1NFRBAGEh0KGUFDVElWSVRZX0tJTkRfQUlfQU5BTFlTSVMQBxIgChxBQ1RJVklUWV9LSU5EX0JSQU5DSF9DUkVBVEVEEAgSJQohQUNUSVZJVFlfS0lORF9QVUxMX1JFUVVFU1RfT1BFTkVEEAkSGgoWQUNUSVZJVFlfS0lORF9OT1RJRklFRBAKKoABCg5TdWdnZXN0aW9uS2luZBIfChtTVUdHRVNUSU9OX0tJTkRfVU5TUEVDSUZJRUQQABIXChNTVUdHRVNUSU9OX0tJTkRfS0VZEAESGQoVU1VHR0VTVElPTl9LSU5EX1ZBTFVFEAISGQoVU1VHR0VTVElPTl9LSU5EX1FVRVJZEAMy0gYKDElzc3VlU2VydmljZRJSCgpMaXN0SXNzdWVzEh4uaXpjaS5hcGkudjEuTGlzdElzc3Vlc1JlcXVlc3QaHy5pemNpLmFwaS52MS5MaXN0SXNzdWVzUmVzcG9uc2UiA5ACARJMCghHZXRJc3N1ZRIcLml6Y2kuYXBpLnYxLkdldElzc3VlUmVxdWVzdBodLml6Y2kuYXBpLnYxLkdldElzc3VlUmVzcG9uc2UiA5ACARJTCgxVcGRhdGVJc3N1ZXMSIC5pemNpLmFwaS52MS5VcGRhdGVJc3N1ZXNSZXF1ZXN0GiEuaXpjaS5hcGkudjEuVXBkYXRlSXNzdWVzUmVzcG9uc2USYQoPTGlzdElzc3VlRXZlbnRzEiMuaXpjaS5hcGkudjEuTGlzdElzc3VlRXZlbnRzUmVxdWVzdBokLml6Y2kuYXBpLnYxLkxpc3RJc3N1ZUV2ZW50c1Jlc3BvbnNlIgOQAgESWwoNR2V0SXNzdWVTdGF0cxIhLml6Y2kuYXBpLnYxLkdldElzc3VlU3RhdHNSZXF1ZXN0GiIuaXpjaS5hcGkudjEuR2V0SXNzdWVTdGF0c1Jlc3BvbnNlIgOQAgESZwoRR2V0SXNzdWVUYWdGYWNldHMSJS5pemNpLmFwaS52MS5HZXRJc3N1ZVRhZ0ZhY2V0c1JlcXVlc3QaJi5pemNpLmFwaS52MS5HZXRJc3N1ZVRhZ0ZhY2V0c1Jlc3BvbnNlIgOQAgESZwoRTGlzdElzc3VlQWN0aXZpdHkSJS5pemNpLmFwaS52MS5MaXN0SXNzdWVBY3Rpdml0eVJlcXVlc3QaJi5pemNpLmFwaS52MS5MaXN0SXNzdWVBY3Rpdml0eVJlc3BvbnNlIgOQAgESXAoPQWRkSXNzdWVDb21tZW50EiMuaXpjaS5hcGkudjEuQWRkSXNzdWVDb21tZW50UmVxdWVzdBokLml6Y2kuYXBpLnYxLkFkZElzc3VlQ29tbWVudFJlc3BvbnNlElsKDVN1Z2dlc3RTZWFyY2gSIS5pemNpLmFwaS52MS5TdWdnZXN0U2VhcmNoUmVxdWVzdBoiLml6Y2kuYXBpLnYxLlN1Z2dlc3RTZWFyY2hSZXNwb25zZSIDkAIBQqABCg9jb20uaXpjaS5hcGkudjFCCklzc3VlUHJvdG9QAVozZ2l0aHViLmNvbS9tY2loYWQva2VudG9zLWl6Y2kvZ2VuL2l6Y2kvYXBpL3YxO2FwaXYxogIDSUFYqgILSXpjaS5BcGkuVjHKAgtJemNpXEFwaVxWMeICF0l6Y2lcQXBpXFYxXEdQQk1ldGFkYXRh6gINSXpjaTo6QXBpOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_duration, file_google_protobuf_timestamp, file_izci_api_v1_common, file_izci_api_v1_event, file_izci_ingest_v1_event]);
+  fileDesc("ChdpemNpL2FwaS92MS9pc3N1ZS5wcm90bxILaXpjaS5hcGkudjEioAUKDElzc3VlU3VtbWFyeRIKCgJpZBgBIAEoCRIQCghzaG9ydF9pZBgCIAEoCRIoCgdwcm9qZWN0GAMgASgLMhcuaXpjaS5hcGkudjEuUHJvamVjdFJlZhINCgV0aXRsZRgEIAEoCRIPCgdjdWxwcml0GAUgASgJEgwKBHR5cGUYBiABKAkSDQoFdmFsdWUYByABKAkSJAoFbGV2ZWwYCCABKA4yFS5pemNpLmluZ2VzdC52MS5MZXZlbBIQCghwbGF0Zm9ybRgJIAEoCRIoCgZzdGF0dXMYCiABKA4yGC5pemNpLmFwaS52MS5Jc3N1ZVN0YXR1cxIuCglzdWJzdGF0dXMYCyABKA4yGy5pemNpLmFwaS52MS5Jc3N1ZVN1YnN0YXR1cxInCghwcmlvcml0eRgMIAEoDjIVLml6Y2kuYXBpLnYxLlByaW9yaXR5Ei4KCmZpcnN0X3NlZW4YDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi0KCWxhc3Rfc2VlbhgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEgoKdGltZXNfc2VlbhgPIAEoBBITCgt1c2Vyc19jb3VudBgQIAEoDRIXCg9jdXN0b21lcnNfY291bnQYESABKA0SFAoMcGVyaW9kX2NvdW50GBIgASgEEiMKBnNlcmllcxgTIAEoCzITLml6Y2kuYXBpLnYxLlNlcmllcxImCghhc3NpZ25lZRgUIAEoCzIULml6Y2kuYXBpLnYxLlVzZXJSZWYSEQoJdW5oYW5kbGVkGBUgASgIEiYKCGFpX3N0YXRlGBYgASgOMhQuaXpjaS5hcGkudjEuQWlTdGF0ZRIRCglwZXJtYWxpbmsYFyABKAkiywMKBUlzc3VlEioKB3N1bW1hcnkYASABKAsyGS5pemNpLmFwaS52MS5Jc3N1ZVN1bW1hcnkSFQoNZmlyc3RfcmVsZWFzZRgCIAEoCRIUCgxsYXN0X3JlbGVhc2UYAyABKAkSLwoLcmVzb2x2ZWRfYXQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEikKC3Jlc29sdmVkX2J5GAUgASgLMhQuaXpjaS5hcGkudjEuVXNlclJlZhIbChNyZXNvbHZlZF9pbl9yZWxlYXNlGAYgASgJEiMKBnNub296ZRgHIAEoCzITLml6Y2kuYXBpLnYxLlNub296ZRInCghncm91cGluZxgIIAEoCzIVLml6Y2kuYXBpLnYxLkdyb3VwaW5nEiwKCGxvY2F0aW9uGAkgASgLMhouaXpjaS5hcGkudjEuSXNzdWVMb2NhdGlvbhIXCg9sYXRlc3RfZXZlbnRfaWQYCiABKAkSMgoNcHVsbF9yZXF1ZXN0cxgLIAMoCzIbLml6Y2kuYXBpLnYxLlB1bGxSZXF1ZXN0UmVmEicKB3RpY2tldHMYDCADKAsyFi5pemNpLmFwaS52MS5UaWNrZXRSZWYifwoJVGlja2V0UmVmEgsKA2tleRgBIAEoCRILCgN1cmwYAiABKAkSEgoKY2hhbm5lbF9pZBgDIAEoCRIUCgxjaGFubmVsX25hbWUYBCABKAkSLgoKY3JlYXRlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAidwoGU25vb3plEikKBXVudGlsGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgt1bnRpbF9jb3VudBgCIAEoBBITCgtjb3VudF9zaW5jZRgDIAEoBBIYChB1bnRpbF9lc2NhbGF0aW5nGAQgASgIIlYKCEdyb3VwaW5nEg8KB3ZlcnNpb24YASABKA0SEAoIc3RyYXRlZ3kYAiABKAkSEwoLZmluZ2VycHJpbnQYAyABKAkSEgoKY29tcG9uZW50cxgEIAMoCSJTCg1Jc3N1ZUxvY2F0aW9uEhAKCGZpbGVuYW1lGAEgASgJEhAKCGZ1bmN0aW9uGAIgASgJEg4KBm1vZHVsZRgDIAEoCRIOCgZsaW5lbm8YBCABKA0ifQoOUHVsbFJlcXVlc3RSZWYSDgoGbnVtYmVyGAEgASgNEgsKA3VybBgCIAEoCRINCgV0aXRsZRgDIAEoCRIOCgZicmFuY2gYBCABKAkSDQoFZHJhZnQYBSABKAgSDQoFc3RhdGUYBiABKAkSEQoJYWlfcnVuX2lkGAcgASgJImkKCFRhZ0ZhY2V0EgsKA2tleRgBIAEoCRINCgV0b3RhbBgCIAEoBBIVCg11bmlxdWVfdmFsdWVzGAMgASgNEioKBnZhbHVlcxgEIAMoCzIaLml6Y2kuYXBpLnYxLlRhZ1ZhbHVlQ291bnQimwEKDVRhZ1ZhbHVlQ291bnQSDQoFdmFsdWUYASABKAkSDQoFbGFiZWwYAiABKAkSDQoFY291bnQYAyABKAQSLgoKZmlyc3Rfc2VlbhgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLQoJbGFzdF9zZWVuGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCKIAgoNSXNzdWVBY3Rpdml0eRIKCgJpZBgBIAEoCRInCgRraW5kGAIgASgOMhkuaXpjaS5hcGkudjEuQWN0aXZpdHlLaW5kEiMKBWFjdG9yGAMgASgLMhQuaXpjaS5hcGkudjEuVXNlclJlZhIMCgR0ZXh0GAQgASgJEjIKBGRhdGEYBSADKAsyJC5pemNpLmFwaS52MS5Jc3N1ZUFjdGl2aXR5LkRhdGFFbnRyeRIuCgpjcmVhdGVkX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBorCglEYXRhRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJ+ChBTZWFyY2hTdWdnZXN0aW9uEgwKBHRleHQYASABKAkSDQoFbGFiZWwYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkSKQoEa2luZBgEIAEoDjIbLml6Y2kuYXBpLnYxLlN1Z2dlc3Rpb25LaW5kEg0KBWNvdW50GAUgASgEIosCChFMaXN0SXNzdWVzUmVxdWVzdBIXCgVxdWVyeRgBIAEoCUIIukgFcgMY0A8SJAoEc29ydBgCIAEoDjIWLml6Y2kuYXBpLnYxLklzc3VlU29ydBIuCgxzdGF0c19wZXJpb2QYAyABKA4yGC5pemNpLmFwaS52MS5TdGF0c1BlcmlvZBIaCghwcm9qZWN0cxgEIAMoCUIIukgFkgECEDISHgoMZW52aXJvbm1lbnRzGAUgAygJQgi6SAWSAQIQFBIbCgljdXN0b21lcnMYBiADKAlCCLpIBZIBAhAyEhoKCXBhZ2Vfc2l6ZRgHIAEoDUIHukgEKgIYZBISCgpwYWdlX3Rva2VuGAggASgJInAKEkxpc3RJc3N1ZXNSZXNwb25zZRIpCgZpc3N1ZXMYASADKAsyGS5pemNpLmFwaS52MS5Jc3N1ZVN1bW1hcnkSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJEhYKDnRvdGFsX2VzdGltYXRlGAMgASgNIlsKD0dldElzc3VlUmVxdWVzdBIYCgVpc3N1ZRgBIAEoCUIJukgGcgQQARhAEi4KDHN0YXRzX3BlcmlvZBgCIAEoDjIYLml6Y2kuYXBpLnYxLlN0YXRzUGVyaW9kIjUKEEdldElzc3VlUmVzcG9uc2USIQoFaXNzdWUYASABKAsyEi5pemNpLmFwaS52MS5Jc3N1ZSK0AgoTVXBkYXRlSXNzdWVzUmVxdWVzdBIkCglpc3N1ZV9pZHMYASADKAlCEbpIDpIBCwgBEGQiBXIDsAEBEi0KBnN0YXR1cxgCIAEoDjIYLml6Y2kuYXBpLnYxLklzc3VlU3RhdHVzSACIAQESLAoHcmVzb2x2ZRgDIAEoCzIbLml6Y2kuYXBpLnYxLlJlc29sdmVPcHRpb25zEioKBmlnbm9yZRgEIAEoCzIaLml6Y2kuYXBpLnYxLklnbm9yZU9wdGlvbnMSGAoLYXNzaWduZWVfaWQYBSABKAlIAYgBARIsCghwcmlvcml0eRgGIAEoDjIVLml6Y2kuYXBpLnYxLlByaW9yaXR5SAKIAQFCCQoHX3N0YXR1c0IOCgxfYXNzaWduZWVfaWRCCwoJX3ByaW9yaXR5IkcKDlJlc29sdmVPcHRpb25zEhcKD2luX25leHRfcmVsZWFzZRgBIAEoCBIcCgppbl9yZWxlYXNlGAIgASgJQgi6SAVyAxjIASJlCg1JZ25vcmVPcHRpb25zEisKCGR1cmF0aW9uGAEgASgLMhkuZ29vZ2xlLnByb3RvYnVmLkR1cmF0aW9uEg0KBWNvdW50GAIgASgEEhgKEHVudGlsX2VzY2FsYXRpbmcYAyABKAgiQQoUVXBkYXRlSXNzdWVzUmVzcG9uc2USKQoGaXNzdWVzGAEgAygLMhkuaXpjaS5hcGkudjEuSXNzdWVTdW1tYXJ5In0KFkxpc3RJc3N1ZUV2ZW50c1JlcXVlc3QSGgoIaXNzdWVfaWQYASABKAlCCLpIBXIDsAEBEhcKBXF1ZXJ5GAIgASgJQgi6SAVyAxjQDxIaCglwYWdlX3NpemUYAyABKA1CB7pIBCoCGGQSEgoKcGFnZV90b2tlbhgEIAEoCSJdChdMaXN0SXNzdWVFdmVudHNSZXNwb25zZRIpCgZldmVudHMYASADKAsyGS5pemNpLmFwaS52MS5FdmVudFN1bW1hcnkSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJInoKFEdldElzc3VlU3RhdHNSZXF1ZXN0EhoKCGlzc3VlX2lkGAEgASgJQgi6SAVyA7ABARIoCgZwZXJpb2QYAiABKA4yGC5pemNpLmFwaS52MS5TdGF0c1BlcmlvZBIcCgtlbnZpcm9ubWVudBgDIAEoCUIHukgEcgIYQCJLChVHZXRJc3N1ZVN0YXRzUmVzcG9uc2USIwoGc2VyaWVzGAEgASgLMhMuaXpjaS5hcGkudjEuU2VyaWVzEg0KBXRvdGFsGAIgASgEImsKGEdldElzc3VlVGFnRmFjZXRzUmVxdWVzdBIaCghpc3N1ZV9pZBgBIAEoCUIIukgFcgOwAQESFgoEa2V5cxgCIAMoCUIIukgFkgECEB4SGwoKdG9wX3ZhbHVlcxgDIAEoDUIHukgEKgIYMiJCChlHZXRJc3N1ZVRhZ0ZhY2V0c1Jlc3BvbnNlEiUKBmZhY2V0cxgBIAMoCzIVLml6Y2kuYXBpLnYxLlRhZ0ZhY2V0ImYKGExpc3RJc3N1ZUFjdGl2aXR5UmVxdWVzdBIaCghpc3N1ZV9pZBgBIAEoCUIIukgFcgOwAQESGgoJcGFnZV9zaXplGAIgASgNQge6SAQqAhhkEhIKCnBhZ2VfdG9rZW4YAyABKAkiZAoZTGlzdElzc3VlQWN0aXZpdHlSZXNwb25zZRIuCgphY3Rpdml0aWVzGAEgAygLMhouaXpjaS5hcGkudjEuSXNzdWVBY3Rpdml0eRIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkiTgoWQWRkSXNzdWVDb21tZW50UmVxdWVzdBIaCghpc3N1ZV9pZBgBIAEoCUIIukgFcgOwAQESGAoEdGV4dBgCIAEoCUIKukgHcgUQARiQTiJHChdBZGRJc3N1ZUNvbW1lbnRSZXNwb25zZRIsCghhY3Rpdml0eRgBIAEoCzIaLml6Y2kuYXBpLnYxLklzc3VlQWN0aXZpdHkiTQoTQ3JlYXRlVGlja2V0UmVxdWVzdBIYCgVpc3N1ZRgBIAEoCUIJukgGcgQQARhAEhwKCmNoYW5uZWxfaWQYAiABKAlCCLpIBXIDsAEBIk8KFENyZWF0ZVRpY2tldFJlc3BvbnNlEiYKBnRpY2tldBgBIAEoCzIWLml6Y2kuYXBpLnYxLlRpY2tldFJlZhIPCgdjcmVhdGVkGAIgASgIIlsKFFN1Z2dlc3RTZWFyY2hSZXF1ZXN0EhcKBXF1ZXJ5GAEgASgJQgi6SAVyAxjQDxIOCgZjdXJzb3IYAiABKA0SGgoIcHJvamVjdHMYAyADKAlCCLpIBZIBAhAyInUKFVN1Z2dlc3RTZWFyY2hSZXNwb25zZRIyCgtzdWdnZXN0aW9ucxgBIAMoCzIdLml6Y2kuYXBpLnYxLlNlYXJjaFN1Z2dlc3Rpb24SFAoMcmVwbGFjZV9mcm9tGAIgASgNEhIKCnJlcGxhY2VfdG8YAyABKA0qrgEKB0FpU3RhdGUSGAoUQUlfU1RBVEVfVU5TUEVDSUZJRUQQABIRCg1BSV9TVEFURV9OT05FEAESFAoQQUlfU1RBVEVfUlVOTklORxACEhUKEUFJX1NUQVRFX0FOQUxZWkVEEAMSGQoVQUlfU1RBVEVfRklYX1BST1BPU0VEEAQSGQoVQUlfU1RBVEVfUFVMTF9SRVFVRVNUEAUSEwoPQUlfU1RBVEVfRkFJTEVEEAYqogEKCUlzc3VlU29ydBIaChZJU1NVRV9TT1JUX1VOU1BFQ0lGSUVEEAASGAoUSVNTVUVfU09SVF9MQVNUX1NFRU4QARIZChVJU1NVRV9TT1JUX0ZJUlNUX1NFRU4QAhIVChFJU1NVRV9TT1JUX0VWRU5UUxADEhQKEElTU1VFX1NPUlRfVVNFUlMQBBIXChNJU1NVRV9TT1JUX1BSSU9SSVRZEAUqiAMKDEFjdGl2aXR5S2luZBIdChlBQ1RJVklUWV9LSU5EX1VOU1BFQ0lGSUVEEAASGQoVQUNUSVZJVFlfS0lORF9DUkVBVEVEEAESGQoVQUNUSVZJVFlfS0lORF9DT01NRU5UEAISIAocQUNUSVZJVFlfS0lORF9TVEFUVVNfQ0hBTkdFRBADEhoKFkFDVElWSVRZX0tJTkRfQVNTSUdORUQQBBIiCh5BQ1RJVklUWV9LSU5EX1BSSU9SSVRZX0NIQU5HRUQQBRIbChdBQ1RJVklUWV9LSU5EX1JFR1JFU1NFRBAGEh0KGUFDVElWSVRZX0tJTkRfQUlfQU5BTFlTSVMQBxIgChxBQ1RJVklUWV9LSU5EX0JSQU5DSF9DUkVBVEVEEAgSJQohQUNUSVZJVFlfS0lORF9QVUxMX1JFUVVFU1RfT1BFTkVEEAkSGgoWQUNUSVZJVFlfS0lORF9OT1RJRklFRBAKEiAKHEFDVElWSVRZX0tJTkRfVElDS0VUX0NSRUFURUQQCyqAAQoOU3VnZ2VzdGlvbktpbmQSHwobU1VHR0VTVElPTl9LSU5EX1VOU1BFQ0lGSUVEEAASFwoTU1VHR0VTVElPTl9LSU5EX0tFWRABEhkKFVNVR0dFU1RJT05fS0lORF9WQUxVRRACEhkKFVNVR0dFU1RJT05fS0lORF9RVUVSWRADMqcHCgxJc3N1ZVNlcnZpY2USUgoKTGlzdElzc3VlcxIeLml6Y2kuYXBpLnYxLkxpc3RJc3N1ZXNSZXF1ZXN0Gh8uaXpjaS5hcGkudjEuTGlzdElzc3Vlc1Jlc3BvbnNlIgOQAgESTAoIR2V0SXNzdWUSHC5pemNpLmFwaS52MS5HZXRJc3N1ZVJlcXVlc3QaHS5pemNpLmFwaS52MS5HZXRJc3N1ZVJlc3BvbnNlIgOQAgESUwoMVXBkYXRlSXNzdWVzEiAuaXpjaS5hcGkudjEuVXBkYXRlSXNzdWVzUmVxdWVzdBohLml6Y2kuYXBpLnYxLlVwZGF0ZUlzc3Vlc1Jlc3BvbnNlEmEKD0xpc3RJc3N1ZUV2ZW50cxIjLml6Y2kuYXBpLnYxLkxpc3RJc3N1ZUV2ZW50c1JlcXVlc3QaJC5pemNpLmFwaS52MS5MaXN0SXNzdWVFdmVudHNSZXNwb25zZSIDkAIBElsKDUdldElzc3VlU3RhdHMSIS5pemNpLmFwaS52MS5HZXRJc3N1ZVN0YXRzUmVxdWVzdBoiLml6Y2kuYXBpLnYxLkdldElzc3VlU3RhdHNSZXNwb25zZSIDkAIBEmcKEUdldElzc3VlVGFnRmFjZXRzEiUuaXpjaS5hcGkudjEuR2V0SXNzdWVUYWdGYWNldHNSZXF1ZXN0GiYuaXpjaS5hcGkudjEuR2V0SXNzdWVUYWdGYWNldHNSZXNwb25zZSIDkAIBEmcKEUxpc3RJc3N1ZUFjdGl2aXR5EiUuaXpjaS5hcGkudjEuTGlzdElzc3VlQWN0aXZpdHlSZXF1ZXN0GiYuaXpjaS5hcGkudjEuTGlzdElzc3VlQWN0aXZpdHlSZXNwb25zZSIDkAIBElwKD0FkZElzc3VlQ29tbWVudBIjLml6Y2kuYXBpLnYxLkFkZElzc3VlQ29tbWVudFJlcXVlc3QaJC5pemNpLmFwaS52MS5BZGRJc3N1ZUNvbW1lbnRSZXNwb25zZRJTCgxDcmVhdGVUaWNrZXQSIC5pemNpLmFwaS52MS5DcmVhdGVUaWNrZXRSZXF1ZXN0GiEuaXpjaS5hcGkudjEuQ3JlYXRlVGlja2V0UmVzcG9uc2USWwoNU3VnZ2VzdFNlYXJjaBIhLml6Y2kuYXBpLnYxLlN1Z2dlc3RTZWFyY2hSZXF1ZXN0GiIuaXpjaS5hcGkudjEuU3VnZ2VzdFNlYXJjaFJlc3BvbnNlIgOQAgFCoAEKD2NvbS5pemNpLmFwaS52MUIKSXNzdWVQcm90b1ABWjNnaXRodWIuY29tL21jaWhhZC9rZW50b3MtaXpjaS9nZW4vaXpjaS9hcGkvdjE7YXBpdjGiAgNJQViqAgtJemNpLkFwaS5WMcoCC0l6Y2lcQXBpXFYx4gIXSXpjaVxBcGlcVjFcR1BCTWV0YWRhdGHqAg1JemNpOjpBcGk6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_duration, file_google_protobuf_timestamp, file_izci_api_v1_common, file_izci_api_v1_event, file_izci_ingest_v1_event]);
 
 /**
  * IssueSummary is the compact form of an issue used in lists.
@@ -281,6 +281,13 @@ export type Issue = Message<"izci.api.v1.Issue"> & {
    * @generated from field: repeated izci.api.v1.PullRequestRef pull_requests = 11;
    */
   pullRequests: PullRequestRef[];
+
+  /**
+   * Tickets created for this issue in external trackers.
+   *
+   * @generated from field: repeated izci.api.v1.TicketRef tickets = 12;
+   */
+  tickets: TicketRef[];
 };
 
 /**
@@ -289,6 +296,55 @@ export type Issue = Message<"izci.api.v1.Issue"> & {
  */
 export const IssueSchema: GenMessage<Issue> = /*@__PURE__*/
   messageDesc(file_izci_api_v1_issue, 1);
+
+/**
+ * TicketRef is a ticket in an external tracker (Jira).
+ *
+ * @generated from message izci.api.v1.TicketRef
+ */
+export type TicketRef = Message<"izci.api.v1.TicketRef"> & {
+  /**
+   * Ticket key, e.g. "KALEM-123".
+   *
+   * @generated from field: string key = 1;
+   */
+  key: string;
+
+  /**
+   * Link to the ticket.
+   *
+   * @generated from field: string url = 2;
+   */
+  url: string;
+
+  /**
+   * Channel the ticket was created through.
+   *
+   * @generated from field: string channel_id = 3;
+   */
+  channelId: string;
+
+  /**
+   * Name of that channel.
+   *
+   * @generated from field: string channel_name = 4;
+   */
+  channelName: string;
+
+  /**
+   * When the ticket was created.
+   *
+   * @generated from field: google.protobuf.Timestamp created_at = 5;
+   */
+  createdAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message izci.api.v1.TicketRef.
+ * Use `create(TicketRefSchema)` to create a new message.
+ */
+export const TicketRefSchema: GenMessage<TicketRef> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_issue, 2);
 
 /**
  * Snooze describes when an ignored issue becomes unresolved again.
@@ -330,7 +386,7 @@ export type Snooze = Message<"izci.api.v1.Snooze"> & {
  * Use `create(SnoozeSchema)` to create a new message.
  */
 export const SnoozeSchema: GenMessage<Snooze> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 2);
+  messageDesc(file_izci_api_v1_issue, 3);
 
 /**
  * Grouping explains why events belong to this issue.
@@ -373,7 +429,7 @@ export type Grouping = Message<"izci.api.v1.Grouping"> & {
  * Use `create(GroupingSchema)` to create a new message.
  */
 export const GroupingSchema: GenMessage<Grouping> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 3);
+  messageDesc(file_izci_api_v1_issue, 4);
 
 /**
  * IssueLocation is where the error was raised.
@@ -415,7 +471,7 @@ export type IssueLocation = Message<"izci.api.v1.IssueLocation"> & {
  * Use `create(IssueLocationSchema)` to create a new message.
  */
 export const IssueLocationSchema: GenMessage<IssueLocation> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 4);
+  messageDesc(file_izci_api_v1_issue, 5);
 
 /**
  * PullRequestRef is a branch or pull request created for an issue.
@@ -478,7 +534,7 @@ export type PullRequestRef = Message<"izci.api.v1.PullRequestRef"> & {
  * Use `create(PullRequestRefSchema)` to create a new message.
  */
 export const PullRequestRefSchema: GenMessage<PullRequestRef> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 5);
+  messageDesc(file_izci_api_v1_issue, 6);
 
 /**
  * TagFacet is the value distribution of one tag.
@@ -520,7 +576,7 @@ export type TagFacet = Message<"izci.api.v1.TagFacet"> & {
  * Use `create(TagFacetSchema)` to create a new message.
  */
 export const TagFacetSchema: GenMessage<TagFacet> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 6);
+  messageDesc(file_izci_api_v1_issue, 7);
 
 /**
  * TagValueCount is one value of a tag facet.
@@ -569,7 +625,7 @@ export type TagValueCount = Message<"izci.api.v1.TagValueCount"> & {
  * Use `create(TagValueCountSchema)` to create a new message.
  */
 export const TagValueCountSchema: GenMessage<TagValueCount> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 7);
+  messageDesc(file_izci_api_v1_issue, 8);
 
 /**
  * IssueActivity is a comment or change on an issue.
@@ -626,7 +682,7 @@ export type IssueActivity = Message<"izci.api.v1.IssueActivity"> & {
  * Use `create(IssueActivitySchema)` to create a new message.
  */
 export const IssueActivitySchema: GenMessage<IssueActivity> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 8);
+  messageDesc(file_izci_api_v1_issue, 9);
 
 /**
  * SearchSuggestion is one completion for the search box.
@@ -677,7 +733,7 @@ export type SearchSuggestion = Message<"izci.api.v1.SearchSuggestion"> & {
  * Use `create(SearchSuggestionSchema)` to create a new message.
  */
 export const SearchSuggestionSchema: GenMessage<SearchSuggestion> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 9);
+  messageDesc(file_izci_api_v1_issue, 10);
 
 /**
  * ListIssuesRequest searches issues.
@@ -748,7 +804,7 @@ export type ListIssuesRequest = Message<"izci.api.v1.ListIssuesRequest"> & {
  * Use `create(ListIssuesRequestSchema)` to create a new message.
  */
 export const ListIssuesRequestSchema: GenMessage<ListIssuesRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 10);
+  messageDesc(file_izci_api_v1_issue, 11);
 
 /**
  * ListIssuesResponse is a page of issues.
@@ -783,7 +839,7 @@ export type ListIssuesResponse = Message<"izci.api.v1.ListIssuesResponse"> & {
  * Use `create(ListIssuesResponseSchema)` to create a new message.
  */
 export const ListIssuesResponseSchema: GenMessage<ListIssuesResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 11);
+  messageDesc(file_izci_api_v1_issue, 12);
 
 /**
  * GetIssueRequest identifies an issue.
@@ -811,7 +867,7 @@ export type GetIssueRequest = Message<"izci.api.v1.GetIssueRequest"> & {
  * Use `create(GetIssueRequestSchema)` to create a new message.
  */
 export const GetIssueRequestSchema: GenMessage<GetIssueRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 12);
+  messageDesc(file_izci_api_v1_issue, 13);
 
 /**
  * GetIssueResponse returns the issue.
@@ -832,7 +888,7 @@ export type GetIssueResponse = Message<"izci.api.v1.GetIssueResponse"> & {
  * Use `create(GetIssueResponseSchema)` to create a new message.
  */
 export const GetIssueResponseSchema: GenMessage<GetIssueResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 13);
+  messageDesc(file_izci_api_v1_issue, 14);
 
 /**
  * UpdateIssuesRequest changes issues.
@@ -889,7 +945,7 @@ export type UpdateIssuesRequest = Message<"izci.api.v1.UpdateIssuesRequest"> & {
  * Use `create(UpdateIssuesRequestSchema)` to create a new message.
  */
 export const UpdateIssuesRequestSchema: GenMessage<UpdateIssuesRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 14);
+  messageDesc(file_izci_api_v1_issue, 15);
 
 /**
  * ResolveOptions refine a resolution.
@@ -918,7 +974,7 @@ export type ResolveOptions = Message<"izci.api.v1.ResolveOptions"> & {
  * Use `create(ResolveOptionsSchema)` to create a new message.
  */
 export const ResolveOptionsSchema: GenMessage<ResolveOptions> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 15);
+  messageDesc(file_izci_api_v1_issue, 16);
 
 /**
  * IgnoreOptions define when an ignored issue comes back.
@@ -953,7 +1009,7 @@ export type IgnoreOptions = Message<"izci.api.v1.IgnoreOptions"> & {
  * Use `create(IgnoreOptionsSchema)` to create a new message.
  */
 export const IgnoreOptionsSchema: GenMessage<IgnoreOptions> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 16);
+  messageDesc(file_izci_api_v1_issue, 17);
 
 /**
  * UpdateIssuesResponse returns the updated issues.
@@ -974,7 +1030,7 @@ export type UpdateIssuesResponse = Message<"izci.api.v1.UpdateIssuesResponse"> &
  * Use `create(UpdateIssuesResponseSchema)` to create a new message.
  */
 export const UpdateIssuesResponseSchema: GenMessage<UpdateIssuesResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 17);
+  messageDesc(file_izci_api_v1_issue, 18);
 
 /**
  * ListIssueEventsRequest pages through an issue's events.
@@ -1017,7 +1073,7 @@ export type ListIssueEventsRequest = Message<"izci.api.v1.ListIssueEventsRequest
  * Use `create(ListIssueEventsRequestSchema)` to create a new message.
  */
 export const ListIssueEventsRequestSchema: GenMessage<ListIssueEventsRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 18);
+  messageDesc(file_izci_api_v1_issue, 19);
 
 /**
  * ListIssueEventsResponse is a page of events.
@@ -1045,7 +1101,7 @@ export type ListIssueEventsResponse = Message<"izci.api.v1.ListIssueEventsRespon
  * Use `create(ListIssueEventsResponseSchema)` to create a new message.
  */
 export const ListIssueEventsResponseSchema: GenMessage<ListIssueEventsResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 19);
+  messageDesc(file_izci_api_v1_issue, 20);
 
 /**
  * GetIssueStatsRequest selects the window.
@@ -1080,7 +1136,7 @@ export type GetIssueStatsRequest = Message<"izci.api.v1.GetIssueStatsRequest"> &
  * Use `create(GetIssueStatsRequestSchema)` to create a new message.
  */
 export const GetIssueStatsRequestSchema: GenMessage<GetIssueStatsRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 20);
+  messageDesc(file_izci_api_v1_issue, 21);
 
 /**
  * GetIssueStatsResponse returns counts.
@@ -1108,7 +1164,7 @@ export type GetIssueStatsResponse = Message<"izci.api.v1.GetIssueStatsResponse">
  * Use `create(GetIssueStatsResponseSchema)` to create a new message.
  */
 export const GetIssueStatsResponseSchema: GenMessage<GetIssueStatsResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 21);
+  messageDesc(file_izci_api_v1_issue, 22);
 
 /**
  * GetIssueTagFacetsRequest selects facets.
@@ -1145,7 +1201,7 @@ export type GetIssueTagFacetsRequest = Message<"izci.api.v1.GetIssueTagFacetsReq
  * Use `create(GetIssueTagFacetsRequestSchema)` to create a new message.
  */
 export const GetIssueTagFacetsRequestSchema: GenMessage<GetIssueTagFacetsRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 22);
+  messageDesc(file_izci_api_v1_issue, 23);
 
 /**
  * GetIssueTagFacetsResponse returns facets.
@@ -1166,7 +1222,7 @@ export type GetIssueTagFacetsResponse = Message<"izci.api.v1.GetIssueTagFacetsRe
  * Use `create(GetIssueTagFacetsResponseSchema)` to create a new message.
  */
 export const GetIssueTagFacetsResponseSchema: GenMessage<GetIssueTagFacetsResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 23);
+  messageDesc(file_izci_api_v1_issue, 24);
 
 /**
  * ListIssueActivityRequest pages through activity.
@@ -1201,7 +1257,7 @@ export type ListIssueActivityRequest = Message<"izci.api.v1.ListIssueActivityReq
  * Use `create(ListIssueActivityRequestSchema)` to create a new message.
  */
 export const ListIssueActivityRequestSchema: GenMessage<ListIssueActivityRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 24);
+  messageDesc(file_izci_api_v1_issue, 25);
 
 /**
  * ListIssueActivityResponse is a page of activity.
@@ -1229,7 +1285,7 @@ export type ListIssueActivityResponse = Message<"izci.api.v1.ListIssueActivityRe
  * Use `create(ListIssueActivityResponseSchema)` to create a new message.
  */
 export const ListIssueActivityResponseSchema: GenMessage<ListIssueActivityResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 25);
+  messageDesc(file_izci_api_v1_issue, 26);
 
 /**
  * AddIssueCommentRequest adds a comment.
@@ -1257,7 +1313,7 @@ export type AddIssueCommentRequest = Message<"izci.api.v1.AddIssueCommentRequest
  * Use `create(AddIssueCommentRequestSchema)` to create a new message.
  */
 export const AddIssueCommentRequestSchema: GenMessage<AddIssueCommentRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 26);
+  messageDesc(file_izci_api_v1_issue, 27);
 
 /**
  * AddIssueCommentResponse returns the comment.
@@ -1278,7 +1334,63 @@ export type AddIssueCommentResponse = Message<"izci.api.v1.AddIssueCommentRespon
  * Use `create(AddIssueCommentResponseSchema)` to create a new message.
  */
 export const AddIssueCommentResponseSchema: GenMessage<AddIssueCommentResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 27);
+  messageDesc(file_izci_api_v1_issue, 28);
+
+/**
+ * CreateTicketRequest names the issue and the Jira channel.
+ *
+ * @generated from message izci.api.v1.CreateTicketRequest
+ */
+export type CreateTicketRequest = Message<"izci.api.v1.CreateTicketRequest"> & {
+  /**
+   * Issue id (UUID) or short id.
+   *
+   * @generated from field: string issue = 1;
+   */
+  issue: string;
+
+  /**
+   * Jira channel id (UUID).
+   *
+   * @generated from field: string channel_id = 2;
+   */
+  channelId: string;
+};
+
+/**
+ * Describes the message izci.api.v1.CreateTicketRequest.
+ * Use `create(CreateTicketRequestSchema)` to create a new message.
+ */
+export const CreateTicketRequestSchema: GenMessage<CreateTicketRequest> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_issue, 29);
+
+/**
+ * CreateTicketResponse returns the ticket.
+ *
+ * @generated from message izci.api.v1.CreateTicketResponse
+ */
+export type CreateTicketResponse = Message<"izci.api.v1.CreateTicketResponse"> & {
+  /**
+   * The ticket.
+   *
+   * @generated from field: izci.api.v1.TicketRef ticket = 1;
+   */
+  ticket?: TicketRef | undefined;
+
+  /**
+   * False when the issue already had a ticket in this channel.
+   *
+   * @generated from field: bool created = 2;
+   */
+  created: boolean;
+};
+
+/**
+ * Describes the message izci.api.v1.CreateTicketResponse.
+ * Use `create(CreateTicketResponseSchema)` to create a new message.
+ */
+export const CreateTicketResponseSchema: GenMessage<CreateTicketResponse> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_issue, 30);
 
 /**
  * SuggestSearchRequest describes the search box state.
@@ -1313,7 +1425,7 @@ export type SuggestSearchRequest = Message<"izci.api.v1.SuggestSearchRequest"> &
  * Use `create(SuggestSearchRequestSchema)` to create a new message.
  */
 export const SuggestSearchRequestSchema: GenMessage<SuggestSearchRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 28);
+  messageDesc(file_izci_api_v1_issue, 31);
 
 /**
  * SuggestSearchResponse lists completions.
@@ -1348,7 +1460,7 @@ export type SuggestSearchResponse = Message<"izci.api.v1.SuggestSearchResponse">
  * Use `create(SuggestSearchResponseSchema)` to create a new message.
  */
 export const SuggestSearchResponseSchema: GenMessage<SuggestSearchResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_issue, 29);
+  messageDesc(file_izci_api_v1_issue, 32);
 
 /**
  * AiState summarizes AI work on an issue.
@@ -1549,6 +1661,14 @@ export enum ActivityKind {
    * @generated from enum value: ACTIVITY_KIND_NOTIFIED = 10;
    */
   NOTIFIED = 10,
+
+  /**
+   * A ticket was created in an external tracker (Jira); data carries
+   * "channel", "key" and "url".
+   *
+   * @generated from enum value: ACTIVITY_KIND_TICKET_CREATED = 11;
+   */
+  TICKET_CREATED = 11,
 }
 
 /**
@@ -1705,6 +1825,18 @@ export const IssueService: GenService<{
     methodKind: "unary";
     input: typeof AddIssueCommentRequestSchema;
     output: typeof AddIssueCommentResponseSchema;
+  },
+  /**
+   * CreateTicket opens a ticket for an issue in the Jira project of a
+   * channel; an issue gets one ticket per channel, so a second call returns
+   * the existing one. Requires ROLE_MEMBER.
+   *
+   * @generated from rpc izci.api.v1.IssueService.CreateTicket
+   */
+  createTicket: {
+    methodKind: "unary";
+    input: typeof CreateTicketRequestSchema;
+    output: typeof CreateTicketResponseSchema;
   },
   /**
    * SuggestSearch completes the search term under the cursor: keys, values

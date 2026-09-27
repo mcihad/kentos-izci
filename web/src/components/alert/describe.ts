@@ -48,7 +48,12 @@ export function describeRule(r: AlertRule, channels: Channel[]): string {
   if (f?.customers.length) extra.push(`yalnız ${f.customers.join(", ")} müşterisi için`);
   if (f?.unhandledOnly) extra.push("yalnız işlenmemiş istisnalarda");
   const names = r.channelIds.map((id) => channels.find((c) => c.id === id)?.name).filter(Boolean);
-  const target = names.length ? `${names.join(", ")} sohbetine` : "hiçbir sohbete (sohbet seçilmemiş)";
+  const target =
+    names.length === 1
+      ? `${names[0]} kanalına`
+      : names.length
+        ? `${names.join(", ")} kanallarına`
+        : "hiçbir kanala (kanal seçilmemiş)";
   const throttle = seconds(r.throttle);
   return `${scope}${env}${level} ${what}${extra.length ? `, ${extra.join(", ")}` : ""} ${target} bildirir.${
     throttle ? ` Aynı hata için en fazla ${everyText(throttle)}.` : ""

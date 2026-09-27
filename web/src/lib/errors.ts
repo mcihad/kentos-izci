@@ -23,7 +23,7 @@ const reasonMessages: Partial<Record<ErrorReason, string>> = {
   [ErrorReason.QUOTA_EXCEEDED]: "Bu ayın olay kotası doldu.",
   [ErrorReason.INVALID_QUERY]: "Arama ifadesi anlaşılamadı.",
   [ErrorReason.INTEGRATION_FAILED]:
-    "GitHub işlemi tamamlanamadı. Bağlantıyı ve deponun durumunu kontrol edin.",
+    "Bağlı servis (GitHub, Jira) işlemi tamamlayamadı. Bağlantı ayarlarını kontrol edin.",
   [ErrorReason.GITHUB_TOKEN_INVALID]: "GitHub erişim anahtarı geçersiz ya da yetkisi yetersiz.",
   [ErrorReason.GITHUB_APP_NOT_CONFIGURED]: "GitHub App bu sunucuda yapılandırılmamış.",
   [ErrorReason.REPOSITORY_NOT_LINKED]: "Bu projeye bir GitHub bağlantısıyla bağlanmış depo yok.",
@@ -34,6 +34,8 @@ const reasonMessages: Partial<Record<ErrorReason, string>> = {
   [ErrorReason.TELEGRAM_NOT_CONFIGURED]: "Telegram botu bu sunucuda yapılandırılmamış.",
   [ErrorReason.CONFLICT]: "İşlem mevcut durumla çakışıyor. Sayfayı yenileyip yeniden deneyin.",
   [ErrorReason.INTERNAL]: "Sunucuda beklenmeyen bir hata oluştu. Yeniden deneyin.",
+  [ErrorReason.CHANNEL_UNAVAILABLE]:
+    "Bu bildirim türü sunucuda yapılandırılmamış. E-posta için sunucu yöneticisinin SMTP ayarlarını yapması gerekir.",
 };
 
 /** The ErrorDetail attached to an API error, if any. */
@@ -95,3 +97,26 @@ export const oidcErrors: Record<string, string> = {
   oidc_token: "Kimlik sağlayıcısının yanıtı doğrulanamadı.",
   oidc_unavailable: "Kimlik sağlayıcısına şu anda ulaşılamıyor.",
 };
+
+/**
+ * A Turkish explanation of a failed call to a connected service (Jira), from
+ * the metadata the API attaches: the service's status and its own message,
+ * which is kept as written.
+ */
+export function integrationMessage(err: unknown): string | undefined {
+  const d = errorDetail(err);
+  if (d?.reason !== ErrorReason.INTEGRATION_FAILED || d.metadata.service !== "jira") return undefined;
+  if (d.metadata.blocked === "private_network") {
+    return "Jira adresi sunucunun iç ağında. Sunucu yöneticisinin NOTIFY_ALLOW_PRIVATE_NETWORKS ayarını açması gerekir.";
+  }
+  const status = Number(d.metadata.status ?? "0");
+  let text: string;
+  if (status === 401 || status === 403) text = "Jira hesap bilgilerini ya da API anahtarını kabul etmedi.";
+  else if (status === 404) text = "Jira'da bu adres ya da proje bulunamadı.";
+  else if (status === 0) text = "Jira'ya ulaşılamadı. Adresi kontrol edin.";
+  else if (status === 429 || status >= 500)
+    text = `Jira şu an yanıt veremiyor (${status}). Biraz sonra yeniden deneyin.`;
+  else text = `Jira isteği reddetti (${status}).`;
+  const detail = d.metadata.detail?.trim();
+  return detail ? `${text} Jira'nın mesajı: ${detail}` : text;
+}

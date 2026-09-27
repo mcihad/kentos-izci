@@ -33,6 +33,7 @@ var Guides = []Guide{
 	{"gruplama", "Gruplama", "Olayların hangi kurallarla aynı hataya toplandığı.", "Kullanım"},
 	{"kaynak-eslemeleri", "Kaynak eşlemeleri ve semboller", "Küçültülmüş JavaScript ve karıştırılmış Flutter yığın izlerini özgün koda çevirme; Vite, webpack, sentry-cli ve sentry_dart_plugin ile yükleme.", "Veri gönderme"},
 	{"cron", "Zamanlanmış görev izleme", "Cron işlerinin zamanında, hatasız ve süresinde çalıştığını izleme; Sentry check-in'leri, HTTP ve Go SDK.", "Kullanım"},
+	{"bildirimler", "Bildirim kanalları", "E-posta, Slack, Microsoft Teams, imzalı webhook ve Jira kanalları; hatadan iş kaydı açma.", "Kullanım"},
 	{"telegram", "Telegram bildirimleri", "Botu bağlama, uyarı kuralları ve Telegram'dan triage.", "Kullanım"},
 	{"yapay-zeka", "GitHub ve yapay zekâ analizi", "GitHub bağlantısı, opencode ile analiz, dal ve çekme isteği.", "Kullanım"},
 	{"mcp", "MCP ile yapay zekâ asistanları", "Claude Code, opencode ve Cursor'dan İzci'yi kullanma.", "Kullanım"},

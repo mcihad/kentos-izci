@@ -14,6 +14,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/db"
 	"github.com/mcihad/kentos-izci/internal/github"
 	"github.com/mcihad/kentos-izci/internal/ingest"
+	"github.com/mcihad/kentos-izci/internal/notify"
 	"github.com/mcihad/kentos-izci/internal/realtime"
 	"github.com/mcihad/kentos-izci/internal/symbols"
 )
@@ -45,6 +46,12 @@ type Deps struct {
 	// Symbols resolves stack traces with uploaded files; its caches are
 	// cleared when files are deleted (optional in tests).
 	Symbols *symbols.Service
+	// Delivery sends queued notifications (optional in tests: then nothing
+	// is delivered right away).
+	Delivery *notify.Dispatcher
+	// Jira creates tickets from issues; Email is nil without SMTP.
+	Jira  *notify.Jira
+	Email *notify.Email
 }
 
 // Servers exposes the service implementations so that other subsystems
@@ -98,7 +105,10 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 		d.Hub = realtime.NewHub()
 	}
 	b := &base{db: d.DB, auth: d.Auth, cfg: d.Config, log: d.Log, hub: d.Hub, pipeline: d.Pipeline, keys: d.Keys, done: d.StreamsDone,
-		notifier: d.Notifier, alerts: d.Alerts, ai: d.AI, github: d.GitHub}
+		notifier: d.Notifier, alerts: d.Alerts, ai: d.AI, github: d.GitHub, delivery: d.Delivery, jira: d.Jira, email: d.Email}
+	if b.jira == nil {
+		b.jira = notify.NewJira(d.Auth.Box(), notify.NewHTTPClient(d.Config.Notify.AllowPrivateNetworks))
+	}
 	if b.github == nil {
 		b.github = github.NewAccess(d.Config.GitHub.APIURL, d.Config.GitHub.WebURL, nil, d.Auth.Box(), nil)
 	}

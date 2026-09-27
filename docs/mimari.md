@@ -58,7 +58,7 @@ Görünüm KentOS tasarım sistemine dayanır: lacivert marka rengi, koyu lacive
 | Kullanım | 15 saniyede bir | Kota ve kullanım sayaçlarını yazar. |
 | Proje temizliği | 5 dakikada bir | Silinen projelerin verisini temizler. |
 | Zamanlanmış görev kontrolü | 30 saniyede bir | Kaçırılan ve zaman aşımına uğrayan [çalışmaları](cron.md) işaretler; satır kilidiyle, birden çok örnekte güvenle. |
-| Bildirim dağıtıcı | Sürekli | Bildirim kuyruğunu Telegram'a gönderir; yeniden deneme ve hız sınırlarıyla. |
+| Bildirim dağıtıcı | Sürekli | Bildirim kuyruğunu [kanallara](bildirimler.md) (Telegram, e-posta, Slack, Teams, webhook, Jira) gönderir; yeniden deneme ve hız sınırlarıyla. Her örnekte çalışır; satırlar kilitlenerek alınır. |
 | Telegram polling | Sürekli | Tek örnekte, veritabanı kilidiyle. |
 | Yapay zekâ koşucusu | Sürekli | Kuyruktaki analizleri alır ve yürütür. |
 
@@ -71,7 +71,7 @@ Görünüm KentOS tasarım sistemine dayanır: lacivert marka rengi, koyu lacive
 | `internal/ingest`, `internal/ingest/sentry` | Ingest boru hattı ve Sentry uyumluluğu: olaylar, ekler, kullanıcı geri bildirimi, sürüm sağlığı oturumları |
 | `internal/api`, `internal/auth` | Yönetim API'si, kimlik doğrulama ve yetki |
 | `internal/db`, `internal/store` | Veritabanı, göçler, SQL |
-| `internal/alert`, `internal/telegram` | Uyarı kuralları ve Telegram |
+| `internal/alert`, `internal/notify`, `internal/telegram` | Uyarı kuralları, bildirim dağıtıcısı ve kanallar (e-posta, Slack, Teams, webhook, Jira), Telegram botu |
 | `internal/monitor` | Zamanlanmış görev izleme: zamanlama, check-in işleme, kaçırılan çalışma kontrolü |
 | `internal/symbols`, `internal/sentryapi` | Kaynak eşlemesi ve DWARF sembol çözme; `sentry-cli` ve derleme eklentileri için yükleme uçları |
 | `internal/github`, `internal/ai` | GitHub ve yapay zekâ analizi |

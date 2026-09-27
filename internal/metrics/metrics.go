@@ -163,14 +163,25 @@ func ClientDiscarded(reason, category string, n int) {
 	shared.GetOrCreateCounter(fmt.Sprintf(`izci_sentry_client_discarded_total{reason=%q,category=%q}`, reason, category)).Add(n)
 }
 
-// Notifications, by outcome: delivered (posted or updated), skipped (the
+// notificationSeries are the channel kinds and outcomes of
+// izci_notifications_total: delivered (posted or updated), skipped (the
 // channel is muted or gone), retried (scheduled again) or dropped (given up).
-var (
-	NotificationsDelivered = shared.NewCounter(`izci_notifications_total{channel="telegram",result="delivered"}`)
-	NotificationsSkipped   = shared.NewCounter(`izci_notifications_total{channel="telegram",result="skipped"}`)
-	NotificationsRetried   = shared.NewCounter(`izci_notifications_total{channel="telegram",result="retried"}`)
-	NotificationsDropped   = shared.NewCounter(`izci_notifications_total{channel="telegram",result="dropped"}`)
-)
+var notificationSeries = func() map[[2]string]*vm.Counter {
+	out := map[[2]string]*vm.Counter{}
+	for _, ch := range []string{"telegram", "email", "slack", "teams", "webhook", "jira", "other"} {
+		for _, r := range []string{"delivered", "skipped", "retried", "dropped"} {
+			out[[2]string{ch, r}] = shared.NewCounter(fmt.Sprintf(`izci_notifications_total{channel=%q,result=%q}`, ch, r))
+		}
+	}
+	return out
+}()
+
+// Notification counts a notification outcome for a channel kind.
+func Notification(channel, result string) {
+	if c := notificationSeries[[2]string{channel, result}]; c != nil {
+		c.Inc()
+	}
+}
 
 // AI analysis runs.
 var (

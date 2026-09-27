@@ -102,6 +102,7 @@ var rules = map[string]rule{
 	c.IssueServiceGetIssueTagFacetsProcedure: orgRule(viewer, read),
 	c.IssueServiceListIssueActivityProcedure: orgRule(viewer, read),
 	c.IssueServiceAddIssueCommentProcedure:   orgRule(member, write),
+	c.IssueServiceCreateTicketProcedure:      orgRule(member, write),
 	c.IssueServiceSuggestSearchProcedure:     orgRule(viewer, read),
 
 	// EventService
@@ -127,6 +128,7 @@ var rules = map[string]rule{
 	c.AlertServiceDeleteAlertRuleProcedure:        orgRule(admin, write),
 	c.AlertServiceListChannelsProcedure:           orgRule(viewer, read),
 	c.AlertServiceUpdateChannelProcedure:          orgRule(admin, write),
+	c.AlertServiceCreateChannelProcedure:          orgRule(admin, write),
 	c.AlertServiceDeleteChannelProcedure:          orgRule(admin, write),
 	c.AlertServiceCreateTelegramLinkCodeProcedure: orgRule(admin, write),
 	c.AlertServiceSendTestNotificationProcedure:   orgRule(admin, write),

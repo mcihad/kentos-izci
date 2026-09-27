@@ -45,7 +45,7 @@
 | `issue_tags` | Etiket dağılımları (müşteri, sürüm, tarayıcı…); aramanın ve **Etki** sekmesinin kaynağı. |
 | `issue_users` | Etkilenen tekil kullanıcılar (kimliğin 8 baytlık özeti). |
 | `issue_activity` | Etkinlik akışı: durum değişiklikleri, yorumlar, bildirimler, yapay zekâ, çekme istekleri. |
-| `alert_rules`, `notification_channels` | Uyarı kuralları ve Telegram sohbetleri. |
+| `alert_rules`, `notification_channels` | Uyarı kuralları ve bildirim kanalları (Telegram, e-posta, Slack, Teams, webhook, Jira); kanal ayarlarındaki adres ve anahtarlar şifreli saklanır. |
 | `notification_outbox`, `notification_threads` | Gönderilecek bildirimler (işlem içi kuyruk) ve gönderilen mesajlar. |
 | `integrations`, `project_repositories` | GitHub bağlantıları (şifreli anahtarlar) ve proje-depo eşlemesi. |
 | `ai_runs`, `ai_run_logs` | Yapay zekâ analizleri, sonuçları, diff'leri ve günlükleri. |

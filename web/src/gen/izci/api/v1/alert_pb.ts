@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file izci/api/v1/alert.proto.
  */
 export const file_izci_api_v1_alert: GenFile = /*@__PURE__*/
-  fileDesc("ChdpemNpL2FwaS92MS9hbGVydC5wcm90bxILaXpjaS5hcGkudjEikQMKCUFsZXJ0UnVsZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEigKB3Byb2plY3QYAyABKAsyFy5pemNpLmFwaS52MS5Qcm9qZWN0UmVmEg8KB2VuYWJsZWQYBCABKAgSKgoHdHJpZ2dlchgFIAEoCzIZLml6Y2kuYXBpLnYxLkFsZXJ0VHJpZ2dlchIqCgdmaWx0ZXJzGAYgASgLMhkuaXpjaS5hcGkudjEuQWxlcnRGaWx0ZXJzEhMKC2NoYW5uZWxfaWRzGAcgAygJEisKCHRocm90dGxlGAggASgLMhkuZ29vZ2xlLnByb3RvYnVmLkR1cmF0aW9uEi4KCmNyZWF0ZWRfYXQYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCnVwZGF0ZWRfYXQYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjUKEWxhc3RfdHJpZ2dlcmVkX2F0GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJ0CgxBbGVydFRyaWdnZXISJgoEa2luZBgBIAEoDjIYLml6Y2kuYXBpLnYxLlRyaWdnZXJLaW5kEhEKCXRocmVzaG9sZBgCIAEoDRIpCgZ3aW5kb3cYAyABKAsyGS5nb29nbGUucHJvdG9idWYuRHVyYXRpb24i7QEKDEFsZXJ0RmlsdGVycxIoCgltaW5fbGV2ZWwYASABKA4yFS5pemNpLmluZ2VzdC52MS5MZXZlbBIeCgxlbnZpcm9ubWVudHMYAiADKAlCCLpIBZIBAhAUEhsKCWN1c3RvbWVycxgDIAMoCUIIukgFkgECEDISMQoEdGFncxgEIAMoCzIjLml6Y2kuYXBpLnYxLkFsZXJ0RmlsdGVycy5UYWdzRW50cnkSFgoOdW5oYW5kbGVkX29ubHkYBSABKAgaKwoJVGFnc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEi1QIKB0NoYW5uZWwSCgoCaWQYASABKAkSJgoEa2luZBgCIAEoDjIYLml6Y2kuYXBpLnYxLkNoYW5uZWxLaW5kEgwKBG5hbWUYAyABKAkSKwoIdGVsZWdyYW0YBCABKAsyGS5pemNpLmFwaS52MS5UZWxlZ3JhbUNoYXQSKAoHcHJvamVjdBgFIAEoCzIXLml6Y2kuYXBpLnYxLlByb2plY3RSZWYSDQoFbXV0ZWQYBiABKAgSKAoKY3JlYXRlZF9ieRgHIAEoCzIULml6Y2kuYXBpLnYxLlVzZXJSZWYSLgoKY3JlYXRlZF9hdBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASNAoQbGFzdF9kZWxpdmVyeV9hdBgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEgoKbGFzdF9lcnJvchgKIAEoCSJhCgxUZWxlZ3JhbUNoYXQSDwoHY2hhdF9pZBgBIAEoAxIRCgl0aHJlYWRfaWQYAiABKAMSDQoFdGl0bGUYAyABKAkSDAoEdHlwZRgEIAEoCRIQCgh1c2VybmFtZRgFIAEoCSIxChVMaXN0QWxlcnRSdWxlc1JlcXVlc3QSGAoHcHJvamVjdBgBIAEoCUIHukgEcgIYMiI/ChZMaXN0QWxlcnRSdWxlc1Jlc3BvbnNlEiUKBXJ1bGVzGAEgAygLMhYuaXpjaS5hcGkudjEuQWxlcnRSdWxlIokCCg5BbGVydFJ1bGVJbnB1dBIXCgRuYW1lGAEgASgJQgm6SAZyBBABGGQSGAoHcHJvamVjdBgCIAEoCUIHukgEcgIYMhIPCgdlbmFibGVkGAMgASgIEjIKB3RyaWdnZXIYBCABKAsyGS5pemNpLmFwaS52MS5BbGVydFRyaWdnZXJCBrpIA8gBARIqCgdmaWx0ZXJzGAUgASgLMhkuaXpjaS5hcGkudjEuQWxlcnRGaWx0ZXJzEiYKC2NoYW5uZWxfaWRzGAYgAygJQhG6SA6SAQsIARAUIgVyA7ABARIrCgh0aHJvdHRsZRgHIAEoCzIZLmdvb2dsZS5wcm90b2J1Zi5EdXJhdGlvbiJLChZDcmVhdGVBbGVydFJ1bGVSZXF1ZXN0EjEKBHJ1bGUYASABKAsyGy5pemNpLmFwaS52MS5BbGVydFJ1bGVJbnB1dEIGukgDyAEBIj8KF0NyZWF0ZUFsZXJ0UnVsZVJlc3BvbnNlEiQKBHJ1bGUYASABKAsyFi5pemNpLmFwaS52MS5BbGVydFJ1bGUiYQoWVXBkYXRlQWxlcnRSdWxlUmVxdWVzdBIUCgJpZBgBIAEoCUIIukgFcgOwAQESMQoEcnVsZRgCIAEoCzIbLml6Y2kuYXBpLnYxLkFsZXJ0UnVsZUlucHV0Qga6SAPIAQEiPwoXVXBkYXRlQWxlcnRSdWxlUmVzcG9uc2USJAoEcnVsZRgBIAEoCzIWLml6Y2kuYXBpLnYxLkFsZXJ0UnVsZSIuChZEZWxldGVBbGVydFJ1bGVSZXF1ZXN0EhQKAmlkGAEgASgJQgi6SAVyA7ABASIZChdEZWxldGVBbGVydFJ1bGVSZXNwb25zZSIVChNMaXN0Q2hhbm5lbHNSZXF1ZXN0Ij4KFExpc3RDaGFubmVsc1Jlc3BvbnNlEiYKCGNoYW5uZWxzGAEgAygLMhQuaXpjaS5hcGkudjEuQ2hhbm5lbCJSChRVcGRhdGVDaGFubmVsUmVxdWVzdBIUCgJpZBgBIAEoCUIIukgFcgOwAQESFQoEbmFtZRgCIAEoCUIHukgEcgIYZBINCgVtdXRlZBgDIAEoCCI+ChVVcGRhdGVDaGFubmVsUmVzcG9uc2USJQoHY2hhbm5lbBgBIAEoCzIULml6Y2kuYXBpLnYxLkNoYW5uZWwiLAoURGVsZXRlQ2hhbm5lbFJlcXVlc3QSFAoCaWQYASABKAlCCLpIBXIDsAEBIhcKFURlbGV0ZUNoYW5uZWxSZXNwb25zZSI5Ch1DcmVhdGVUZWxlZ3JhbUxpbmtDb2RlUmVxdWVzdBIYCgdwcm9qZWN0GAEgASgJQge6SARyAhgyIp4BCh5DcmVhdGVUZWxlZ3JhbUxpbmtDb2RlUmVzcG9uc2USDAoEY29kZRgBIAEoCRIUCgxib3RfdXNlcm5hbWUYAiABKAkSEgoKZ3JvdXBfbGluaxgDIAEoCRIUCgxwcml2YXRlX2xpbmsYBCABKAkSLgoKZXhwaXJlc19hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiOwobU2VuZFRlc3ROb3RpZmljYXRpb25SZXF1ZXN0EhwKCmNoYW5uZWxfaWQYASABKAlCCLpIBXIDsAEBIh4KHFNlbmRUZXN0Tm90aWZpY2F0aW9uUmVzcG9uc2UiHgocR2V0Tm90aWZpY2F0aW9uU3RhdHVzUmVxdWVzdCJyCh1HZXROb3RpZmljYXRpb25TdGF0dXNSZXNwb25zZRIbChN0ZWxlZ3JhbV9jb25maWd1cmVkGAEgASgIEh0KFXRlbGVncmFtX2JvdF91c2VybmFtZRgCIAEoCRIVCg10ZWxlZ3JhbV9tb2RlGAMgASgJKoABCgtUcmlnZ2VyS2luZBIcChhUUklHR0VSX0tJTkRfVU5TUEVDSUZJRUQQABIaChZUUklHR0VSX0tJTkRfTkVXX0lTU1VFEAESGwoXVFJJR0dFUl9LSU5EX1JFR1JFU1NJT04QAhIaChZUUklHR0VSX0tJTkRfRlJFUVVFTkNZEAMqRgoLQ2hhbm5lbEtpbmQSHAoYQ0hBTk5FTF9LSU5EX1VOU1BFQ0lGSUVEEAASGQoVQ0hBTk5FTF9LSU5EX1RFTEVHUkFNEAEy5wcKDEFsZXJ0U2VydmljZRJeCg5MaXN0QWxlcnRSdWxlcxIiLml6Y2kuYXBpLnYxLkxpc3RBbGVydFJ1bGVzUmVxdWVzdBojLml6Y2kuYXBpLnYxLkxpc3RBbGVydFJ1bGVzUmVzcG9uc2UiA5ACARJcCg9DcmVhdGVBbGVydFJ1bGUSIy5pemNpLmFwaS52MS5DcmVhdGVBbGVydFJ1bGVSZXF1ZXN0GiQuaXpjaS5hcGkudjEuQ3JlYXRlQWxlcnRSdWxlUmVzcG9uc2USXAoPVXBkYXRlQWxlcnRSdWxlEiMuaXpjaS5hcGkudjEuVXBkYXRlQWxlcnRSdWxlUmVxdWVzdBokLml6Y2kuYXBpLnYxLlVwZGF0ZUFsZXJ0UnVsZVJlc3BvbnNlElwKD0RlbGV0ZUFsZXJ0UnVsZRIjLml6Y2kuYXBpLnYxLkRlbGV0ZUFsZXJ0UnVsZVJlcXVlc3QaJC5pemNpLmFwaS52MS5EZWxldGVBbGVydFJ1bGVSZXNwb25zZRJYCgxMaXN0Q2hhbm5lbHMSIC5pemNpLmFwaS52MS5MaXN0Q2hhbm5lbHNSZXF1ZXN0GiEuaXpjaS5hcGkudjEuTGlzdENoYW5uZWxzUmVzcG9uc2UiA5ACARJWCg1VcGRhdGVDaGFubmVsEiEuaXpjaS5hcGkudjEuVXBkYXRlQ2hhbm5lbFJlcXVlc3QaIi5pemNpLmFwaS52MS5VcGRhdGVDaGFubmVsUmVzcG9uc2USVgoNRGVsZXRlQ2hhbm5lbBIhLml6Y2kuYXBpLnYxLkRlbGV0ZUNoYW5uZWxSZXF1ZXN0GiIuaXpjaS5hcGkudjEuRGVsZXRlQ2hhbm5lbFJlc3BvbnNlEnEKFkNyZWF0ZVRlbGVncmFtTGlua0NvZGUSKi5pemNpLmFwaS52MS5DcmVhdGVUZWxlZ3JhbUxpbmtDb2RlUmVxdWVzdBorLml6Y2kuYXBpLnYxLkNyZWF0ZVRlbGVncmFtTGlua0NvZGVSZXNwb25zZRJrChRTZW5kVGVzdE5vdGlmaWNhdGlvbhIoLml6Y2kuYXBpLnYxLlNlbmRUZXN0Tm90aWZpY2F0aW9uUmVxdWVzdBopLml6Y2kuYXBpLnYxLlNlbmRUZXN0Tm90aWZpY2F0aW9uUmVzcG9uc2UScwoVR2V0Tm90aWZpY2F0aW9uU3RhdHVzEikuaXpjaS5hcGkudjEuR2V0Tm90aWZpY2F0aW9uU3RhdHVzUmVxdWVzdBoqLml6Y2kuYXBpLnYxLkdldE5vdGlmaWNhdGlvblN0YXR1c1Jlc3BvbnNlIgOQAgFCoAEKD2NvbS5pemNpLmFwaS52MUIKQWxlcnRQcm90b1ABWjNnaXRodWIuY29tL21jaWhhZC9rZW50b3MtaXpjaS9nZW4vaXpjaS9hcGkvdjE7YXBpdjGiAgNJQViqAgtJemNpLkFwaS5WMcoCC0l6Y2lcQXBpXFYx4gIXSXpjaVxBcGlcVjFcR1BCTWV0YWRhdGHqAg1JemNpOjpBcGk6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_duration, file_google_protobuf_timestamp, file_izci_api_v1_common, file_izci_ingest_v1_event]);
+  fileDesc("ChdpemNpL2FwaS92MS9hbGVydC5wcm90bxILaXpjaS5hcGkudjEikQMKCUFsZXJ0UnVsZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEigKB3Byb2plY3QYAyABKAsyFy5pemNpLmFwaS52MS5Qcm9qZWN0UmVmEg8KB2VuYWJsZWQYBCABKAgSKgoHdHJpZ2dlchgFIAEoCzIZLml6Y2kuYXBpLnYxLkFsZXJ0VHJpZ2dlchIqCgdmaWx0ZXJzGAYgASgLMhkuaXpjaS5hcGkudjEuQWxlcnRGaWx0ZXJzEhMKC2NoYW5uZWxfaWRzGAcgAygJEisKCHRocm90dGxlGAggASgLMhkuZ29vZ2xlLnByb3RvYnVmLkR1cmF0aW9uEi4KCmNyZWF0ZWRfYXQYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCnVwZGF0ZWRfYXQYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjUKEWxhc3RfdHJpZ2dlcmVkX2F0GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJ0CgxBbGVydFRyaWdnZXISJgoEa2luZBgBIAEoDjIYLml6Y2kuYXBpLnYxLlRyaWdnZXJLaW5kEhEKCXRocmVzaG9sZBgCIAEoDRIpCgZ3aW5kb3cYAyABKAsyGS5nb29nbGUucHJvdG9idWYuRHVyYXRpb24i7QEKDEFsZXJ0RmlsdGVycxIoCgltaW5fbGV2ZWwYASABKA4yFS5pemNpLmluZ2VzdC52MS5MZXZlbBIeCgxlbnZpcm9ubWVudHMYAiADKAlCCLpIBZIBAhAUEhsKCWN1c3RvbWVycxgDIAMoCUIIukgFkgECEDISMQoEdGFncxgEIAMoCzIjLml6Y2kuYXBpLnYxLkFsZXJ0RmlsdGVycy5UYWdzRW50cnkSFgoOdW5oYW5kbGVkX29ubHkYBSABKAgaKwoJVGFnc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiugMKB0NoYW5uZWwSCgoCaWQYASABKAkSJgoEa2luZBgCIAEoDjIYLml6Y2kuYXBpLnYxLkNoYW5uZWxLaW5kEgwKBG5hbWUYAyABKAkSKwoIdGVsZWdyYW0YBCABKAsyGS5pemNpLmFwaS52MS5UZWxlZ3JhbUNoYXQSKAoHcHJvamVjdBgFIAEoCzIXLml6Y2kuYXBpLnYxLlByb2plY3RSZWYSDQoFbXV0ZWQYBiABKAgSKAoKY3JlYXRlZF9ieRgHIAEoCzIULml6Y2kuYXBpLnYxLlVzZXJSZWYSLgoKY3JlYXRlZF9hdBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASNAoQbGFzdF9kZWxpdmVyeV9hdBgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEgoKbGFzdF9lcnJvchgKIAEoCRIYChBlbWFpbF9yZWNpcGllbnRzGAsgAygJEhAKCHVybF9oaW50GAwgASgJEg4KBnNpZ25lZBgNIAEoCBInCgRqaXJhGA4gASgLMhkuaXpjaS5hcGkudjEuSmlyYVNldHRpbmdzImgKDEppcmFTZXR0aW5ncxIQCghiYXNlX3VybBgBIAEoCRITCgtwcm9qZWN0X2tleRgCIAEoCRISCgppc3N1ZV90eXBlGAMgASgJEg0KBWVtYWlsGAQgASgJEg4KBmxhYmVscxgFIAMoCSKEAgoPQ2hhbm5lbFNldHRpbmdzEisKBWVtYWlsGAEgASgLMhouaXpjaS5hcGkudjEuRW1haWxTZXR0aW5nc0gAEi0KBXNsYWNrGAIgASgLMhwuaXpjaS5hcGkudjEuV2ViaG9va1NldHRpbmdzSAASLQoFdGVhbXMYAyABKAsyHC5pemNpLmFwaS52MS5XZWJob29rU2V0dGluZ3NIABIvCgd3ZWJob29rGAQgASgLMhwuaXpjaS5hcGkudjEuV2ViaG9va1NldHRpbmdzSAASJgoEamlyYRgFIAEoCzIWLml6Y2kuYXBpLnYxLkppcmFJbnB1dEgAQg0KBGtpbmQSBbpIAggBIjgKDUVtYWlsU2V0dGluZ3MSJwoKcmVjaXBpZW50cxgBIAMoCUITukgQkgENCAEQFCIHcgUY/gFgASIoCg9XZWJob29rU2V0dGluZ3MSFQoDdXJsGAEgASgJQgi6SAVyAxjQDyK6AQoJSmlyYUlucHV0EhwKCGJhc2VfdXJsGAEgASgJQgq6SAdyBRABGKwCEh4KC3Byb2plY3Rfa2V5GAIgASgJQgm6SAZyBBABGDISGwoKaXNzdWVfdHlwZRgDIAEoCUIHukgEcgIYZBIXCgVlbWFpbBgEIAEoCUIIukgFcgMY/gESFwoFdG9rZW4YBSABKAlCCLpIBXIDGOgHEiAKBmxhYmVscxgGIAMoCUIQukgNkgEKEAoiBnIEEAEYMiJhCgxUZWxlZ3JhbUNoYXQSDwoHY2hhdF9pZBgBIAEoAxIRCgl0aHJlYWRfaWQYAiABKAMSDQoFdGl0bGUYAyABKAkSDAoEdHlwZRgEIAEoCRIQCgh1c2VybmFtZRgFIAEoCSIxChVMaXN0QWxlcnRSdWxlc1JlcXVlc3QSGAoHcHJvamVjdBgBIAEoCUIHukgEcgIYMiI/ChZMaXN0QWxlcnRSdWxlc1Jlc3BvbnNlEiUKBXJ1bGVzGAEgAygLMhYuaXpjaS5hcGkudjEuQWxlcnRSdWxlIokCCg5BbGVydFJ1bGVJbnB1dBIXCgRuYW1lGAEgASgJQgm6SAZyBBABGGQSGAoHcHJvamVjdBgCIAEoCUIHukgEcgIYMhIPCgdlbmFibGVkGAMgASgIEjIKB3RyaWdnZXIYBCABKAsyGS5pemNpLmFwaS52MS5BbGVydFRyaWdnZXJCBrpIA8gBARIqCgdmaWx0ZXJzGAUgASgLMhkuaXpjaS5hcGkudjEuQWxlcnRGaWx0ZXJzEiYKC2NoYW5uZWxfaWRzGAYgAygJQhG6SA6SAQsIARAUIgVyA7ABARIrCgh0aHJvdHRsZRgHIAEoCzIZLmdvb2dsZS5wcm90b2J1Zi5EdXJhdGlvbiJLChZDcmVhdGVBbGVydFJ1bGVSZXF1ZXN0EjEKBHJ1bGUYASABKAsyGy5pemNpLmFwaS52MS5BbGVydFJ1bGVJbnB1dEIGukgDyAEBIj8KF0NyZWF0ZUFsZXJ0UnVsZVJlc3BvbnNlEiQKBHJ1bGUYASABKAsyFi5pemNpLmFwaS52MS5BbGVydFJ1bGUiYQoWVXBkYXRlQWxlcnRSdWxlUmVxdWVzdBIUCgJpZBgBIAEoCUIIukgFcgOwAQESMQoEcnVsZRgCIAEoCzIbLml6Y2kuYXBpLnYxLkFsZXJ0UnVsZUlucHV0Qga6SAPIAQEiPwoXVXBkYXRlQWxlcnRSdWxlUmVzcG9uc2USJAoEcnVsZRgBIAEoCzIWLml6Y2kuYXBpLnYxLkFsZXJ0UnVsZSIuChZEZWxldGVBbGVydFJ1bGVSZXF1ZXN0EhQKAmlkGAEgASgJQgi6SAVyA7ABASIZChdEZWxldGVBbGVydFJ1bGVSZXNwb25zZSIVChNMaXN0Q2hhbm5lbHNSZXF1ZXN0Ij4KFExpc3RDaGFubmVsc1Jlc3BvbnNlEiYKCGNoYW5uZWxzGAEgAygLMhQuaXpjaS5hcGkudjEuQ2hhbm5lbCKBAQoUQ3JlYXRlQ2hhbm5lbFJlcXVlc3QSFwoEbmFtZRgBIAEoCUIJukgGcgQQARhkEhgKB3Byb2plY3QYAiABKAlCB7pIBHICGDISNgoIc2V0dGluZ3MYAyABKAsyHC5pemNpLmFwaS52MS5DaGFubmVsU2V0dGluZ3NCBrpIA8gBASJWChVDcmVhdGVDaGFubmVsUmVzcG9uc2USJQoHY2hhbm5lbBgBIAEoCzIULml6Y2kuYXBpLnYxLkNoYW5uZWwSFgoOd2ViaG9va19zZWNyZXQYAiABKAkiggEKFFVwZGF0ZUNoYW5uZWxSZXF1ZXN0EhQKAmlkGAEgASgJQgi6SAVyA7ABARIVCgRuYW1lGAIgASgJQge6SARyAhhkEg0KBW11dGVkGAMgASgIEi4KCHNldHRpbmdzGAQgASgLMhwuaXpjaS5hcGkudjEuQ2hhbm5lbFNldHRpbmdzIj4KFVVwZGF0ZUNoYW5uZWxSZXNwb25zZRIlCgdjaGFubmVsGAEgASgLMhQuaXpjaS5hcGkudjEuQ2hhbm5lbCIsChREZWxldGVDaGFubmVsUmVxdWVzdBIUCgJpZBgBIAEoCUIIukgFcgOwAQEiFwoVRGVsZXRlQ2hhbm5lbFJlc3BvbnNlIjkKHUNyZWF0ZVRlbGVncmFtTGlua0NvZGVSZXF1ZXN0EhgKB3Byb2plY3QYASABKAlCB7pIBHICGDIingEKHkNyZWF0ZVRlbGVncmFtTGlua0NvZGVSZXNwb25zZRIMCgRjb2RlGAEgASgJEhQKDGJvdF91c2VybmFtZRgCIAEoCRISCgpncm91cF9saW5rGAMgASgJEhQKDHByaXZhdGVfbGluaxgEIAEoCRIuCgpleHBpcmVzX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCI7ChtTZW5kVGVzdE5vdGlmaWNhdGlvblJlcXVlc3QSHAoKY2hhbm5lbF9pZBgBIAEoCUIIukgFcgOwAQEiHgocU2VuZFRlc3ROb3RpZmljYXRpb25SZXNwb25zZSIeChxHZXROb3RpZmljYXRpb25TdGF0dXNSZXF1ZXN0IqABCh1HZXROb3RpZmljYXRpb25TdGF0dXNSZXNwb25zZRIbChN0ZWxlZ3JhbV9jb25maWd1cmVkGAEgASgIEh0KFXRlbGVncmFtX2JvdF91c2VybmFtZRgCIAEoCRIVCg10ZWxlZ3JhbV9tb2RlGAMgASgJEhgKEGVtYWlsX2NvbmZpZ3VyZWQYBCABKAgSEgoKZW1haWxfZnJvbRgFIAEoCSqAAQoLVHJpZ2dlcktpbmQSHAoYVFJJR0dFUl9LSU5EX1VOU1BFQ0lGSUVEEAASGgoWVFJJR0dFUl9LSU5EX05FV19JU1NVRRABEhsKF1RSSUdHRVJfS0lORF9SRUdSRVNTSU9OEAISGgoWVFJJR0dFUl9LSU5EX0ZSRVFVRU5DWRADKr8BCgtDaGFubmVsS2luZBIcChhDSEFOTkVMX0tJTkRfVU5TUEVDSUZJRUQQABIZChVDSEFOTkVMX0tJTkRfVEVMRUdSQU0QARIWChJDSEFOTkVMX0tJTkRfRU1BSUwQAhIWChJDSEFOTkVMX0tJTkRfU0xBQ0sQAxIWChJDSEFOTkVMX0tJTkRfVEVBTVMQBBIYChRDSEFOTkVMX0tJTkRfV0VCSE9PSxAFEhUKEUNIQU5ORUxfS0lORF9KSVJBEAYyvwgKDEFsZXJ0U2VydmljZRJeCg5MaXN0QWxlcnRSdWxlcxIiLml6Y2kuYXBpLnYxLkxpc3RBbGVydFJ1bGVzUmVxdWVzdBojLml6Y2kuYXBpLnYxLkxpc3RBbGVydFJ1bGVzUmVzcG9uc2UiA5ACARJcCg9DcmVhdGVBbGVydFJ1bGUSIy5pemNpLmFwaS52MS5DcmVhdGVBbGVydFJ1bGVSZXF1ZXN0GiQuaXpjaS5hcGkudjEuQ3JlYXRlQWxlcnRSdWxlUmVzcG9uc2USXAoPVXBkYXRlQWxlcnRSdWxlEiMuaXpjaS5hcGkudjEuVXBkYXRlQWxlcnRSdWxlUmVxdWVzdBokLml6Y2kuYXBpLnYxLlVwZGF0ZUFsZXJ0UnVsZVJlc3BvbnNlElwKD0RlbGV0ZUFsZXJ0UnVsZRIjLml6Y2kuYXBpLnYxLkRlbGV0ZUFsZXJ0UnVsZVJlcXVlc3QaJC5pemNpLmFwaS52MS5EZWxldGVBbGVydFJ1bGVSZXNwb25zZRJYCgxMaXN0Q2hhbm5lbHMSIC5pemNpLmFwaS52MS5MaXN0Q2hhbm5lbHNSZXF1ZXN0GiEuaXpjaS5hcGkudjEuTGlzdENoYW5uZWxzUmVzcG9uc2UiA5ACARJWCg1DcmVhdGVDaGFubmVsEiEuaXpjaS5hcGkudjEuQ3JlYXRlQ2hhbm5lbFJlcXVlc3QaIi5pemNpLmFwaS52MS5DcmVhdGVDaGFubmVsUmVzcG9uc2USVgoNVXBkYXRlQ2hhbm5lbBIhLml6Y2kuYXBpLnYxLlVwZGF0ZUNoYW5uZWxSZXF1ZXN0GiIuaXpjaS5hcGkudjEuVXBkYXRlQ2hhbm5lbFJlc3BvbnNlElYKDURlbGV0ZUNoYW5uZWwSIS5pemNpLmFwaS52MS5EZWxldGVDaGFubmVsUmVxdWVzdBoiLml6Y2kuYXBpLnYxLkRlbGV0ZUNoYW5uZWxSZXNwb25zZRJxChZDcmVhdGVUZWxlZ3JhbUxpbmtDb2RlEiouaXpjaS5hcGkudjEuQ3JlYXRlVGVsZWdyYW1MaW5rQ29kZVJlcXVlc3QaKy5pemNpLmFwaS52MS5DcmVhdGVUZWxlZ3JhbUxpbmtDb2RlUmVzcG9uc2USawoUU2VuZFRlc3ROb3RpZmljYXRpb24SKC5pemNpLmFwaS52MS5TZW5kVGVzdE5vdGlmaWNhdGlvblJlcXVlc3QaKS5pemNpLmFwaS52MS5TZW5kVGVzdE5vdGlmaWNhdGlvblJlc3BvbnNlEnMKFUdldE5vdGlmaWNhdGlvblN0YXR1cxIpLml6Y2kuYXBpLnYxLkdldE5vdGlmaWNhdGlvblN0YXR1c1JlcXVlc3QaKi5pemNpLmFwaS52MS5HZXROb3RpZmljYXRpb25TdGF0dXNSZXNwb25zZSIDkAIBQqABCg9jb20uaXpjaS5hcGkudjFCCkFsZXJ0UHJvdG9QAVozZ2l0aHViLmNvbS9tY2loYWQva2VudG9zLWl6Y2kvZ2VuL2l6Y2kvYXBpL3YxO2FwaXYxogIDSUFYqgILSXpjaS5BcGkuVjHKAgtJemNpXEFwaVxWMeICF0l6Y2lcQXBpXFYxXEdQQk1ldGFkYXRh6gINSXpjaTo6QXBpOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_duration, file_google_protobuf_timestamp, file_izci_api_v1_common, file_izci_ingest_v1_event]);
 
 /**
  * AlertRule decides when to notify which channels.
@@ -271,6 +271,35 @@ export type Channel = Message<"izci.api.v1.Channel"> & {
    * @generated from field: string last_error = 10;
    */
   lastError: string;
+
+  /**
+   * Recipients of CHANNEL_KIND_EMAIL.
+   *
+   * @generated from field: repeated string email_recipients = 11;
+   */
+  emailRecipients: string[];
+
+  /**
+   * Where a Slack, Teams or webhook channel posts, with the secret part of
+   * the URL hidden, e.g. "hooks.slack.com/…/x7Qa".
+   *
+   * @generated from field: string url_hint = 12;
+   */
+  urlHint: string;
+
+  /**
+   * Whether webhook deliveries carry a signature (X-Izci-Signature).
+   *
+   * @generated from field: bool signed = 13;
+   */
+  signed: boolean;
+
+  /**
+   * Jira settings of CHANNEL_KIND_JIRA (without the token).
+   *
+   * @generated from field: izci.api.v1.JiraSettings jira = 14;
+   */
+  jira?: JiraSettings | undefined;
 };
 
 /**
@@ -279,6 +308,218 @@ export type Channel = Message<"izci.api.v1.Channel"> & {
  */
 export const ChannelSchema: GenMessage<Channel> = /*@__PURE__*/
   messageDesc(file_izci_api_v1_alert, 3);
+
+/**
+ * JiraSettings is where a Jira channel creates tickets.
+ *
+ * @generated from message izci.api.v1.JiraSettings
+ */
+export type JiraSettings = Message<"izci.api.v1.JiraSettings"> & {
+  /**
+   * Site address, e.g. "https://kentos.atlassian.net".
+   *
+   * @generated from field: string base_url = 1;
+   */
+  baseUrl: string;
+
+  /**
+   * Project key, e.g. "KALEM".
+   *
+   * @generated from field: string project_key = 2;
+   */
+  projectKey: string;
+
+  /**
+   * Issue type name as configured in Jira, e.g. "Bug".
+   *
+   * @generated from field: string issue_type = 3;
+   */
+  issueType: string;
+
+  /**
+   * Account e-mail for Jira Cloud API tokens; empty when the token is a
+   * personal access token (Jira Server, Data Center).
+   *
+   * @generated from field: string email = 4;
+   */
+  email: string;
+
+  /**
+   * Labels added to tickets besides "izci".
+   *
+   * @generated from field: repeated string labels = 5;
+   */
+  labels: string[];
+};
+
+/**
+ * Describes the message izci.api.v1.JiraSettings.
+ * Use `create(JiraSettingsSchema)` to create a new message.
+ */
+export const JiraSettingsSchema: GenMessage<JiraSettings> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_alert, 4);
+
+/**
+ * ChannelSettings is the destination of a new or reconfigured channel.
+ *
+ * @generated from message izci.api.v1.ChannelSettings
+ */
+export type ChannelSettings = Message<"izci.api.v1.ChannelSettings"> & {
+  /**
+   * One destination.
+   *
+   * @generated from oneof izci.api.v1.ChannelSettings.kind
+   */
+  kind: {
+    /**
+     * E-mail recipients.
+     *
+     * @generated from field: izci.api.v1.EmailSettings email = 1;
+     */
+    value: EmailSettings;
+    case: "email";
+  } | {
+    /**
+     * Slack incoming webhook.
+     *
+     * @generated from field: izci.api.v1.WebhookSettings slack = 2;
+     */
+    value: WebhookSettings;
+    case: "slack";
+  } | {
+    /**
+     * Microsoft Teams webhook.
+     *
+     * @generated from field: izci.api.v1.WebhookSettings teams = 3;
+     */
+    value: WebhookSettings;
+    case: "teams";
+  } | {
+    /**
+     * Generic webhook.
+     *
+     * @generated from field: izci.api.v1.WebhookSettings webhook = 4;
+     */
+    value: WebhookSettings;
+    case: "webhook";
+  } | {
+    /**
+     * Jira project.
+     *
+     * @generated from field: izci.api.v1.JiraInput jira = 5;
+     */
+    value: JiraInput;
+    case: "jira";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message izci.api.v1.ChannelSettings.
+ * Use `create(ChannelSettingsSchema)` to create a new message.
+ */
+export const ChannelSettingsSchema: GenMessage<ChannelSettings> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_alert, 5);
+
+/**
+ * EmailSettings lists e-mail recipients.
+ *
+ * @generated from message izci.api.v1.EmailSettings
+ */
+export type EmailSettings = Message<"izci.api.v1.EmailSettings"> & {
+  /**
+   * 1 to 20 addresses.
+   *
+   * @generated from field: repeated string recipients = 1;
+   */
+  recipients: string[];
+};
+
+/**
+ * Describes the message izci.api.v1.EmailSettings.
+ * Use `create(EmailSettingsSchema)` to create a new message.
+ */
+export const EmailSettingsSchema: GenMessage<EmailSettings> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_alert, 6);
+
+/**
+ * WebhookSettings is the URL a Slack, Teams or webhook channel posts to.
+ *
+ * @generated from message izci.api.v1.WebhookSettings
+ */
+export type WebhookSettings = Message<"izci.api.v1.WebhookSettings"> & {
+  /**
+   * Webhook URL (https for Slack and Teams). On update, empty keeps the
+   * current URL.
+   *
+   * @generated from field: string url = 1;
+   */
+  url: string;
+};
+
+/**
+ * Describes the message izci.api.v1.WebhookSettings.
+ * Use `create(WebhookSettingsSchema)` to create a new message.
+ */
+export const WebhookSettingsSchema: GenMessage<WebhookSettings> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_alert, 7);
+
+/**
+ * JiraInput configures a Jira channel.
+ *
+ * @generated from message izci.api.v1.JiraInput
+ */
+export type JiraInput = Message<"izci.api.v1.JiraInput"> & {
+  /**
+   * Site address, e.g. "https://kentos.atlassian.net".
+   *
+   * @generated from field: string base_url = 1;
+   */
+  baseUrl: string;
+
+  /**
+   * Project key, e.g. "KALEM".
+   *
+   * @generated from field: string project_key = 2;
+   */
+  projectKey: string;
+
+  /**
+   * Issue type name, e.g. "Bug" (default).
+   *
+   * @generated from field: string issue_type = 3;
+   */
+  issueType: string;
+
+  /**
+   * Account e-mail for a Jira Cloud API token; empty for a personal access
+   * token (Jira Server, Data Center).
+   *
+   * @generated from field: string email = 4;
+   */
+  email: string;
+
+  /**
+   * API token or personal access token. On update, empty keeps the current
+   * token.
+   *
+   * @generated from field: string token = 5;
+   */
+  token: string;
+
+  /**
+   * Extra labels, at most 10.
+   *
+   * @generated from field: repeated string labels = 6;
+   */
+  labels: string[];
+};
+
+/**
+ * Describes the message izci.api.v1.JiraInput.
+ * Use `create(JiraInputSchema)` to create a new message.
+ */
+export const JiraInputSchema: GenMessage<JiraInput> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_alert, 8);
 
 /**
  * TelegramChat identifies a Telegram chat.
@@ -328,7 +569,7 @@ export type TelegramChat = Message<"izci.api.v1.TelegramChat"> & {
  * Use `create(TelegramChatSchema)` to create a new message.
  */
 export const TelegramChatSchema: GenMessage<TelegramChat> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 4);
+  messageDesc(file_izci_api_v1_alert, 9);
 
 /**
  * ListAlertRulesRequest filters rules.
@@ -349,7 +590,7 @@ export type ListAlertRulesRequest = Message<"izci.api.v1.ListAlertRulesRequest">
  * Use `create(ListAlertRulesRequestSchema)` to create a new message.
  */
 export const ListAlertRulesRequestSchema: GenMessage<ListAlertRulesRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 5);
+  messageDesc(file_izci_api_v1_alert, 10);
 
 /**
  * ListAlertRulesResponse lists rules.
@@ -370,7 +611,7 @@ export type ListAlertRulesResponse = Message<"izci.api.v1.ListAlertRulesResponse
  * Use `create(ListAlertRulesResponseSchema)` to create a new message.
  */
 export const ListAlertRulesResponseSchema: GenMessage<ListAlertRulesResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 6);
+  messageDesc(file_izci_api_v1_alert, 11);
 
 /**
  * AlertRuleInput holds the editable fields of a rule.
@@ -433,7 +674,7 @@ export type AlertRuleInput = Message<"izci.api.v1.AlertRuleInput"> & {
  * Use `create(AlertRuleInputSchema)` to create a new message.
  */
 export const AlertRuleInputSchema: GenMessage<AlertRuleInput> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 7);
+  messageDesc(file_izci_api_v1_alert, 12);
 
 /**
  * CreateAlertRuleRequest creates a rule.
@@ -454,7 +695,7 @@ export type CreateAlertRuleRequest = Message<"izci.api.v1.CreateAlertRuleRequest
  * Use `create(CreateAlertRuleRequestSchema)` to create a new message.
  */
 export const CreateAlertRuleRequestSchema: GenMessage<CreateAlertRuleRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 8);
+  messageDesc(file_izci_api_v1_alert, 13);
 
 /**
  * CreateAlertRuleResponse returns the rule.
@@ -475,7 +716,7 @@ export type CreateAlertRuleResponse = Message<"izci.api.v1.CreateAlertRuleRespon
  * Use `create(CreateAlertRuleResponseSchema)` to create a new message.
  */
 export const CreateAlertRuleResponseSchema: GenMessage<CreateAlertRuleResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 9);
+  messageDesc(file_izci_api_v1_alert, 14);
 
 /**
  * UpdateAlertRuleRequest replaces a rule.
@@ -503,7 +744,7 @@ export type UpdateAlertRuleRequest = Message<"izci.api.v1.UpdateAlertRuleRequest
  * Use `create(UpdateAlertRuleRequestSchema)` to create a new message.
  */
 export const UpdateAlertRuleRequestSchema: GenMessage<UpdateAlertRuleRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 10);
+  messageDesc(file_izci_api_v1_alert, 15);
 
 /**
  * UpdateAlertRuleResponse returns the rule.
@@ -524,7 +765,7 @@ export type UpdateAlertRuleResponse = Message<"izci.api.v1.UpdateAlertRuleRespon
  * Use `create(UpdateAlertRuleResponseSchema)` to create a new message.
  */
 export const UpdateAlertRuleResponseSchema: GenMessage<UpdateAlertRuleResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 11);
+  messageDesc(file_izci_api_v1_alert, 16);
 
 /**
  * DeleteAlertRuleRequest identifies a rule.
@@ -545,7 +786,7 @@ export type DeleteAlertRuleRequest = Message<"izci.api.v1.DeleteAlertRuleRequest
  * Use `create(DeleteAlertRuleRequestSchema)` to create a new message.
  */
 export const DeleteAlertRuleRequestSchema: GenMessage<DeleteAlertRuleRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 12);
+  messageDesc(file_izci_api_v1_alert, 17);
 
 /**
  * DeleteAlertRuleResponse has no fields.
@@ -560,7 +801,7 @@ export type DeleteAlertRuleResponse = Message<"izci.api.v1.DeleteAlertRuleRespon
  * Use `create(DeleteAlertRuleResponseSchema)` to create a new message.
  */
 export const DeleteAlertRuleResponseSchema: GenMessage<DeleteAlertRuleResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 13);
+  messageDesc(file_izci_api_v1_alert, 18);
 
 /**
  * ListChannelsRequest has no fields.
@@ -575,7 +816,7 @@ export type ListChannelsRequest = Message<"izci.api.v1.ListChannelsRequest"> & {
  * Use `create(ListChannelsRequestSchema)` to create a new message.
  */
 export const ListChannelsRequestSchema: GenMessage<ListChannelsRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 14);
+  messageDesc(file_izci_api_v1_alert, 19);
 
 /**
  * ListChannelsResponse lists channels.
@@ -596,7 +837,72 @@ export type ListChannelsResponse = Message<"izci.api.v1.ListChannelsResponse"> &
  * Use `create(ListChannelsResponseSchema)` to create a new message.
  */
 export const ListChannelsResponseSchema: GenMessage<ListChannelsResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 15);
+  messageDesc(file_izci_api_v1_alert, 20);
+
+/**
+ * CreateChannelRequest describes a new channel.
+ *
+ * @generated from message izci.api.v1.CreateChannelRequest
+ */
+export type CreateChannelRequest = Message<"izci.api.v1.CreateChannelRequest"> & {
+  /**
+   * Display name, e.g. "Ekip e-postası".
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
+
+  /**
+   * Project slug the channel is meant for; empty for organization-wide.
+   * Informational: rules decide what is delivered.
+   *
+   * @generated from field: string project = 2;
+   */
+  project: string;
+
+  /**
+   * Destination.
+   *
+   * @generated from field: izci.api.v1.ChannelSettings settings = 3;
+   */
+  settings?: ChannelSettings | undefined;
+};
+
+/**
+ * Describes the message izci.api.v1.CreateChannelRequest.
+ * Use `create(CreateChannelRequestSchema)` to create a new message.
+ */
+export const CreateChannelRequestSchema: GenMessage<CreateChannelRequest> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_alert, 21);
+
+/**
+ * CreateChannelResponse returns the channel.
+ *
+ * @generated from message izci.api.v1.CreateChannelResponse
+ */
+export type CreateChannelResponse = Message<"izci.api.v1.CreateChannelResponse"> & {
+  /**
+   * The new channel.
+   *
+   * @generated from field: izci.api.v1.Channel channel = 1;
+   */
+  channel?: Channel | undefined;
+
+  /**
+   * Signing secret of a webhook channel, shown only here: receivers verify
+   * X-Izci-Signature with it.
+   *
+   * @generated from field: string webhook_secret = 2;
+   */
+  webhookSecret: string;
+};
+
+/**
+ * Describes the message izci.api.v1.CreateChannelResponse.
+ * Use `create(CreateChannelResponseSchema)` to create a new message.
+ */
+export const CreateChannelResponseSchema: GenMessage<CreateChannelResponse> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_alert, 22);
 
 /**
  * UpdateChannelRequest changes a channel.
@@ -624,6 +930,14 @@ export type UpdateChannelRequest = Message<"izci.api.v1.UpdateChannelRequest"> &
    * @generated from field: bool muted = 3;
    */
   muted: boolean;
+
+  /**
+   * New destination of the same kind; unchanged when unset. Empty secrets
+   * (webhook URL, Jira token) keep the current ones.
+   *
+   * @generated from field: izci.api.v1.ChannelSettings settings = 4;
+   */
+  settings?: ChannelSettings | undefined;
 };
 
 /**
@@ -631,7 +945,7 @@ export type UpdateChannelRequest = Message<"izci.api.v1.UpdateChannelRequest"> &
  * Use `create(UpdateChannelRequestSchema)` to create a new message.
  */
 export const UpdateChannelRequestSchema: GenMessage<UpdateChannelRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 16);
+  messageDesc(file_izci_api_v1_alert, 23);
 
 /**
  * UpdateChannelResponse returns the channel.
@@ -652,7 +966,7 @@ export type UpdateChannelResponse = Message<"izci.api.v1.UpdateChannelResponse">
  * Use `create(UpdateChannelResponseSchema)` to create a new message.
  */
 export const UpdateChannelResponseSchema: GenMessage<UpdateChannelResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 17);
+  messageDesc(file_izci_api_v1_alert, 24);
 
 /**
  * DeleteChannelRequest identifies a channel.
@@ -673,7 +987,7 @@ export type DeleteChannelRequest = Message<"izci.api.v1.DeleteChannelRequest"> &
  * Use `create(DeleteChannelRequestSchema)` to create a new message.
  */
 export const DeleteChannelRequestSchema: GenMessage<DeleteChannelRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 18);
+  messageDesc(file_izci_api_v1_alert, 25);
 
 /**
  * DeleteChannelResponse has no fields.
@@ -688,7 +1002,7 @@ export type DeleteChannelResponse = Message<"izci.api.v1.DeleteChannelResponse">
  * Use `create(DeleteChannelResponseSchema)` to create a new message.
  */
 export const DeleteChannelResponseSchema: GenMessage<DeleteChannelResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 19);
+  messageDesc(file_izci_api_v1_alert, 26);
 
 /**
  * CreateTelegramLinkCodeRequest scopes the link.
@@ -709,7 +1023,7 @@ export type CreateTelegramLinkCodeRequest = Message<"izci.api.v1.CreateTelegramL
  * Use `create(CreateTelegramLinkCodeRequestSchema)` to create a new message.
  */
 export const CreateTelegramLinkCodeRequestSchema: GenMessage<CreateTelegramLinkCodeRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 20);
+  messageDesc(file_izci_api_v1_alert, 27);
 
 /**
  * CreateTelegramLinkCodeResponse returns the code and deep links.
@@ -758,7 +1072,7 @@ export type CreateTelegramLinkCodeResponse = Message<"izci.api.v1.CreateTelegram
  * Use `create(CreateTelegramLinkCodeResponseSchema)` to create a new message.
  */
 export const CreateTelegramLinkCodeResponseSchema: GenMessage<CreateTelegramLinkCodeResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 21);
+  messageDesc(file_izci_api_v1_alert, 28);
 
 /**
  * SendTestNotificationRequest identifies the channel.
@@ -779,7 +1093,7 @@ export type SendTestNotificationRequest = Message<"izci.api.v1.SendTestNotificat
  * Use `create(SendTestNotificationRequestSchema)` to create a new message.
  */
 export const SendTestNotificationRequestSchema: GenMessage<SendTestNotificationRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 22);
+  messageDesc(file_izci_api_v1_alert, 29);
 
 /**
  * SendTestNotificationResponse has no fields.
@@ -794,7 +1108,7 @@ export type SendTestNotificationResponse = Message<"izci.api.v1.SendTestNotifica
  * Use `create(SendTestNotificationResponseSchema)` to create a new message.
  */
 export const SendTestNotificationResponseSchema: GenMessage<SendTestNotificationResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 23);
+  messageDesc(file_izci_api_v1_alert, 30);
 
 /**
  * GetNotificationStatusRequest has no fields.
@@ -809,7 +1123,7 @@ export type GetNotificationStatusRequest = Message<"izci.api.v1.GetNotificationS
  * Use `create(GetNotificationStatusRequestSchema)` to create a new message.
  */
 export const GetNotificationStatusRequestSchema: GenMessage<GetNotificationStatusRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 24);
+  messageDesc(file_izci_api_v1_alert, 31);
 
 /**
  * GetNotificationStatusResponse reports transport availability.
@@ -837,6 +1151,20 @@ export type GetNotificationStatusResponse = Message<"izci.api.v1.GetNotification
    * @generated from field: string telegram_mode = 3;
    */
   telegramMode: string;
+
+  /**
+   * Whether an SMTP server is configured for e-mail channels.
+   *
+   * @generated from field: bool email_configured = 4;
+   */
+  emailConfigured: boolean;
+
+  /**
+   * Sender address of notification e-mails.
+   *
+   * @generated from field: string email_from = 5;
+   */
+  emailFrom: string;
 };
 
 /**
@@ -844,7 +1172,7 @@ export type GetNotificationStatusResponse = Message<"izci.api.v1.GetNotification
  * Use `create(GetNotificationStatusResponseSchema)` to create a new message.
  */
 export const GetNotificationStatusResponseSchema: GenMessage<GetNotificationStatusResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_alert, 25);
+  messageDesc(file_izci_api_v1_alert, 32);
 
 /**
  * TriggerKind is the kind of an alert trigger.
@@ -906,6 +1234,41 @@ export enum ChannelKind {
    * @generated from enum value: CHANNEL_KIND_TELEGRAM = 1;
    */
   TELEGRAM = 1,
+
+  /**
+   * E-mail recipients (needs SMTP_HOST).
+   *
+   * @generated from enum value: CHANNEL_KIND_EMAIL = 2;
+   */
+  EMAIL = 2,
+
+  /**
+   * A Slack channel through an incoming webhook.
+   *
+   * @generated from enum value: CHANNEL_KIND_SLACK = 3;
+   */
+  SLACK = 3,
+
+  /**
+   * A Microsoft Teams channel through a Workflows (or incoming) webhook.
+   *
+   * @generated from enum value: CHANNEL_KIND_TEAMS = 4;
+   */
+  TEAMS = 4,
+
+  /**
+   * Any HTTP endpoint that receives signed JSON.
+   *
+   * @generated from enum value: CHANNEL_KIND_WEBHOOK = 5;
+   */
+  WEBHOOK = 5,
+
+  /**
+   * A Jira project where issues become tickets.
+   *
+   * @generated from enum value: CHANNEL_KIND_JIRA = 6;
+   */
+  JIRA = 6,
 }
 
 /**
@@ -916,11 +1279,13 @@ export const ChannelKindSchema: GenEnum<ChannelKind> = /*@__PURE__*/
 
 /**
  * AlertService manages alert rules and the notification channels they
- * deliver to (Telegram chats).
+ * deliver to: Telegram chats, e-mail recipients, Slack and Microsoft Teams
+ * channels, webhooks and Jira projects.
  *
  * Linking a Telegram chat: call CreateTelegramLinkCode, add the izci bot to
  * the group (or open a private chat with it) and send "/baglan <code>". The
- * chat then appears in ListChannels.
+ * chat then appears in ListChannels. Other channels are created with
+ * CreateChannel.
  *
  * @generated from service izci.api.v1.AlertService
  */
@@ -977,7 +1342,21 @@ export const AlertService: GenService<{
     output: typeof ListChannelsResponseSchema;
   },
   /**
-   * UpdateChannel renames or mutes a channel. Requires ROLE_ADMIN.
+   * CreateChannel adds an e-mail, Slack, Teams, webhook or Jira channel.
+   * Jira settings are checked against Jira first. Requires ROLE_ADMIN. Fails
+   * with ERROR_REASON_CHANNEL_UNAVAILABLE for e-mail when no SMTP server is
+   * configured.
+   *
+   * @generated from rpc izci.api.v1.AlertService.CreateChannel
+   */
+  createChannel: {
+    methodKind: "unary";
+    input: typeof CreateChannelRequestSchema;
+    output: typeof CreateChannelResponseSchema;
+  },
+  /**
+   * UpdateChannel renames, mutes or reconfigures a channel. Requires
+   * ROLE_ADMIN.
    *
    * @generated from rpc izci.api.v1.AlertService.UpdateChannel
    */

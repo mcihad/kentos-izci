@@ -200,7 +200,7 @@ Birden fazla örneği aynı veritabanıyla bir yük dengeleyicinin arkasında ç
 
 - API, ingest ve arayüz durumsuzdur; oturumlar veritabanındadır.
 - Hız sınırları ve tekrar eleme belleği **örnek başınadır**. N örnekte etkili hız sınırı yaklaşık N katına çıkar; sınırları buna göre ayarlayın.
-- Telegram polling'i veritabanı kilidiyle tek örnekte çalışır; bildirim gönderimini bütün örnekler paylaşır.
+- Telegram polling'i veritabanı kilidiyle tek örnekte çalışır; bildirim gönderimini (bütün kanallar) bütün örnekler paylaşır.
 - Yapay zekâ analizleri ortak kuyruktan alınır; her örnek en çok `AI_MAX_CONCURRENT` analiz yürütür. Her örneğin kendi `IZCI_DATA_DIR` klasörü olmalıdır.
 - Bakım işleri (bölüm oluşturma, saklama, proje temizliği) her örnekte çalışır ve tekrarlanabilir işlerdir.
 - Zamanlanmış görev kontrolü her örnekte çalışır; satırlar kilitlenerek alındığı için bir çalışma yalnız bir kez kaçırılmış sayılır.
@@ -258,7 +258,7 @@ scrape_configs:
 | `izci_http_request_duration_seconds{handler}` | histogram | İstek süreleri; uzun ömürlü akışlar (`stream`) dahil değildir. |
 | `izci_http_requests_in_flight` | gösterge | Süren istekler (açık akışlar dahil). |
 | `izci_live_subscribers` | gösterge | Canlı akışı izleyen bağlantılar. |
-| `izci_notifications_total{channel,result}` | sayaç | Telegram bildirimleri: `delivered`, `skipped` (kanal sessiz ya da silinmiş), `retried`, `dropped`. |
+| `izci_notifications_total{channel,result}` | sayaç | Bildirimler; `channel`: `telegram`, `email`, `slack`, `teams`, `webhook`, `jira`; `result`: `delivered`, `skipped` (kanal sessiz ya da silinmiş), `retried`, `dropped`. |
 | `izci_ai_runs_total{status}`, `izci_ai_run_duration_seconds` | sayaç, histogram | Biten yapay zekâ analizleri (`succeeded`, `failed`, `cancelled`) ve süreleri. |
 | `izci_ai_runs_running` | gösterge | Bu örnekte süren analizler. |
 | `izci_ai_tokens_total{kind}`, `izci_ai_cost_usd_total` | sayaç | Modelin bildirdiği token ve maliyet. |

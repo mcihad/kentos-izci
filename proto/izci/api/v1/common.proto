@@ -270,4 +270,7 @@ enum ErrorReason {
   ERROR_REASON_CONFLICT = 29;
   // Unexpected server error.
   ERROR_REASON_INTERNAL = 30;
+  // The channel kind is not available on this server (e-mail without an
+  // SMTP server).
+  ERROR_REASON_CHANNEL_UNAVAILABLE = 31;
 }

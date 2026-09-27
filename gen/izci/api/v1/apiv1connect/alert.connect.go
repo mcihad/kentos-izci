@@ -48,6 +48,9 @@ const (
 	// AlertServiceListChannelsProcedure is the fully-qualified name of the AlertService's ListChannels
 	// RPC.
 	AlertServiceListChannelsProcedure = "/izci.api.v1.AlertService/ListChannels"
+	// AlertServiceCreateChannelProcedure is the fully-qualified name of the AlertService's
+	// CreateChannel RPC.
+	AlertServiceCreateChannelProcedure = "/izci.api.v1.AlertService/CreateChannel"
 	// AlertServiceUpdateChannelProcedure is the fully-qualified name of the AlertService's
 	// UpdateChannel RPC.
 	AlertServiceUpdateChannelProcedure = "/izci.api.v1.AlertService/UpdateChannel"
@@ -78,7 +81,13 @@ type AlertServiceClient interface {
 	DeleteAlertRule(context.Context, *connect.Request[v1.DeleteAlertRuleRequest]) (*connect.Response[v1.DeleteAlertRuleResponse], error)
 	// ListChannels lists notification channels. Requires ROLE_VIEWER.
 	ListChannels(context.Context, *connect.Request[v1.ListChannelsRequest]) (*connect.Response[v1.ListChannelsResponse], error)
-	// UpdateChannel renames or mutes a channel. Requires ROLE_ADMIN.
+	// CreateChannel adds an e-mail, Slack, Teams, webhook or Jira channel.
+	// Jira settings are checked against Jira first. Requires ROLE_ADMIN. Fails
+	// with ERROR_REASON_CHANNEL_UNAVAILABLE for e-mail when no SMTP server is
+	// configured.
+	CreateChannel(context.Context, *connect.Request[v1.CreateChannelRequest]) (*connect.Response[v1.CreateChannelResponse], error)
+	// UpdateChannel renames, mutes or reconfigures a channel. Requires
+	// ROLE_ADMIN.
 	UpdateChannel(context.Context, *connect.Request[v1.UpdateChannelRequest]) (*connect.Response[v1.UpdateChannelResponse], error)
 	// DeleteChannel removes a channel and detaches it from rules. Requires
 	// ROLE_ADMIN.
@@ -138,6 +147,12 @@ func NewAlertServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		createChannel: connect.NewClient[v1.CreateChannelRequest, v1.CreateChannelResponse](
+			httpClient,
+			baseURL+AlertServiceCreateChannelProcedure,
+			connect.WithSchema(alertServiceMethods.ByName("CreateChannel")),
+			connect.WithClientOptions(opts...),
+		),
 		updateChannel: connect.NewClient[v1.UpdateChannelRequest, v1.UpdateChannelResponse](
 			httpClient,
 			baseURL+AlertServiceUpdateChannelProcedure,
@@ -179,6 +194,7 @@ type alertServiceClient struct {
 	updateAlertRule        *connect.Client[v1.UpdateAlertRuleRequest, v1.UpdateAlertRuleResponse]
 	deleteAlertRule        *connect.Client[v1.DeleteAlertRuleRequest, v1.DeleteAlertRuleResponse]
 	listChannels           *connect.Client[v1.ListChannelsRequest, v1.ListChannelsResponse]
+	createChannel          *connect.Client[v1.CreateChannelRequest, v1.CreateChannelResponse]
 	updateChannel          *connect.Client[v1.UpdateChannelRequest, v1.UpdateChannelResponse]
 	deleteChannel          *connect.Client[v1.DeleteChannelRequest, v1.DeleteChannelResponse]
 	createTelegramLinkCode *connect.Client[v1.CreateTelegramLinkCodeRequest, v1.CreateTelegramLinkCodeResponse]
@@ -209,6 +225,11 @@ func (c *alertServiceClient) DeleteAlertRule(ctx context.Context, req *connect.R
 // ListChannels calls izci.api.v1.AlertService.ListChannels.
 func (c *alertServiceClient) ListChannels(ctx context.Context, req *connect.Request[v1.ListChannelsRequest]) (*connect.Response[v1.ListChannelsResponse], error) {
 	return c.listChannels.CallUnary(ctx, req)
+}
+
+// CreateChannel calls izci.api.v1.AlertService.CreateChannel.
+func (c *alertServiceClient) CreateChannel(ctx context.Context, req *connect.Request[v1.CreateChannelRequest]) (*connect.Response[v1.CreateChannelResponse], error) {
+	return c.createChannel.CallUnary(ctx, req)
 }
 
 // UpdateChannel calls izci.api.v1.AlertService.UpdateChannel.
@@ -249,7 +270,13 @@ type AlertServiceHandler interface {
 	DeleteAlertRule(context.Context, *connect.Request[v1.DeleteAlertRuleRequest]) (*connect.Response[v1.DeleteAlertRuleResponse], error)
 	// ListChannels lists notification channels. Requires ROLE_VIEWER.
 	ListChannels(context.Context, *connect.Request[v1.ListChannelsRequest]) (*connect.Response[v1.ListChannelsResponse], error)
-	// UpdateChannel renames or mutes a channel. Requires ROLE_ADMIN.
+	// CreateChannel adds an e-mail, Slack, Teams, webhook or Jira channel.
+	// Jira settings are checked against Jira first. Requires ROLE_ADMIN. Fails
+	// with ERROR_REASON_CHANNEL_UNAVAILABLE for e-mail when no SMTP server is
+	// configured.
+	CreateChannel(context.Context, *connect.Request[v1.CreateChannelRequest]) (*connect.Response[v1.CreateChannelResponse], error)
+	// UpdateChannel renames, mutes or reconfigures a channel. Requires
+	// ROLE_ADMIN.
 	UpdateChannel(context.Context, *connect.Request[v1.UpdateChannelRequest]) (*connect.Response[v1.UpdateChannelResponse], error)
 	// DeleteChannel removes a channel and detaches it from rules. Requires
 	// ROLE_ADMIN.
@@ -305,6 +332,12 @@ func NewAlertServiceHandler(svc AlertServiceHandler, opts ...connect.HandlerOpti
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	alertServiceCreateChannelHandler := connect.NewUnaryHandler(
+		AlertServiceCreateChannelProcedure,
+		svc.CreateChannel,
+		connect.WithSchema(alertServiceMethods.ByName("CreateChannel")),
+		connect.WithHandlerOptions(opts...),
+	)
 	alertServiceUpdateChannelHandler := connect.NewUnaryHandler(
 		AlertServiceUpdateChannelProcedure,
 		svc.UpdateChannel,
@@ -348,6 +381,8 @@ func NewAlertServiceHandler(svc AlertServiceHandler, opts ...connect.HandlerOpti
 			alertServiceDeleteAlertRuleHandler.ServeHTTP(w, r)
 		case AlertServiceListChannelsProcedure:
 			alertServiceListChannelsHandler.ServeHTTP(w, r)
+		case AlertServiceCreateChannelProcedure:
+			alertServiceCreateChannelHandler.ServeHTTP(w, r)
 		case AlertServiceUpdateChannelProcedure:
 			alertServiceUpdateChannelHandler.ServeHTTP(w, r)
 		case AlertServiceDeleteChannelProcedure:
@@ -385,6 +420,10 @@ func (UnimplementedAlertServiceHandler) DeleteAlertRule(context.Context, *connec
 
 func (UnimplementedAlertServiceHandler) ListChannels(context.Context, *connect.Request[v1.ListChannelsRequest]) (*connect.Response[v1.ListChannelsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.AlertService.ListChannels is not implemented"))
+}
+
+func (UnimplementedAlertServiceHandler) CreateChannel(context.Context, *connect.Request[v1.CreateChannelRequest]) (*connect.Response[v1.CreateChannelResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.AlertService.CreateChannel is not implemented"))
 }
 
 func (UnimplementedAlertServiceHandler) UpdateChannel(context.Context, *connect.Request[v1.UpdateChannelRequest]) (*connect.Response[v1.UpdateChannelResponse], error) {

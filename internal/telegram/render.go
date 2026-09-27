@@ -6,65 +6,14 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/mcihad/kentos-izci/internal/notify"
 	"github.com/mcihad/kentos-izci/internal/store"
 )
 
 // IssueView is everything a notification shows about an issue.
-type IssueView struct {
-	ID          string
-	ShortID     string
-	OrgSlug     string
-	ProjectName string
-	Title       string
-	Type        string
-	Value       string
-	Culprit     string
-	Filename    string
-	Lineno      uint32
-	Level       int16
-	Status      int16
-	Unhandled   bool
-	TimesSeen   int64
-	Users       int32
-	Customers   int32
-	// From the event that triggered the notification.
-	Customer    string
-	Tenant      string
-	Environment string
-	Release     string
-	User        string
-	// StatusBy names who resolved or ignored the issue.
-	StatusBy string
-}
+type IssueView = notify.IssueView
 
 var levelMarks = map[int16]string{1: "⚪", 2: "🔵", 3: "🟠", 4: "🔴", 5: "🟣"}
-
-// headline is the first line of a notification per outbox kind.
-func headline(kind int16, payload map[string]any) string {
-	switch kind {
-	case store.NotifyRegression:
-		return "Çözülmüş hata geri döndü"
-	case store.NotifyFrequency:
-		n, _ := payload["threshold"].(float64)
-		w, _ := payload["window_seconds"].(float64)
-		return fmt.Sprintf("Hata sıklaştı: %s içinde %d olay", window(int(w)), int(n))
-	case store.NotifyTest:
-		return "Test bildirimi"
-	default:
-		return "Yeni hata"
-	}
-}
-
-func window(seconds int) string {
-	switch {
-	case seconds%86400 == 0:
-		return fmt.Sprintf("%d gün", seconds/86400)
-	case seconds%3600 == 0:
-		return fmt.Sprintf("%d saat", seconds/3600)
-	default:
-		return fmt.Sprintf("%d dakika", max(1, seconds/60))
-	}
-}
 
 // RenderIssue builds the HTML text of an issue notification.
 func RenderIssue(kind int16, payload map[string]any, v IssueView, issueURL string) string {
@@ -74,7 +23,7 @@ func RenderIssue(kind int16, payload map[string]any, v IssueView, issueURL strin
 	if mark == "" {
 		mark = "🔴"
 	}
-	fmt.Fprintf(&b, "%s <b>%s</b>  <a href=\"%s\">%s</a>\n", mark, e(headline(kind, payload)), e(issueURL), e(v.ShortID))
+	fmt.Fprintf(&b, "%s <b>%s</b>  <a href=\"%s\">%s</a>\n", mark, e(notify.Headline(kind, payload)), e(issueURL), e(v.ShortID))
 	switch v.Status {
 	case store.IssueResolved:
 		b.WriteString("✅ <b>Çözüldü</b>")

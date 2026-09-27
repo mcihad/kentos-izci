@@ -21,6 +21,7 @@ const (
 	ActivityBranchCreated   int16 = 8
 	ActivityPullRequest     int16 = 9
 	ActivityNotified        int16 = 10
+	ActivityTicketCreated   int16 = 11
 )
 
 // ResolveIssues marks issues resolved. inRelease records the release that

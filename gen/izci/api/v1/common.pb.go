@@ -436,6 +436,9 @@ const (
 	ErrorReason_ERROR_REASON_CONFLICT ErrorReason = 29
 	// Unexpected server error.
 	ErrorReason_ERROR_REASON_INTERNAL ErrorReason = 30
+	// The channel kind is not available on this server (e-mail without an
+	// SMTP server).
+	ErrorReason_ERROR_REASON_CHANNEL_UNAVAILABLE ErrorReason = 31
 )
 
 // Enum value maps for ErrorReason.
@@ -472,6 +475,7 @@ var (
 		28: "ERROR_REASON_TELEGRAM_NOT_CONFIGURED",
 		29: "ERROR_REASON_CONFLICT",
 		30: "ERROR_REASON_INTERNAL",
+		31: "ERROR_REASON_CHANNEL_UNAVAILABLE",
 	}
 	ErrorReason_value = map[string]int32{
 		"ERROR_REASON_UNSPECIFIED":               0,
@@ -505,6 +509,7 @@ var (
 		"ERROR_REASON_TELEGRAM_NOT_CONFIGURED":   28,
 		"ERROR_REASON_CONFLICT":                  29,
 		"ERROR_REASON_INTERNAL":                  30,
+		"ERROR_REASON_CHANNEL_UNAVAILABLE":       31,
 	}
 )
 
@@ -1068,7 +1073,7 @@ const file_izci_api_v1_common_proto_rawDesc = "" +
 	"\x18STATS_PERIOD_LAST_7_DAYS\x10\x03\x12\x1d\n" +
 	"\x19STATS_PERIOD_LAST_14_DAYS\x10\x04\x12\x1d\n" +
 	"\x19STATS_PERIOD_LAST_30_DAYS\x10\x05\x12\x1d\n" +
-	"\x19STATS_PERIOD_LAST_90_DAYS\x10\x06*\xae\b\n" +
+	"\x19STATS_PERIOD_LAST_90_DAYS\x10\x06*\xd4\b\n" +
 	"\vErrorReason\x12\x1c\n" +
 	"\x18ERROR_REASON_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cERROR_REASON_UNAUTHENTICATED\x10\x01\x12\"\n" +
@@ -1101,7 +1106,8 @@ const file_izci_api_v1_common_proto_rawDesc = "" +
 	"\x1dERROR_REASON_AI_RUN_NOT_READY\x10\x1b\x12(\n" +
 	"$ERROR_REASON_TELEGRAM_NOT_CONFIGURED\x10\x1c\x12\x19\n" +
 	"\x15ERROR_REASON_CONFLICT\x10\x1d\x12\x19\n" +
-	"\x15ERROR_REASON_INTERNAL\x10\x1eB\xa1\x01\n" +
+	"\x15ERROR_REASON_INTERNAL\x10\x1e\x12$\n" +
+	" ERROR_REASON_CHANNEL_UNAVAILABLE\x10\x1fB\xa1\x01\n" +
 	"\x0fcom.izci.api.v1B\vCommonProtoP\x01Z3github.com/mcihad/kentos-izci/gen/izci/api/v1;apiv1\xa2\x02\x03IAX\xaa\x02\vIzci.Api.V1\xca\x02\vIzci\\Api\\V1\xe2\x02\x17Izci\\Api\\V1\\GPBMetadata\xea\x02\rIzci::Api::V1b\x06proto3"
 
 var (

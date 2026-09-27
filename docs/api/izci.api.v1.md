@@ -37,7 +37,7 @@ empty on the last page.
 
 **Services:** [AuthService](#izci-api-v1-authservice) · [OrganizationService](#izci-api-v1-organizationservice) · [AdminService](#izci-api-v1-adminservice) · [FeedbackService](#izci-api-v1-feedbackservice) · [EventService](#izci-api-v1-eventservice) · [IssueService](#izci-api-v1-issueservice) · [AiService](#izci-api-v1-aiservice) · [AlertService](#izci-api-v1-alertservice) · [CustomerService](#izci-api-v1-customerservice) · [DashboardService](#izci-api-v1-dashboardservice) · [IntegrationService](#izci-api-v1-integrationservice) · [MonitorService](#izci-api-v1-monitorservice) · [ProjectService](#izci-api-v1-projectservice) · [SymbolService](#izci-api-v1-symbolservice) · [UserService](#izci-api-v1-userservice)
 
-**Messages:** [AcceptInvitationRequest](#izci-api-v1-acceptinvitationrequest) · [AcceptInvitationResponse](#izci-api-v1-acceptinvitationresponse) · [AccessToken](#izci-api-v1-accesstoken) · [AddIssueCommentRequest](#izci-api-v1-addissuecommentrequest) · [AddIssueCommentResponse](#izci-api-v1-addissuecommentresponse) · [AdminOrganization](#izci-api-v1-adminorganization) · [AdminUser](#izci-api-v1-adminuser) · [AiLogEntry](#izci-api-v1-ailogentry) · [AiResult](#izci-api-v1-airesult) · [AiRun](#izci-api-v1-airun) · [AiSettings](#izci-api-v1-aisettings) · [AiUsage](#izci-api-v1-aiusage) · [AlertFilters](#izci-api-v1-alertfilters) · [AlertRule](#izci-api-v1-alertrule) · [AlertRuleInput](#izci-api-v1-alertruleinput) · [AlertTrigger](#izci-api-v1-alerttrigger) · [ApiKey](#izci-api-v1-apikey) · [ArtifactBundle](#izci-api-v1-artifactbundle) · [ArtifactFile](#izci-api-v1-artifactfile) · [AuditLogEntry](#izci-api-v1-auditlogentry) · [AuthProvider](#izci-api-v1-authprovider) · [CancelRunRequest](#izci-api-v1-cancelrunrequest) · [CancelRunResponse](#izci-api-v1-cancelrunresponse) · [ChangePasswordRequest](#izci-api-v1-changepasswordrequest) · [ChangePasswordResponse](#izci-api-v1-changepasswordresponse) · [ChangedFile](#izci-api-v1-changedfile) · [Channel](#izci-api-v1-channel) · [CheckIn](#izci-api-v1-checkin) · [CompleteSetupRequest](#izci-api-v1-completesetuprequest) · [CompleteSetupResponse](#izci-api-v1-completesetupresponse) · [ConnectGitHubTokenRequest](#izci-api-v1-connectgithubtokenrequest) · [ConnectGitHubTokenResponse](#izci-api-v1-connectgithubtokenresponse) · [CreateAccessTokenRequest](#izci-api-v1-createaccesstokenrequest) · [CreateAccessTokenResponse](#izci-api-v1-createaccesstokenresponse) · [CreateAlertRuleRequest](#izci-api-v1-createalertrulerequest) · [CreateAlertRuleResponse](#izci-api-v1-createalertruleresponse) · [CreateApiKeyRequest](#izci-api-v1-createapikeyrequest) · [CreateApiKeyResponse](#izci-api-v1-createapikeyresponse) · [CreateBranchRequest](#izci-api-v1-createbranchrequest) · [CreateBranchResponse](#izci-api-v1-createbranchresponse) · [CreateMonitorRequest](#izci-api-v1-createmonitorrequest) · [CreateMonitorResponse](#izci-api-v1-createmonitorresponse) · [CreateOrganizationRequest](#izci-api-v1-createorganizationrequest) · [CreateOrganizationResponse](#izci-api-v1-createorganizationresponse) · [CreateProjectRequest](#izci-api-v1-createprojectrequest) · [CreateProjectResponse](#izci-api-v1-createprojectresponse) · [CreatePullRequestRequest](#izci-api-v1-createpullrequestrequest) · [CreatePullRequestResponse](#izci-api-v1-createpullrequestresponse) · [CreateTelegramAccountLinkCodeRequest](#izci-api-v1-createtelegramaccountlinkcoderequest) · [CreateTelegramAccountLinkCodeResponse](#izci-api-v1-createtelegramaccountlinkcoderesponse) · [CreateTelegramLinkCodeRequest](#izci-api-v1-createtelegramlinkcoderequest) · [CreateTelegramLinkCodeResponse](#izci-api-v1-createtelegramlinkcoderesponse) · [Customer](#izci-api-v1-customer) · [CustomerProjectBreakdown](#izci-api-v1-customerprojectbreakdown) · [CustomerRef](#izci-api-v1-customerref) · [CustomerSummary](#izci-api-v1-customersummary) · [DailyUsage](#izci-api-v1-dailyusage) · [DebugFile](#izci-api-v1-debugfile) · [DeleteAlertRuleRequest](#izci-api-v1-deletealertrulerequest) · [DeleteAlertRuleResponse](#izci-api-v1-deletealertruleresponse) · [DeleteArtifactBundleRequest](#izci-api-v1-deleteartifactbundlerequest) · [DeleteArtifactBundleResponse](#izci-api-v1-deleteartifactbundleresponse) · [DeleteChannelRequest](#izci-api-v1-deletechannelrequest) · [DeleteChannelResponse](#izci-api-v1-deletechannelresponse) · [DeleteDebugFileRequest](#izci-api-v1-deletedebugfilerequest) · [DeleteDebugFileResponse](#izci-api-v1-deletedebugfileresponse) · [DeleteIntegrationRequest](#izci-api-v1-deleteintegrationrequest) · [DeleteIntegrationResponse](#izci-api-v1-deleteintegrationresponse) · [DeleteMonitorRequest](#izci-api-v1-deletemonitorrequest) · [DeleteMonitorResponse](#izci-api-v1-deletemonitorresponse) · [DeleteProjectRequest](#izci-api-v1-deleteprojectrequest) · [DeleteProjectResponse](#izci-api-v1-deleteprojectresponse) · [Deploy](#izci-api-v1-deploy) · [Environment](#izci-api-v1-environment) · [ErrorDetail](#izci-api-v1-errordetail) · [EventAttachment](#izci-api-v1-eventattachment) · [EventDetail](#izci-api-v1-eventdetail) · [EventSummary](#izci-api-v1-eventsummary) · [FeatureFlags](#izci-api-v1-featureflags) · [GetAiStatusRequest](#izci-api-v1-getaistatusrequest) · [GetAiStatusResponse](#izci-api-v1-getaistatusresponse) · [GetCustomerRequest](#izci-api-v1-getcustomerrequest) · [GetCustomerResponse](#izci-api-v1-getcustomerresponse) · [GetEventRequest](#izci-api-v1-geteventrequest) · [GetEventResponse](#izci-api-v1-geteventresponse) · [GetGitHubStatusRequest](#izci-api-v1-getgithubstatusrequest) · [GetGitHubStatusResponse](#izci-api-v1-getgithubstatusresponse) · [GetIngestEndpointsRequest](#izci-api-v1-getingestendpointsrequest) · [GetIngestEndpointsResponse](#izci-api-v1-getingestendpointsresponse) · [GetInstanceInfoRequest](#izci-api-v1-getinstanceinforequest) · [GetInstanceInfoResponse](#izci-api-v1-getinstanceinforesponse) · [GetInvitationRequest](#izci-api-v1-getinvitationrequest) · [GetInvitationResponse](#izci-api-v1-getinvitationresponse) · [GetIssueRequest](#izci-api-v1-getissuerequest) · [GetIssueResponse](#izci-api-v1-getissueresponse) · [GetIssueStatsRequest](#izci-api-v1-getissuestatsrequest) · [GetIssueStatsResponse](#izci-api-v1-getissuestatsresponse) · [GetIssueTagFacetsRequest](#izci-api-v1-getissuetagfacetsrequest) · [GetIssueTagFacetsResponse](#izci-api-v1-getissuetagfacetsresponse) · [GetMonitorRequest](#izci-api-v1-getmonitorrequest) · [GetMonitorResponse](#izci-api-v1-getmonitorresponse) · [GetNotificationStatusRequest](#izci-api-v1-getnotificationstatusrequest) · [GetNotificationStatusResponse](#izci-api-v1-getnotificationstatusresponse) · [GetOrganizationRequest](#izci-api-v1-getorganizationrequest) · [GetOrganizationResponse](#izci-api-v1-getorganizationresponse) · [GetOverviewRequest](#izci-api-v1-getoverviewrequest) · [GetOverviewResponse](#izci-api-v1-getoverviewresponse) · [GetProjectRequest](#izci-api-v1-getprojectrequest) · [GetProjectResponse](#izci-api-v1-getprojectresponse) · [GetRawEventRequest](#izci-api-v1-getraweventrequest) · [GetRawEventResponse](#izci-api-v1-getraweventresponse) · [GetRunRequest](#izci-api-v1-getrunrequest) · [GetRunResponse](#izci-api-v1-getrunresponse) · [GetSessionRequest](#izci-api-v1-getsessionrequest) · [GetSessionResponse](#izci-api-v1-getsessionresponse) · [GetSetupStateRequest](#izci-api-v1-getsetupstaterequest) · [GetSetupStateResponse](#izci-api-v1-getsetupstateresponse) · [GetUsageRequest](#izci-api-v1-getusagerequest) · [GetUsageResponse](#izci-api-v1-getusageresponse) · [Grouping](#izci-api-v1-grouping) · [IgnoreOptions](#izci-api-v1-ignoreoptions) · [InAppRules](#izci-api-v1-inapprules) · [Integration](#izci-api-v1-integration) · [Invitation](#izci-api-v1-invitation) · [InviteMemberRequest](#izci-api-v1-invitememberrequest) · [InviteMemberResponse](#izci-api-v1-invitememberresponse) · [Issue](#izci-api-v1-issue) · [IssueActivity](#izci-api-v1-issueactivity) · [IssueLocation](#izci-api-v1-issuelocation) · [IssueRef](#izci-api-v1-issueref) · [IssueSummary](#izci-api-v1-issuesummary) · [LevelSeries](#izci-api-v1-levelseries) · [LinkRepositoryRequest](#izci-api-v1-linkrepositoryrequest) · [LinkRepositoryResponse](#izci-api-v1-linkrepositoryresponse) · [ListAccessTokensRequest](#izci-api-v1-listaccesstokensrequest) · [ListAccessTokensResponse](#izci-api-v1-listaccesstokensresponse) · [ListAlertRulesRequest](#izci-api-v1-listalertrulesrequest) · [ListAlertRulesResponse](#izci-api-v1-listalertrulesresponse) · [ListApiKeysRequest](#izci-api-v1-listapikeysrequest) · [ListApiKeysResponse](#izci-api-v1-listapikeysresponse) · [ListArtifactBundlesRequest](#izci-api-v1-listartifactbundlesrequest) · [ListArtifactBundlesResponse](#izci-api-v1-listartifactbundlesresponse) · [ListAuditLogRequest](#izci-api-v1-listauditlogrequest) · [ListAuditLogResponse](#izci-api-v1-listauditlogresponse) · [ListAuthProvidersRequest](#izci-api-v1-listauthprovidersrequest) · [ListAuthProvidersResponse](#izci-api-v1-listauthprovidersresponse) · [ListChannelsRequest](#izci-api-v1-listchannelsrequest) · [ListChannelsResponse](#izci-api-v1-listchannelsresponse) · [ListCheckInsRequest](#izci-api-v1-listcheckinsrequest) · [ListCheckInsResponse](#izci-api-v1-listcheckinsresponse) · [ListCustomersRequest](#izci-api-v1-listcustomersrequest) · [ListCustomersResponse](#izci-api-v1-listcustomersresponse) · [ListDebugFilesRequest](#izci-api-v1-listdebugfilesrequest) · [ListDebugFilesResponse](#izci-api-v1-listdebugfilesresponse) · [ListEnvironmentsRequest](#izci-api-v1-listenvironmentsrequest) · [ListEnvironmentsResponse](#izci-api-v1-listenvironmentsresponse) · [ListFeedbackRequest](#izci-api-v1-listfeedbackrequest) · [ListFeedbackResponse](#izci-api-v1-listfeedbackresponse) · [ListIntegrationsRequest](#izci-api-v1-listintegrationsrequest) · [ListIntegrationsResponse](#izci-api-v1-listintegrationsresponse) · [ListIssueActivityRequest](#izci-api-v1-listissueactivityrequest) · [ListIssueActivityResponse](#izci-api-v1-listissueactivityresponse) · [ListIssueEventsRequest](#izci-api-v1-listissueeventsrequest) · [ListIssueEventsResponse](#izci-api-v1-listissueeventsresponse) · [ListIssuesRequest](#izci-api-v1-listissuesrequest) · [ListIssuesResponse](#izci-api-v1-listissuesresponse) · [ListMembersRequest](#izci-api-v1-listmembersrequest) · [ListMembersResponse](#izci-api-v1-listmembersresponse) · [ListMonitorsRequest](#izci-api-v1-listmonitorsrequest) · [ListMonitorsResponse](#izci-api-v1-listmonitorsresponse) · [ListOrganizationsRequest](#izci-api-v1-listorganizationsrequest) · [ListOrganizationsResponse](#izci-api-v1-listorganizationsresponse) · [ListProjectsRequest](#izci-api-v1-listprojectsrequest) · [ListProjectsResponse](#izci-api-v1-listprojectsresponse) · [ListReleasesRequest](#izci-api-v1-listreleasesrequest) · [ListReleasesResponse](#izci-api-v1-listreleasesresponse) · [ListRepositoriesRequest](#izci-api-v1-listrepositoriesrequest) · [ListRepositoriesResponse](#izci-api-v1-listrepositoriesresponse) · [ListRunsRequest](#izci-api-v1-listrunsrequest) · [ListRunsResponse](#izci-api-v1-listrunsresponse) · [ListSessionsRequest](#izci-api-v1-listsessionsrequest) · [ListSessionsResponse](#izci-api-v1-listsessionsresponse) · [ListUsersRequest](#izci-api-v1-listusersrequest) · [ListUsersResponse](#izci-api-v1-listusersresponse) · [LoginRequest](#izci-api-v1-loginrequest) · [LoginResponse](#izci-api-v1-loginresponse) · [LogoutRequest](#izci-api-v1-logoutrequest) · [LogoutResponse](#izci-api-v1-logoutresponse) · [Member](#izci-api-v1-member) · [Membership](#izci-api-v1-membership) · [Monitor](#izci-api-v1-monitor) · [MonitorEnvironment](#izci-api-v1-monitorenvironment) · [MonitorInterval](#izci-api-v1-monitorinterval) · [MonitorSchedule](#izci-api-v1-monitorschedule) · [Organization](#izci-api-v1-organization) · [OrganizationLimits](#izci-api-v1-organizationlimits) · [OrganizationRef](#izci-api-v1-organizationref) · [OrganizationSettings](#izci-api-v1-organizationsettings) · [OverviewTotals](#izci-api-v1-overviewtotals) · [PathMapping](#izci-api-v1-pathmapping) · [PathRewrite](#izci-api-v1-pathrewrite) · [PrivacySettings](#izci-api-v1-privacysettings) · [Project](#izci-api-v1-project) · [ProjectHealth](#izci-api-v1-projecthealth) · [ProjectRef](#izci-api-v1-projectref) · [ProjectRepository](#izci-api-v1-projectrepository) · [ProjectSettings](#izci-api-v1-projectsettings) · [ProjectStats](#izci-api-v1-projectstats) · [PullRequestRef](#izci-api-v1-pullrequestref) · [Release](#izci-api-v1-release) · [ReleaseHealth](#izci-api-v1-releasehealth) · [RemoveMemberRequest](#izci-api-v1-removememberrequest) · [RemoveMemberResponse](#izci-api-v1-removememberresponse) · [Repository](#izci-api-v1-repository) · [ResolveOptions](#izci-api-v1-resolveoptions) · [RevokeAccessTokenRequest](#izci-api-v1-revokeaccesstokenrequest) · [RevokeAccessTokenResponse](#izci-api-v1-revokeaccesstokenresponse) · [RevokeApiKeyRequest](#izci-api-v1-revokeapikeyrequest) · [RevokeApiKeyResponse](#izci-api-v1-revokeapikeyresponse) · [RevokeInvitationRequest](#izci-api-v1-revokeinvitationrequest) · [RevokeInvitationResponse](#izci-api-v1-revokeinvitationresponse) · [RevokeSessionRequest](#izci-api-v1-revokesessionrequest) · [RevokeSessionResponse](#izci-api-v1-revokesessionresponse) · [SearchSuggestion](#izci-api-v1-searchsuggestion) · [SendTestEventRequest](#izci-api-v1-sendtesteventrequest) · [SendTestEventResponse](#izci-api-v1-sendtesteventresponse) · [SendTestNotificationRequest](#izci-api-v1-sendtestnotificationrequest) · [SendTestNotificationResponse](#izci-api-v1-sendtestnotificationresponse) · [Series](#izci-api-v1-series) · [Session](#izci-api-v1-session) · [SessionInfo](#izci-api-v1-sessioninfo) · [SignUpRequest](#izci-api-v1-signuprequest) · [SignUpResponse](#izci-api-v1-signupresponse) · [Snooze](#izci-api-v1-snooze) · [StartGitHubAppInstallationRequest](#izci-api-v1-startgithubappinstallationrequest) · [StartGitHubAppInstallationResponse](#izci-api-v1-startgithubappinstallationresponse) · [StartRunRequest](#izci-api-v1-startrunrequest) · [StartRunResponse](#izci-api-v1-startrunresponse) · [SuggestSearchRequest](#izci-api-v1-suggestsearchrequest) · [SuggestSearchResponse](#izci-api-v1-suggestsearchresponse) · [TagFacet](#izci-api-v1-tagfacet) · [TagValueCount](#izci-api-v1-tagvaluecount) · [TelegramAccount](#izci-api-v1-telegramaccount) · [TelegramChat](#izci-api-v1-telegramchat) · [UnlinkRepositoryRequest](#izci-api-v1-unlinkrepositoryrequest) · [UnlinkRepositoryResponse](#izci-api-v1-unlinkrepositoryresponse) · [UnlinkTelegramAccountRequest](#izci-api-v1-unlinktelegramaccountrequest) · [UnlinkTelegramAccountResponse](#izci-api-v1-unlinktelegramaccountresponse) · [UpdateAlertRuleRequest](#izci-api-v1-updatealertrulerequest) · [UpdateAlertRuleResponse](#izci-api-v1-updatealertruleresponse) · [UpdateApiKeyRequest](#izci-api-v1-updateapikeyrequest) · [UpdateApiKeyResponse](#izci-api-v1-updateapikeyresponse) · [UpdateChannelRequest](#izci-api-v1-updatechannelrequest) · [UpdateChannelResponse](#izci-api-v1-updatechannelresponse) · [UpdateCustomerRequest](#izci-api-v1-updatecustomerrequest) · [UpdateCustomerResponse](#izci-api-v1-updatecustomerresponse) · [UpdateIssuesRequest](#izci-api-v1-updateissuesrequest) · [UpdateIssuesResponse](#izci-api-v1-updateissuesresponse) · [UpdateMemberRequest](#izci-api-v1-updatememberrequest) · [UpdateMemberResponse](#izci-api-v1-updatememberresponse) · [UpdateMonitorRequest](#izci-api-v1-updatemonitorrequest) · [UpdateMonitorResponse](#izci-api-v1-updatemonitorresponse) · [UpdateOrganizationPlanRequest](#izci-api-v1-updateorganizationplanrequest) · [UpdateOrganizationPlanResponse](#izci-api-v1-updateorganizationplanresponse) · [UpdateOrganizationRequest](#izci-api-v1-updateorganizationrequest) · [UpdateOrganizationResponse](#izci-api-v1-updateorganizationresponse) · [UpdateProfileRequest](#izci-api-v1-updateprofilerequest) · [UpdateProfileResponse](#izci-api-v1-updateprofileresponse) · [UpdateProjectRequest](#izci-api-v1-updateprojectrequest) · [UpdateProjectResponse](#izci-api-v1-updateprojectresponse) · [UpdateUserRequest](#izci-api-v1-updateuserrequest) · [UpdateUserResponse](#izci-api-v1-updateuserresponse) · [User](#izci-api-v1-user) · [UserAgentInfo](#izci-api-v1-useragentinfo) · [UserFeedback](#izci-api-v1-userfeedback) · [UserRef](#izci-api-v1-userref) · [WatchLiveRequest](#izci-api-v1-watchliverequest) · [WatchLiveResponse](#izci-api-v1-watchliveresponse) · [WatchRunRequest](#izci-api-v1-watchrunrequest) · [WatchRunResponse](#izci-api-v1-watchrunresponse)
+**Messages:** [AcceptInvitationRequest](#izci-api-v1-acceptinvitationrequest) · [AcceptInvitationResponse](#izci-api-v1-acceptinvitationresponse) · [AccessToken](#izci-api-v1-accesstoken) · [AddIssueCommentRequest](#izci-api-v1-addissuecommentrequest) · [AddIssueCommentResponse](#izci-api-v1-addissuecommentresponse) · [AdminOrganization](#izci-api-v1-adminorganization) · [AdminUser](#izci-api-v1-adminuser) · [AiLogEntry](#izci-api-v1-ailogentry) · [AiResult](#izci-api-v1-airesult) · [AiRun](#izci-api-v1-airun) · [AiSettings](#izci-api-v1-aisettings) · [AiUsage](#izci-api-v1-aiusage) · [AlertFilters](#izci-api-v1-alertfilters) · [AlertRule](#izci-api-v1-alertrule) · [AlertRuleInput](#izci-api-v1-alertruleinput) · [AlertTrigger](#izci-api-v1-alerttrigger) · [ApiKey](#izci-api-v1-apikey) · [ArtifactBundle](#izci-api-v1-artifactbundle) · [ArtifactFile](#izci-api-v1-artifactfile) · [AuditLogEntry](#izci-api-v1-auditlogentry) · [AuthProvider](#izci-api-v1-authprovider) · [CancelRunRequest](#izci-api-v1-cancelrunrequest) · [CancelRunResponse](#izci-api-v1-cancelrunresponse) · [ChangePasswordRequest](#izci-api-v1-changepasswordrequest) · [ChangePasswordResponse](#izci-api-v1-changepasswordresponse) · [ChangedFile](#izci-api-v1-changedfile) · [Channel](#izci-api-v1-channel) · [ChannelSettings](#izci-api-v1-channelsettings) · [CheckIn](#izci-api-v1-checkin) · [CompleteSetupRequest](#izci-api-v1-completesetuprequest) · [CompleteSetupResponse](#izci-api-v1-completesetupresponse) · [ConnectGitHubTokenRequest](#izci-api-v1-connectgithubtokenrequest) · [ConnectGitHubTokenResponse](#izci-api-v1-connectgithubtokenresponse) · [CreateAccessTokenRequest](#izci-api-v1-createaccesstokenrequest) · [CreateAccessTokenResponse](#izci-api-v1-createaccesstokenresponse) · [CreateAlertRuleRequest](#izci-api-v1-createalertrulerequest) · [CreateAlertRuleResponse](#izci-api-v1-createalertruleresponse) · [CreateApiKeyRequest](#izci-api-v1-createapikeyrequest) · [CreateApiKeyResponse](#izci-api-v1-createapikeyresponse) · [CreateBranchRequest](#izci-api-v1-createbranchrequest) · [CreateBranchResponse](#izci-api-v1-createbranchresponse) · [CreateChannelRequest](#izci-api-v1-createchannelrequest) · [CreateChannelResponse](#izci-api-v1-createchannelresponse) · [CreateMonitorRequest](#izci-api-v1-createmonitorrequest) · [CreateMonitorResponse](#izci-api-v1-createmonitorresponse) · [CreateOrganizationRequest](#izci-api-v1-createorganizationrequest) · [CreateOrganizationResponse](#izci-api-v1-createorganizationresponse) · [CreateProjectRequest](#izci-api-v1-createprojectrequest) · [CreateProjectResponse](#izci-api-v1-createprojectresponse) · [CreatePullRequestRequest](#izci-api-v1-createpullrequestrequest) · [CreatePullRequestResponse](#izci-api-v1-createpullrequestresponse) · [CreateTelegramAccountLinkCodeRequest](#izci-api-v1-createtelegramaccountlinkcoderequest) · [CreateTelegramAccountLinkCodeResponse](#izci-api-v1-createtelegramaccountlinkcoderesponse) · [CreateTelegramLinkCodeRequest](#izci-api-v1-createtelegramlinkcoderequest) · [CreateTelegramLinkCodeResponse](#izci-api-v1-createtelegramlinkcoderesponse) · [CreateTicketRequest](#izci-api-v1-createticketrequest) · [CreateTicketResponse](#izci-api-v1-createticketresponse) · [Customer](#izci-api-v1-customer) · [CustomerProjectBreakdown](#izci-api-v1-customerprojectbreakdown) · [CustomerRef](#izci-api-v1-customerref) · [CustomerSummary](#izci-api-v1-customersummary) · [DailyUsage](#izci-api-v1-dailyusage) · [DebugFile](#izci-api-v1-debugfile) · [DeleteAlertRuleRequest](#izci-api-v1-deletealertrulerequest) · [DeleteAlertRuleResponse](#izci-api-v1-deletealertruleresponse) · [DeleteArtifactBundleRequest](#izci-api-v1-deleteartifactbundlerequest) · [DeleteArtifactBundleResponse](#izci-api-v1-deleteartifactbundleresponse) · [DeleteChannelRequest](#izci-api-v1-deletechannelrequest) · [DeleteChannelResponse](#izci-api-v1-deletechannelresponse) · [DeleteDebugFileRequest](#izci-api-v1-deletedebugfilerequest) · [DeleteDebugFileResponse](#izci-api-v1-deletedebugfileresponse) · [DeleteIntegrationRequest](#izci-api-v1-deleteintegrationrequest) · [DeleteIntegrationResponse](#izci-api-v1-deleteintegrationresponse) · [DeleteMonitorRequest](#izci-api-v1-deletemonitorrequest) · [DeleteMonitorResponse](#izci-api-v1-deletemonitorresponse) · [DeleteProjectRequest](#izci-api-v1-deleteprojectrequest) · [DeleteProjectResponse](#izci-api-v1-deleteprojectresponse) · [Deploy](#izci-api-v1-deploy) · [EmailSettings](#izci-api-v1-emailsettings) · [Environment](#izci-api-v1-environment) · [ErrorDetail](#izci-api-v1-errordetail) · [EventAttachment](#izci-api-v1-eventattachment) · [EventDetail](#izci-api-v1-eventdetail) · [EventSummary](#izci-api-v1-eventsummary) · [FeatureFlags](#izci-api-v1-featureflags) · [GetAiStatusRequest](#izci-api-v1-getaistatusrequest) · [GetAiStatusResponse](#izci-api-v1-getaistatusresponse) · [GetCustomerRequest](#izci-api-v1-getcustomerrequest) · [GetCustomerResponse](#izci-api-v1-getcustomerresponse) · [GetEventRequest](#izci-api-v1-geteventrequest) · [GetEventResponse](#izci-api-v1-geteventresponse) · [GetGitHubStatusRequest](#izci-api-v1-getgithubstatusrequest) · [GetGitHubStatusResponse](#izci-api-v1-getgithubstatusresponse) · [GetIngestEndpointsRequest](#izci-api-v1-getingestendpointsrequest) · [GetIngestEndpointsResponse](#izci-api-v1-getingestendpointsresponse) · [GetInstanceInfoRequest](#izci-api-v1-getinstanceinforequest) · [GetInstanceInfoResponse](#izci-api-v1-getinstanceinforesponse) · [GetInvitationRequest](#izci-api-v1-getinvitationrequest) · [GetInvitationResponse](#izci-api-v1-getinvitationresponse) · [GetIssueRequest](#izci-api-v1-getissuerequest) · [GetIssueResponse](#izci-api-v1-getissueresponse) · [GetIssueStatsRequest](#izci-api-v1-getissuestatsrequest) · [GetIssueStatsResponse](#izci-api-v1-getissuestatsresponse) · [GetIssueTagFacetsRequest](#izci-api-v1-getissuetagfacetsrequest) · [GetIssueTagFacetsResponse](#izci-api-v1-getissuetagfacetsresponse) · [GetMonitorRequest](#izci-api-v1-getmonitorrequest) · [GetMonitorResponse](#izci-api-v1-getmonitorresponse) · [GetNotificationStatusRequest](#izci-api-v1-getnotificationstatusrequest) · [GetNotificationStatusResponse](#izci-api-v1-getnotificationstatusresponse) · [GetOrganizationRequest](#izci-api-v1-getorganizationrequest) · [GetOrganizationResponse](#izci-api-v1-getorganizationresponse) · [GetOverviewRequest](#izci-api-v1-getoverviewrequest) · [GetOverviewResponse](#izci-api-v1-getoverviewresponse) · [GetProjectRequest](#izci-api-v1-getprojectrequest) · [GetProjectResponse](#izci-api-v1-getprojectresponse) · [GetRawEventRequest](#izci-api-v1-getraweventrequest) · [GetRawEventResponse](#izci-api-v1-getraweventresponse) · [GetRunRequest](#izci-api-v1-getrunrequest) · [GetRunResponse](#izci-api-v1-getrunresponse) · [GetSessionRequest](#izci-api-v1-getsessionrequest) · [GetSessionResponse](#izci-api-v1-getsessionresponse) · [GetSetupStateRequest](#izci-api-v1-getsetupstaterequest) · [GetSetupStateResponse](#izci-api-v1-getsetupstateresponse) · [GetUsageRequest](#izci-api-v1-getusagerequest) · [GetUsageResponse](#izci-api-v1-getusageresponse) · [Grouping](#izci-api-v1-grouping) · [IgnoreOptions](#izci-api-v1-ignoreoptions) · [InAppRules](#izci-api-v1-inapprules) · [Integration](#izci-api-v1-integration) · [Invitation](#izci-api-v1-invitation) · [InviteMemberRequest](#izci-api-v1-invitememberrequest) · [InviteMemberResponse](#izci-api-v1-invitememberresponse) · [Issue](#izci-api-v1-issue) · [IssueActivity](#izci-api-v1-issueactivity) · [IssueLocation](#izci-api-v1-issuelocation) · [IssueRef](#izci-api-v1-issueref) · [IssueSummary](#izci-api-v1-issuesummary) · [JiraInput](#izci-api-v1-jirainput) · [JiraSettings](#izci-api-v1-jirasettings) · [LevelSeries](#izci-api-v1-levelseries) · [LinkRepositoryRequest](#izci-api-v1-linkrepositoryrequest) · [LinkRepositoryResponse](#izci-api-v1-linkrepositoryresponse) · [ListAccessTokensRequest](#izci-api-v1-listaccesstokensrequest) · [ListAccessTokensResponse](#izci-api-v1-listaccesstokensresponse) · [ListAlertRulesRequest](#izci-api-v1-listalertrulesrequest) · [ListAlertRulesResponse](#izci-api-v1-listalertrulesresponse) · [ListApiKeysRequest](#izci-api-v1-listapikeysrequest) · [ListApiKeysResponse](#izci-api-v1-listapikeysresponse) · [ListArtifactBundlesRequest](#izci-api-v1-listartifactbundlesrequest) · [ListArtifactBundlesResponse](#izci-api-v1-listartifactbundlesresponse) · [ListAuditLogRequest](#izci-api-v1-listauditlogrequest) · [ListAuditLogResponse](#izci-api-v1-listauditlogresponse) · [ListAuthProvidersRequest](#izci-api-v1-listauthprovidersrequest) · [ListAuthProvidersResponse](#izci-api-v1-listauthprovidersresponse) · [ListChannelsRequest](#izci-api-v1-listchannelsrequest) · [ListChannelsResponse](#izci-api-v1-listchannelsresponse) · [ListCheckInsRequest](#izci-api-v1-listcheckinsrequest) · [ListCheckInsResponse](#izci-api-v1-listcheckinsresponse) · [ListCustomersRequest](#izci-api-v1-listcustomersrequest) · [ListCustomersResponse](#izci-api-v1-listcustomersresponse) · [ListDebugFilesRequest](#izci-api-v1-listdebugfilesrequest) · [ListDebugFilesResponse](#izci-api-v1-listdebugfilesresponse) · [ListEnvironmentsRequest](#izci-api-v1-listenvironmentsrequest) · [ListEnvironmentsResponse](#izci-api-v1-listenvironmentsresponse) · [ListFeedbackRequest](#izci-api-v1-listfeedbackrequest) · [ListFeedbackResponse](#izci-api-v1-listfeedbackresponse) · [ListIntegrationsRequest](#izci-api-v1-listintegrationsrequest) · [ListIntegrationsResponse](#izci-api-v1-listintegrationsresponse) · [ListIssueActivityRequest](#izci-api-v1-listissueactivityrequest) · [ListIssueActivityResponse](#izci-api-v1-listissueactivityresponse) · [ListIssueEventsRequest](#izci-api-v1-listissueeventsrequest) · [ListIssueEventsResponse](#izci-api-v1-listissueeventsresponse) · [ListIssuesRequest](#izci-api-v1-listissuesrequest) · [ListIssuesResponse](#izci-api-v1-listissuesresponse) · [ListMembersRequest](#izci-api-v1-listmembersrequest) · [ListMembersResponse](#izci-api-v1-listmembersresponse) · [ListMonitorsRequest](#izci-api-v1-listmonitorsrequest) · [ListMonitorsResponse](#izci-api-v1-listmonitorsresponse) · [ListOrganizationsRequest](#izci-api-v1-listorganizationsrequest) · [ListOrganizationsResponse](#izci-api-v1-listorganizationsresponse) · [ListProjectsRequest](#izci-api-v1-listprojectsrequest) · [ListProjectsResponse](#izci-api-v1-listprojectsresponse) · [ListReleasesRequest](#izci-api-v1-listreleasesrequest) · [ListReleasesResponse](#izci-api-v1-listreleasesresponse) · [ListRepositoriesRequest](#izci-api-v1-listrepositoriesrequest) · [ListRepositoriesResponse](#izci-api-v1-listrepositoriesresponse) · [ListRunsRequest](#izci-api-v1-listrunsrequest) · [ListRunsResponse](#izci-api-v1-listrunsresponse) · [ListSessionsRequest](#izci-api-v1-listsessionsrequest) · [ListSessionsResponse](#izci-api-v1-listsessionsresponse) · [ListUsersRequest](#izci-api-v1-listusersrequest) · [ListUsersResponse](#izci-api-v1-listusersresponse) · [LoginRequest](#izci-api-v1-loginrequest) · [LoginResponse](#izci-api-v1-loginresponse) · [LogoutRequest](#izci-api-v1-logoutrequest) · [LogoutResponse](#izci-api-v1-logoutresponse) · [Member](#izci-api-v1-member) · [Membership](#izci-api-v1-membership) · [Monitor](#izci-api-v1-monitor) · [MonitorEnvironment](#izci-api-v1-monitorenvironment) · [MonitorInterval](#izci-api-v1-monitorinterval) · [MonitorSchedule](#izci-api-v1-monitorschedule) · [Organization](#izci-api-v1-organization) · [OrganizationLimits](#izci-api-v1-organizationlimits) · [OrganizationRef](#izci-api-v1-organizationref) · [OrganizationSettings](#izci-api-v1-organizationsettings) · [OverviewTotals](#izci-api-v1-overviewtotals) · [PathMapping](#izci-api-v1-pathmapping) · [PathRewrite](#izci-api-v1-pathrewrite) · [PrivacySettings](#izci-api-v1-privacysettings) · [Project](#izci-api-v1-project) · [ProjectHealth](#izci-api-v1-projecthealth) · [ProjectRef](#izci-api-v1-projectref) · [ProjectRepository](#izci-api-v1-projectrepository) · [ProjectSettings](#izci-api-v1-projectsettings) · [ProjectStats](#izci-api-v1-projectstats) · [PullRequestRef](#izci-api-v1-pullrequestref) · [Release](#izci-api-v1-release) · [ReleaseHealth](#izci-api-v1-releasehealth) · [RemoveMemberRequest](#izci-api-v1-removememberrequest) · [RemoveMemberResponse](#izci-api-v1-removememberresponse) · [Repository](#izci-api-v1-repository) · [ResolveOptions](#izci-api-v1-resolveoptions) · [RevokeAccessTokenRequest](#izci-api-v1-revokeaccesstokenrequest) · [RevokeAccessTokenResponse](#izci-api-v1-revokeaccesstokenresponse) · [RevokeApiKeyRequest](#izci-api-v1-revokeapikeyrequest) · [RevokeApiKeyResponse](#izci-api-v1-revokeapikeyresponse) · [RevokeInvitationRequest](#izci-api-v1-revokeinvitationrequest) · [RevokeInvitationResponse](#izci-api-v1-revokeinvitationresponse) · [RevokeSessionRequest](#izci-api-v1-revokesessionrequest) · [RevokeSessionResponse](#izci-api-v1-revokesessionresponse) · [SearchSuggestion](#izci-api-v1-searchsuggestion) · [SendTestEventRequest](#izci-api-v1-sendtesteventrequest) · [SendTestEventResponse](#izci-api-v1-sendtesteventresponse) · [SendTestNotificationRequest](#izci-api-v1-sendtestnotificationrequest) · [SendTestNotificationResponse](#izci-api-v1-sendtestnotificationresponse) · [Series](#izci-api-v1-series) · [Session](#izci-api-v1-session) · [SessionInfo](#izci-api-v1-sessioninfo) · [SignUpRequest](#izci-api-v1-signuprequest) · [SignUpResponse](#izci-api-v1-signupresponse) · [Snooze](#izci-api-v1-snooze) · [StartGitHubAppInstallationRequest](#izci-api-v1-startgithubappinstallationrequest) · [StartGitHubAppInstallationResponse](#izci-api-v1-startgithubappinstallationresponse) · [StartRunRequest](#izci-api-v1-startrunrequest) · [StartRunResponse](#izci-api-v1-startrunresponse) · [SuggestSearchRequest](#izci-api-v1-suggestsearchrequest) · [SuggestSearchResponse](#izci-api-v1-suggestsearchresponse) · [TagFacet](#izci-api-v1-tagfacet) · [TagValueCount](#izci-api-v1-tagvaluecount) · [TelegramAccount](#izci-api-v1-telegramaccount) · [TelegramChat](#izci-api-v1-telegramchat) · [TicketRef](#izci-api-v1-ticketref) · [UnlinkRepositoryRequest](#izci-api-v1-unlinkrepositoryrequest) · [UnlinkRepositoryResponse](#izci-api-v1-unlinkrepositoryresponse) · [UnlinkTelegramAccountRequest](#izci-api-v1-unlinktelegramaccountrequest) · [UnlinkTelegramAccountResponse](#izci-api-v1-unlinktelegramaccountresponse) · [UpdateAlertRuleRequest](#izci-api-v1-updatealertrulerequest) · [UpdateAlertRuleResponse](#izci-api-v1-updatealertruleresponse) · [UpdateApiKeyRequest](#izci-api-v1-updateapikeyrequest) · [UpdateApiKeyResponse](#izci-api-v1-updateapikeyresponse) · [UpdateChannelRequest](#izci-api-v1-updatechannelrequest) · [UpdateChannelResponse](#izci-api-v1-updatechannelresponse) · [UpdateCustomerRequest](#izci-api-v1-updatecustomerrequest) · [UpdateCustomerResponse](#izci-api-v1-updatecustomerresponse) · [UpdateIssuesRequest](#izci-api-v1-updateissuesrequest) · [UpdateIssuesResponse](#izci-api-v1-updateissuesresponse) · [UpdateMemberRequest](#izci-api-v1-updatememberrequest) · [UpdateMemberResponse](#izci-api-v1-updatememberresponse) · [UpdateMonitorRequest](#izci-api-v1-updatemonitorrequest) · [UpdateMonitorResponse](#izci-api-v1-updatemonitorresponse) · [UpdateOrganizationPlanRequest](#izci-api-v1-updateorganizationplanrequest) · [UpdateOrganizationPlanResponse](#izci-api-v1-updateorganizationplanresponse) · [UpdateOrganizationRequest](#izci-api-v1-updateorganizationrequest) · [UpdateOrganizationResponse](#izci-api-v1-updateorganizationresponse) · [UpdateProfileRequest](#izci-api-v1-updateprofilerequest) · [UpdateProfileResponse](#izci-api-v1-updateprofileresponse) · [UpdateProjectRequest](#izci-api-v1-updateprojectrequest) · [UpdateProjectResponse](#izci-api-v1-updateprojectresponse) · [UpdateUserRequest](#izci-api-v1-updateuserrequest) · [UpdateUserResponse](#izci-api-v1-updateuserresponse) · [User](#izci-api-v1-user) · [UserAgentInfo](#izci-api-v1-useragentinfo) · [UserFeedback](#izci-api-v1-userfeedback) · [UserRef](#izci-api-v1-userref) · [WatchLiveRequest](#izci-api-v1-watchliverequest) · [WatchLiveResponse](#izci-api-v1-watchliveresponse) · [WatchRunRequest](#izci-api-v1-watchrunrequest) · [WatchRunResponse](#izci-api-v1-watchrunresponse) · [WebhookSettings](#izci-api-v1-webhooksettings)
 
 **Enums:** [ActivityKind](#izci-api-v1-activitykind) · [AiLogKind](#izci-api-v1-ailogkind) · [AiRunMode](#izci-api-v1-airunmode) · [AiRunStatus](#izci-api-v1-airunstatus) · [AiRunTrigger](#izci-api-v1-airuntrigger) · [AiState](#izci-api-v1-aistate) · [ApiKeyScope](#izci-api-v1-apikeyscope) · [ArtifactFileKind](#izci-api-v1-artifactfilekind) · [AutoAction](#izci-api-v1-autoaction) · [AutoAnalyze](#izci-api-v1-autoanalyze) · [ChannelKind](#izci-api-v1-channelkind) · [CheckInStatus](#izci-api-v1-checkinstatus) · [CustomerSort](#izci-api-v1-customersort) · [DebugFileKind](#izci-api-v1-debugfilekind) · [ErrorReason](#izci-api-v1-errorreason) · [EventPick](#izci-api-v1-eventpick) · [Health](#izci-api-v1-health) · [IntegrationAuth](#izci-api-v1-integrationauth) · [IpStorage](#izci-api-v1-ipstorage) · [IssueSort](#izci-api-v1-issuesort) · [IssueStatus](#izci-api-v1-issuestatus) · [IssueSubstatus](#izci-api-v1-issuesubstatus) · [LiveEventKind](#izci-api-v1-liveeventkind) · [MonitorIntervalUnit](#izci-api-v1-monitorintervalunit) · [MonitorStatus](#izci-api-v1-monitorstatus) · [Priority](#izci-api-v1-priority) · [Risk](#izci-api-v1-risk) · [Role](#izci-api-v1-role) · [SignupMode](#izci-api-v1-signupmode) · [StatsPeriod](#izci-api-v1-statsperiod) · [SuggestionKind](#izci-api-v1-suggestionkind) · [TokenScope](#izci-api-v1-tokenscope) · [TriggerKind](#izci-api-v1-triggerkind)
 
@@ -438,6 +438,7 @@ quoted or bare words search titles, messages and culprits.
 | [GetIssueTagFacets](#izci-api-v1-issueservice-getissuetagfacets) | [GetIssueTagFacetsRequest](#izci-api-v1-getissuetagfacetsrequest) | [GetIssueTagFacetsResponse](#izci-api-v1-getissuetagfacetsresponse) | GetIssueTagFacets returns the distribution of tag values (customer, tenant, release, browser, …) across the events of an issue. |
 | [ListIssueActivity](#izci-api-v1-issueservice-listissueactivity) | [ListIssueActivityRequest](#izci-api-v1-listissueactivityrequest) | [ListIssueActivityResponse](#izci-api-v1-listissueactivityresponse) | ListIssueActivity lists comments and changes of an issue, newest first. |
 | [AddIssueComment](#izci-api-v1-issueservice-addissuecomment) | [AddIssueCommentRequest](#izci-api-v1-addissuecommentrequest) | [AddIssueCommentResponse](#izci-api-v1-addissuecommentresponse) | AddIssueComment adds a Markdown comment to an issue. |
+| [CreateTicket](#izci-api-v1-issueservice-createticket) | [CreateTicketRequest](#izci-api-v1-createticketrequest) | [CreateTicketResponse](#izci-api-v1-createticketresponse) | CreateTicket opens a ticket for an issue in the Jira project of a channel; an issue gets one ticket per channel, so a second call returns the existing one. |
 | [SuggestSearch](#izci-api-v1-issueservice-suggestsearch) | [SuggestSearchRequest](#izci-api-v1-suggestsearchrequest) | [SuggestSearchResponse](#izci-api-v1-suggestsearchresponse) | SuggestSearch completes the search term under the cursor: keys, values seen in the data and operators. |
 
 <a id="izci-api-v1-issueservice-listissues"></a>
@@ -522,6 +523,16 @@ _Side-effect free: may be called with HTTP GET over the Connect protocol._
 
 AddIssueComment adds a Markdown comment to an issue. Requires
 ROLE_MEMBER.
+
+<a id="izci-api-v1-issueservice-createticket"></a>
+
+#### IssueService.CreateTicket
+
+`rpc CreateTicket(CreateTicketRequest) returns (CreateTicketResponse)`
+
+CreateTicket opens a ticket for an issue in the Jira project of a
+channel; an issue gets one ticket per channel, so a second call returns
+the existing one. Requires ROLE_MEMBER.
 
 <a id="izci-api-v1-issueservice-suggestsearch"></a>
 
@@ -641,11 +652,13 @@ _Side-effect free: may be called with HTTP GET over the Connect protocol._
 ### AlertService
 
 AlertService manages alert rules and the notification channels they
-deliver to (Telegram chats).
+deliver to: Telegram chats, e-mail recipients, Slack and Microsoft Teams
+channels, webhooks and Jira projects.
 
 Linking a Telegram chat: call CreateTelegramLinkCode, add the izci bot to
 the group (or open a private chat with it) and send "/baglan <code>". The
-chat then appears in ListChannels.
+chat then appears in ListChannels. Other channels are created with
+CreateChannel.
 
 | Method | Request | Response | Summary |
 |---|---|---|---|
@@ -654,7 +667,8 @@ chat then appears in ListChannels.
 | [UpdateAlertRule](#izci-api-v1-alertservice-updatealertrule) | [UpdateAlertRuleRequest](#izci-api-v1-updatealertrulerequest) | [UpdateAlertRuleResponse](#izci-api-v1-updatealertruleresponse) | UpdateAlertRule replaces a rule. |
 | [DeleteAlertRule](#izci-api-v1-alertservice-deletealertrule) | [DeleteAlertRuleRequest](#izci-api-v1-deletealertrulerequest) | [DeleteAlertRuleResponse](#izci-api-v1-deletealertruleresponse) | DeleteAlertRule deletes a rule. |
 | [ListChannels](#izci-api-v1-alertservice-listchannels) | [ListChannelsRequest](#izci-api-v1-listchannelsrequest) | [ListChannelsResponse](#izci-api-v1-listchannelsresponse) | ListChannels lists notification channels. |
-| [UpdateChannel](#izci-api-v1-alertservice-updatechannel) | [UpdateChannelRequest](#izci-api-v1-updatechannelrequest) | [UpdateChannelResponse](#izci-api-v1-updatechannelresponse) | UpdateChannel renames or mutes a channel. |
+| [CreateChannel](#izci-api-v1-alertservice-createchannel) | [CreateChannelRequest](#izci-api-v1-createchannelrequest) | [CreateChannelResponse](#izci-api-v1-createchannelresponse) | CreateChannel adds an e-mail, Slack, Teams, webhook or Jira channel. |
+| [UpdateChannel](#izci-api-v1-alertservice-updatechannel) | [UpdateChannelRequest](#izci-api-v1-updatechannelrequest) | [UpdateChannelResponse](#izci-api-v1-updatechannelresponse) | UpdateChannel renames, mutes or reconfigures a channel. |
 | [DeleteChannel](#izci-api-v1-alertservice-deletechannel) | [DeleteChannelRequest](#izci-api-v1-deletechannelrequest) | [DeleteChannelResponse](#izci-api-v1-deletechannelresponse) | DeleteChannel removes a channel and detaches it from rules. |
 | [CreateTelegramLinkCode](#izci-api-v1-alertservice-createtelegramlinkcode) | [CreateTelegramLinkCodeRequest](#izci-api-v1-createtelegramlinkcoderequest) | [CreateTelegramLinkCodeResponse](#izci-api-v1-createtelegramlinkcoderesponse) | CreateTelegramLinkCode creates a one-time code (valid 15 minutes) that links a Telegram chat to the organization. |
 | [SendTestNotification](#izci-api-v1-alertservice-sendtestnotification) | [SendTestNotificationRequest](#izci-api-v1-sendtestnotificationrequest) | [SendTestNotificationResponse](#izci-api-v1-sendtestnotificationresponse) | SendTestNotification sends a sample notification to a channel. |
@@ -705,13 +719,25 @@ ListChannels lists notification channels. Requires ROLE_VIEWER.
 
 _Side-effect free: may be called with HTTP GET over the Connect protocol._
 
+<a id="izci-api-v1-alertservice-createchannel"></a>
+
+#### AlertService.CreateChannel
+
+`rpc CreateChannel(CreateChannelRequest) returns (CreateChannelResponse)`
+
+CreateChannel adds an e-mail, Slack, Teams, webhook or Jira channel.
+Jira settings are checked against Jira first. Requires ROLE_ADMIN. Fails
+with ERROR_REASON_CHANNEL_UNAVAILABLE for e-mail when no SMTP server is
+configured.
+
 <a id="izci-api-v1-alertservice-updatechannel"></a>
 
 #### AlertService.UpdateChannel
 
 `rpc UpdateChannel(UpdateChannelRequest) returns (UpdateChannelResponse)`
 
-UpdateChannel renames or mutes a channel. Requires ROLE_ADMIN.
+UpdateChannel renames, mutes or reconfigures a channel. Requires
+ROLE_ADMIN.
 
 <a id="izci-api-v1-alertservice-deletechannel"></a>
 
@@ -1695,6 +1721,24 @@ Channel is a notification destination.
 | `created_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the channel was linked. |
 | `last_delivery_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | Last successful delivery. |
 | `last_error` | `string` | Last delivery error, empty when the last delivery succeeded. |
+| `email_recipients` | repeated `string` | Recipients of CHANNEL_KIND_EMAIL. |
+| `url_hint` | `string` | Where a Slack, Teams or webhook channel posts, with the secret part of the URL hidden, e.g. "hooks.slack.com/…/x7Qa". |
+| `signed` | `bool` | Whether webhook deliveries carry a signature (X-Izci-Signature). |
+| `jira` | [JiraSettings](#izci-api-v1-jirasettings) | Jira settings of CHANNEL_KIND_JIRA (without the token). |
+
+<a id="izci-api-v1-channelsettings"></a>
+
+### ChannelSettings
+
+ChannelSettings is the destination of a new or reconfigured channel.
+
+| Field | Type | Description |
+|---|---|---|
+| `email` | [EmailSettings](#izci-api-v1-emailsettings) | _oneof `kind`._ E-mail recipients. |
+| `slack` | [WebhookSettings](#izci-api-v1-webhooksettings) | _oneof `kind`._ Slack incoming webhook. |
+| `teams` | [WebhookSettings](#izci-api-v1-webhooksettings) | _oneof `kind`._ Microsoft Teams webhook. |
+| `webhook` | [WebhookSettings](#izci-api-v1-webhooksettings) | _oneof `kind`._ Generic webhook. |
+| `jira` | [JiraInput](#izci-api-v1-jirainput) | _oneof `kind`._ Jira project. |
 
 <a id="izci-api-v1-checkin"></a>
 
@@ -1854,6 +1898,29 @@ CreateBranchResponse returns the pushed branch.
 |---|---|---|
 | `pull_request` | [PullRequestRef](#izci-api-v1-pullrequestref) | The branch (number 0, state "branch"). |
 
+<a id="izci-api-v1-createchannelrequest"></a>
+
+### CreateChannelRequest
+
+CreateChannelRequest describes a new channel.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `name` | `string` | Display name, e.g. "Ekip e-postası". | min length 1, max length 100 |
+| `project` | `string` | Project slug the channel is meant for; empty for organization-wide. Informational: rules decide what is delivered. | max length 50 |
+| `settings` | [ChannelSettings](#izci-api-v1-channelsettings) | Destination. | required |
+
+<a id="izci-api-v1-createchannelresponse"></a>
+
+### CreateChannelResponse
+
+CreateChannelResponse returns the channel.
+
+| Field | Type | Description |
+|---|---|---|
+| `channel` | [Channel](#izci-api-v1-channel) | The new channel. |
+| `webhook_secret` | `string` | Signing secret of a webhook channel, shown only here: receivers verify X-Izci-Signature with it. |
+
 <a id="izci-api-v1-createmonitorrequest"></a>
 
 ### CreateMonitorRequest
@@ -1994,6 +2061,28 @@ CreateTelegramLinkCodeResponse returns the code and deep links.
 | `group_link` | `string` | Link that adds the bot to a group with the code prefilled. |
 | `private_link` | `string` | Link that opens a private chat with the bot with the code prefilled. |
 | `expires_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the code expires. |
+
+<a id="izci-api-v1-createticketrequest"></a>
+
+### CreateTicketRequest
+
+CreateTicketRequest names the issue and the Jira channel.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `issue` | `string` | Issue id (UUID) or short id. | min length 1, max length 64 |
+| `channel_id` | `string` | Jira channel id (UUID). | UUID |
+
+<a id="izci-api-v1-createticketresponse"></a>
+
+### CreateTicketResponse
+
+CreateTicketResponse returns the ticket.
+
+| Field | Type | Description |
+|---|---|---|
+| `ticket` | [TicketRef](#izci-api-v1-ticketref) | The ticket. |
+| `created` | `bool` | False when the issue already had a ticket in this channel. |
 
 <a id="izci-api-v1-customer"></a>
 
@@ -2223,6 +2312,16 @@ Deploy is a deployment of a release to an environment.
 | `environment` | `string` | Environment, e.g. "production". |
 | `deployed_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When it was deployed. |
 | `deployed_by` | `string` | Who or what deployed it. |
+
+<a id="izci-api-v1-emailsettings"></a>
+
+### EmailSettings
+
+EmailSettings lists e-mail recipients.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `recipients` | repeated `string` | 1 to 20 addresses. | min 1 items, max 20 items, each max length 254, each email |
 
 <a id="izci-api-v1-environment"></a>
 
@@ -2600,6 +2699,8 @@ GetNotificationStatusResponse reports transport availability.
 | `telegram_configured` | `bool` | Whether a Telegram bot is configured. |
 | `telegram_bot_username` | `string` | Bot username without "@". |
 | `telegram_mode` | `string` | Update mode of the bot: "polling" or "webhook". |
+| `email_configured` | `bool` | Whether an SMTP server is configured for e-mail channels. |
+| `email_from` | `string` | Sender address of notification e-mails. |
 
 <a id="izci-api-v1-getorganizationrequest"></a>
 
@@ -2889,6 +2990,7 @@ Issue is the full form of an issue.
 | `location` | [IssueLocation](#izci-api-v1-issuelocation) | Location of the top in-app frame. |
 | `latest_event_id` | `string` | Id of the latest event. |
 | `pull_requests` | repeated [PullRequestRef](#izci-api-v1-pullrequestref) | Branches and pull requests created for this issue. |
+| `tickets` | repeated [TicketRef](#izci-api-v1-ticketref) | Tickets created for this issue in external trackers. |
 
 <a id="izci-api-v1-issueactivity"></a>
 
@@ -2961,6 +3063,35 @@ IssueSummary is the compact form of an issue used in lists.
 | `unhandled` | `bool` | True when at least one event was unhandled (crashed). |
 | `ai_state` | [AiState](#izci-api-v1-aistate) | State of AI analysis for this issue. |
 | `permalink` | `string` | Absolute link to the issue in the web UI. |
+
+<a id="izci-api-v1-jirainput"></a>
+
+### JiraInput
+
+JiraInput configures a Jira channel.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `base_url` | `string` | Site address, e.g. "https://kentos.atlassian.net". | min length 1, max length 300 |
+| `project_key` | `string` | Project key, e.g. "KALEM". | min length 1, max length 50 |
+| `issue_type` | `string` | Issue type name, e.g. "Bug" (default). | max length 100 |
+| `email` | `string` | Account e-mail for a Jira Cloud API token; empty for a personal access token (Jira Server, Data Center). | max length 254 |
+| `token` | `string` | API token or personal access token. On update, empty keeps the current token. | max length 1000 |
+| `labels` | repeated `string` | Extra labels, at most 10. | max 10 items, each min length 1, each max length 50 |
+
+<a id="izci-api-v1-jirasettings"></a>
+
+### JiraSettings
+
+JiraSettings is where a Jira channel creates tickets.
+
+| Field | Type | Description |
+|---|---|---|
+| `base_url` | `string` | Site address, e.g. "https://kentos.atlassian.net". |
+| `project_key` | `string` | Project key, e.g. "KALEM". |
+| `issue_type` | `string` | Issue type name as configured in Jira, e.g. "Bug". |
+| `email` | `string` | Account e-mail for Jira Cloud API tokens; empty when the token is a personal access token (Jira Server, Data Center). |
+| `labels` | repeated `string` | Labels added to tickets besides "izci". |
 
 <a id="izci-api-v1-levelseries"></a>
 
@@ -4294,6 +4425,20 @@ TelegramChat identifies a Telegram chat.
 | `type` | `string` | Chat type: "private", "group", "supergroup" or "channel". |
 | `username` | `string` | Public username of the chat without "@", may be empty. |
 
+<a id="izci-api-v1-ticketref"></a>
+
+### TicketRef
+
+TicketRef is a ticket in an external tracker (Jira).
+
+| Field | Type | Description |
+|---|---|---|
+| `key` | `string` | Ticket key, e.g. "KALEM-123". |
+| `url` | `string` | Link to the ticket. |
+| `channel_id` | `string` | Channel the ticket was created through. |
+| `channel_name` | `string` | Name of that channel. |
+| `created_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the ticket was created. |
+
 <a id="izci-api-v1-unlinkrepositoryrequest"></a>
 
 ### UnlinkRepositoryRequest
@@ -4385,6 +4530,7 @@ UpdateChannelRequest changes a channel.
 | `id` | `string` | Channel id. | UUID |
 | `name` | `string` | New name; unchanged when empty. | max length 100 |
 | `muted` | `bool` | Mute or unmute. |  |
+| `settings` | [ChannelSettings](#izci-api-v1-channelsettings) | New destination of the same kind; unchanged when unset. Empty secrets (webhook URL, Jira token) keep the current ones. |  |
 
 <a id="izci-api-v1-updatechannelresponse"></a>
 
@@ -4718,6 +4864,16 @@ WatchRunResponse is one update of a watched run.
 | `run` | [AiRun](#izci-api-v1-airun) | _oneof `update`._ The run changed state (sent first, and whenever the status changes; the last message carries the finished run). |
 | `log` | [AiLogEntry](#izci-api-v1-ailogentry) | _oneof `update`._ A new log entry. |
 
+<a id="izci-api-v1-webhooksettings"></a>
+
+### WebhookSettings
+
+WebhookSettings is the URL a Slack, Teams or webhook channel posts to.
+
+| Field | Type | Description | Constraints |
+|---|---|---|---|
+| `url` | `string` | Webhook URL (https for Slack and Teams). On update, empty keeps the current URL. | max length 2000 |
+
 ## Enums
 
 <a id="izci-api-v1-activitykind"></a>
@@ -4739,6 +4895,7 @@ ActivityKind is the kind of an issue activity.
 | `ACTIVITY_KIND_BRANCH_CREATED` | 8 | A fix branch was pushed. |
 | `ACTIVITY_KIND_PULL_REQUEST_OPENED` | 9 | A fix pull request was opened. |
 | `ACTIVITY_KIND_NOTIFIED` | 10 | A notification was sent. |
+| `ACTIVITY_KIND_TICKET_CREATED` | 11 | A ticket was created in an external tracker (Jira); data carries "channel", "key" and "url". |
 
 <a id="izci-api-v1-ailogkind"></a>
 
@@ -4875,6 +5032,11 @@ ChannelKind is the transport of a channel.
 |---|---|---|
 | `CHANNEL_KIND_UNSPECIFIED` | 0 | Not set. |
 | `CHANNEL_KIND_TELEGRAM` | 1 | A Telegram private chat, group, supergroup topic or channel. |
+| `CHANNEL_KIND_EMAIL` | 2 | E-mail recipients (needs SMTP_HOST). |
+| `CHANNEL_KIND_SLACK` | 3 | A Slack channel through an incoming webhook. |
+| `CHANNEL_KIND_TEAMS` | 4 | A Microsoft Teams channel through a Workflows (or incoming) webhook. |
+| `CHANNEL_KIND_WEBHOOK` | 5 | Any HTTP endpoint that receives signed JSON. |
+| `CHANNEL_KIND_JIRA` | 6 | A Jira project where issues become tickets. |
 
 <a id="izci-api-v1-checkinstatus"></a>
 
@@ -4958,6 +5120,7 @@ reason to a localized message.
 | `ERROR_REASON_TELEGRAM_NOT_CONFIGURED` | 28 | Telegram is not configured on this instance. |
 | `ERROR_REASON_CONFLICT` | 29 | The resource was modified concurrently; reload and retry. |
 | `ERROR_REASON_INTERNAL` | 30 | Unexpected server error. |
+| `ERROR_REASON_CHANNEL_UNAVAILABLE` | 31 | The channel kind is not available on this server (e-mail without an SMTP server). |
 
 <a id="izci-api-v1-eventpick"></a>
 

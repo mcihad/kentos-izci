@@ -21,6 +21,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/db"
 	"github.com/mcihad/kentos-izci/internal/github"
 	"github.com/mcihad/kentos-izci/internal/ingest"
+	"github.com/mcihad/kentos-izci/internal/notify"
 	"github.com/mcihad/kentos-izci/internal/realtime"
 	"github.com/mcihad/kentos-izci/internal/slug"
 	"github.com/mcihad/kentos-izci/internal/store"
@@ -41,6 +42,9 @@ type base struct {
 	alerts   *alert.Engine
 	ai       *ai.Runner
 	github   *github.Access
+	delivery *notify.Dispatcher
+	jira     *notify.Jira
+	email    *notify.Email
 }
 
 // AuthServer implements izci.api.v1.AuthService.

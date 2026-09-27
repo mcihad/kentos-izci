@@ -59,6 +59,12 @@ function describe(a: IssueActivity): string {
     }
     case ActivityKind.NOTIFIED:
       return `bildirim gönderildi${a.data.channel ? ` (${a.data.channel})` : ""}`;
+    case ActivityKind.TICKET_CREATED: {
+      const where = a.data.channel ? ` (${a.data.channel})` : "";
+      return a.actor
+        ? `Jira'da ${a.data.key} iş kaydını açtı${where}`
+        : `Jira'da otomatik olarak ${a.data.key} iş kaydı açıldı${where}`;
+    }
     default:
       return "";
   }

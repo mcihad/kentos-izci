@@ -20,6 +20,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
 	"github.com/mcihad/kentos-izci/internal/ingest"
+	"github.com/mcihad/kentos-izci/internal/notify"
 	"github.com/mcihad/kentos-izci/internal/secret"
 	"github.com/mcihad/kentos-izci/internal/store"
 	"github.com/mcihad/kentos-izci/internal/telegram"
@@ -100,6 +101,7 @@ type fixture struct {
 	db       *db.DB
 	api      *fakeAPI
 	bot      *telegram.Bot
+	dispatch *notify.Dispatcher
 	org      *store.Organization
 	project  *store.Project
 	user     *store.User
@@ -137,6 +139,8 @@ func newFixture(t *testing.T) *fixture {
 	f.bot = telegram.New(config.TelegramConfig{BotToken: "42:test", Mode: "polling", APIURL: srv.URL, WebhookSecret: "s3cret-s3cret-s3cret"},
 		"https://izci.example.com", f.db, box, log, srv.Client())
 	f.bot.OnTriage = func(_ context.Context, _ uuid.UUID, ids []uuid.UUID) { f.triaged <- ids[0] }
+	f.dispatch = notify.NewDispatcher(f.db, log, "https://izci.example.com")
+	f.dispatch.Register(store.ChannelTelegram, f.bot)
 	if err := f.bot.Identify(ctx); err != nil {
 		t.Fatal(err)
 	}
@@ -259,13 +263,13 @@ func TestLinkNotifyAndTriage(t *testing.T) {
 
 	// Staging errors do not match the default production rules.
 	f.ingestError(t, "staging")
-	if n, _ := f.bot.DispatchOnce(ctx); n != 0 {
+	if n, _ := f.dispatch.DispatchOnce(ctx); n != 0 {
 		t.Fatalf("staging event notified %d times", n)
 	}
 
 	// A new production error is announced with triage buttons.
 	res := f.ingestError(t, "production")
-	if n, err := f.bot.DispatchOnce(ctx); n != 1 || err != nil {
+	if n, err := f.dispatch.DispatchOnce(ctx); n != 1 || err != nil {
 		t.Fatalf("dispatch: %d %v", n, err)
 	}
 	sent := f.api.take("sendMessage")
@@ -303,7 +307,7 @@ func TestLinkNotifyAndTriage(t *testing.T) {
 	}
 	f.bot.OnRulesChanged(f.org.ID)
 	f.ingestError(t, "production")
-	if n, _ := f.bot.DispatchOnce(ctx); n != 1 {
+	if n, _ := f.dispatch.DispatchOnce(ctx); n != 1 {
 		t.Fatalf("frequency dispatch: %d", n)
 	}
 	var messageID int64
@@ -371,7 +375,7 @@ func TestDeliveryFailures(t *testing.T) {
 
 	// Flood control: retry after the delay Telegram asks for.
 	f.api.failNext("sendMessage", `{"ok":false,"error_code":429,"description":"Too Many Requests: retry after 7","parameters":{"retry_after":7}}`)
-	if n, _ := f.bot.DispatchOnce(ctx); n != 1 {
+	if n, _ := f.dispatch.DispatchOnce(ctx); n != 1 {
 		t.Fatalf("claimed %d", n)
 	}
 	var wait float64
@@ -390,7 +394,7 @@ func TestDeliveryFailures(t *testing.T) {
 		t.Fatal(err)
 	}
 	f.api.failNext("sendMessage", `{"ok":false,"error_code":403,"description":"Forbidden: bot was kicked from the supergroup chat"}`)
-	f.bot.DispatchOnce(ctx)
+	f.dispatch.DispatchOnce(ctx)
 	var lastError string
 	var infinite bool
 	f.scalar(t, &lastError, `SELECT last_error FROM notification_channels WHERE id = $1`, channelID)
@@ -398,7 +402,7 @@ func TestDeliveryFailures(t *testing.T) {
 	if !strings.Contains(lastError, "kicked") || !infinite {
 		t.Fatalf("permanent failure: %q, given up %v", lastError, infinite)
 	}
-	if n, _ := f.bot.DispatchOnce(ctx); n != 0 {
+	if n, _ := f.dispatch.DispatchOnce(ctx); n != 0 {
 		t.Fatal("a given-up notification was retried")
 	}
 }

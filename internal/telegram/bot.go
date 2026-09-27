@@ -23,8 +23,7 @@ import (
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
-	"github.com/mcihad/kentos-izci/internal/ingest"
-	"github.com/mcihad/kentos-izci/internal/metrics"
+	"github.com/mcihad/kentos-izci/internal/notify"
 	"github.com/mcihad/kentos-izci/internal/secret"
 	"github.com/mcihad/kentos-izci/internal/store"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -42,8 +41,6 @@ const (
 	// editWindow is how long repeated triggers edit the existing message
 	// instead of posting a new one.
 	editWindow = 12 * time.Hour
-	// maxAttempts bounds delivery retries of one notification.
-	maxAttempts = 8
 	// linkCodeTTL is the validity of chat and account link codes.
 	linkCodeTTL = 30 * time.Minute
 	// pollerLock is the advisory lock that lets one instance poll updates.
@@ -71,8 +68,7 @@ type Bot struct {
 	// shown to them; nil hides the AI button.
 	Analyze func(ctx context.Context, orgID, issueID, userID uuid.UUID) string
 
-	me   atomic.Pointer[User]
-	wake chan struct{}
+	me atomic.Pointer[User]
 
 	mu       sync.Mutex
 	limiters map[int64]*rate.Limiter
@@ -87,7 +83,6 @@ func New(cfg config.TelegramConfig, publicURL string, database *db.DB, box *secr
 		cfg:       cfg,
 		publicURL: strings.TrimRight(publicURL, "/"),
 		log:       log.With(slog.String("component", "telegram")),
-		wake:      make(chan struct{}, 1),
 		limiters:  map[int64]*rate.Limiter{},
 	}
 }
@@ -103,14 +98,6 @@ func (b *Bot) Username() string {
 // Mode is "polling" or "webhook".
 func (b *Bot) Mode() string { return b.cfg.Mode }
 
-// Wake starts a delivery round without waiting for the next tick.
-func (b *Bot) Wake() {
-	select {
-	case b.wake <- struct{}{}:
-	default:
-	}
-}
-
 // Identify asks Telegram who the bot is.
 func (b *Bot) Identify(ctx context.Context) error {
 	u, err := b.client.GetMe(ctx)
@@ -121,7 +108,7 @@ func (b *Bot) Identify(ctx context.Context) error {
 	return nil
 }
 
-// Run identifies the bot, then delivers notifications and processes updates
+// Run identifies the bot, then processes updates
 // until ctx ends.
 func (b *Bot) Run(ctx context.Context) {
 	for delay := time.Second; ; delay = min(delay*2, 5*time.Minute) {
@@ -137,7 +124,6 @@ func (b *Bot) Run(ctx context.Context) {
 	b.log.Info("telegram bot ready", slog.String("username", b.Username()), slog.String("mode", b.cfg.Mode))
 
 	var wg sync.WaitGroup
-	wg.Go(func() { b.dispatchLoop(ctx) })
 	if b.cfg.Mode == "webhook" {
 		wg.Go(func() {
 			for delay := time.Second; ; delay = min(delay*2, 5*time.Minute) {
@@ -170,127 +156,62 @@ func sleep(ctx context.Context, d time.Duration) bool {
 
 // ── Delivery ─────────────────────────────────────────────────────────────
 
-func (b *Bot) dispatchLoop(ctx context.Context) {
-	tick := time.NewTicker(5 * time.Second)
-	defer tick.Stop()
-	for {
-		n, err := b.DispatchOnce(ctx)
-		if err != nil && ctx.Err() == nil {
-			b.log.Error("notification dispatch failed", slog.Any("err", err))
-		}
-		if n > 0 {
-			continue // there may be more due
-		}
-		select {
-		case <-ctx.Done():
-			return
-		case <-tick.C:
-		case <-b.wake:
-		}
+// Send delivers a notification to a Telegram chat (notify.Sender).
+// Repeated triggers of an issue edit the message posted before; a
+// regression is news and gets a new message.
+func (b *Bot) Send(ctx context.Context, n *notify.Notification) (*notify.Receipt, error) {
+	if b.Username() == "" {
+		return nil, &notify.RetryError{After: 30 * time.Second, Reason: ErrNotReady.Error()}
 	}
-}
-
-// DispatchOnce delivers due notifications and returns how many it claimed.
-func (b *Bot) DispatchOnce(ctx context.Context) (int, error) {
-	var items []store.OutboxItem
-	err := b.db.InSystem(ctx, func(tx pgx.Tx) error {
-		var err error
-		items, err = store.ClaimNotifications(ctx, tx, 20, 2*time.Minute)
-		return err
-	})
-	if err != nil {
-		return 0, err
+	ch := n.Channel
+	if n.Test() {
+		return nil, b.classify(ctx, ch, b.send(ctx, ch, RenderTest(ch.Name, n.OrgName), nil, nil))
 	}
-	for _, it := range items {
-		if ctx.Err() != nil {
-			break
-		}
-		b.deliver(ctx, it)
-	}
-	return len(items), nil
-}
-
-func (b *Bot) deliver(ctx context.Context, it store.OutboxItem) {
-	var ch *store.Channel
-	err := b.db.InSystem(ctx, func(tx pgx.Tx) error {
-		var err error
-		ch, err = store.GetChannel(ctx, tx, it.ChannelID)
-		return err
-	})
-	switch {
-	case errors.Is(err, store.ErrNotFound):
-		b.finish(ctx, it, nil, "channel deleted")
-		return
-	case err != nil:
-		b.retry(ctx, it, time.Now().Add(30*time.Second), err.Error())
-		return
-	case ch.Muted:
-		b.finish(ctx, it, nil, "channel muted")
-		return
-	}
-
-	if it.Kind == store.NotifyTest {
-		var orgName string
-		_ = b.db.InSystem(ctx, func(tx pgx.Tx) error {
-			return tx.QueryRow(ctx, `SELECT name FROM organizations WHERE id = $1`, ch.OrgID).Scan(&orgName)
-		})
-		if err := b.send(ctx, ch, RenderTest(ch.Name, orgName), nil, nil); err != nil {
-			b.fail(ctx, it, ch, err)
-			return
-		}
-		b.finish(ctx, it, ch, "")
-		return
-	}
-	if it.IssueID == nil {
-		b.finish(ctx, it, nil, "no issue")
-		return
-	}
-	view, err := b.loadView(ctx, *it.IssueID, it.Payload)
-	if errors.Is(err, store.ErrNotFound) {
-		b.finish(ctx, it, nil, "issue deleted")
-		return
-	}
-	if err != nil {
-		b.retry(ctx, it, time.Now().Add(30*time.Second), err.Error())
-		return
-	}
-	link := b.issueURL(view)
-	text := RenderIssue(it.Kind, it.Payload, *view, link)
-	kb := Keyboard(*view, link, b.sign, b.Analyze != nil)
-
-	var thread *store.Thread
-	_ = b.db.InSystem(ctx, func(tx pgx.Tx) error {
-		thread, _ = store.GetThread(ctx, tx, ch.ID, *it.IssueID)
-		return nil
-	})
-	// Repeated triggers update the existing message; a regression is news
-	// and gets a new one.
-	if thread != nil && it.Kind != store.NotifyRegression && time.Since(thread.LastSentAt) < editWindow {
-		err := b.client.EditMessageText(ctx, ch.Telegram.ChatID, thread.MessageID, text, kb)
+	view := *n.Issue
+	text := RenderIssue(n.Item.Kind, n.Item.Payload, view, n.Link)
+	kb := Keyboard(view, n.Link, b.sign, b.Analyze != nil)
+	if t := n.Thread; t != nil && n.Item.Kind != store.NotifyRegression && time.Since(t.LastSentAt) < editWindow {
+		err := b.client.EditMessageText(ctx, ch.Telegram.ChatID, t.MessageID, text, kb)
 		if err == nil {
-			thread.LastSentAt, thread.LastCount = time.Now(), view.TimesSeen
-			thread.Kind, thread.Payload = it.Kind, it.Payload
-			b.saveThread(ctx, ch.OrgID, *thread)
-			b.finish(ctx, it, ch, "")
-			return
+			t.LastSentAt, t.LastCount, t.Kind, t.Payload = time.Now(), view.TimesSeen, n.Item.Kind, n.Item.Payload
+			return &notify.Receipt{Thread: t}, nil
 		}
 		var apiErr *APIError
 		if !errors.As(err, &apiErr) || apiErr.Code != http.StatusBadRequest || apiErr.MigrateToChatID != 0 {
-			b.fail(ctx, it, ch, err)
-			return
+			return nil, b.classify(ctx, ch, err)
 		}
 		// The message is gone or too old to edit: post a new one.
 	}
 	var msg *Message
 	if err := b.send(ctx, ch, text, kb, &msg); err != nil {
-		b.fail(ctx, it, ch, err)
-		return
+		return nil, b.classify(ctx, ch, err)
 	}
-	b.saveThread(ctx, ch.OrgID, store.Thread{
-		ChannelID: ch.ID, IssueID: *it.IssueID, MessageID: msg.MessageID, LastSentAt: time.Now(), LastCount: view.TimesSeen,
-		Kind: it.Kind, Payload: it.Payload,
-	})
-	b.finish(ctx, it, ch, "")
+	return &notify.Receipt{Thread: &store.Thread{
+		ChannelID: ch.ID, IssueID: *n.Item.IssueID, MessageID: msg.MessageID, LastSentAt: time.Now(), LastCount: view.TimesSeen,
+		Kind: n.Item.Kind, Payload: n.Item.Payload,
+	}}, nil
+}
+
+// classify turns a Bot API error into the dispatcher's terms: chat
+// migrations are followed and retried at once, flood control waits as
+// told, permanent errors give up.
+func (b *Bot) classify(ctx context.Context, ch *store.Channel, err error) error {
+	if err == nil {
+		return nil
+	}
+	var apiErr *APIError
+	switch {
+	case errors.As(err, &apiErr) && apiErr.MigrateToChatID != 0:
+		_ = b.db.InSystem(ctx, func(tx pgx.Tx) error {
+			return store.MigrateTelegramChat(ctx, tx, ch.Telegram.ChatID, apiErr.MigrateToChatID)
+		})
+		return &notify.RetryError{Reason: "chat migrated to a supergroup"}
+	case errors.As(err, &apiErr) && apiErr.RetryAfter > 0:
+		return &notify.RetryError{After: apiErr.RetryAfter, Reason: apiErr.Description}
+	case errors.As(err, &apiErr) && apiErr.Permanent():
+		return &notify.PermanentError{Reason: apiErr.Description}
+	}
+	return err
 }
 
 // send posts to a channel, pacing messages per chat as Telegram requires.
@@ -322,141 +243,9 @@ func (b *Bot) limiter(chatID int64) *rate.Limiter {
 	return l
 }
 
-func (b *Bot) saveThread(ctx context.Context, orgID uuid.UUID, t store.Thread) {
-	if err := b.db.InSystem(ctx, func(tx pgx.Tx) error { return store.SaveThread(ctx, tx, orgID, t) }); err != nil {
-		b.log.Error("save notification thread", slog.Any("err", err))
-	}
-}
-
-// finish marks a notification handled; with a channel it also records the
-// delivery on the channel and the issue.
-func (b *Bot) finish(ctx context.Context, it store.OutboxItem, ch *store.Channel, note string) {
-	if ch == nil {
-		metrics.NotificationsSkipped.Inc()
-	} else {
-		metrics.NotificationsDelivered.Inc()
-	}
-	err := b.db.InSystem(ctx, func(tx pgx.Tx) error {
-		if err := store.MarkNotificationSent(ctx, tx, it.ID); err != nil {
-			return err
-		}
-		if ch == nil {
-			if note != "" {
-				_, err := tx.Exec(ctx, `UPDATE notification_outbox SET error = $2 WHERE id = $1`, it.ID, note)
-				return err
-			}
-			return nil
-		}
-		if err := store.RecordDelivery(ctx, tx, ch.ID, ""); err != nil {
-			return err
-		}
-		if it.IssueID != nil {
-			return store.AddIssueActivity(ctx, tx, it.OrgID, []uuid.UUID{*it.IssueID}, store.ActivityNotified, nil,
-				map[string]string{"channel": ch.Name})
-		}
-		return nil
-	})
-	if err != nil {
-		b.log.Error("record notification delivery", slog.Any("err", err))
-	}
-}
-
-func (b *Bot) retry(ctx context.Context, it store.OutboxItem, at time.Time, msg string) {
-	metrics.NotificationsRetried.Inc()
-	if err := b.db.InSystem(ctx, func(tx pgx.Tx) error { return store.MarkNotificationFailed(ctx, tx, it.ID, &at, msg) }); err != nil {
-		b.log.Error("reschedule notification", slog.Any("err", err))
-	}
-}
-
-// fail handles a delivery error: flood control and chat migrations are
-// retried, permanent errors give up and show on the channel, anything else
-// backs off exponentially.
-func (b *Bot) fail(ctx context.Context, it store.OutboxItem, ch *store.Channel, err error) {
-	var apiErr *APIError
-	switch {
-	case errors.As(err, &apiErr) && apiErr.MigrateToChatID != 0:
-		_ = b.db.InSystem(ctx, func(tx pgx.Tx) error {
-			return store.MigrateTelegramChat(ctx, tx, ch.Telegram.ChatID, apiErr.MigrateToChatID)
-		})
-		b.retry(ctx, it, time.Now(), "chat migrated to a supergroup")
-	case errors.As(err, &apiErr) && apiErr.RetryAfter > 0:
-		b.retry(ctx, it, time.Now().Add(apiErr.RetryAfter), apiErr.Description)
-	case errors.As(err, &apiErr) && apiErr.Permanent():
-		b.giveUp(ctx, it, ch, apiErr.Description)
-	case int(it.Attempts)+1 >= maxAttempts:
-		b.giveUp(ctx, it, ch, err.Error())
-	default:
-		backoff := min(10*time.Second<<it.Attempts, time.Hour)
-		b.retry(ctx, it, time.Now().Add(backoff), err.Error())
-	}
-}
-
-func (b *Bot) giveUp(ctx context.Context, it store.OutboxItem, ch *store.Channel, msg string) {
-	metrics.NotificationsDropped.Inc()
-	b.log.Warn("notification dropped", slog.String("channel", ch.Name), slog.String("reason", msg))
-	err := b.db.InSystem(ctx, func(tx pgx.Tx) error {
-		if err := store.MarkNotificationFailed(ctx, tx, it.ID, nil, msg); err != nil {
-			return err
-		}
-		return store.RecordDelivery(ctx, tx, ch.ID, msg)
-	})
-	if err != nil {
-		b.log.Error("record failed notification", slog.Any("err", err))
-	}
-}
-
 // loadView reads an issue and the event that triggered the notification.
 func (b *Bot) loadView(ctx context.Context, issueID uuid.UUID, payload map[string]any) (*IssueView, error) {
-	v := &IssueView{ID: issueID.String()}
-	err := b.db.InSystem(ctx, func(tx pgx.Tx) error {
-		var (
-			seq         int32
-			projectSlug string
-			meta        []byte
-			resolvedBy  *string
-		)
-		err := tx.QueryRow(ctx, `
-			SELECT coalesce(i.short_seq, 0), p.slug, p.name, o.slug, i.title, i.type, i.value, i.culprit, i.metadata, i.level,
-			       i.status, i.unhandled, i.times_seen, i.users_count, i.customers_count, nullif(coalesce(u.name, u.email), '')
-			FROM issues i
-			JOIN projects p ON p.id = i.project_id
-			JOIN organizations o ON o.id = i.org_id
-			LEFT JOIN users u ON u.id = i.resolved_by
-			WHERE i.id = $1`, issueID).Scan(&seq, &projectSlug, &v.ProjectName, &v.OrgSlug, &v.Title, &v.Type, &v.Value, &v.Culprit,
-			&meta, &v.Level, &v.Status, &v.Unhandled, &v.TimesSeen, &v.Users, &v.Customers, &resolvedBy)
-		if errors.Is(err, pgx.ErrNoRows) {
-			return store.ErrNotFound
-		}
-		if err != nil {
-			return err
-		}
-		v.ShortID = ingest.ShortID(projectSlug, seq)
-		if v.Status == store.IssueResolved && resolvedBy != nil {
-			v.StatusBy = *resolvedBy
-		}
-		var loc ingest.Location
-		_ = json.Unmarshal(meta, &loc)
-		v.Filename, v.Lineno = loc.Filename, loc.Lineno
-
-		raw, _ := payload["event_id"].(string)
-		eventID, err := uuid.Parse(raw)
-		if err != nil {
-			return nil
-		}
-		at := ingest.ReceivedAt(eventID)
-		err = tx.QueryRow(ctx, `
-			SELECT e.environment, e.release, CASE WHEN e.customer_key = '' THEN '' ELSE coalesce(nullif(c.name, ''), e.customer_key) END,
-			       e.tenant_key, e.user_label
-			FROM events e
-			LEFT JOIN customers c ON e.customer_key <> '' AND c.org_id = e.org_id AND c.key = e.customer_key
-			WHERE e.id = $1 AND e.received_at BETWEEN $2 AND $3`, eventID, at.Add(-time.Second), at.Add(time.Second)).Scan(
-			&v.Environment, &v.Release, &v.Customer, &v.Tenant, &v.User)
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil
-		}
-		return err
-	})
-	return v, err
+	return notify.LoadIssueView(ctx, b.db, issueID, payload)
 }
 
 func (b *Bot) issueURL(v *IssueView) string {
@@ -641,7 +430,7 @@ func (b *Bot) linkChat(ctx context.Context, m *Message, code *store.LinkCode) {
 			return err
 		}
 		created = isNew
-		return ensureDefaultRules(ctx, tx, *code.OrgID, ch.ID)
+		return store.EnsureDefaultRules(ctx, tx, *code.OrgID, ch.ID)
 	})
 	if err != nil {
 		b.log.Error("link telegram chat", slog.Any("err", err))
@@ -661,26 +450,6 @@ func (b *Bot) linkChat(ctx context.Context, m *Message, code *store.LinkCode) {
 	}
 	b.reply(ctx, m, fmt.Sprintf("✅ Bu sohbet <b>%s</b> organizasyonunun %s bildirimlerine %s.\n\nHangi hataların bildirileceğini İzci'de Uyarılar sayfasından ayarlayabilirsiniz.",
 		html.EscapeString(orgName), scope, verb))
-}
-
-// ensureDefaultRules gives an organization's first channel two sensible
-// rules: new and regressed errors in production.
-func ensureDefaultRules(ctx context.Context, tx pgx.Tx, orgID, channelID uuid.UUID) error {
-	var n int
-	if err := tx.QueryRow(ctx, `SELECT count(*) FROM alert_rules WHERE org_id = $1`, orgID).Scan(&n); err != nil || n > 0 {
-		return err
-	}
-	filters := store.RuleFilters{MinLevel: 4, Environments: []string{"production"}}
-	for _, r := range []store.AlertRule{
-		{Name: "Üretimde yeni hatalar", Trigger: store.RuleTrigger{Kind: 1}},
-		{Name: "Üretimde geri dönen hatalar", Trigger: store.RuleTrigger{Kind: 2}},
-	} {
-		r.OrgID, r.Enabled, r.Filters, r.ChannelIDs, r.ThrottleSeconds = orgID, true, filters, []uuid.UUID{channelID}, 1800
-		if _, err := store.SaveAlertRule(ctx, tx, &r); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func (b *Bot) linkAccount(ctx context.Context, m *Message, code *store.LinkCode) {

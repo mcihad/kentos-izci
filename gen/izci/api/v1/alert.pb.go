@@ -90,6 +90,16 @@ const (
 	ChannelKind_CHANNEL_KIND_UNSPECIFIED ChannelKind = 0
 	// A Telegram private chat, group, supergroup topic or channel.
 	ChannelKind_CHANNEL_KIND_TELEGRAM ChannelKind = 1
+	// E-mail recipients (needs SMTP_HOST).
+	ChannelKind_CHANNEL_KIND_EMAIL ChannelKind = 2
+	// A Slack channel through an incoming webhook.
+	ChannelKind_CHANNEL_KIND_SLACK ChannelKind = 3
+	// A Microsoft Teams channel through a Workflows (or incoming) webhook.
+	ChannelKind_CHANNEL_KIND_TEAMS ChannelKind = 4
+	// Any HTTP endpoint that receives signed JSON.
+	ChannelKind_CHANNEL_KIND_WEBHOOK ChannelKind = 5
+	// A Jira project where issues become tickets.
+	ChannelKind_CHANNEL_KIND_JIRA ChannelKind = 6
 )
 
 // Enum value maps for ChannelKind.
@@ -97,10 +107,20 @@ var (
 	ChannelKind_name = map[int32]string{
 		0: "CHANNEL_KIND_UNSPECIFIED",
 		1: "CHANNEL_KIND_TELEGRAM",
+		2: "CHANNEL_KIND_EMAIL",
+		3: "CHANNEL_KIND_SLACK",
+		4: "CHANNEL_KIND_TEAMS",
+		5: "CHANNEL_KIND_WEBHOOK",
+		6: "CHANNEL_KIND_JIRA",
 	}
 	ChannelKind_value = map[string]int32{
 		"CHANNEL_KIND_UNSPECIFIED": 0,
 		"CHANNEL_KIND_TELEGRAM":    1,
+		"CHANNEL_KIND_EMAIL":       2,
+		"CHANNEL_KIND_SLACK":       3,
+		"CHANNEL_KIND_TEAMS":       4,
+		"CHANNEL_KIND_WEBHOOK":     5,
+		"CHANNEL_KIND_JIRA":        6,
 	}
 )
 
@@ -437,7 +457,16 @@ type Channel struct {
 	// Last successful delivery.
 	LastDeliveryAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=last_delivery_at,json=lastDeliveryAt,proto3" json:"last_delivery_at,omitempty"`
 	// Last delivery error, empty when the last delivery succeeded.
-	LastError     string `protobuf:"bytes,10,opt,name=last_error,json=lastError,proto3" json:"last_error,omitempty"`
+	LastError string `protobuf:"bytes,10,opt,name=last_error,json=lastError,proto3" json:"last_error,omitempty"`
+	// Recipients of CHANNEL_KIND_EMAIL.
+	EmailRecipients []string `protobuf:"bytes,11,rep,name=email_recipients,json=emailRecipients,proto3" json:"email_recipients,omitempty"`
+	// Where a Slack, Teams or webhook channel posts, with the secret part of
+	// the URL hidden, e.g. "hooks.slack.com/…/x7Qa".
+	UrlHint string `protobuf:"bytes,12,opt,name=url_hint,json=urlHint,proto3" json:"url_hint,omitempty"`
+	// Whether webhook deliveries carry a signature (X-Izci-Signature).
+	Signed bool `protobuf:"varint,13,opt,name=signed,proto3" json:"signed,omitempty"`
+	// Jira settings of CHANNEL_KIND_JIRA (without the token).
+	Jira          *JiraSettings `protobuf:"bytes,14,opt,name=jira,proto3" json:"jira,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -542,6 +571,441 @@ func (x *Channel) GetLastError() string {
 	return ""
 }
 
+func (x *Channel) GetEmailRecipients() []string {
+	if x != nil {
+		return x.EmailRecipients
+	}
+	return nil
+}
+
+func (x *Channel) GetUrlHint() string {
+	if x != nil {
+		return x.UrlHint
+	}
+	return ""
+}
+
+func (x *Channel) GetSigned() bool {
+	if x != nil {
+		return x.Signed
+	}
+	return false
+}
+
+func (x *Channel) GetJira() *JiraSettings {
+	if x != nil {
+		return x.Jira
+	}
+	return nil
+}
+
+// JiraSettings is where a Jira channel creates tickets.
+type JiraSettings struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Site address, e.g. "https://kentos.atlassian.net".
+	BaseUrl string `protobuf:"bytes,1,opt,name=base_url,json=baseUrl,proto3" json:"base_url,omitempty"`
+	// Project key, e.g. "KALEM".
+	ProjectKey string `protobuf:"bytes,2,opt,name=project_key,json=projectKey,proto3" json:"project_key,omitempty"`
+	// Issue type name as configured in Jira, e.g. "Bug".
+	IssueType string `protobuf:"bytes,3,opt,name=issue_type,json=issueType,proto3" json:"issue_type,omitempty"`
+	// Account e-mail for Jira Cloud API tokens; empty when the token is a
+	// personal access token (Jira Server, Data Center).
+	Email string `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
+	// Labels added to tickets besides "izci".
+	Labels        []string `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *JiraSettings) Reset() {
+	*x = JiraSettings{}
+	mi := &file_izci_api_v1_alert_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *JiraSettings) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*JiraSettings) ProtoMessage() {}
+
+func (x *JiraSettings) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_alert_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use JiraSettings.ProtoReflect.Descriptor instead.
+func (*JiraSettings) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *JiraSettings) GetBaseUrl() string {
+	if x != nil {
+		return x.BaseUrl
+	}
+	return ""
+}
+
+func (x *JiraSettings) GetProjectKey() string {
+	if x != nil {
+		return x.ProjectKey
+	}
+	return ""
+}
+
+func (x *JiraSettings) GetIssueType() string {
+	if x != nil {
+		return x.IssueType
+	}
+	return ""
+}
+
+func (x *JiraSettings) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *JiraSettings) GetLabels() []string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
+// ChannelSettings is the destination of a new or reconfigured channel.
+type ChannelSettings struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// One destination.
+	//
+	// Types that are valid to be assigned to Kind:
+	//
+	//	*ChannelSettings_Email
+	//	*ChannelSettings_Slack
+	//	*ChannelSettings_Teams
+	//	*ChannelSettings_Webhook
+	//	*ChannelSettings_Jira
+	Kind          isChannelSettings_Kind `protobuf_oneof:"kind"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChannelSettings) Reset() {
+	*x = ChannelSettings{}
+	mi := &file_izci_api_v1_alert_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChannelSettings) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChannelSettings) ProtoMessage() {}
+
+func (x *ChannelSettings) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_alert_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChannelSettings.ProtoReflect.Descriptor instead.
+func (*ChannelSettings) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ChannelSettings) GetKind() isChannelSettings_Kind {
+	if x != nil {
+		return x.Kind
+	}
+	return nil
+}
+
+func (x *ChannelSettings) GetEmail() *EmailSettings {
+	if x != nil {
+		if x, ok := x.Kind.(*ChannelSettings_Email); ok {
+			return x.Email
+		}
+	}
+	return nil
+}
+
+func (x *ChannelSettings) GetSlack() *WebhookSettings {
+	if x != nil {
+		if x, ok := x.Kind.(*ChannelSettings_Slack); ok {
+			return x.Slack
+		}
+	}
+	return nil
+}
+
+func (x *ChannelSettings) GetTeams() *WebhookSettings {
+	if x != nil {
+		if x, ok := x.Kind.(*ChannelSettings_Teams); ok {
+			return x.Teams
+		}
+	}
+	return nil
+}
+
+func (x *ChannelSettings) GetWebhook() *WebhookSettings {
+	if x != nil {
+		if x, ok := x.Kind.(*ChannelSettings_Webhook); ok {
+			return x.Webhook
+		}
+	}
+	return nil
+}
+
+func (x *ChannelSettings) GetJira() *JiraInput {
+	if x != nil {
+		if x, ok := x.Kind.(*ChannelSettings_Jira); ok {
+			return x.Jira
+		}
+	}
+	return nil
+}
+
+type isChannelSettings_Kind interface {
+	isChannelSettings_Kind()
+}
+
+type ChannelSettings_Email struct {
+	// E-mail recipients.
+	Email *EmailSettings `protobuf:"bytes,1,opt,name=email,proto3,oneof"`
+}
+
+type ChannelSettings_Slack struct {
+	// Slack incoming webhook.
+	Slack *WebhookSettings `protobuf:"bytes,2,opt,name=slack,proto3,oneof"`
+}
+
+type ChannelSettings_Teams struct {
+	// Microsoft Teams webhook.
+	Teams *WebhookSettings `protobuf:"bytes,3,opt,name=teams,proto3,oneof"`
+}
+
+type ChannelSettings_Webhook struct {
+	// Generic webhook.
+	Webhook *WebhookSettings `protobuf:"bytes,4,opt,name=webhook,proto3,oneof"`
+}
+
+type ChannelSettings_Jira struct {
+	// Jira project.
+	Jira *JiraInput `protobuf:"bytes,5,opt,name=jira,proto3,oneof"`
+}
+
+func (*ChannelSettings_Email) isChannelSettings_Kind() {}
+
+func (*ChannelSettings_Slack) isChannelSettings_Kind() {}
+
+func (*ChannelSettings_Teams) isChannelSettings_Kind() {}
+
+func (*ChannelSettings_Webhook) isChannelSettings_Kind() {}
+
+func (*ChannelSettings_Jira) isChannelSettings_Kind() {}
+
+// EmailSettings lists e-mail recipients.
+type EmailSettings struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 to 20 addresses.
+	Recipients    []string `protobuf:"bytes,1,rep,name=recipients,proto3" json:"recipients,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EmailSettings) Reset() {
+	*x = EmailSettings{}
+	mi := &file_izci_api_v1_alert_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EmailSettings) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EmailSettings) ProtoMessage() {}
+
+func (x *EmailSettings) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_alert_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EmailSettings.ProtoReflect.Descriptor instead.
+func (*EmailSettings) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *EmailSettings) GetRecipients() []string {
+	if x != nil {
+		return x.Recipients
+	}
+	return nil
+}
+
+// WebhookSettings is the URL a Slack, Teams or webhook channel posts to.
+type WebhookSettings struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Webhook URL (https for Slack and Teams). On update, empty keeps the
+	// current URL.
+	Url           string `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WebhookSettings) Reset() {
+	*x = WebhookSettings{}
+	mi := &file_izci_api_v1_alert_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WebhookSettings) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WebhookSettings) ProtoMessage() {}
+
+func (x *WebhookSettings) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_alert_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WebhookSettings.ProtoReflect.Descriptor instead.
+func (*WebhookSettings) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *WebhookSettings) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+// JiraInput configures a Jira channel.
+type JiraInput struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Site address, e.g. "https://kentos.atlassian.net".
+	BaseUrl string `protobuf:"bytes,1,opt,name=base_url,json=baseUrl,proto3" json:"base_url,omitempty"`
+	// Project key, e.g. "KALEM".
+	ProjectKey string `protobuf:"bytes,2,opt,name=project_key,json=projectKey,proto3" json:"project_key,omitempty"`
+	// Issue type name, e.g. "Bug" (default).
+	IssueType string `protobuf:"bytes,3,opt,name=issue_type,json=issueType,proto3" json:"issue_type,omitempty"`
+	// Account e-mail for a Jira Cloud API token; empty for a personal access
+	// token (Jira Server, Data Center).
+	Email string `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
+	// API token or personal access token. On update, empty keeps the current
+	// token.
+	Token string `protobuf:"bytes,5,opt,name=token,proto3" json:"token,omitempty"`
+	// Extra labels, at most 10.
+	Labels        []string `protobuf:"bytes,6,rep,name=labels,proto3" json:"labels,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *JiraInput) Reset() {
+	*x = JiraInput{}
+	mi := &file_izci_api_v1_alert_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *JiraInput) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*JiraInput) ProtoMessage() {}
+
+func (x *JiraInput) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_alert_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use JiraInput.ProtoReflect.Descriptor instead.
+func (*JiraInput) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *JiraInput) GetBaseUrl() string {
+	if x != nil {
+		return x.BaseUrl
+	}
+	return ""
+}
+
+func (x *JiraInput) GetProjectKey() string {
+	if x != nil {
+		return x.ProjectKey
+	}
+	return ""
+}
+
+func (x *JiraInput) GetIssueType() string {
+	if x != nil {
+		return x.IssueType
+	}
+	return ""
+}
+
+func (x *JiraInput) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *JiraInput) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+func (x *JiraInput) GetLabels() []string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
 // TelegramChat identifies a Telegram chat.
 type TelegramChat struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -562,7 +1026,7 @@ type TelegramChat struct {
 
 func (x *TelegramChat) Reset() {
 	*x = TelegramChat{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[4]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -574,7 +1038,7 @@ func (x *TelegramChat) String() string {
 func (*TelegramChat) ProtoMessage() {}
 
 func (x *TelegramChat) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[4]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -587,7 +1051,7 @@ func (x *TelegramChat) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TelegramChat.ProtoReflect.Descriptor instead.
 func (*TelegramChat) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{4}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *TelegramChat) GetChatId() int64 {
@@ -636,7 +1100,7 @@ type ListAlertRulesRequest struct {
 
 func (x *ListAlertRulesRequest) Reset() {
 	*x = ListAlertRulesRequest{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[5]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -648,7 +1112,7 @@ func (x *ListAlertRulesRequest) String() string {
 func (*ListAlertRulesRequest) ProtoMessage() {}
 
 func (x *ListAlertRulesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[5]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -661,7 +1125,7 @@ func (x *ListAlertRulesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAlertRulesRequest.ProtoReflect.Descriptor instead.
 func (*ListAlertRulesRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{5}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListAlertRulesRequest) GetProject() string {
@@ -682,7 +1146,7 @@ type ListAlertRulesResponse struct {
 
 func (x *ListAlertRulesResponse) Reset() {
 	*x = ListAlertRulesResponse{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[6]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -694,7 +1158,7 @@ func (x *ListAlertRulesResponse) String() string {
 func (*ListAlertRulesResponse) ProtoMessage() {}
 
 func (x *ListAlertRulesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[6]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -707,7 +1171,7 @@ func (x *ListAlertRulesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAlertRulesResponse.ProtoReflect.Descriptor instead.
 func (*ListAlertRulesResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{6}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListAlertRulesResponse) GetRules() []*AlertRule {
@@ -740,7 +1204,7 @@ type AlertRuleInput struct {
 
 func (x *AlertRuleInput) Reset() {
 	*x = AlertRuleInput{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[7]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -752,7 +1216,7 @@ func (x *AlertRuleInput) String() string {
 func (*AlertRuleInput) ProtoMessage() {}
 
 func (x *AlertRuleInput) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[7]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -765,7 +1229,7 @@ func (x *AlertRuleInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AlertRuleInput.ProtoReflect.Descriptor instead.
 func (*AlertRuleInput) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{7}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *AlertRuleInput) GetName() string {
@@ -828,7 +1292,7 @@ type CreateAlertRuleRequest struct {
 
 func (x *CreateAlertRuleRequest) Reset() {
 	*x = CreateAlertRuleRequest{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[8]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -840,7 +1304,7 @@ func (x *CreateAlertRuleRequest) String() string {
 func (*CreateAlertRuleRequest) ProtoMessage() {}
 
 func (x *CreateAlertRuleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[8]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -853,7 +1317,7 @@ func (x *CreateAlertRuleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAlertRuleRequest.ProtoReflect.Descriptor instead.
 func (*CreateAlertRuleRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{8}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *CreateAlertRuleRequest) GetRule() *AlertRuleInput {
@@ -874,7 +1338,7 @@ type CreateAlertRuleResponse struct {
 
 func (x *CreateAlertRuleResponse) Reset() {
 	*x = CreateAlertRuleResponse{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[9]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -886,7 +1350,7 @@ func (x *CreateAlertRuleResponse) String() string {
 func (*CreateAlertRuleResponse) ProtoMessage() {}
 
 func (x *CreateAlertRuleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[9]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -899,7 +1363,7 @@ func (x *CreateAlertRuleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAlertRuleResponse.ProtoReflect.Descriptor instead.
 func (*CreateAlertRuleResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{9}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *CreateAlertRuleResponse) GetRule() *AlertRule {
@@ -922,7 +1386,7 @@ type UpdateAlertRuleRequest struct {
 
 func (x *UpdateAlertRuleRequest) Reset() {
 	*x = UpdateAlertRuleRequest{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[10]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -934,7 +1398,7 @@ func (x *UpdateAlertRuleRequest) String() string {
 func (*UpdateAlertRuleRequest) ProtoMessage() {}
 
 func (x *UpdateAlertRuleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[10]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -947,7 +1411,7 @@ func (x *UpdateAlertRuleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAlertRuleRequest.ProtoReflect.Descriptor instead.
 func (*UpdateAlertRuleRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{10}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *UpdateAlertRuleRequest) GetId() string {
@@ -975,7 +1439,7 @@ type UpdateAlertRuleResponse struct {
 
 func (x *UpdateAlertRuleResponse) Reset() {
 	*x = UpdateAlertRuleResponse{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[11]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -987,7 +1451,7 @@ func (x *UpdateAlertRuleResponse) String() string {
 func (*UpdateAlertRuleResponse) ProtoMessage() {}
 
 func (x *UpdateAlertRuleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[11]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1000,7 +1464,7 @@ func (x *UpdateAlertRuleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAlertRuleResponse.ProtoReflect.Descriptor instead.
 func (*UpdateAlertRuleResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{11}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *UpdateAlertRuleResponse) GetRule() *AlertRule {
@@ -1021,7 +1485,7 @@ type DeleteAlertRuleRequest struct {
 
 func (x *DeleteAlertRuleRequest) Reset() {
 	*x = DeleteAlertRuleRequest{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[12]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1033,7 +1497,7 @@ func (x *DeleteAlertRuleRequest) String() string {
 func (*DeleteAlertRuleRequest) ProtoMessage() {}
 
 func (x *DeleteAlertRuleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[12]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1046,7 +1510,7 @@ func (x *DeleteAlertRuleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAlertRuleRequest.ProtoReflect.Descriptor instead.
 func (*DeleteAlertRuleRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{12}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *DeleteAlertRuleRequest) GetId() string {
@@ -1065,7 +1529,7 @@ type DeleteAlertRuleResponse struct {
 
 func (x *DeleteAlertRuleResponse) Reset() {
 	*x = DeleteAlertRuleResponse{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[13]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1077,7 +1541,7 @@ func (x *DeleteAlertRuleResponse) String() string {
 func (*DeleteAlertRuleResponse) ProtoMessage() {}
 
 func (x *DeleteAlertRuleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[13]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1090,7 +1554,7 @@ func (x *DeleteAlertRuleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAlertRuleResponse.ProtoReflect.Descriptor instead.
 func (*DeleteAlertRuleResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{13}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{18}
 }
 
 // ListChannelsRequest has no fields.
@@ -1102,7 +1566,7 @@ type ListChannelsRequest struct {
 
 func (x *ListChannelsRequest) Reset() {
 	*x = ListChannelsRequest{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[14]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1114,7 +1578,7 @@ func (x *ListChannelsRequest) String() string {
 func (*ListChannelsRequest) ProtoMessage() {}
 
 func (x *ListChannelsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[14]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1127,7 +1591,7 @@ func (x *ListChannelsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListChannelsRequest.ProtoReflect.Descriptor instead.
 func (*ListChannelsRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{14}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{19}
 }
 
 // ListChannelsResponse lists channels.
@@ -1141,7 +1605,7 @@ type ListChannelsResponse struct {
 
 func (x *ListChannelsResponse) Reset() {
 	*x = ListChannelsResponse{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[15]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1153,7 +1617,7 @@ func (x *ListChannelsResponse) String() string {
 func (*ListChannelsResponse) ProtoMessage() {}
 
 func (x *ListChannelsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[15]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1166,7 +1630,7 @@ func (x *ListChannelsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListChannelsResponse.ProtoReflect.Descriptor instead.
 func (*ListChannelsResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{15}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ListChannelsResponse) GetChannels() []*Channel {
@@ -1174,6 +1638,127 @@ func (x *ListChannelsResponse) GetChannels() []*Channel {
 		return x.Channels
 	}
 	return nil
+}
+
+// CreateChannelRequest describes a new channel.
+type CreateChannelRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Display name, e.g. "Ekip e-postası".
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Project slug the channel is meant for; empty for organization-wide.
+	// Informational: rules decide what is delivered.
+	Project string `protobuf:"bytes,2,opt,name=project,proto3" json:"project,omitempty"`
+	// Destination.
+	Settings      *ChannelSettings `protobuf:"bytes,3,opt,name=settings,proto3" json:"settings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateChannelRequest) Reset() {
+	*x = CreateChannelRequest{}
+	mi := &file_izci_api_v1_alert_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateChannelRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateChannelRequest) ProtoMessage() {}
+
+func (x *CreateChannelRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_alert_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateChannelRequest.ProtoReflect.Descriptor instead.
+func (*CreateChannelRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *CreateChannelRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateChannelRequest) GetProject() string {
+	if x != nil {
+		return x.Project
+	}
+	return ""
+}
+
+func (x *CreateChannelRequest) GetSettings() *ChannelSettings {
+	if x != nil {
+		return x.Settings
+	}
+	return nil
+}
+
+// CreateChannelResponse returns the channel.
+type CreateChannelResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The new channel.
+	Channel *Channel `protobuf:"bytes,1,opt,name=channel,proto3" json:"channel,omitempty"`
+	// Signing secret of a webhook channel, shown only here: receivers verify
+	// X-Izci-Signature with it.
+	WebhookSecret string `protobuf:"bytes,2,opt,name=webhook_secret,json=webhookSecret,proto3" json:"webhook_secret,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateChannelResponse) Reset() {
+	*x = CreateChannelResponse{}
+	mi := &file_izci_api_v1_alert_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateChannelResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateChannelResponse) ProtoMessage() {}
+
+func (x *CreateChannelResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_alert_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateChannelResponse.ProtoReflect.Descriptor instead.
+func (*CreateChannelResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *CreateChannelResponse) GetChannel() *Channel {
+	if x != nil {
+		return x.Channel
+	}
+	return nil
+}
+
+func (x *CreateChannelResponse) GetWebhookSecret() string {
+	if x != nil {
+		return x.WebhookSecret
+	}
+	return ""
 }
 
 // UpdateChannelRequest changes a channel.
@@ -1184,14 +1769,17 @@ type UpdateChannelRequest struct {
 	// New name; unchanged when empty.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Mute or unmute.
-	Muted         bool `protobuf:"varint,3,opt,name=muted,proto3" json:"muted,omitempty"`
+	Muted bool `protobuf:"varint,3,opt,name=muted,proto3" json:"muted,omitempty"`
+	// New destination of the same kind; unchanged when unset. Empty secrets
+	// (webhook URL, Jira token) keep the current ones.
+	Settings      *ChannelSettings `protobuf:"bytes,4,opt,name=settings,proto3" json:"settings,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateChannelRequest) Reset() {
 	*x = UpdateChannelRequest{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[16]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1203,7 +1791,7 @@ func (x *UpdateChannelRequest) String() string {
 func (*UpdateChannelRequest) ProtoMessage() {}
 
 func (x *UpdateChannelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[16]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1216,7 +1804,7 @@ func (x *UpdateChannelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateChannelRequest.ProtoReflect.Descriptor instead.
 func (*UpdateChannelRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{16}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *UpdateChannelRequest) GetId() string {
@@ -1240,6 +1828,13 @@ func (x *UpdateChannelRequest) GetMuted() bool {
 	return false
 }
 
+func (x *UpdateChannelRequest) GetSettings() *ChannelSettings {
+	if x != nil {
+		return x.Settings
+	}
+	return nil
+}
+
 // UpdateChannelResponse returns the channel.
 type UpdateChannelResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1251,7 +1846,7 @@ type UpdateChannelResponse struct {
 
 func (x *UpdateChannelResponse) Reset() {
 	*x = UpdateChannelResponse{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[17]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1263,7 +1858,7 @@ func (x *UpdateChannelResponse) String() string {
 func (*UpdateChannelResponse) ProtoMessage() {}
 
 func (x *UpdateChannelResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[17]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1276,7 +1871,7 @@ func (x *UpdateChannelResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateChannelResponse.ProtoReflect.Descriptor instead.
 func (*UpdateChannelResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{17}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *UpdateChannelResponse) GetChannel() *Channel {
@@ -1297,7 +1892,7 @@ type DeleteChannelRequest struct {
 
 func (x *DeleteChannelRequest) Reset() {
 	*x = DeleteChannelRequest{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[18]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1309,7 +1904,7 @@ func (x *DeleteChannelRequest) String() string {
 func (*DeleteChannelRequest) ProtoMessage() {}
 
 func (x *DeleteChannelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[18]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1322,7 +1917,7 @@ func (x *DeleteChannelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteChannelRequest.ProtoReflect.Descriptor instead.
 func (*DeleteChannelRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{18}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *DeleteChannelRequest) GetId() string {
@@ -1341,7 +1936,7 @@ type DeleteChannelResponse struct {
 
 func (x *DeleteChannelResponse) Reset() {
 	*x = DeleteChannelResponse{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[19]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1353,7 +1948,7 @@ func (x *DeleteChannelResponse) String() string {
 func (*DeleteChannelResponse) ProtoMessage() {}
 
 func (x *DeleteChannelResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[19]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1366,7 +1961,7 @@ func (x *DeleteChannelResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteChannelResponse.ProtoReflect.Descriptor instead.
 func (*DeleteChannelResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{19}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{26}
 }
 
 // CreateTelegramLinkCodeRequest scopes the link.
@@ -1380,7 +1975,7 @@ type CreateTelegramLinkCodeRequest struct {
 
 func (x *CreateTelegramLinkCodeRequest) Reset() {
 	*x = CreateTelegramLinkCodeRequest{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[20]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1392,7 +1987,7 @@ func (x *CreateTelegramLinkCodeRequest) String() string {
 func (*CreateTelegramLinkCodeRequest) ProtoMessage() {}
 
 func (x *CreateTelegramLinkCodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[20]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1405,7 +2000,7 @@ func (x *CreateTelegramLinkCodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTelegramLinkCodeRequest.ProtoReflect.Descriptor instead.
 func (*CreateTelegramLinkCodeRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{20}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *CreateTelegramLinkCodeRequest) GetProject() string {
@@ -1434,7 +2029,7 @@ type CreateTelegramLinkCodeResponse struct {
 
 func (x *CreateTelegramLinkCodeResponse) Reset() {
 	*x = CreateTelegramLinkCodeResponse{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[21]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1446,7 +2041,7 @@ func (x *CreateTelegramLinkCodeResponse) String() string {
 func (*CreateTelegramLinkCodeResponse) ProtoMessage() {}
 
 func (x *CreateTelegramLinkCodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[21]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1459,7 +2054,7 @@ func (x *CreateTelegramLinkCodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTelegramLinkCodeResponse.ProtoReflect.Descriptor instead.
 func (*CreateTelegramLinkCodeResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{21}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *CreateTelegramLinkCodeResponse) GetCode() string {
@@ -1508,7 +2103,7 @@ type SendTestNotificationRequest struct {
 
 func (x *SendTestNotificationRequest) Reset() {
 	*x = SendTestNotificationRequest{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[22]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1520,7 +2115,7 @@ func (x *SendTestNotificationRequest) String() string {
 func (*SendTestNotificationRequest) ProtoMessage() {}
 
 func (x *SendTestNotificationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[22]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1533,7 +2128,7 @@ func (x *SendTestNotificationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendTestNotificationRequest.ProtoReflect.Descriptor instead.
 func (*SendTestNotificationRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{22}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *SendTestNotificationRequest) GetChannelId() string {
@@ -1552,7 +2147,7 @@ type SendTestNotificationResponse struct {
 
 func (x *SendTestNotificationResponse) Reset() {
 	*x = SendTestNotificationResponse{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[23]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1564,7 +2159,7 @@ func (x *SendTestNotificationResponse) String() string {
 func (*SendTestNotificationResponse) ProtoMessage() {}
 
 func (x *SendTestNotificationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[23]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1577,7 +2172,7 @@ func (x *SendTestNotificationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendTestNotificationResponse.ProtoReflect.Descriptor instead.
 func (*SendTestNotificationResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{23}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{30}
 }
 
 // GetNotificationStatusRequest has no fields.
@@ -1589,7 +2184,7 @@ type GetNotificationStatusRequest struct {
 
 func (x *GetNotificationStatusRequest) Reset() {
 	*x = GetNotificationStatusRequest{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[24]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1601,7 +2196,7 @@ func (x *GetNotificationStatusRequest) String() string {
 func (*GetNotificationStatusRequest) ProtoMessage() {}
 
 func (x *GetNotificationStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[24]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1614,7 +2209,7 @@ func (x *GetNotificationStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNotificationStatusRequest.ProtoReflect.Descriptor instead.
 func (*GetNotificationStatusRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{24}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{31}
 }
 
 // GetNotificationStatusResponse reports transport availability.
@@ -1625,14 +2220,18 @@ type GetNotificationStatusResponse struct {
 	// Bot username without "@".
 	TelegramBotUsername string `protobuf:"bytes,2,opt,name=telegram_bot_username,json=telegramBotUsername,proto3" json:"telegram_bot_username,omitempty"`
 	// Update mode of the bot: "polling" or "webhook".
-	TelegramMode  string `protobuf:"bytes,3,opt,name=telegram_mode,json=telegramMode,proto3" json:"telegram_mode,omitempty"`
+	TelegramMode string `protobuf:"bytes,3,opt,name=telegram_mode,json=telegramMode,proto3" json:"telegram_mode,omitempty"`
+	// Whether an SMTP server is configured for e-mail channels.
+	EmailConfigured bool `protobuf:"varint,4,opt,name=email_configured,json=emailConfigured,proto3" json:"email_configured,omitempty"`
+	// Sender address of notification e-mails.
+	EmailFrom     string `protobuf:"bytes,5,opt,name=email_from,json=emailFrom,proto3" json:"email_from,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetNotificationStatusResponse) Reset() {
 	*x = GetNotificationStatusResponse{}
-	mi := &file_izci_api_v1_alert_proto_msgTypes[25]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1644,7 +2243,7 @@ func (x *GetNotificationStatusResponse) String() string {
 func (*GetNotificationStatusResponse) ProtoMessage() {}
 
 func (x *GetNotificationStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_alert_proto_msgTypes[25]
+	mi := &file_izci_api_v1_alert_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1657,7 +2256,7 @@ func (x *GetNotificationStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNotificationStatusResponse.ProtoReflect.Descriptor instead.
 func (*GetNotificationStatusResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{25}
+	return file_izci_api_v1_alert_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GetNotificationStatusResponse) GetTelegramConfigured() bool {
@@ -1677,6 +2276,20 @@ func (x *GetNotificationStatusResponse) GetTelegramBotUsername() string {
 func (x *GetNotificationStatusResponse) GetTelegramMode() string {
 	if x != nil {
 		return x.TelegramMode
+	}
+	return ""
+}
+
+func (x *GetNotificationStatusResponse) GetEmailConfigured() bool {
+	if x != nil {
+		return x.EmailConfigured
+	}
+	return false
+}
+
+func (x *GetNotificationStatusResponse) GetEmailFrom() string {
+	if x != nil {
+		return x.EmailFrom
 	}
 	return ""
 }
@@ -1714,7 +2327,7 @@ const file_izci_api_v1_alert_proto_rawDesc = "" +
 	"\x0eunhandled_only\x18\x05 \x01(\bR\runhandledOnly\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb0\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbd\x04\n" +
 	"\aChannel\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12,\n" +
 	"\x04kind\x18\x02 \x01(\x0e2\x18.izci.api.v1.ChannelKindR\x04kind\x12\x12\n" +
@@ -1729,7 +2342,44 @@ const file_izci_api_v1_alert_proto_rawDesc = "" +
 	"\x10last_delivery_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\x0elastDeliveryAt\x12\x1d\n" +
 	"\n" +
 	"last_error\x18\n" +
-	" \x01(\tR\tlastError\"\x8a\x01\n" +
+	" \x01(\tR\tlastError\x12)\n" +
+	"\x10email_recipients\x18\v \x03(\tR\x0femailRecipients\x12\x19\n" +
+	"\burl_hint\x18\f \x01(\tR\aurlHint\x12\x16\n" +
+	"\x06signed\x18\r \x01(\bR\x06signed\x12-\n" +
+	"\x04jira\x18\x0e \x01(\v2\x19.izci.api.v1.JiraSettingsR\x04jira\"\x97\x01\n" +
+	"\fJiraSettings\x12\x19\n" +
+	"\bbase_url\x18\x01 \x01(\tR\abaseUrl\x12\x1f\n" +
+	"\vproject_key\x18\x02 \x01(\tR\n" +
+	"projectKey\x12\x1d\n" +
+	"\n" +
+	"issue_type\x18\x03 \x01(\tR\tissueType\x12\x14\n" +
+	"\x05email\x18\x04 \x01(\tR\x05email\x12\x16\n" +
+	"\x06labels\x18\x05 \x03(\tR\x06labels\"\xa8\x02\n" +
+	"\x0fChannelSettings\x122\n" +
+	"\x05email\x18\x01 \x01(\v2\x1a.izci.api.v1.EmailSettingsH\x00R\x05email\x124\n" +
+	"\x05slack\x18\x02 \x01(\v2\x1c.izci.api.v1.WebhookSettingsH\x00R\x05slack\x124\n" +
+	"\x05teams\x18\x03 \x01(\v2\x1c.izci.api.v1.WebhookSettingsH\x00R\x05teams\x128\n" +
+	"\awebhook\x18\x04 \x01(\v2\x1c.izci.api.v1.WebhookSettingsH\x00R\awebhook\x12,\n" +
+	"\x04jira\x18\x05 \x01(\v2\x16.izci.api.v1.JiraInputH\x00R\x04jiraB\r\n" +
+	"\x04kind\x12\x05\xbaH\x02\b\x01\"D\n" +
+	"\rEmailSettings\x123\n" +
+	"\n" +
+	"recipients\x18\x01 \x03(\tB\x13\xbaH\x10\x92\x01\r\b\x01\x10\x14\"\ar\x05\x18\xfe\x01`\x01R\n" +
+	"recipients\"-\n" +
+	"\x0fWebhookSettings\x12\x1a\n" +
+	"\x03url\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x18\xd0\x0fR\x03url\"\xf0\x01\n" +
+	"\tJiraInput\x12%\n" +
+	"\bbase_url\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\xac\x02R\abaseUrl\x12*\n" +
+	"\vproject_key\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x182R\n" +
+	"projectKey\x12&\n" +
+	"\n" +
+	"issue_type\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x18dR\tissueType\x12\x1e\n" +
+	"\x05email\x18\x04 \x01(\tB\b\xbaH\x05r\x03\x18\xfe\x01R\x05email\x12\x1e\n" +
+	"\x05token\x18\x05 \x01(\tB\b\xbaH\x05r\x03\x18\xe8\aR\x05token\x12(\n" +
+	"\x06labels\x18\x06 \x03(\tB\x10\xbaH\r\x92\x01\n" +
+	"\x10\n" +
+	"\"\x06r\x04\x10\x01\x182R\x06labels\"\x8a\x01\n" +
 	"\fTelegramChat\x12\x17\n" +
 	"\achat_id\x18\x01 \x01(\x03R\x06chatId\x12\x1b\n" +
 	"\tthread_id\x18\x02 \x01(\x03R\bthreadId\x12\x14\n" +
@@ -1763,11 +2413,19 @@ const file_izci_api_v1_alert_proto_rawDesc = "" +
 	"\x17DeleteAlertRuleResponse\"\x15\n" +
 	"\x13ListChannelsRequest\"H\n" +
 	"\x14ListChannelsResponse\x120\n" +
-	"\bchannels\x18\x01 \x03(\v2\x14.izci.api.v1.ChannelR\bchannels\"c\n" +
+	"\bchannels\x18\x01 \x03(\v2\x14.izci.api.v1.ChannelR\bchannels\"\x9a\x01\n" +
+	"\x14CreateChannelRequest\x12\x1d\n" +
+	"\x04name\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18dR\x04name\x12!\n" +
+	"\aproject\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x182R\aproject\x12@\n" +
+	"\bsettings\x18\x03 \x01(\v2\x1c.izci.api.v1.ChannelSettingsB\x06\xbaH\x03\xc8\x01\x01R\bsettings\"n\n" +
+	"\x15CreateChannelResponse\x12.\n" +
+	"\achannel\x18\x01 \x01(\v2\x14.izci.api.v1.ChannelR\achannel\x12%\n" +
+	"\x0ewebhook_secret\x18\x02 \x01(\tR\rwebhookSecret\"\x9d\x01\n" +
 	"\x14UpdateChannelRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x1b\n" +
 	"\x04name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x18dR\x04name\x12\x14\n" +
-	"\x05muted\x18\x03 \x01(\bR\x05muted\"G\n" +
+	"\x05muted\x18\x03 \x01(\bR\x05muted\x128\n" +
+	"\bsettings\x18\x04 \x01(\v2\x1c.izci.api.v1.ChannelSettingsR\bsettings\"G\n" +
 	"\x15UpdateChannelResponse\x12.\n" +
 	"\achannel\x18\x01 \x01(\v2\x14.izci.api.v1.ChannelR\achannel\"0\n" +
 	"\x14DeleteChannelRequest\x12\x18\n" +
@@ -1787,25 +2445,34 @@ const file_izci_api_v1_alert_proto_rawDesc = "" +
 	"\n" +
 	"channel_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\tchannelId\"\x1e\n" +
 	"\x1cSendTestNotificationResponse\"\x1e\n" +
-	"\x1cGetNotificationStatusRequest\"\xa9\x01\n" +
+	"\x1cGetNotificationStatusRequest\"\xf3\x01\n" +
 	"\x1dGetNotificationStatusResponse\x12/\n" +
 	"\x13telegram_configured\x18\x01 \x01(\bR\x12telegramConfigured\x122\n" +
 	"\x15telegram_bot_username\x18\x02 \x01(\tR\x13telegramBotUsername\x12#\n" +
-	"\rtelegram_mode\x18\x03 \x01(\tR\ftelegramMode*\x80\x01\n" +
+	"\rtelegram_mode\x18\x03 \x01(\tR\ftelegramMode\x12)\n" +
+	"\x10email_configured\x18\x04 \x01(\bR\x0femailConfigured\x12\x1d\n" +
+	"\n" +
+	"email_from\x18\x05 \x01(\tR\temailFrom*\x80\x01\n" +
 	"\vTriggerKind\x12\x1c\n" +
 	"\x18TRIGGER_KIND_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16TRIGGER_KIND_NEW_ISSUE\x10\x01\x12\x1b\n" +
 	"\x17TRIGGER_KIND_REGRESSION\x10\x02\x12\x1a\n" +
-	"\x16TRIGGER_KIND_FREQUENCY\x10\x03*F\n" +
+	"\x16TRIGGER_KIND_FREQUENCY\x10\x03*\xbf\x01\n" +
 	"\vChannelKind\x12\x1c\n" +
 	"\x18CHANNEL_KIND_UNSPECIFIED\x10\x00\x12\x19\n" +
-	"\x15CHANNEL_KIND_TELEGRAM\x10\x012\xe7\a\n" +
+	"\x15CHANNEL_KIND_TELEGRAM\x10\x01\x12\x16\n" +
+	"\x12CHANNEL_KIND_EMAIL\x10\x02\x12\x16\n" +
+	"\x12CHANNEL_KIND_SLACK\x10\x03\x12\x16\n" +
+	"\x12CHANNEL_KIND_TEAMS\x10\x04\x12\x18\n" +
+	"\x14CHANNEL_KIND_WEBHOOK\x10\x05\x12\x15\n" +
+	"\x11CHANNEL_KIND_JIRA\x10\x062\xbf\b\n" +
 	"\fAlertService\x12^\n" +
 	"\x0eListAlertRules\x12\".izci.api.v1.ListAlertRulesRequest\x1a#.izci.api.v1.ListAlertRulesResponse\"\x03\x90\x02\x01\x12\\\n" +
 	"\x0fCreateAlertRule\x12#.izci.api.v1.CreateAlertRuleRequest\x1a$.izci.api.v1.CreateAlertRuleResponse\x12\\\n" +
 	"\x0fUpdateAlertRule\x12#.izci.api.v1.UpdateAlertRuleRequest\x1a$.izci.api.v1.UpdateAlertRuleResponse\x12\\\n" +
 	"\x0fDeleteAlertRule\x12#.izci.api.v1.DeleteAlertRuleRequest\x1a$.izci.api.v1.DeleteAlertRuleResponse\x12X\n" +
 	"\fListChannels\x12 .izci.api.v1.ListChannelsRequest\x1a!.izci.api.v1.ListChannelsResponse\"\x03\x90\x02\x01\x12V\n" +
+	"\rCreateChannel\x12!.izci.api.v1.CreateChannelRequest\x1a\".izci.api.v1.CreateChannelResponse\x12V\n" +
 	"\rUpdateChannel\x12!.izci.api.v1.UpdateChannelRequest\x1a\".izci.api.v1.UpdateChannelResponse\x12V\n" +
 	"\rDeleteChannel\x12!.izci.api.v1.DeleteChannelRequest\x1a\".izci.api.v1.DeleteChannelResponse\x12q\n" +
 	"\x16CreateTelegramLinkCode\x12*.izci.api.v1.CreateTelegramLinkCodeRequest\x1a+.izci.api.v1.CreateTelegramLinkCodeResponse\x12k\n" +
@@ -1827,7 +2494,7 @@ func file_izci_api_v1_alert_proto_rawDescGZIP() []byte {
 }
 
 var file_izci_api_v1_alert_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_izci_api_v1_alert_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_izci_api_v1_alert_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
 var file_izci_api_v1_alert_proto_goTypes = []any{
 	(TriggerKind)(0),                       // 0: izci.api.v1.TriggerKind
 	(ChannelKind)(0),                       // 1: izci.api.v1.ChannelKind
@@ -1835,89 +2502,107 @@ var file_izci_api_v1_alert_proto_goTypes = []any{
 	(*AlertTrigger)(nil),                   // 3: izci.api.v1.AlertTrigger
 	(*AlertFilters)(nil),                   // 4: izci.api.v1.AlertFilters
 	(*Channel)(nil),                        // 5: izci.api.v1.Channel
-	(*TelegramChat)(nil),                   // 6: izci.api.v1.TelegramChat
-	(*ListAlertRulesRequest)(nil),          // 7: izci.api.v1.ListAlertRulesRequest
-	(*ListAlertRulesResponse)(nil),         // 8: izci.api.v1.ListAlertRulesResponse
-	(*AlertRuleInput)(nil),                 // 9: izci.api.v1.AlertRuleInput
-	(*CreateAlertRuleRequest)(nil),         // 10: izci.api.v1.CreateAlertRuleRequest
-	(*CreateAlertRuleResponse)(nil),        // 11: izci.api.v1.CreateAlertRuleResponse
-	(*UpdateAlertRuleRequest)(nil),         // 12: izci.api.v1.UpdateAlertRuleRequest
-	(*UpdateAlertRuleResponse)(nil),        // 13: izci.api.v1.UpdateAlertRuleResponse
-	(*DeleteAlertRuleRequest)(nil),         // 14: izci.api.v1.DeleteAlertRuleRequest
-	(*DeleteAlertRuleResponse)(nil),        // 15: izci.api.v1.DeleteAlertRuleResponse
-	(*ListChannelsRequest)(nil),            // 16: izci.api.v1.ListChannelsRequest
-	(*ListChannelsResponse)(nil),           // 17: izci.api.v1.ListChannelsResponse
-	(*UpdateChannelRequest)(nil),           // 18: izci.api.v1.UpdateChannelRequest
-	(*UpdateChannelResponse)(nil),          // 19: izci.api.v1.UpdateChannelResponse
-	(*DeleteChannelRequest)(nil),           // 20: izci.api.v1.DeleteChannelRequest
-	(*DeleteChannelResponse)(nil),          // 21: izci.api.v1.DeleteChannelResponse
-	(*CreateTelegramLinkCodeRequest)(nil),  // 22: izci.api.v1.CreateTelegramLinkCodeRequest
-	(*CreateTelegramLinkCodeResponse)(nil), // 23: izci.api.v1.CreateTelegramLinkCodeResponse
-	(*SendTestNotificationRequest)(nil),    // 24: izci.api.v1.SendTestNotificationRequest
-	(*SendTestNotificationResponse)(nil),   // 25: izci.api.v1.SendTestNotificationResponse
-	(*GetNotificationStatusRequest)(nil),   // 26: izci.api.v1.GetNotificationStatusRequest
-	(*GetNotificationStatusResponse)(nil),  // 27: izci.api.v1.GetNotificationStatusResponse
-	nil,                                    // 28: izci.api.v1.AlertFilters.TagsEntry
-	(*ProjectRef)(nil),                     // 29: izci.api.v1.ProjectRef
-	(*durationpb.Duration)(nil),            // 30: google.protobuf.Duration
-	(*timestamppb.Timestamp)(nil),          // 31: google.protobuf.Timestamp
-	(v1.Level)(0),                          // 32: izci.ingest.v1.Level
-	(*UserRef)(nil),                        // 33: izci.api.v1.UserRef
+	(*JiraSettings)(nil),                   // 6: izci.api.v1.JiraSettings
+	(*ChannelSettings)(nil),                // 7: izci.api.v1.ChannelSettings
+	(*EmailSettings)(nil),                  // 8: izci.api.v1.EmailSettings
+	(*WebhookSettings)(nil),                // 9: izci.api.v1.WebhookSettings
+	(*JiraInput)(nil),                      // 10: izci.api.v1.JiraInput
+	(*TelegramChat)(nil),                   // 11: izci.api.v1.TelegramChat
+	(*ListAlertRulesRequest)(nil),          // 12: izci.api.v1.ListAlertRulesRequest
+	(*ListAlertRulesResponse)(nil),         // 13: izci.api.v1.ListAlertRulesResponse
+	(*AlertRuleInput)(nil),                 // 14: izci.api.v1.AlertRuleInput
+	(*CreateAlertRuleRequest)(nil),         // 15: izci.api.v1.CreateAlertRuleRequest
+	(*CreateAlertRuleResponse)(nil),        // 16: izci.api.v1.CreateAlertRuleResponse
+	(*UpdateAlertRuleRequest)(nil),         // 17: izci.api.v1.UpdateAlertRuleRequest
+	(*UpdateAlertRuleResponse)(nil),        // 18: izci.api.v1.UpdateAlertRuleResponse
+	(*DeleteAlertRuleRequest)(nil),         // 19: izci.api.v1.DeleteAlertRuleRequest
+	(*DeleteAlertRuleResponse)(nil),        // 20: izci.api.v1.DeleteAlertRuleResponse
+	(*ListChannelsRequest)(nil),            // 21: izci.api.v1.ListChannelsRequest
+	(*ListChannelsResponse)(nil),           // 22: izci.api.v1.ListChannelsResponse
+	(*CreateChannelRequest)(nil),           // 23: izci.api.v1.CreateChannelRequest
+	(*CreateChannelResponse)(nil),          // 24: izci.api.v1.CreateChannelResponse
+	(*UpdateChannelRequest)(nil),           // 25: izci.api.v1.UpdateChannelRequest
+	(*UpdateChannelResponse)(nil),          // 26: izci.api.v1.UpdateChannelResponse
+	(*DeleteChannelRequest)(nil),           // 27: izci.api.v1.DeleteChannelRequest
+	(*DeleteChannelResponse)(nil),          // 28: izci.api.v1.DeleteChannelResponse
+	(*CreateTelegramLinkCodeRequest)(nil),  // 29: izci.api.v1.CreateTelegramLinkCodeRequest
+	(*CreateTelegramLinkCodeResponse)(nil), // 30: izci.api.v1.CreateTelegramLinkCodeResponse
+	(*SendTestNotificationRequest)(nil),    // 31: izci.api.v1.SendTestNotificationRequest
+	(*SendTestNotificationResponse)(nil),   // 32: izci.api.v1.SendTestNotificationResponse
+	(*GetNotificationStatusRequest)(nil),   // 33: izci.api.v1.GetNotificationStatusRequest
+	(*GetNotificationStatusResponse)(nil),  // 34: izci.api.v1.GetNotificationStatusResponse
+	nil,                                    // 35: izci.api.v1.AlertFilters.TagsEntry
+	(*ProjectRef)(nil),                     // 36: izci.api.v1.ProjectRef
+	(*durationpb.Duration)(nil),            // 37: google.protobuf.Duration
+	(*timestamppb.Timestamp)(nil),          // 38: google.protobuf.Timestamp
+	(v1.Level)(0),                          // 39: izci.ingest.v1.Level
+	(*UserRef)(nil),                        // 40: izci.api.v1.UserRef
 }
 var file_izci_api_v1_alert_proto_depIdxs = []int32{
-	29, // 0: izci.api.v1.AlertRule.project:type_name -> izci.api.v1.ProjectRef
+	36, // 0: izci.api.v1.AlertRule.project:type_name -> izci.api.v1.ProjectRef
 	3,  // 1: izci.api.v1.AlertRule.trigger:type_name -> izci.api.v1.AlertTrigger
 	4,  // 2: izci.api.v1.AlertRule.filters:type_name -> izci.api.v1.AlertFilters
-	30, // 3: izci.api.v1.AlertRule.throttle:type_name -> google.protobuf.Duration
-	31, // 4: izci.api.v1.AlertRule.created_at:type_name -> google.protobuf.Timestamp
-	31, // 5: izci.api.v1.AlertRule.updated_at:type_name -> google.protobuf.Timestamp
-	31, // 6: izci.api.v1.AlertRule.last_triggered_at:type_name -> google.protobuf.Timestamp
+	37, // 3: izci.api.v1.AlertRule.throttle:type_name -> google.protobuf.Duration
+	38, // 4: izci.api.v1.AlertRule.created_at:type_name -> google.protobuf.Timestamp
+	38, // 5: izci.api.v1.AlertRule.updated_at:type_name -> google.protobuf.Timestamp
+	38, // 6: izci.api.v1.AlertRule.last_triggered_at:type_name -> google.protobuf.Timestamp
 	0,  // 7: izci.api.v1.AlertTrigger.kind:type_name -> izci.api.v1.TriggerKind
-	30, // 8: izci.api.v1.AlertTrigger.window:type_name -> google.protobuf.Duration
-	32, // 9: izci.api.v1.AlertFilters.min_level:type_name -> izci.ingest.v1.Level
-	28, // 10: izci.api.v1.AlertFilters.tags:type_name -> izci.api.v1.AlertFilters.TagsEntry
+	37, // 8: izci.api.v1.AlertTrigger.window:type_name -> google.protobuf.Duration
+	39, // 9: izci.api.v1.AlertFilters.min_level:type_name -> izci.ingest.v1.Level
+	35, // 10: izci.api.v1.AlertFilters.tags:type_name -> izci.api.v1.AlertFilters.TagsEntry
 	1,  // 11: izci.api.v1.Channel.kind:type_name -> izci.api.v1.ChannelKind
-	6,  // 12: izci.api.v1.Channel.telegram:type_name -> izci.api.v1.TelegramChat
-	29, // 13: izci.api.v1.Channel.project:type_name -> izci.api.v1.ProjectRef
-	33, // 14: izci.api.v1.Channel.created_by:type_name -> izci.api.v1.UserRef
-	31, // 15: izci.api.v1.Channel.created_at:type_name -> google.protobuf.Timestamp
-	31, // 16: izci.api.v1.Channel.last_delivery_at:type_name -> google.protobuf.Timestamp
-	2,  // 17: izci.api.v1.ListAlertRulesResponse.rules:type_name -> izci.api.v1.AlertRule
-	3,  // 18: izci.api.v1.AlertRuleInput.trigger:type_name -> izci.api.v1.AlertTrigger
-	4,  // 19: izci.api.v1.AlertRuleInput.filters:type_name -> izci.api.v1.AlertFilters
-	30, // 20: izci.api.v1.AlertRuleInput.throttle:type_name -> google.protobuf.Duration
-	9,  // 21: izci.api.v1.CreateAlertRuleRequest.rule:type_name -> izci.api.v1.AlertRuleInput
-	2,  // 22: izci.api.v1.CreateAlertRuleResponse.rule:type_name -> izci.api.v1.AlertRule
-	9,  // 23: izci.api.v1.UpdateAlertRuleRequest.rule:type_name -> izci.api.v1.AlertRuleInput
-	2,  // 24: izci.api.v1.UpdateAlertRuleResponse.rule:type_name -> izci.api.v1.AlertRule
-	5,  // 25: izci.api.v1.ListChannelsResponse.channels:type_name -> izci.api.v1.Channel
-	5,  // 26: izci.api.v1.UpdateChannelResponse.channel:type_name -> izci.api.v1.Channel
-	31, // 27: izci.api.v1.CreateTelegramLinkCodeResponse.expires_at:type_name -> google.protobuf.Timestamp
-	7,  // 28: izci.api.v1.AlertService.ListAlertRules:input_type -> izci.api.v1.ListAlertRulesRequest
-	10, // 29: izci.api.v1.AlertService.CreateAlertRule:input_type -> izci.api.v1.CreateAlertRuleRequest
-	12, // 30: izci.api.v1.AlertService.UpdateAlertRule:input_type -> izci.api.v1.UpdateAlertRuleRequest
-	14, // 31: izci.api.v1.AlertService.DeleteAlertRule:input_type -> izci.api.v1.DeleteAlertRuleRequest
-	16, // 32: izci.api.v1.AlertService.ListChannels:input_type -> izci.api.v1.ListChannelsRequest
-	18, // 33: izci.api.v1.AlertService.UpdateChannel:input_type -> izci.api.v1.UpdateChannelRequest
-	20, // 34: izci.api.v1.AlertService.DeleteChannel:input_type -> izci.api.v1.DeleteChannelRequest
-	22, // 35: izci.api.v1.AlertService.CreateTelegramLinkCode:input_type -> izci.api.v1.CreateTelegramLinkCodeRequest
-	24, // 36: izci.api.v1.AlertService.SendTestNotification:input_type -> izci.api.v1.SendTestNotificationRequest
-	26, // 37: izci.api.v1.AlertService.GetNotificationStatus:input_type -> izci.api.v1.GetNotificationStatusRequest
-	8,  // 38: izci.api.v1.AlertService.ListAlertRules:output_type -> izci.api.v1.ListAlertRulesResponse
-	11, // 39: izci.api.v1.AlertService.CreateAlertRule:output_type -> izci.api.v1.CreateAlertRuleResponse
-	13, // 40: izci.api.v1.AlertService.UpdateAlertRule:output_type -> izci.api.v1.UpdateAlertRuleResponse
-	15, // 41: izci.api.v1.AlertService.DeleteAlertRule:output_type -> izci.api.v1.DeleteAlertRuleResponse
-	17, // 42: izci.api.v1.AlertService.ListChannels:output_type -> izci.api.v1.ListChannelsResponse
-	19, // 43: izci.api.v1.AlertService.UpdateChannel:output_type -> izci.api.v1.UpdateChannelResponse
-	21, // 44: izci.api.v1.AlertService.DeleteChannel:output_type -> izci.api.v1.DeleteChannelResponse
-	23, // 45: izci.api.v1.AlertService.CreateTelegramLinkCode:output_type -> izci.api.v1.CreateTelegramLinkCodeResponse
-	25, // 46: izci.api.v1.AlertService.SendTestNotification:output_type -> izci.api.v1.SendTestNotificationResponse
-	27, // 47: izci.api.v1.AlertService.GetNotificationStatus:output_type -> izci.api.v1.GetNotificationStatusResponse
-	38, // [38:48] is the sub-list for method output_type
-	28, // [28:38] is the sub-list for method input_type
-	28, // [28:28] is the sub-list for extension type_name
-	28, // [28:28] is the sub-list for extension extendee
-	0,  // [0:28] is the sub-list for field type_name
+	11, // 12: izci.api.v1.Channel.telegram:type_name -> izci.api.v1.TelegramChat
+	36, // 13: izci.api.v1.Channel.project:type_name -> izci.api.v1.ProjectRef
+	40, // 14: izci.api.v1.Channel.created_by:type_name -> izci.api.v1.UserRef
+	38, // 15: izci.api.v1.Channel.created_at:type_name -> google.protobuf.Timestamp
+	38, // 16: izci.api.v1.Channel.last_delivery_at:type_name -> google.protobuf.Timestamp
+	6,  // 17: izci.api.v1.Channel.jira:type_name -> izci.api.v1.JiraSettings
+	8,  // 18: izci.api.v1.ChannelSettings.email:type_name -> izci.api.v1.EmailSettings
+	9,  // 19: izci.api.v1.ChannelSettings.slack:type_name -> izci.api.v1.WebhookSettings
+	9,  // 20: izci.api.v1.ChannelSettings.teams:type_name -> izci.api.v1.WebhookSettings
+	9,  // 21: izci.api.v1.ChannelSettings.webhook:type_name -> izci.api.v1.WebhookSettings
+	10, // 22: izci.api.v1.ChannelSettings.jira:type_name -> izci.api.v1.JiraInput
+	2,  // 23: izci.api.v1.ListAlertRulesResponse.rules:type_name -> izci.api.v1.AlertRule
+	3,  // 24: izci.api.v1.AlertRuleInput.trigger:type_name -> izci.api.v1.AlertTrigger
+	4,  // 25: izci.api.v1.AlertRuleInput.filters:type_name -> izci.api.v1.AlertFilters
+	37, // 26: izci.api.v1.AlertRuleInput.throttle:type_name -> google.protobuf.Duration
+	14, // 27: izci.api.v1.CreateAlertRuleRequest.rule:type_name -> izci.api.v1.AlertRuleInput
+	2,  // 28: izci.api.v1.CreateAlertRuleResponse.rule:type_name -> izci.api.v1.AlertRule
+	14, // 29: izci.api.v1.UpdateAlertRuleRequest.rule:type_name -> izci.api.v1.AlertRuleInput
+	2,  // 30: izci.api.v1.UpdateAlertRuleResponse.rule:type_name -> izci.api.v1.AlertRule
+	5,  // 31: izci.api.v1.ListChannelsResponse.channels:type_name -> izci.api.v1.Channel
+	7,  // 32: izci.api.v1.CreateChannelRequest.settings:type_name -> izci.api.v1.ChannelSettings
+	5,  // 33: izci.api.v1.CreateChannelResponse.channel:type_name -> izci.api.v1.Channel
+	7,  // 34: izci.api.v1.UpdateChannelRequest.settings:type_name -> izci.api.v1.ChannelSettings
+	5,  // 35: izci.api.v1.UpdateChannelResponse.channel:type_name -> izci.api.v1.Channel
+	38, // 36: izci.api.v1.CreateTelegramLinkCodeResponse.expires_at:type_name -> google.protobuf.Timestamp
+	12, // 37: izci.api.v1.AlertService.ListAlertRules:input_type -> izci.api.v1.ListAlertRulesRequest
+	15, // 38: izci.api.v1.AlertService.CreateAlertRule:input_type -> izci.api.v1.CreateAlertRuleRequest
+	17, // 39: izci.api.v1.AlertService.UpdateAlertRule:input_type -> izci.api.v1.UpdateAlertRuleRequest
+	19, // 40: izci.api.v1.AlertService.DeleteAlertRule:input_type -> izci.api.v1.DeleteAlertRuleRequest
+	21, // 41: izci.api.v1.AlertService.ListChannels:input_type -> izci.api.v1.ListChannelsRequest
+	23, // 42: izci.api.v1.AlertService.CreateChannel:input_type -> izci.api.v1.CreateChannelRequest
+	25, // 43: izci.api.v1.AlertService.UpdateChannel:input_type -> izci.api.v1.UpdateChannelRequest
+	27, // 44: izci.api.v1.AlertService.DeleteChannel:input_type -> izci.api.v1.DeleteChannelRequest
+	29, // 45: izci.api.v1.AlertService.CreateTelegramLinkCode:input_type -> izci.api.v1.CreateTelegramLinkCodeRequest
+	31, // 46: izci.api.v1.AlertService.SendTestNotification:input_type -> izci.api.v1.SendTestNotificationRequest
+	33, // 47: izci.api.v1.AlertService.GetNotificationStatus:input_type -> izci.api.v1.GetNotificationStatusRequest
+	13, // 48: izci.api.v1.AlertService.ListAlertRules:output_type -> izci.api.v1.ListAlertRulesResponse
+	16, // 49: izci.api.v1.AlertService.CreateAlertRule:output_type -> izci.api.v1.CreateAlertRuleResponse
+	18, // 50: izci.api.v1.AlertService.UpdateAlertRule:output_type -> izci.api.v1.UpdateAlertRuleResponse
+	20, // 51: izci.api.v1.AlertService.DeleteAlertRule:output_type -> izci.api.v1.DeleteAlertRuleResponse
+	22, // 52: izci.api.v1.AlertService.ListChannels:output_type -> izci.api.v1.ListChannelsResponse
+	24, // 53: izci.api.v1.AlertService.CreateChannel:output_type -> izci.api.v1.CreateChannelResponse
+	26, // 54: izci.api.v1.AlertService.UpdateChannel:output_type -> izci.api.v1.UpdateChannelResponse
+	28, // 55: izci.api.v1.AlertService.DeleteChannel:output_type -> izci.api.v1.DeleteChannelResponse
+	30, // 56: izci.api.v1.AlertService.CreateTelegramLinkCode:output_type -> izci.api.v1.CreateTelegramLinkCodeResponse
+	32, // 57: izci.api.v1.AlertService.SendTestNotification:output_type -> izci.api.v1.SendTestNotificationResponse
+	34, // 58: izci.api.v1.AlertService.GetNotificationStatus:output_type -> izci.api.v1.GetNotificationStatusResponse
+	48, // [48:59] is the sub-list for method output_type
+	37, // [37:48] is the sub-list for method input_type
+	37, // [37:37] is the sub-list for extension type_name
+	37, // [37:37] is the sub-list for extension extendee
+	0,  // [0:37] is the sub-list for field type_name
 }
 
 func init() { file_izci_api_v1_alert_proto_init() }
@@ -1926,13 +2611,20 @@ func file_izci_api_v1_alert_proto_init() {
 		return
 	}
 	file_izci_api_v1_common_proto_init()
+	file_izci_api_v1_alert_proto_msgTypes[5].OneofWrappers = []any{
+		(*ChannelSettings_Email)(nil),
+		(*ChannelSettings_Slack)(nil),
+		(*ChannelSettings_Teams)(nil),
+		(*ChannelSettings_Webhook)(nil),
+		(*ChannelSettings_Jira)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_api_v1_alert_proto_rawDesc), len(file_izci_api_v1_alert_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   27,
+			NumMessages:   34,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -258,9 +258,15 @@ export function Usage() {
 }
 
 const actionLabels: Record<string, string> = {
+  "alert_rule.create": "Uyarı kuralı oluşturdu",
+  "alert_rule.delete": "Uyarı kuralını sildi",
+  "alert_rule.update": "Uyarı kuralını değiştirdi",
   "api_key.create": "API anahtarı oluşturdu",
   "api_key.revoke": "API anahtarını iptal etti",
   "api_key.update": "API anahtarını değiştirdi",
+  "channel.create": "Bildirim kanalı ekledi",
+  "channel.delete": "Bildirim kanalını kaldırdı",
+  "channel.update": "Bildirim kanalını değiştirdi",
   "customer.update": "Müşteri bilgilerini değiştirdi",
   "instance.setup": "İzci kurulumunu tamamladı",
   "invitation.create": "Üye davet etti",
@@ -269,8 +275,6 @@ const actionLabels: Record<string, string> = {
   "member.remove": "Üyeyi çıkardı",
   "member.update": "Üyenin rolünü değiştirdi",
   "monitor.create": "Zamanlanmış görev izleyicisi oluşturdu",
-  "symbols.bundle.delete": "Kaynak eşleme paketini sildi",
-  "symbols.debug_file.delete": "Sembol dosyasını sildi",
   "monitor.delete": "Zamanlanmış görev izleyicisini sildi",
   "monitor.update": "Zamanlanmış görev izleyicisini değiştirdi",
   "organization.plan_update": "Planı değiştirdi",
@@ -280,6 +284,8 @@ const actionLabels: Record<string, string> = {
   "project.link_repository": "Depo bağladı",
   "project.unlink_repository": "Depo bağlantısını kaldırdı",
   "project.update": "Proje ayarlarını değiştirdi",
+  "symbols.bundle.delete": "Kaynak eşleme paketini sildi",
+  "symbols.debug_file.delete": "Sembol dosyasını sildi",
 };
 
 export function AuditLog() {

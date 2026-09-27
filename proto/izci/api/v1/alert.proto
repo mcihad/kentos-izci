@@ -9,11 +9,13 @@ import "izci/api/v1/common.proto";
 import "izci/ingest/v1/event.proto";
 
 // AlertService manages alert rules and the notification channels they
-// deliver to (Telegram chats).
+// deliver to: Telegram chats, e-mail recipients, Slack and Microsoft Teams
+// channels, webhooks and Jira projects.
 //
 // Linking a Telegram chat: call CreateTelegramLinkCode, add the izci bot to
 // the group (or open a private chat with it) and send "/baglan <code>". The
-// chat then appears in ListChannels.
+// chat then appears in ListChannels. Other channels are created with
+// CreateChannel.
 service AlertService {
   // ListAlertRules lists rules, optionally for one project. Requires
   // ROLE_VIEWER.
@@ -35,7 +37,14 @@ service AlertService {
     option idempotency_level = NO_SIDE_EFFECTS;
   }
 
-  // UpdateChannel renames or mutes a channel. Requires ROLE_ADMIN.
+  // CreateChannel adds an e-mail, Slack, Teams, webhook or Jira channel.
+  // Jira settings are checked against Jira first. Requires ROLE_ADMIN. Fails
+  // with ERROR_REASON_CHANNEL_UNAVAILABLE for e-mail when no SMTP server is
+  // configured.
+  rpc CreateChannel(CreateChannelRequest) returns (CreateChannelResponse);
+
+  // UpdateChannel renames, mutes or reconfigures a channel. Requires
+  // ROLE_ADMIN.
   rpc UpdateChannel(UpdateChannelRequest) returns (UpdateChannelResponse);
 
   // DeleteChannel removes a channel and detaches it from rules. Requires
@@ -169,6 +178,38 @@ message Channel {
 
   // Last delivery error, empty when the last delivery succeeded.
   string last_error = 10;
+
+  // Recipients of CHANNEL_KIND_EMAIL.
+  repeated string email_recipients = 11;
+
+  // Where a Slack, Teams or webhook channel posts, with the secret part of
+  // the URL hidden, e.g. "hooks.slack.com/…/x7Qa".
+  string url_hint = 12;
+
+  // Whether webhook deliveries carry a signature (X-Izci-Signature).
+  bool signed = 13;
+
+  // Jira settings of CHANNEL_KIND_JIRA (without the token).
+  JiraSettings jira = 14;
+}
+
+// JiraSettings is where a Jira channel creates tickets.
+message JiraSettings {
+  // Site address, e.g. "https://kentos.atlassian.net".
+  string base_url = 1;
+
+  // Project key, e.g. "KALEM".
+  string project_key = 2;
+
+  // Issue type name as configured in Jira, e.g. "Bug".
+  string issue_type = 3;
+
+  // Account e-mail for Jira Cloud API tokens; empty when the token is a
+  // personal access token (Jira Server, Data Center).
+  string email = 4;
+
+  // Labels added to tickets besides "izci".
+  repeated string labels = 5;
 }
 
 // ChannelKind is the transport of a channel.
@@ -177,6 +218,98 @@ enum ChannelKind {
   CHANNEL_KIND_UNSPECIFIED = 0;
   // A Telegram private chat, group, supergroup topic or channel.
   CHANNEL_KIND_TELEGRAM = 1;
+  // E-mail recipients (needs SMTP_HOST).
+  CHANNEL_KIND_EMAIL = 2;
+  // A Slack channel through an incoming webhook.
+  CHANNEL_KIND_SLACK = 3;
+  // A Microsoft Teams channel through a Workflows (or incoming) webhook.
+  CHANNEL_KIND_TEAMS = 4;
+  // Any HTTP endpoint that receives signed JSON.
+  CHANNEL_KIND_WEBHOOK = 5;
+  // A Jira project where issues become tickets.
+  CHANNEL_KIND_JIRA = 6;
+}
+
+// ChannelSettings is the destination of a new or reconfigured channel.
+message ChannelSettings {
+  // One destination.
+  oneof kind {
+    option (buf.validate.oneof).required = true;
+
+    // E-mail recipients.
+    EmailSettings email = 1;
+
+    // Slack incoming webhook.
+    WebhookSettings slack = 2;
+
+    // Microsoft Teams webhook.
+    WebhookSettings teams = 3;
+
+    // Generic webhook.
+    WebhookSettings webhook = 4;
+
+    // Jira project.
+    JiraInput jira = 5;
+  }
+}
+
+// EmailSettings lists e-mail recipients.
+message EmailSettings {
+  // 1 to 20 addresses.
+  repeated string recipients = 1 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 20
+    items: {
+      string: {
+        email: true
+        max_len: 254
+      }
+    }
+  }];
+}
+
+// WebhookSettings is the URL a Slack, Teams or webhook channel posts to.
+message WebhookSettings {
+  // Webhook URL (https for Slack and Teams). On update, empty keeps the
+  // current URL.
+  string url = 1 [(buf.validate.field).string.max_len = 2000];
+}
+
+// JiraInput configures a Jira channel.
+message JiraInput {
+  // Site address, e.g. "https://kentos.atlassian.net".
+  string base_url = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 300
+  }];
+
+  // Project key, e.g. "KALEM".
+  string project_key = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+
+  // Issue type name, e.g. "Bug" (default).
+  string issue_type = 3 [(buf.validate.field).string.max_len = 100];
+
+  // Account e-mail for a Jira Cloud API token; empty for a personal access
+  // token (Jira Server, Data Center).
+  string email = 4 [(buf.validate.field).string.max_len = 254];
+
+  // API token or personal access token. On update, empty keeps the current
+  // token.
+  string token = 5 [(buf.validate.field).string.max_len = 1000];
+
+  // Extra labels, at most 10.
+  repeated string labels = 6 [(buf.validate.field).repeated = {
+    max_items: 10
+    items: {
+      string: {
+        min_len: 1
+        max_len: 50
+      }
+    }
+  }];
 }
 
 // TelegramChat identifies a Telegram chat.
@@ -286,6 +419,32 @@ message ListChannelsResponse {
   repeated Channel channels = 1;
 }
 
+// CreateChannelRequest describes a new channel.
+message CreateChannelRequest {
+  // Display name, e.g. "Ekip e-postası".
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // Project slug the channel is meant for; empty for organization-wide.
+  // Informational: rules decide what is delivered.
+  string project = 2 [(buf.validate.field).string.max_len = 50];
+
+  // Destination.
+  ChannelSettings settings = 3 [(buf.validate.field).required = true];
+}
+
+// CreateChannelResponse returns the channel.
+message CreateChannelResponse {
+  // The new channel.
+  Channel channel = 1;
+
+  // Signing secret of a webhook channel, shown only here: receivers verify
+  // X-Izci-Signature with it.
+  string webhook_secret = 2;
+}
+
 // UpdateChannelRequest changes a channel.
 message UpdateChannelRequest {
   // Channel id.
@@ -296,6 +455,10 @@ message UpdateChannelRequest {
 
   // Mute or unmute.
   bool muted = 3;
+
+  // New destination of the same kind; unchanged when unset. Empty secrets
+  // (webhook URL, Jira token) keep the current ones.
+  ChannelSettings settings = 4;
 }
 
 // UpdateChannelResponse returns the channel.
@@ -359,4 +522,10 @@ message GetNotificationStatusResponse {
 
   // Update mode of the bot: "polling" or "webhook".
   string telegram_mode = 3;
+
+  // Whether an SMTP server is configured for e-mail channels.
+  bool email_configured = 4;
+
+  // Sender address of notification e-mails.
+  string email_from = 5;
 }

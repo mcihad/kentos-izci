@@ -34,6 +34,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/mcp"
 	"github.com/mcihad/kentos-izci/internal/metrics"
 	"github.com/mcihad/kentos-izci/internal/monitor"
+	"github.com/mcihad/kentos-izci/internal/notify"
 	"github.com/mcihad/kentos-izci/internal/realtime"
 	"github.com/mcihad/kentos-izci/internal/secret"
 	"github.com/mcihad/kentos-izci/internal/sentryapi"
@@ -62,6 +63,8 @@ type App struct {
 	Alerts *alert.Engine
 	// Bot is the Telegram bot; nil when TELEGRAM_BOT_TOKEN is empty.
 	Bot *telegram.Bot
+	// Notify delivers queued notifications to every kind of channel.
+	Notify *notify.Dispatcher
 	// GitHub gives access to repositories through integrations.
 	GitHub *github.Access
 	// AI runs AI analyses; it idles unless AI_ENABLED is set.
@@ -91,9 +94,27 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	if err != nil {
 		return nil, err
 	}
+	// Notification channels: Telegram (when a bot is configured), e-mail
+	// (when SMTP is), Slack, Teams, webhooks and Jira.
+	a.Notify = notify.NewDispatcher(database, log, cfg.PublicURL)
+	notifyHTTP := notify.NewHTTPClient(cfg.Notify.AllowPrivateNetworks)
+	hooks := notify.NewWebhooks(box, notifyHTTP)
+	a.Notify.Register(store.ChannelSlack, hooks.Slack())
+	a.Notify.Register(store.ChannelTeams, hooks.Teams())
+	a.Notify.Register(store.ChannelWebhook, hooks.Generic())
+	jira := notify.NewJira(box, notifyHTTP)
+	a.Notify.Register(store.ChannelJira, jira)
+	var email *notify.Email
+	if cfg.SMTP.Enabled() {
+		if email, err = notify.NewEmail(cfg.SMTP); err != nil {
+			return nil, err
+		}
+		a.Notify.Register(store.ChannelEmail, email)
+	}
 	if cfg.Telegram.Enabled() {
 		a.Bot = telegram.New(cfg.Telegram, cfg.PublicURL, database, box, log, nil)
 		a.Bot.OnRulesChanged = a.Alerts.Invalidate
+		a.Notify.Register(store.ChannelTelegram, a.Bot)
 	}
 	if a.GitHub, err = NewGitHubAccess(cfg, box); err != nil {
 		return nil, err
@@ -127,8 +148,8 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 			if a.Hub.Subscribers() > 0 {
 				a.Hub.Publish(realtime.FromBatch(b, cfg.PublicURL)...)
 			}
-			if b.Notifications > 0 && a.Bot != nil {
-				a.Bot.Wake()
+			if b.Notifications > 0 {
+				a.Notify.Wake()
 			}
 			a.AI.NewIssues(b)
 		},
@@ -188,7 +209,7 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	deps := api.Deps{
 		DB: database, Auth: a.Auth, Config: cfg, Log: log,
 		Hub: a.Hub, Pipeline: a.Pipeline, Keys: a.keys, StreamsDone: a.Server.StreamsDone(), Alerts: a.Alerts,
-		AI: a.AI, GitHub: a.GitHub, Symbols: a.Symbols,
+		AI: a.AI, GitHub: a.GitHub, Symbols: a.Symbols, Delivery: a.Notify, Jira: jira, Email: email,
 	}
 	if a.Bot != nil {
 		deps.Notifier = a.Bot
@@ -355,6 +376,8 @@ func (a *App) Run(ctx context.Context) error {
 	if a.Bot != nil {
 		bot.Go(func() { a.Bot.Run(jobCtx) })
 	}
+	// Every instance delivers; outbox rows are claimed with SKIP LOCKED.
+	bot.Go(func() { a.Notify.Run(jobCtx) })
 	bot.Go(func() {
 		if err := a.AI.Run(jobCtx); err != nil {
 			a.Log.Error("AI runner stopped", slog.Any("err", err))

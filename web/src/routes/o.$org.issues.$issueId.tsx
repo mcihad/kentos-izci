@@ -286,7 +286,7 @@ function IssuePage() {
           </div>
         </div>
         <aside className="card min-w-0 px-4 py-4 max-sm:-mx-4 max-sm:rounded-none max-sm:border-x-0 sm:p-(--card-p)">
-          <IssueAside issue={issue} facets={facets.data?.facets} />
+          <IssueAside issue={issue} facets={facets.data?.facets} writable={writable} />
         </aside>
       </div>
     </div>

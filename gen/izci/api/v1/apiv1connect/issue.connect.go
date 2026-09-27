@@ -55,6 +55,9 @@ const (
 	// IssueServiceAddIssueCommentProcedure is the fully-qualified name of the IssueService's
 	// AddIssueComment RPC.
 	IssueServiceAddIssueCommentProcedure = "/izci.api.v1.IssueService/AddIssueComment"
+	// IssueServiceCreateTicketProcedure is the fully-qualified name of the IssueService's CreateTicket
+	// RPC.
+	IssueServiceCreateTicketProcedure = "/izci.api.v1.IssueService/CreateTicket"
 	// IssueServiceSuggestSearchProcedure is the fully-qualified name of the IssueService's
 	// SuggestSearch RPC.
 	IssueServiceSuggestSearchProcedure = "/izci.api.v1.IssueService/SuggestSearch"
@@ -85,6 +88,10 @@ type IssueServiceClient interface {
 	// AddIssueComment adds a Markdown comment to an issue. Requires
 	// ROLE_MEMBER.
 	AddIssueComment(context.Context, *connect.Request[v1.AddIssueCommentRequest]) (*connect.Response[v1.AddIssueCommentResponse], error)
+	// CreateTicket opens a ticket for an issue in the Jira project of a
+	// channel; an issue gets one ticket per channel, so a second call returns
+	// the existing one. Requires ROLE_MEMBER.
+	CreateTicket(context.Context, *connect.Request[v1.CreateTicketRequest]) (*connect.Response[v1.CreateTicketResponse], error)
 	// SuggestSearch completes the search term under the cursor: keys, values
 	// seen in the data and operators. Requires ROLE_VIEWER.
 	SuggestSearch(context.Context, *connect.Request[v1.SuggestSearchRequest]) (*connect.Response[v1.SuggestSearchResponse], error)
@@ -155,6 +162,12 @@ func NewIssueServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(issueServiceMethods.ByName("AddIssueComment")),
 			connect.WithClientOptions(opts...),
 		),
+		createTicket: connect.NewClient[v1.CreateTicketRequest, v1.CreateTicketResponse](
+			httpClient,
+			baseURL+IssueServiceCreateTicketProcedure,
+			connect.WithSchema(issueServiceMethods.ByName("CreateTicket")),
+			connect.WithClientOptions(opts...),
+		),
 		suggestSearch: connect.NewClient[v1.SuggestSearchRequest, v1.SuggestSearchResponse](
 			httpClient,
 			baseURL+IssueServiceSuggestSearchProcedure,
@@ -175,6 +188,7 @@ type issueServiceClient struct {
 	getIssueTagFacets *connect.Client[v1.GetIssueTagFacetsRequest, v1.GetIssueTagFacetsResponse]
 	listIssueActivity *connect.Client[v1.ListIssueActivityRequest, v1.ListIssueActivityResponse]
 	addIssueComment   *connect.Client[v1.AddIssueCommentRequest, v1.AddIssueCommentResponse]
+	createTicket      *connect.Client[v1.CreateTicketRequest, v1.CreateTicketResponse]
 	suggestSearch     *connect.Client[v1.SuggestSearchRequest, v1.SuggestSearchResponse]
 }
 
@@ -218,6 +232,11 @@ func (c *issueServiceClient) AddIssueComment(ctx context.Context, req *connect.R
 	return c.addIssueComment.CallUnary(ctx, req)
 }
 
+// CreateTicket calls izci.api.v1.IssueService.CreateTicket.
+func (c *issueServiceClient) CreateTicket(ctx context.Context, req *connect.Request[v1.CreateTicketRequest]) (*connect.Response[v1.CreateTicketResponse], error) {
+	return c.createTicket.CallUnary(ctx, req)
+}
+
 // SuggestSearch calls izci.api.v1.IssueService.SuggestSearch.
 func (c *issueServiceClient) SuggestSearch(ctx context.Context, req *connect.Request[v1.SuggestSearchRequest]) (*connect.Response[v1.SuggestSearchResponse], error) {
 	return c.suggestSearch.CallUnary(ctx, req)
@@ -248,6 +267,10 @@ type IssueServiceHandler interface {
 	// AddIssueComment adds a Markdown comment to an issue. Requires
 	// ROLE_MEMBER.
 	AddIssueComment(context.Context, *connect.Request[v1.AddIssueCommentRequest]) (*connect.Response[v1.AddIssueCommentResponse], error)
+	// CreateTicket opens a ticket for an issue in the Jira project of a
+	// channel; an issue gets one ticket per channel, so a second call returns
+	// the existing one. Requires ROLE_MEMBER.
+	CreateTicket(context.Context, *connect.Request[v1.CreateTicketRequest]) (*connect.Response[v1.CreateTicketResponse], error)
 	// SuggestSearch completes the search term under the cursor: keys, values
 	// seen in the data and operators. Requires ROLE_VIEWER.
 	SuggestSearch(context.Context, *connect.Request[v1.SuggestSearchRequest]) (*connect.Response[v1.SuggestSearchResponse], error)
@@ -314,6 +337,12 @@ func NewIssueServiceHandler(svc IssueServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(issueServiceMethods.ByName("AddIssueComment")),
 		connect.WithHandlerOptions(opts...),
 	)
+	issueServiceCreateTicketHandler := connect.NewUnaryHandler(
+		IssueServiceCreateTicketProcedure,
+		svc.CreateTicket,
+		connect.WithSchema(issueServiceMethods.ByName("CreateTicket")),
+		connect.WithHandlerOptions(opts...),
+	)
 	issueServiceSuggestSearchHandler := connect.NewUnaryHandler(
 		IssueServiceSuggestSearchProcedure,
 		svc.SuggestSearch,
@@ -339,6 +368,8 @@ func NewIssueServiceHandler(svc IssueServiceHandler, opts ...connect.HandlerOpti
 			issueServiceListIssueActivityHandler.ServeHTTP(w, r)
 		case IssueServiceAddIssueCommentProcedure:
 			issueServiceAddIssueCommentHandler.ServeHTTP(w, r)
+		case IssueServiceCreateTicketProcedure:
+			issueServiceCreateTicketHandler.ServeHTTP(w, r)
 		case IssueServiceSuggestSearchProcedure:
 			issueServiceSuggestSearchHandler.ServeHTTP(w, r)
 		default:
@@ -380,6 +411,10 @@ func (UnimplementedIssueServiceHandler) ListIssueActivity(context.Context, *conn
 
 func (UnimplementedIssueServiceHandler) AddIssueComment(context.Context, *connect.Request[v1.AddIssueCommentRequest]) (*connect.Response[v1.AddIssueCommentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.IssueService.AddIssueComment is not implemented"))
+}
+
+func (UnimplementedIssueServiceHandler) CreateTicket(context.Context, *connect.Request[v1.CreateTicketRequest]) (*connect.Response[v1.CreateTicketResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.IssueService.CreateTicket is not implemented"))
 }
 
 func (UnimplementedIssueServiceHandler) SuggestSearch(context.Context, *connect.Request[v1.SuggestSearchRequest]) (*connect.Response[v1.SuggestSearchResponse], error) {

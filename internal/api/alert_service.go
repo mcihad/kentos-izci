@@ -30,8 +30,6 @@ type Notifier interface {
 	ChatLinkCode(ctx context.Context, orgID uuid.UUID, projectID *uuid.UUID, userID uuid.UUID) (*apiv1.CreateTelegramLinkCodeResponse, error)
 	// AccountLinkCode creates a code that links a Telegram account to a user.
 	AccountLinkCode(ctx context.Context, userID uuid.UUID) (*apiv1.CreateTelegramAccountLinkCodeResponse, error)
-	// Wake starts delivering queued notifications.
-	Wake()
 }
 
 // AlertServer implements izci.api.v1.AlertService.
@@ -59,9 +57,8 @@ func toChannel(c *store.Channel, projects map[uuid.UUID]*apiv1.ProjectRef, users
 	out := &apiv1.Channel{
 		Id: c.ID.String(), Kind: apiv1.ChannelKind(c.Kind), Name: c.Name, Muted: c.Muted, CreatedAt: ts(c.CreatedAt),
 		LastDeliveryAt: tsp(c.LastDeliveryAt), LastError: c.LastError,
-		Telegram: &apiv1.TelegramChat{ChatId: c.Telegram.ChatID, ThreadId: c.Telegram.ThreadID, Title: c.Telegram.Title,
-			Type: c.Telegram.Type, Username: c.Telegram.Username},
 	}
+	channelDetails(out, c)
 	if c.ProjectID != nil {
 		out.Project = projects[*c.ProjectID]
 	}
@@ -319,6 +316,25 @@ func (s *AlertServer) UpdateChannel(ctx context.Context, req *connect.Request[ap
 	id, _ := uuid.Parse(req.Msg.GetId())
 	var out apiv1.UpdateChannelResponse
 	err := s.inOrg(ctx, func(tx pgx.Tx, t *auth.Tenant) error {
+		if settings := req.Msg.GetSettings(); settings != nil {
+			current, err := store.GetChannel(ctx, tx, id)
+			if errors.Is(err, store.ErrNotFound) {
+				return errNotFound("channel")
+			}
+			if err != nil {
+				return err
+			}
+			kind, cfg, _, err := s.channelConfig(ctx, id, settings, current)
+			if err != nil {
+				return err
+			}
+			if kind != current.Kind {
+				return fieldError("settings", "the channel kind cannot change")
+			}
+			if err := store.UpdateChannelConfig(ctx, tx, id, cfg); err != nil {
+				return err
+			}
+		}
 		c, err := store.UpdateChannel(ctx, tx, id, strings.TrimSpace(req.Msg.GetName()), req.Msg.GetMuted())
 		if errors.Is(err, store.ErrNotFound) {
 			return errNotFound("channel")
@@ -390,14 +406,15 @@ func (s *AlertServer) CreateTelegramLinkCode(ctx context.Context, req *connect.R
 
 // SendTestNotification implements AlertService.SendTestNotification.
 func (s *AlertServer) SendTestNotification(ctx context.Context, req *connect.Request[apiv1.SendTestNotificationRequest]) (*connect.Response[apiv1.SendTestNotificationResponse], error) {
-	if s.notifier == nil {
-		return nil, errTelegramNotConfigured()
-	}
 	id, _ := uuid.Parse(req.Msg.GetChannelId())
 	err := s.inOrg(ctx, func(tx pgx.Tx, t *auth.Tenant) error {
-		if _, err := store.GetChannel(ctx, tx, id); errors.Is(err, store.ErrNotFound) {
+		ch, err := store.GetChannel(ctx, tx, id)
+		if errors.Is(err, store.ErrNotFound) {
 			return errNotFound("channel")
 		} else if err != nil {
+			return err
+		}
+		if err := s.channelAvailable(ch.Kind); err != nil {
 			return err
 		}
 		return store.EnqueueNotifications(ctx, tx, []store.OutboxItem{{OrgID: t.OrgID(), ChannelID: id, Kind: store.NotifyTest}})
@@ -405,7 +422,9 @@ func (s *AlertServer) SendTestNotification(ctx context.Context, req *connect.Req
 	if err != nil {
 		return nil, internal(ctx, s.log, "test notification", err)
 	}
-	s.notifier.Wake()
+	if s.delivery != nil {
+		s.delivery.Wake()
+	}
 	return connect.NewResponse(&apiv1.SendTestNotificationResponse{}), nil
 }
 
@@ -414,6 +433,9 @@ func (s *AlertServer) GetNotificationStatus(context.Context, *connect.Request[ap
 	out := &apiv1.GetNotificationStatusResponse{}
 	if s.notifier != nil {
 		out.TelegramConfigured, out.TelegramBotUsername, out.TelegramMode = true, s.notifier.Username(), s.notifier.Mode()
+	}
+	if s.email != nil {
+		out.EmailConfigured, out.EmailFrom = true, s.email.From()
 	}
 	return connect.NewResponse(out), nil
 }

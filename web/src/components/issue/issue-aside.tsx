@@ -8,6 +8,7 @@ import { formatCompact, formatDateTime, formatNumber } from "@/lib/format";
 import { levels } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
 import { seriesPoints, seriesStep } from "@/lib/series";
+import { IssueTickets } from "./tickets";
 
 const strategyLabels: Record<string, string> = {
   fingerprint: "uygulamanın gönderdiği parmak izi",
@@ -44,7 +45,15 @@ function IssueChart({
   );
 }
 
-export function IssueAside({ issue, facets }: { issue: Issue; facets: TagFacet[] | undefined }) {
+export function IssueAside({
+  issue,
+  facets,
+  writable = false,
+}: {
+  issue: Issue;
+  facets: TagFacet[] | undefined;
+  writable?: boolean;
+}) {
   const org = useOrg();
   const s = issue.summary;
   if (!s) return null;
@@ -118,6 +127,8 @@ export function IssueAside({ issue, facets }: { issue: Issue; facets: TagFacet[]
           </>
         ) : null}
       </dl>
+
+      <IssueTickets issue={issue} writable={writable} />
 
       {customers && customers.values.length > 0 ? (
         <div>

@@ -69,6 +69,11 @@ service IssueService {
   // ROLE_MEMBER.
   rpc AddIssueComment(AddIssueCommentRequest) returns (AddIssueCommentResponse);
 
+  // CreateTicket opens a ticket for an issue in the Jira project of a
+  // channel; an issue gets one ticket per channel, so a second call returns
+  // the existing one. Requires ROLE_MEMBER.
+  rpc CreateTicket(CreateTicketRequest) returns (CreateTicketResponse);
+
   // SuggestSearch completes the search term under the cursor: keys, values
   // seen in the data and operators. Requires ROLE_VIEWER.
   rpc SuggestSearch(SuggestSearchRequest) returns (SuggestSearchResponse) {
@@ -203,6 +208,27 @@ message Issue {
 
   // Branches and pull requests created for this issue.
   repeated PullRequestRef pull_requests = 11;
+
+  // Tickets created for this issue in external trackers.
+  repeated TicketRef tickets = 12;
+}
+
+// TicketRef is a ticket in an external tracker (Jira).
+message TicketRef {
+  // Ticket key, e.g. "KALEM-123".
+  string key = 1;
+
+  // Link to the ticket.
+  string url = 2;
+
+  // Channel the ticket was created through.
+  string channel_id = 3;
+
+  // Name of that channel.
+  string channel_name = 4;
+
+  // When the ticket was created.
+  google.protobuf.Timestamp created_at = 5;
 }
 
 // Snooze describes when an ignored issue becomes unresolved again.
@@ -370,6 +396,9 @@ enum ActivityKind {
   ACTIVITY_KIND_PULL_REQUEST_OPENED = 9;
   // A notification was sent.
   ACTIVITY_KIND_NOTIFIED = 10;
+  // A ticket was created in an external tracker (Jira); data carries
+  // "channel", "key" and "url".
+  ACTIVITY_KIND_TICKET_CREATED = 11;
 }
 
 // SearchSuggestion is one completion for the search box.
@@ -619,6 +648,27 @@ message AddIssueCommentRequest {
 message AddIssueCommentResponse {
   // The created comment.
   IssueActivity activity = 1;
+}
+
+// CreateTicketRequest names the issue and the Jira channel.
+message CreateTicketRequest {
+  // Issue id (UUID) or short id.
+  string issue = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+
+  // Jira channel id (UUID).
+  string channel_id = 2 [(buf.validate.field).string.uuid = true];
+}
+
+// CreateTicketResponse returns the ticket.
+message CreateTicketResponse {
+  // The ticket.
+  TicketRef ticket = 1;
+
+  // False when the issue already had a ticket in this channel.
+  bool created = 2;
 }
 
 // SuggestSearchRequest describes the search box state.

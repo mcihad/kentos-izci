@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"io/fs"
 	"log/slog"
+	"net/mail"
 	"net/netip"
 	"net/url"
 	"os"
@@ -53,6 +54,8 @@ type Config struct {
 	Ingest    IngestConfig
 	Auth      AuthConfig
 	Telegram  TelegramConfig
+	SMTP      SMTPConfig
+	Notify    NotifyConfig
 	GitHub    GitHubConfig
 	AI        AIConfig
 	MCP       MCPConfig
@@ -162,6 +165,34 @@ type TelegramConfig struct {
 
 // Enabled reports whether a bot token is configured.
 func (t TelegramConfig) Enabled() bool { return t.BotToken != "" }
+
+// SMTPConfig configures outgoing e-mail for e-mail notification channels.
+type SMTPConfig struct {
+	// Host is the SMTP server; empty disables e-mail notifications.
+	Host string `env:"SMTP_HOST"`
+	// Port is the SMTP port: 587 for STARTTLS, 465 for implicit TLS.
+	Port int `env:"SMTP_PORT" envDefault:"587"`
+	// Username and Password authenticate (PLAIN) when set.
+	Username string `env:"SMTP_USERNAME"`
+	Password Secret `env:"SMTP_PASSWORD"`
+	// From is the sender, e.g. "İzci <izci@example.com>".
+	From string `env:"SMTP_FROM"`
+	// TLS is "starttls" (default), "tls" (implicit, port 465) or "none"
+	// (local relays only).
+	TLS string `env:"SMTP_TLS" envDefault:"starttls"`
+}
+
+// Enabled reports whether an SMTP server is configured.
+func (s SMTPConfig) Enabled() bool { return s.Host != "" }
+
+// NotifyConfig configures outgoing notification requests (Slack, Teams,
+// webhooks, Jira).
+type NotifyConfig struct {
+	// AllowPrivateNetworks lets channels call addresses in private,
+	// loopback and link-local networks, e.g. an internal Jira. Keep it off
+	// when organization admins are not trusted with the server's network.
+	AllowPrivateNetworks bool `env:"NOTIFY_ALLOW_PRIVATE_NETWORKS" envDefault:"false"`
+}
 
 // GitHubConfig configures GitHub (or GitHub Enterprise Server) access.
 type GitHubConfig struct {
@@ -373,6 +404,19 @@ func (c *Config) finalize() error {
 		}
 	default:
 		errs = append(errs, fmt.Errorf("TELEGRAM_MODE must be polling or webhook (got %q)", c.Telegram.Mode))
+	}
+	if c.SMTP.Enabled() {
+		if addr, err := mail.ParseAddress(c.SMTP.From); err != nil || !strings.Contains(addr.Address, "@") {
+			errs = append(errs, fmt.Errorf("SMTP_FROM must be an e-mail address such as \"İzci <izci@example.com>\" (got %q)", c.SMTP.From))
+		}
+		if c.SMTP.Port < 1 || c.SMTP.Port > 65535 {
+			errs = append(errs, fmt.Errorf("SMTP_PORT must be a port number (got %d)", c.SMTP.Port))
+		}
+		switch c.SMTP.TLS {
+		case "starttls", "tls", "none":
+		default:
+			errs = append(errs, fmt.Errorf("SMTP_TLS must be starttls, tls or none (got %q)", c.SMTP.TLS))
+		}
 	}
 	c.Telegram.APIURL = strings.TrimRight(c.Telegram.APIURL, "/")
 	c.GitHub.APIURL = strings.TrimRight(c.GitHub.APIURL, "/")

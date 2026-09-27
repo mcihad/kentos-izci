@@ -313,8 +313,18 @@ func (s *IssueServer) GetIssue(ctx context.Context, req *connect.Request[apiv1.G
 				issue.PullRequests = append(issue.PullRequests, &pr)
 			}
 		}
+		if err := prs.Err(); err != nil {
+			return err
+		}
+		tickets, err := store.ListIssueTickets(ctx, tx, id)
+		if err != nil {
+			return err
+		}
+		for _, tk := range tickets {
+			issue.Tickets = append(issue.Tickets, toTicket(tk))
+		}
 		out.Issue = issue
-		return prs.Err()
+		return nil
 	})
 	if err != nil {
 		return nil, internal(ctx, s.log, "get issue", err)

@@ -106,6 +106,19 @@ OIDC_KIMLIK_DEFAULT_ORG=kentos
 
 Ayrıntılar: [Telegram bildirimleri](telegram.md).
 
+## E-posta ve diğer bildirim kanalları
+
+| Değişken | Varsayılan | Açıklama |
+|---|---|---|
+| `SMTP_HOST` | (boş) | E-posta kanallarının kullandığı SMTP sunucusu. Boşsa e-posta kanalı eklenemez. |
+| `SMTP_PORT` | `587` | STARTTLS için 587, doğrudan TLS için 465. |
+| `SMTP_USERNAME`, `SMTP_PASSWORD` | (boş) | Verilirse PLAIN ile kimlik doğrulanır (yalnız şifreli bağlantıda). |
+| `SMTP_FROM` | (boş) | Gönderen adres, ör. `İzci <izci@example.com>`. `SMTP_HOST` verilince zorunludur. |
+| `SMTP_TLS` | `starttls` | `starttls`, `tls` (465 portu) ya da `none` (yalnız aynı makinedeki ya da ağdaki aktarıcılar için). |
+| `NOTIFY_ALLOW_PRIVATE_NETWORKS` | `false` | Slack, Teams, webhook ve Jira kanallarının özel ağdaki (10.x, 192.168.x, localhost…) adreslere istek atmasına izin verir; ör. şirket içi Jira. Kapalıyken organizasyon yöneticileri sunucunun iç ağına erişemez. HTTP vekili (`HTTPS_PROXY`) özel ağdaysa açın. |
+
+Ayrıntılar: [Bildirim kanalları](bildirimler.md).
+
 ## GitHub
 
 | Değişken | Varsayılan | Açıklama |

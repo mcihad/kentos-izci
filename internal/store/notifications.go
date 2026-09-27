@@ -12,7 +12,14 @@ import (
 )
 
 // Channel kinds (izci.api.v1.ChannelKind).
-const ChannelTelegram int16 = 1
+const (
+	ChannelTelegram int16 = 1
+	ChannelEmail    int16 = 2
+	ChannelSlack    int16 = 3
+	ChannelTeams    int16 = 4
+	ChannelWebhook  int16 = 5
+	ChannelJira     int16 = 6
+)
 
 // Outbox notification kinds.
 const (
@@ -40,12 +47,15 @@ type TelegramTarget struct {
 
 // Channel is a notification destination of an organization.
 type Channel struct {
-	ID             uuid.UUID
-	OrgID          uuid.UUID
-	ProjectID      *uuid.UUID
-	Kind           int16
-	Name           string
-	Telegram       TelegramTarget
+	ID        uuid.UUID
+	OrgID     uuid.UUID
+	ProjectID *uuid.UUID
+	Kind      int16
+	Name      string
+	Telegram  TelegramTarget
+	// Config is the kind's settings as stored (JSON); secrets in it are
+	// sealed with the channel id as additional data.
+	Config         []byte
 	Muted          bool
 	CreatedBy      *uuid.UUID
 	CreatedAt      time.Time
@@ -62,10 +72,32 @@ func scanChannel(row interface{ Scan(...any) error }) (*Channel, error) {
 		&c.LastDeliveryAt, &c.LastError); err != nil {
 		return nil, notFound(err)
 	}
-	if err := json.Unmarshal(cfg, &c.Telegram); err != nil {
-		return nil, fmt.Errorf("decode channel config: %w", err)
+	c.Config = cfg
+	if c.Kind == ChannelTelegram {
+		if err := json.Unmarshal(cfg, &c.Telegram); err != nil {
+			return nil, fmt.Errorf("decode channel config: %w", err)
+		}
 	}
 	return &c, nil
+}
+
+// InsertChannel stores a channel (other than Telegram chats, which are
+// linked through the bot). The id is chosen by the caller so that secrets
+// can be sealed for it.
+func InsertChannel(ctx context.Context, q Querier, c *Channel) (*Channel, error) {
+	return scanChannel(q.QueryRow(ctx, `
+		INSERT INTO notification_channels (id, org_id, project_id, kind, name, config, created_by)
+		VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING `+channelColumns,
+		c.ID, c.OrgID, c.ProjectID, c.Kind, c.Name, c.Config, c.CreatedBy))
+}
+
+// UpdateChannelConfig replaces the settings of a channel.
+func UpdateChannelConfig(ctx context.Context, q Querier, id uuid.UUID, config []byte) error {
+	tag, err := q.Exec(ctx, `UPDATE notification_channels SET config = $2, last_error = '' WHERE id = $1`, id, config)
+	if err == nil && tag.RowsAffected() == 0 {
+		return ErrNotFound
+	}
+	return err
 }
 
 // ListChannels returns the channels of an organization, newest first.
@@ -471,4 +503,52 @@ func RedeemLinkCode(ctx context.Context, q Querier, code string) (*LinkCode, err
 		return nil, ErrNotFound
 	}
 	return &c, err
+}
+
+// IssueTicket is a ticket created for an issue through a Jira channel.
+type IssueTicket struct {
+	ChannelID   uuid.UUID
+	ChannelName string
+	Key         string
+	URL         string
+	CreatedAt   time.Time
+}
+
+// ListIssueTickets returns the tickets of an issue, oldest first.
+func ListIssueTickets(ctx context.Context, q Querier, issueID uuid.UUID) ([]IssueTicket, error) {
+	rows, err := q.Query(ctx, `
+		SELECT c.id, c.name, t.payload ->> 'key', coalesce(t.payload ->> 'url', ''),
+		       coalesce((t.payload ->> 'created_at')::timestamptz, t.last_sent_at)
+		FROM notification_threads t JOIN notification_channels c ON c.id = t.channel_id
+		WHERE t.issue_id = $1 AND c.kind = $2 AND t.payload ? 'key'
+		ORDER BY 5`, issueID, ChannelJira)
+	if err != nil {
+		return nil, err
+	}
+	return pgx.CollectRows(rows, func(r pgx.CollectableRow) (IssueTicket, error) {
+		var t IssueTicket
+		err := r.Scan(&t.ChannelID, &t.ChannelName, &t.Key, &t.URL, &t.CreatedAt)
+		return t, err
+	})
+}
+
+// EnsureDefaultRules gives an organization's first channel two sensible
+// rules: new and regressed errors in production. It reports whether it
+// created them.
+func EnsureDefaultRules(ctx context.Context, q Querier, orgID, channelID uuid.UUID) error {
+	var n int
+	if err := q.QueryRow(ctx, `SELECT count(*) FROM alert_rules WHERE org_id = $1`, orgID).Scan(&n); err != nil || n > 0 {
+		return err
+	}
+	filters := RuleFilters{MinLevel: 4, Environments: []string{"production"}}
+	for _, r := range []AlertRule{
+		{Name: "Üretimde yeni hatalar", Trigger: RuleTrigger{Kind: 1}},
+		{Name: "Üretimde geri dönen hatalar", Trigger: RuleTrigger{Kind: 2}},
+	} {
+		r.OrgID, r.Enabled, r.Filters, r.ChannelIDs, r.ThrottleSeconds = orgID, true, filters, []uuid.UUID{channelID}, 1800
+		if _, err := SaveAlertRule(ctx, q, &r); err != nil {
+			return err
+		}
+	}
+	return nil
 }
