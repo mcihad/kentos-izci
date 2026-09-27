@@ -46,18 +46,18 @@ export function ProjectReleases({ project }: { project: Project }) {
   const envs = useQuery(ProjectService.method.listEnvironments, { project: project.slug });
   const rows = releases.data?.pages.flatMap((p) => p.releases) ?? [];
   return (
-    <div className="grid max-w-4xl grid-cols-1 gap-8 py-6">
+    <div className="grid max-w-4xl grid-cols-1 *:min-w-0 gap-8 py-6">
       <section>
         <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="font-semibold text-[15px]">Sürümler</h2>
-            <p className="mt-0.5 text-[13px] text-muted-foreground">
+            <h2 className="font-semibold text-lg">Sürümler</h2>
+            <p className="mt-0.5 text-sm text-muted-foreground">
               Oturum bilgisi Sentry SDK'larının sürüm sağlığı verisinden gelir: bir oturum, mobil ya da
               masaüstü uygulamanın bir çalışması, tarayıcıda bir sayfa ziyareti ya da sunucuda bir istektir.
             </p>
           </div>
           <Select value={String(period)} onValueChange={(v) => setPeriod(Number(v) as StatsPeriod)}>
-            <SelectTrigger className="h-8 w-36 text-[13px]" aria-label="Sağlık dönemi">
+            <SelectTrigger size="sm" className="w-36 text-sm" aria-label="Sağlık dönemi">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -77,82 +77,136 @@ export function ProjectReleases({ project }: { project: Project }) {
             kaydettiğinizde burada listelenir.
           </EmptyState>
         ) : (
-          <div className="overflow-x-auto rounded-lg border">
-            <table className="w-full min-w-[860px] text-[13px]">
-              <thead className="bg-muted/40 text-left text-[12px] text-muted-foreground">
-                <tr>
-                  <th className="px-3 py-2 font-medium">Sürüm</th>
-                  <th className="px-3 py-2 text-right font-medium">Benimsenme</th>
-                  <th className="px-3 py-2 text-right font-medium">Oturum</th>
-                  <th className="px-3 py-2 font-medium">Çökmesiz oturum</th>
-                  <th className="px-3 py-2 font-medium">Çökmesiz kullanıcı</th>
-                  <th className="px-3 py-2 text-right font-medium">Yeni hata</th>
-                  <th className="px-3 py-2 font-medium">İlk görülme</th>
-                  <th className="px-3 py-2 font-medium">Dağıtımlar</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {rows.map((r) => (
-                  <tr key={r.id}>
-                    <td className="px-3 py-2">
-                      <span className="block font-medium font-mono text-[12.5px]">{r.version}</span>
-                      {r.commitSha ? (
-                        <span className="font-mono text-[11.5px] text-muted-foreground">
-                          {r.url ? (
-                            <a href={r.url} target="_blank" rel="noreferrer" className="hover:underline">
-                              {r.commitSha.slice(0, 10)}
-                            </a>
-                          ) : (
-                            r.commitSha.slice(0, 10)
-                          )}
-                        </span>
-                      ) : null}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular text-muted-foreground">
-                      {r.health ? `%${Math.round(r.health.adoption).toLocaleString("tr-TR")}` : "—"}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular">
-                      {r.health ? (
-                        formatNumber(r.health.sessions)
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </td>
-                    <td className="px-3 py-2">
-                      {r.health ? (
-                        <span title={`${formatNumber(r.health.crashedSessions)} çökme`}>
-                          <Rate value={r.health.crashFreeSessions} />
-                        </span>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </td>
-                    <td className="px-3 py-2">
-                      {r.health ? (
-                        <span title={`${formatNumber(r.health.users)} kullanıcı`}>
-                          <Rate value={r.health.crashFreeUsers} empty={r.health.users === 0n} />
-                        </span>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular">{formatNumber(r.newIssues)}</td>
-                    <td className="px-3 py-2 text-muted-foreground">
+          <>
+            <ul className="divide-y rounded-lg border md:hidden">
+              {rows.map((r) => (
+                <li key={r.id} className="px-4 py-3.5">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="min-w-0 font-mono font-semibold text-md [overflow-wrap:anywhere]">
+                      {r.version}
+                    </span>
+                    <span className="shrink-0 text-sm text-muted-foreground">
                       <RelativeTime value={r.firstSeen} />
-                    </td>
-                    <td className="px-3 py-2 text-[12px] text-muted-foreground">
-                      {r.deploys.length
-                        ? r.deploys
-                            .slice(0, 3)
-                            .map((d) => d.environment)
-                            .join(", ")
-                        : "—"}
-                    </td>
+                    </span>
+                  </div>
+                  {r.health ? (
+                    <dl className="mt-2.5 grid grid-cols-3 gap-2 text-sm">
+                      <div className="flex flex-col-reverse">
+                        <dt className="text-xs text-muted-foreground">çökmesiz oturum</dt>
+                        <dd>
+                          <Rate value={r.health.crashFreeSessions} />
+                        </dd>
+                      </div>
+                      <div className="flex flex-col-reverse">
+                        <dt className="text-xs text-muted-foreground">çökmesiz kullanıcı</dt>
+                        <dd>
+                          <Rate value={r.health.crashFreeUsers} empty={r.health.users === 0n} />
+                        </dd>
+                      </div>
+                      <div className="flex flex-col-reverse">
+                        <dt className="text-xs text-muted-foreground">oturum, benimsenme</dt>
+                        <dd className="tabular">
+                          {formatNumber(r.health.sessions)}, %
+                          {Math.round(r.health.adoption).toLocaleString("tr-TR")}
+                        </dd>
+                      </div>
+                    </dl>
+                  ) : null}
+                  <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                    <span className="tabular">
+                      <span className="font-semibold text-foreground">{formatNumber(r.newIssues)}</span> yeni
+                      hata
+                    </span>
+                    {r.commitSha ? <span className="font-mono">{r.commitSha.slice(0, 10)}</span> : null}
+                    {r.deploys.length ? (
+                      <span>
+                        {r.deploys
+                          .slice(0, 3)
+                          .map((d) => d.environment)
+                          .join(", ")}
+                      </span>
+                    ) : null}
+                  </p>
+                </li>
+              ))}
+            </ul>
+            <div className="hidden overflow-x-auto rounded-lg border md:block">
+              <table className="w-full min-w-[860px] text-md">
+                <thead className="bg-muted/40 text-left text-sm text-muted-foreground">
+                  <tr>
+                    <th className="px-3 py-2.5 font-medium">Sürüm</th>
+                    <th className="px-3 py-2.5 text-right font-medium">Benimsenme</th>
+                    <th className="px-3 py-2.5 text-right font-medium">Oturum</th>
+                    <th className="px-3 py-2.5 font-medium">Çökmesiz oturum</th>
+                    <th className="px-3 py-2.5 font-medium">Çökmesiz kullanıcı</th>
+                    <th className="px-3 py-2.5 text-right font-medium">Yeni hata</th>
+                    <th className="px-3 py-2.5 font-medium">İlk görülme</th>
+                    <th className="px-3 py-2.5 font-medium">Dağıtımlar</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y">
+                  {rows.map((r) => (
+                    <tr key={r.id}>
+                      <td className="px-3 py-2">
+                        <span className="block font-medium font-mono text-sm">{r.version}</span>
+                        {r.commitSha ? (
+                          <span className="font-mono text-xs text-muted-foreground">
+                            {r.url ? (
+                              <a href={r.url} target="_blank" rel="noreferrer" className="hover:underline">
+                                {r.commitSha.slice(0, 10)}
+                              </a>
+                            ) : (
+                              r.commitSha.slice(0, 10)
+                            )}
+                          </span>
+                        ) : null}
+                      </td>
+                      <td className="px-3 py-2.5 text-right tabular text-muted-foreground">
+                        {r.health ? `%${Math.round(r.health.adoption).toLocaleString("tr-TR")}` : "—"}
+                      </td>
+                      <td className="px-3 py-2.5 text-right tabular">
+                        {r.health ? (
+                          formatNumber(r.health.sessions)
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-2">
+                        {r.health ? (
+                          <span title={`${formatNumber(r.health.crashedSessions)} çökme`}>
+                            <Rate value={r.health.crashFreeSessions} />
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-2">
+                        {r.health ? (
+                          <span title={`${formatNumber(r.health.users)} kullanıcı`}>
+                            <Rate value={r.health.crashFreeUsers} empty={r.health.users === 0n} />
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-2.5 text-right tabular">{formatNumber(r.newIssues)}</td>
+                      <td className="px-3 py-2.5 text-muted-foreground">
+                        <RelativeTime value={r.firstSeen} />
+                      </td>
+                      <td className="px-3 py-2.5 text-xs text-muted-foreground">
+                        {r.deploys.length
+                          ? r.deploys
+                              .slice(0, 3)
+                              .map((d) => d.environment)
+                              .join(", ")
+                          : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
         {releases.hasNextPage ? (
           <Button variant="ghost" size="sm" className="mt-2" onClick={() => void releases.fetchNextPage()}>
@@ -161,20 +215,20 @@ export function ProjectReleases({ project }: { project: Project }) {
         ) : null}
       </section>
       <section>
-        <h2 className="mb-3 font-semibold text-[15px]">Ortamlar</h2>
+        <h2 className="mb-3 font-semibold text-lg">Ortamlar</h2>
         {envs.data?.environments.length ? (
           <ul className="divide-y rounded-lg border">
             {envs.data.environments.map((e) => (
-              <li key={e.name} className="flex items-center justify-between gap-3 px-3 py-2 text-[13px]">
-                <span className="font-mono text-[12.5px]">{e.name}</span>
-                <span className="text-[12px] text-muted-foreground">
+              <li key={e.name} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                <span className="font-mono text-sm">{e.name}</span>
+                <span className="text-xs text-muted-foreground">
                   Son olay <RelativeTime value={e.lastSeen} />
                 </span>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-[13px] text-muted-foreground">Henüz ortam görülmedi.</p>
+          <p className="text-sm text-muted-foreground">Henüz ortam görülmedi.</p>
         )}
       </section>
     </div>

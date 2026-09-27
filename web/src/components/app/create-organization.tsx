@@ -59,7 +59,7 @@ export function CreateOrganizationForm({ onDone }: { onDone?: () => void }) {
         <Input
           id="new-org-slug"
           required
-          className="font-mono text-[13px]"
+          className="font-mono text-sm"
           value={slug}
           onChange={(e) => {
             setSlug(e.target.value.toLowerCase());

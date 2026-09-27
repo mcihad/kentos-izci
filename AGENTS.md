@@ -177,6 +177,15 @@ A change is done when:
   breadcrumbs share the "trail" (`components/event/stack-trail.tsx`): in-app
   frames get teal blazes, library frames hollow dots, the crash site a mark in
   the level color. Monospace is reserved for code and identifiers.
+- **Readability:** Atkinson Hyperlegible Next and Mono. Font sizes come only
+  from the scale in `index.css` (`text-2xs` 12px … `text-3xl`); no
+  `text-[Npx]`, nothing under 12px. Text in a level or health color uses the
+  `*-ink` token (`text-level-error-ink`, `levels[x].ink`), which keeps 4.5:1
+  on light surfaces; the base tokens are for fills and marks. Syntax colors
+  are the `--syn-*` variables (one Shiki css-variables theme for both modes).
+- **Phones:** every table has a `md:hidden` list beside it; tab strips use
+  `TabStrip`/`TabNav` (scrolls, keeps the current tab in view); controls are
+  taller below `md` (buttons `h-10`, inputs 16px text so iOS does not zoom).
 - **Budget:** `pnpm build` fails when first-load JavaScript exceeds 200 KB
   gzip (`web/scripts/check-bundle.mjs`). Route definitions (`validateSearch`,
   `beforeLoad`) stay in the entry chunk, so they must not reference generated

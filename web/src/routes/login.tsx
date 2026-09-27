@@ -57,7 +57,7 @@ function LoginPage() {
       <div className="space-y-7">
         <div className="space-y-1.5">
           <h1 className="font-semibold text-2xl tracking-tight">Giriş yap</h1>
-          <p className="text-muted-foreground text-sm">Hataları görmek için hesabınızla oturum açın.</p>
+          <p className="text-md text-muted-foreground">Hataları görmek için hesabınızla oturum açın.</p>
         </div>
 
         <FormError
@@ -80,7 +80,7 @@ function LoginPage() {
         ) : null}
 
         {oidc.length > 0 && passwordLogin ? (
-          <div className="flex items-center gap-3 text-muted-foreground text-xs">
+          <div className="flex items-center gap-3 text-muted-foreground text-sm">
             <span className="h-px flex-1 bg-border" />
             ya da e-posta ile
             <span className="h-px flex-1 bg-border" />
@@ -124,7 +124,7 @@ function LoginPage() {
         ) : null}
 
         {providers.data?.signupMode === SignupMode.OPEN ? (
-          <p className="text-muted-foreground text-sm">
+          <p className="text-md text-muted-foreground">
             Hesabınız yok mu?{" "}
             <Link to="/signup" className="font-medium text-foreground underline-offset-4 hover:underline">
               Kayıt olun

@@ -55,7 +55,12 @@ function OverviewPage() {
     const up = change > 0;
     const Icon = up ? ArrowUpRightIcon : ArrowDownRightIcon;
     return (
-      <span className={cn("inline-flex items-center gap-0.5", up ? "text-level-error" : "text-health-good")}>
+      <span
+        className={cn(
+          "inline-flex items-center gap-0.5",
+          up ? "text-level-error-ink" : "text-health-good-ink",
+        )}
+      >
         <Icon className="size-3.5" />
         {formatPercent(Math.abs(change))} {up ? "artış" : "azalış"}
       </span>
@@ -85,7 +90,7 @@ function OverviewPage() {
           </>
         }
       />
-      <div className={cn("space-y-9 pt-6", gutter)}>
+      <div className={cn("space-y-10 pt-6", gutter)}>
         {overview.error ? (
           <ErrorState error={overview.error} onRetry={() => void overview.refetch()} />
         ) : !d || !t ? (
@@ -111,10 +116,13 @@ function OverviewPage() {
               title="Olay hacmi"
               description={`${formatNumber(t.unresolvedIssues)} çözülmemiş hata`}
               actions={
-                <ul className="flex flex-wrap gap-x-3 text-[12px] text-muted-foreground">
+                <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                   {d.eventsByLevel.map((l) => (
                     <li key={l.level} className="flex items-center gap-1.5">
-                      <span className="size-2 rounded-[2px]" style={{ background: levels[l.level].color }} />
+                      <span
+                        className="size-2.5 rounded-[3px]"
+                        style={{ background: levels[l.level].color }}
+                      />
                       {levels[l.level].label}
                     </li>
                   ))}
@@ -152,20 +160,20 @@ function OverviewPage() {
             <div className="grid grid-cols-1 gap-9 xl:grid-cols-2">
               <Section title="Projeler">
                 <div className="overflow-hidden rounded-lg border">
-                  <table className="w-full text-[13px]">
-                    <thead className="bg-muted/40 text-left text-[12px] text-muted-foreground">
+                  <table className="w-full text-md">
+                    <thead className="bg-muted/40 text-left text-sm text-muted-foreground">
                       <tr>
-                        <th className="px-3 py-2 font-medium">Proje</th>
-                        <th className="hidden px-3 py-2 font-medium sm:table-cell">Eğilim</th>
-                        <th className="px-3 py-2 text-right font-medium">Olay</th>
-                        <th className="px-3 py-2 text-right font-medium">Açık</th>
-                        <th className="px-3 py-2 text-right font-medium">Yeni</th>
+                        <th className="px-3 py-2.5 font-medium">Proje</th>
+                        <th className="hidden px-3 py-2.5 font-medium sm:table-cell">Eğilim</th>
+                        <th className="px-3 py-2.5 text-right font-medium">Olay</th>
+                        <th className="px-3 py-2.5 text-right font-medium">Açık</th>
+                        <th className="px-3 py-2.5 text-right font-medium">Yeni</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
                       {d.projects.map((p) => (
                         <tr key={p.project?.id} className="hover:bg-accent/40">
-                          <td className="max-w-0 px-3 py-2">
+                          <td className="max-w-0 px-3 py-2.5">
                             <Link
                               to="/o/$org/issues"
                               params={{ org: org.slug }}
@@ -178,9 +186,11 @@ function OverviewPage() {
                           <td className="hidden px-3 py-1.5 sm:table-cell">
                             <Sparkline series={p.series} className="h-5 w-24" />
                           </td>
-                          <td className="px-3 py-2 text-right tabular">{formatCompact(p.events)}</td>
-                          <td className="px-3 py-2 text-right tabular">{formatNumber(p.unresolvedIssues)}</td>
-                          <td className="px-3 py-2 text-right tabular">{formatNumber(p.newIssues)}</td>
+                          <td className="px-3 py-2.5 text-right tabular">{formatCompact(p.events)}</td>
+                          <td className="px-3 py-2.5 text-right tabular">
+                            {formatNumber(p.unresolvedIssues)}
+                          </td>
+                          <td className="px-3 py-2.5 text-right tabular">{formatNumber(p.newIssues)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -193,7 +203,7 @@ function OverviewPage() {
                   <Link
                     to="/o/$org/customers"
                     params={{ org: org.slug }}
-                    className="text-[12.5px] text-muted-foreground hover:text-foreground"
+                    className="text-sm text-muted-foreground hover:text-foreground"
                   >
                     Tüm müşteriler
                   </Link>
@@ -205,19 +215,19 @@ function OverviewPage() {
                   </EmptyState>
                 ) : (
                   <div className="overflow-hidden rounded-lg border">
-                    <table className="w-full text-[13px]">
-                      <thead className="bg-muted/40 text-left text-[12px] text-muted-foreground">
+                    <table className="w-full text-md">
+                      <thead className="bg-muted/40 text-left text-sm text-muted-foreground">
                         <tr>
-                          <th className="px-3 py-2 font-medium">Müşteri</th>
-                          <th className="hidden px-3 py-2 font-medium sm:table-cell">Eğilim</th>
-                          <th className="px-3 py-2 text-right font-medium">Olay</th>
-                          <th className="px-3 py-2 text-right font-medium">Açık</th>
+                          <th className="px-3 py-2.5 font-medium">Müşteri</th>
+                          <th className="hidden px-3 py-2.5 font-medium sm:table-cell">Eğilim</th>
+                          <th className="px-3 py-2.5 text-right font-medium">Olay</th>
+                          <th className="px-3 py-2.5 text-right font-medium">Açık</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y">
                         {d.customers.map((c) => (
                           <tr key={c.customer?.id} className="hover:bg-accent/40">
-                            <td className="max-w-0 px-3 py-2">
+                            <td className="max-w-0 px-3 py-2.5">
                               <Link
                                 to="/o/$org/customers/$key"
                                 params={{ org: org.slug, key: c.customer?.key ?? "" }}
@@ -236,8 +246,10 @@ function OverviewPage() {
                             <td className="hidden px-3 py-1.5 sm:table-cell">
                               <Sparkline series={c.series} className="h-5 w-24" />
                             </td>
-                            <td className="px-3 py-2 text-right tabular">{formatCompact(c.periodEvents)}</td>
-                            <td className="px-3 py-2 text-right tabular">
+                            <td className="px-3 py-2.5 text-right tabular">
+                              {formatCompact(c.periodEvents)}
+                            </td>
+                            <td className="px-3 py-2.5 text-right tabular">
                               {formatNumber(c.unresolvedIssues)}
                             </td>
                           </tr>
@@ -258,9 +270,7 @@ function OverviewPage() {
 function IssueList({ issues, empty }: { issues: IssueSummary[]; empty: string }) {
   const org = useOrg();
   if (issues.length === 0)
-    return (
-      <p className="rounded-lg border px-4 py-8 text-center text-[13px] text-muted-foreground">{empty}</p>
-    );
+    return <p className="rounded-lg border px-4 py-8 text-center text-md text-muted-foreground">{empty}</p>;
   return (
     <div className="overflow-hidden rounded-lg border [&>div:last-child]:border-b-0">
       {issues.map((i) => (

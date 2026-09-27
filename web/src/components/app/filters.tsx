@@ -21,7 +21,7 @@ export function PeriodSelect({
 }) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger size="sm" className={cn("h-8 gap-1.5 text-[13px]", className)} aria-label="Dönem">
+      <SelectTrigger size="sm" className={cn("gap-1.5 text-sm", className)} aria-label="Dönem">
         <CalendarClockIcon className="size-3.5 text-muted-foreground" />
         <SelectValue />
       </SelectTrigger>
@@ -58,7 +58,7 @@ export function ProjectFilter({ value, onChange }: { value: string[]; onChange: 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 gap-1.5 font-normal text-[13px]">
+        <Button variant="outline" size="sm" className="gap-1.5 font-normal text-sm">
           <FolderIcon className="size-3.5 text-muted-foreground" />
           <span className="max-w-36 truncate">{label}</span>
           <ChevronDownIcon className="size-3.5 text-muted-foreground" />
@@ -68,7 +68,7 @@ export function ProjectFilter({ value, onChange }: { value: string[]; onChange: 
         <button
           type="button"
           onClick={() => onChange([])}
-          className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-[13px] hover:bg-accent"
+          className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-accent"
         >
           <span className="flex-1">Tüm projeler</span>
           {value.length === 0 ? <CheckIcon className="size-4 text-primary" /> : null}
@@ -79,10 +79,10 @@ export function ProjectFilter({ value, onChange }: { value: string[]; onChange: 
             key={p.id}
             type="button"
             onClick={() => toggle(p.slug)}
-            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-[13px] hover:bg-accent"
+            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-accent"
           >
             <span className="min-w-0 flex-1 truncate">{p.name}</span>
-            <span className="font-mono text-[11px] text-muted-foreground">{p.slug}</span>
+            <span className="font-mono text-xs text-muted-foreground">{p.slug}</span>
             <CheckIcon className={cn("size-4 text-primary", !value.includes(p.slug) && "invisible")} />
           </button>
         ))}

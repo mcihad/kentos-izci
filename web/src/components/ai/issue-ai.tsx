@@ -89,8 +89,8 @@ export function IssueAi({
           </EmptyState>
         ) : (
           <EmptyState icon={BotIcon} title="Yapay zekâ analizi kapalı">
-            Sunucu yöneticisi <code className="font-mono text-[12px]">AI_ENABLED=true</code> ile açabilir;
-            kurulumu <code className="font-mono text-[12px]">izci ai doctor</code> komutu kontrol eder.
+            Sunucu yöneticisi <code className="font-mono text-xs">AI_ENABLED=true</code> ile açabilir;
+            kurulumu <code className="font-mono text-xs">izci ai doctor</code> komutu kontrol eder.
           </EmptyState>
         )}
         {dialog}
@@ -103,7 +103,7 @@ export function IssueAi({
       <div className="flex flex-wrap items-center justify-between gap-3">
         {list.length > 1 ? (
           <Select value={selected?.id} onValueChange={(v) => onSelectRun(v)}>
-            <SelectTrigger className="h-8 w-auto min-w-64 text-[13px]" aria-label="Analiz">
+            <SelectTrigger size="sm" className="w-auto min-w-64 text-sm" aria-label="Analiz">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -115,7 +115,7 @@ export function IssueAi({
             </SelectContent>
           </Select>
         ) : (
-          <p className="font-medium text-[14px]">Yapay zekâ analizi</p>
+          <p className="font-medium text-md">Yapay zekâ analizi</p>
         )}
         {writable && enabled ? (
           <Button variant="outline" size="sm" disabled={busy} onClick={() => setStarting(true)}>

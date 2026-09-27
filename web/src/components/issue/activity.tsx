@@ -101,7 +101,7 @@ export function Activity({ issueId, writable }: { issueId: string; writable: boo
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Ekibe not bırakın: nasıl yeniden üretildiği, kimin baktığı, geçici çözüm…"
-            className="min-h-20 text-[13px]"
+            className="min-h-20 text-sm"
             onKeyDown={(e) => {
               if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && text.trim())
                 comment.mutate({ issueId, text });
@@ -140,7 +140,7 @@ export function Activity({ issueId, writable }: { issueId: string; writable: boo
                   />
                 )}
               </span>
-              <div className="min-w-0 flex-1 pt-0.5 text-[13px]">
+              <div className="min-w-0 flex-1 pt-0.5 text-sm">
                 <p>
                   {who ? <span className="font-medium">{who} </span> : null}
                   {isComment ? (
@@ -148,7 +148,7 @@ export function Activity({ issueId, writable }: { issueId: string; writable: boo
                   ) : (
                     <span>{describe(a)}</span>
                   )}
-                  <span className="ml-2 text-[12px] text-muted-foreground">
+                  <span className="ml-2 text-xs text-muted-foreground">
                     <RelativeTime value={a.createdAt} />
                   </span>
                 </p>

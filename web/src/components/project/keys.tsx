@@ -67,8 +67,8 @@ export function ProjectKeys({ project }: { project: Project }) {
     <div className="max-w-4xl py-6">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-semibold text-[15px]">API anahtarları</h2>
-          <p className="mt-0.5 text-[13px] text-muted-foreground">
+          <h2 className="font-semibold text-lg">API anahtarları</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">
             Uygulamalar olayları bu anahtarlarla gönderir. Her ortam ya da uygulama için ayrı anahtar
             kullanmak iptali kolaylaştırır.
           </p>
@@ -91,9 +91,9 @@ export function ProjectKeys({ project }: { project: Project }) {
           {keys.data.keys.map((k) => (
             <li key={k.id} className="flex flex-wrap items-start gap-x-4 gap-y-2 px-4 py-3">
               <div className="min-w-0 flex-1">
-                <p className="font-medium text-[13.5px]">{k.name}</p>
-                <p className="mt-0.5 font-mono text-[12px] text-muted-foreground">{k.prefix}…</p>
-                <p className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
+                <p className="font-medium text-md">{k.name}</p>
+                <p className="mt-0.5 font-mono text-xs text-muted-foreground">{k.prefix}…</p>
+                <p className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
                   <span>{k.scopes.map((s) => scopeLabels[s]).join(", ")}</span>
                   {k.allowedOrigins.length ? <span>Kaynaklar: {k.allowedOrigins.join(", ")}</span> : null}
                   {k.rateLimitPerMinute ? (
@@ -131,10 +131,7 @@ export function ProjectKeys({ project }: { project: Project }) {
                         })
                       }
                     />
-                    <Label
-                      htmlFor={`key-${k.id}`}
-                      className="font-normal text-[12.5px] text-muted-foreground"
-                    >
+                    <Label htmlFor={`key-${k.id}`} className="font-normal text-sm text-muted-foreground">
                       Etkin
                     </Label>
                   </div>
@@ -271,7 +268,7 @@ function CreateKeyDialog({
                   checked={releases}
                   onCheckedChange={(v) => setReleases(v === true)}
                 />
-                <Label htmlFor="key-releases" className="font-normal text-[13px]">
+                <Label htmlFor="key-releases" className="font-normal text-sm">
                   CI hattından sürüm kaydına da izin ver
                 </Label>
               </div>
@@ -286,7 +283,7 @@ function CreateKeyDialog({
                   value={origins}
                   onChange={(e) => setOrigins(e.target.value)}
                   placeholder="https://kalem.example.com"
-                  className="min-h-16 font-mono text-[12.5px]"
+                  className="min-h-16 font-mono text-sm"
                 />
               </Field>
               <Field

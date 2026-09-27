@@ -7,7 +7,7 @@ export function UserAvatar({ name, src, className }: { name: string; src?: strin
   return (
     <Avatar className={cn("size-6", className)}>
       {src ? <AvatarImage src={src} alt="" /> : null}
-      <AvatarFallback className="bg-secondary font-medium text-[10.5px] text-secondary-foreground">
+      <AvatarFallback className="bg-secondary font-medium text-2xs text-secondary-foreground">
         {initials(name)}
       </AvatarFallback>
     </Avatar>

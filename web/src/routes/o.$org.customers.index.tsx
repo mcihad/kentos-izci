@@ -7,7 +7,7 @@ import { gutter, PageHeader } from "@/components/app/page";
 import { Sparkline } from "@/components/charts/sparkline";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
-import { HealthLabel } from "@/components/customer/health";
+import { HealthLabel, healthLabels } from "@/components/customer/health";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -76,7 +76,7 @@ function CustomersPage() {
             onBlur={() => setSearch({ query: text.trim() || undefined })}
             placeholder="Müşteri adı ya da anahtarı"
             aria-label="Müşteri ara"
-            className="h-9 w-full rounded-md border bg-card pr-3 pl-8 text-[13px] outline-none placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30"
+            className="h-10 w-full rounded-md border bg-card pr-3 pl-8 text-base outline-none md:h-9 md:text-sm placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30"
           />
         </form>
         <div className="flex gap-2">
@@ -84,7 +84,7 @@ function CustomersPage() {
             value={sort}
             onValueChange={(v) => setSearch({ sort: v === "events" ? undefined : (v as SortKey) })}
           >
-            <SelectTrigger size="sm" className="h-8 text-[13px]" aria-label="Sıralama">
+            <SelectTrigger size="sm" className="text-sm" aria-label="Sıralama">
               <SelectValue />
             </SelectTrigger>
             <SelectContent align="end">
@@ -117,55 +117,103 @@ function CustomersPage() {
             : "Uygulamalarınız olaylarla birlikte müşteri bilgisini (customer.id, customer.name) gönderdiğinde müşteriler burada listelenir."}
         </EmptyState>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-[13px]">
-            <thead className="border-b text-left text-[12px] text-muted-foreground">
-              <tr className={gutter}>
-                <th className="py-2 pr-3 pl-4 font-medium sm:pl-6 lg:pl-8">Müşteri</th>
-                <th className="px-3 py-2 font-medium">Durum</th>
-                <th className="px-3 py-2 font-medium">Eğilim</th>
-                <th className="px-3 py-2 text-right font-medium">Olay</th>
-                <th className="px-3 py-2 text-right font-medium">Açık hata</th>
-                <th className="px-3 py-2 text-right font-medium">Yeni</th>
-                <th className="px-3 py-2 text-right font-medium">Proje</th>
-                <th className="py-2 pr-4 pl-3 text-right font-medium sm:pr-6 lg:pr-8">Son görülme</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {rows.map((c) => (
-                <tr key={c.customer?.id} className="group relative hover:bg-accent/40">
-                  <td className="min-w-56 py-2.5 pr-3 pl-4 sm:pl-6 lg:pl-8">
-                    <Link
-                      to="/o/$org/customers/$key"
-                      params={{ org: org.slug, key: c.customer?.key ?? "" }}
-                      className="block after:absolute after:inset-0"
-                    >
-                      <span className="block truncate font-medium">
-                        {c.customer?.name || c.customer?.key}
+        <>
+          <ul className="divide-y md:hidden">
+            {rows.map((c) => (
+              <li
+                key={c.customer?.id}
+                className="relative flex items-start gap-3 px-4 py-3.5 hover:bg-accent/40 sm:px-6"
+              >
+                <span
+                  aria-hidden="true"
+                  className="mt-2 size-2.5 shrink-0 rounded-full"
+                  style={{ background: healthLabels[c.health].color }}
+                />
+                <div className="min-w-0 flex-1">
+                  <Link
+                    to="/o/$org/customers/$key"
+                    params={{ org: org.slug, key: c.customer?.key ?? "" }}
+                    className="block truncate font-semibold text-base after:absolute after:inset-0"
+                  >
+                    {c.customer?.name || c.customer?.key}
+                  </Link>
+                  <p className="truncate font-mono text-sm text-muted-foreground">{c.customer?.key}</p>
+                  <p className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                    <span>{healthLabels[c.health].label}</span>
+                    <span className="tabular">
+                      <span className="font-semibold text-foreground">
+                        {formatNumber(c.unresolvedIssues)}
+                      </span>{" "}
+                      açık hata
+                    </span>
+                    {c.newIssues > 0 ? (
+                      <span className="tabular">
+                        <span className="font-semibold text-foreground">{formatNumber(c.newIssues)}</span>{" "}
+                        yeni
                       </span>
-                      <span className="block truncate font-mono text-[11.5px] text-muted-foreground">
-                        {c.customer?.key}
-                      </span>
-                    </Link>
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <HealthLabel health={c.health} />
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <Sparkline series={c.series} className="h-5 w-24" />
-                  </td>
-                  <td className="px-3 py-2.5 text-right tabular">{formatCompact(c.periodEvents)}</td>
-                  <td className="px-3 py-2.5 text-right tabular">{formatNumber(c.unresolvedIssues)}</td>
-                  <td className="px-3 py-2.5 text-right tabular">{formatNumber(c.newIssues)}</td>
-                  <td className="px-3 py-2.5 text-right tabular">{formatNumber(c.affectedProjects)}</td>
-                  <td className="py-2.5 pr-4 pl-3 text-right text-muted-foreground sm:pr-6 lg:pr-8">
+                    ) : null}
                     <RelativeTime value={c.customer?.lastSeen} />
-                  </td>
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <span className="block font-semibold text-lg tabular leading-tight">
+                    {formatCompact(c.periodEvents)}
+                  </span>
+                  <span className="text-xs text-muted-foreground">olay</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="hidden overflow-x-auto md:block">
+            <table className="w-full min-w-[760px] text-md">
+              <thead className="border-b text-left text-sm text-muted-foreground">
+                <tr className={gutter}>
+                  <th className="py-2.5 pr-3 pl-4 font-medium sm:pl-6 lg:pl-8">Müşteri</th>
+                  <th className="px-3 py-3 font-medium">Durum</th>
+                  <th className="px-3 py-3 font-medium">Eğilim</th>
+                  <th className="px-3 py-3 text-right font-medium">Olay</th>
+                  <th className="px-3 py-3 text-right font-medium">Açık hata</th>
+                  <th className="px-3 py-3 text-right font-medium">Yeni</th>
+                  <th className="px-3 py-3 text-right font-medium">Proje</th>
+                  <th className="py-2.5 pr-4 pl-3 text-right font-medium sm:pr-6 lg:pr-8">Son görülme</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y">
+                {rows.map((c) => (
+                  <tr key={c.customer?.id} className="group relative hover:bg-accent/40">
+                    <td className="min-w-56 py-3 pr-3 pl-4 sm:pl-6 lg:pl-8">
+                      <Link
+                        to="/o/$org/customers/$key"
+                        params={{ org: org.slug, key: c.customer?.key ?? "" }}
+                        className="block after:absolute after:inset-0"
+                      >
+                        <span className="block truncate font-medium">
+                          {c.customer?.name || c.customer?.key}
+                        </span>
+                        <span className="block truncate font-mono text-sm text-muted-foreground">
+                          {c.customer?.key}
+                        </span>
+                      </Link>
+                    </td>
+                    <td className="px-3 py-3">
+                      <HealthLabel health={c.health} />
+                    </td>
+                    <td className="px-3 py-3">
+                      <Sparkline series={c.series} className="h-5 w-24" />
+                    </td>
+                    <td className="px-3 py-3 text-right tabular">{formatCompact(c.periodEvents)}</td>
+                    <td className="px-3 py-3 text-right tabular">{formatNumber(c.unresolvedIssues)}</td>
+                    <td className="px-3 py-3 text-right tabular">{formatNumber(c.newIssues)}</td>
+                    <td className="px-3 py-3 text-right tabular">{formatNumber(c.affectedProjects)}</td>
+                    <td className="py-2.5 pr-4 pl-3 text-right text-muted-foreground sm:pr-6 lg:pr-8">
+                      <RelativeTime value={c.customer?.lastSeen} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
       {list.hasNextPage ? (
         <div className="flex justify-center py-4">

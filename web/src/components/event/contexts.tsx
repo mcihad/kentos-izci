@@ -60,7 +60,7 @@ export function ContextGrid({
     for (const [name] of parts) merged.add(name);
     const value = Object.assign({}, ...parts.map(([, v]) => v));
     return (
-      <div className="mt-2.5 border-t pt-2.5 font-mono text-[12px]">
+      <div className="mt-2.5 border-t pt-2.5 font-mono text-sm">
         <JsonTree value={value} />
       </div>
     );
@@ -256,7 +256,7 @@ export function ContextGrid({
           />
           {db.statement ? <CodeBlock code={db.statement} lang="sql" maxHeight="16rem" /> : null}
           {db.parameters.length ? (
-            <p className="font-mono text-[12px] text-muted-foreground">
+            <p className="font-mono text-sm text-muted-foreground">
               Parametreler: {db.parameters.map((v, i) => `$${i + 1}=${v}`).join("  ")}
             </p>
           ) : null}
@@ -334,7 +334,7 @@ export function ContextGrid({
     if (merged.has(name)) continue;
     panels.push(
       <Panel key={`custom-${name}`} title={name}>
-        <div className="font-mono text-[12px]">
+        <div className="font-mono text-sm">
           <JsonTree value={value} />
         </div>
       </Panel>,

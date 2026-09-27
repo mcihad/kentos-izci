@@ -26,12 +26,12 @@ export function FeedbackItem({ fb, showIssue = true }: { fb: UserFeedback; showI
     <li className="flex gap-3 py-4">
       <span
         aria-hidden
-        className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-full bg-muted font-medium text-[11.5px] text-muted-foreground"
+        className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-full bg-muted font-medium text-xs text-muted-foreground"
       >
         {initials(who)}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="flex flex-wrap items-baseline gap-x-2 text-[13px]">
+        <p className="flex flex-wrap items-baseline gap-x-2 text-sm">
           <span className="font-medium">{who}</span>
           {fb.email && fb.email !== who ? (
             <a
@@ -41,14 +41,14 @@ export function FeedbackItem({ fb, showIssue = true }: { fb: UserFeedback; showI
               {fb.email}
             </a>
           ) : null}
-          <span className="text-[12px] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             <RelativeTime value={fb.createdAt} />
           </span>
         </p>
-        <blockquote className="mt-1.5 whitespace-pre-wrap break-words border-primary/60 border-l-2 pl-3 text-[14px] leading-relaxed">
+        <blockquote className="mt-1.5 whitespace-pre-wrap break-words border-primary/60 border-l-2 pl-3 text-md leading-relaxed">
           {fb.message}
         </blockquote>
-        <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
+        <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
           {showIssue && fb.issue ? (
             <Link
               to="/o/$org/issues/$issueId"
@@ -70,7 +70,7 @@ export function FeedbackItem({ fb, showIssue = true }: { fb: UserFeedback; showI
           ) : null}
           {fb.project ? <span>{fb.project.name}</span> : null}
           {meta.map((m) => (
-            <span key={m} className="font-mono text-[11.5px]">
+            <span key={m} className="font-mono text-xs">
               {m}
             </span>
           ))}

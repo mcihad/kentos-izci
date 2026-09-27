@@ -59,21 +59,21 @@ function DiffFileView({ file }: { file: DiffFile }) {
             )}
           />
           <Icon className="size-4 shrink-0 text-muted-foreground" aria-label={statusLabel[file.status]} />
-          <span className="truncate font-mono text-[12.5px]">{file.path}</span>
+          <span className="truncate font-mono text-sm">{file.path}</span>
         </button>
-        <span className="tabular shrink-0 font-mono text-[12px]">
-          <span className="text-health-good">+{file.additions}</span>{" "}
-          <span className="text-level-error">−{file.deletions}</span>
+        <span className="tabular shrink-0 font-mono text-xs">
+          <span className="text-health-good-ink">+{file.additions}</span>{" "}
+          <span className="text-level-error-ink">−{file.deletions}</span>
         </span>
         <CopyButton value={file.path} label="Yolu kopyala" />
       </header>
       {open ? (
         file.binary ? (
-          <p className="border-t px-4 py-3 text-[12.5px] text-muted-foreground">
+          <p className="border-t px-4 py-3 text-sm text-muted-foreground">
             İkili dosya; içerik gösterilmiyor.
           </p>
         ) : (
-          <div className="overflow-x-auto border-t bg-code font-mono text-[12.5px] leading-[1.6]">
+          <div className="overflow-x-auto border-t bg-code font-mono text-sm leading-[1.6]">
             <table className="w-full border-collapse">
               <tbody>
                 {file.hunks.map((h) => (
@@ -100,8 +100,8 @@ function DiffFileView({ file }: { file: DiffFile }) {
                           <td
                             className={cn(
                               "w-[1%] select-none px-1 text-center",
-                              l.kind === "add" && "text-health-good",
-                              l.kind === "del" && "text-level-error",
+                              l.kind === "add" && "text-health-good-ink",
+                              l.kind === "del" && "text-level-error-ink",
                             )}
                             aria-hidden="true"
                           >
@@ -134,7 +134,7 @@ function HunkRows({ header, children }: { header: string; children: React.ReactN
         <td colSpan={3} className="select-none px-2 text-center">
           ⋯
         </td>
-        <td className="truncate px-0 py-0.5 text-[11.5px]">{header}</td>
+        <td className="truncate px-0 py-0.5 text-xs">{header}</td>
       </tr>
       {children}
     </>

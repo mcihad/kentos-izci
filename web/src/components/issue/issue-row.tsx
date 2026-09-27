@@ -33,6 +33,8 @@ export function IssueRow({
   compact?: boolean;
   showUsers?: boolean;
 }) {
+  const events = formatCompact(issue.periodCount || issue.timesSeen);
+  const users = formatCompact(issue.usersCount);
   return (
     <div
       data-focused={focused || undefined}
@@ -40,12 +42,12 @@ export function IssueRow({
       className={cn(
         "group relative flex items-stretch gap-3 border-b transition-colors hover:bg-accent/45",
         "data-[selected]:bg-highlight data-[focused]:bg-accent/60",
-        compact ? "py-2.5 pr-3 pl-3" : "py-3 pr-4 pl-3 sm:pr-6 lg:pr-8",
+        compact ? "py-3 pr-3 pl-3" : "py-3.5 pr-4 pl-3 sm:pr-6 lg:pr-8",
       )}
     >
       <LevelBlaze level={issue.level} className="my-0.5" />
       {onSelect ? (
-        <div className="flex items-start pt-0.5">
+        <div className="hidden items-start pt-0.5 sm:flex">
           <Checkbox
             checked={selected}
             onCheckedChange={(v) => onSelect(v === true)}
@@ -58,15 +60,15 @@ export function IssueRow({
         <Link
           to="/o/$org/issues/$issueId"
           params={{ org, issueId: issue.shortId }}
-          className="block truncate text-[13.5px] leading-snug after:absolute after:inset-0 focus-visible:outline-none"
+          className="line-clamp-2 break-words text-base leading-snug after:absolute after:inset-0 focus-visible:outline-none sm:line-clamp-1"
         >
           <IssueTitle type={issue.type} value={issue.value} title={issue.title} />
         </Link>
         {issue.culprit ? (
-          <p className="mt-0.5 truncate font-mono text-[11.5px] text-muted-foreground">{issue.culprit}</p>
+          <p className="mt-1 truncate font-mono text-sm text-muted-foreground">{issue.culprit}</p>
         ) : null}
-        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
-          <span className="font-medium font-mono text-[11.5px] text-foreground/80">{issue.shortId}</span>
+        <div className="mt-2 flex flex-wrap items-center gap-x-3.5 gap-y-1.5 text-sm text-muted-foreground">
+          <span className="font-mono font-semibold text-foreground">{issue.shortId}</span>
           {!compact ? <span>{issue.project?.name}</span> : null}
           <SubstatusBadge substatus={issue.substatus} />
           {issue.unhandled ? <UnhandledBadge /> : null}
@@ -74,9 +76,17 @@ export function IssueRow({
           <span className="inline-flex gap-1">
             <RelativeTime value={issue.lastSeen} />
             {!compact && ageDiffers(issue) ? (
-              <span className="hidden sm:inline">
+              <span className="hidden md:inline">
                 (ilk <RelativeTime value={issue.firstSeen} />)
               </span>
+            ) : null}
+          </span>
+          <span className="tabular sm:hidden">
+            <span className="font-semibold text-foreground">{events}</span> olay
+            {showUsers ? (
+              <>
+                , <span className="font-semibold text-foreground">{users}</span> kullanıcı
+              </>
             ) : null}
           </span>
           {issue.assignee ? (
@@ -84,28 +94,26 @@ export function IssueRow({
               <UserAvatar
                 name={issue.assignee.name || issue.assignee.email}
                 src={issue.assignee.avatarUrl}
-                className="size-4"
+                className="size-5"
               />
-              <span className="hidden sm:inline">{issue.assignee.name || issue.assignee.email}</span>
+              <span className="hidden md:inline">{issue.assignee.name || issue.assignee.email}</span>
             </span>
           ) : null}
         </div>
       </div>
       {!compact ? (
         <div className="hidden items-center lg:flex">
-          <Sparkline series={issue.series} className="w-28" />
+          <Sparkline series={issue.series} className="w-32" />
         </div>
       ) : null}
-      <div className="flex w-14 flex-col items-end justify-center text-right">
-        <span className="font-medium text-[13.5px] tabular">
-          {formatCompact(issue.periodCount || issue.timesSeen)}
-        </span>
-        <span className="text-[11px] text-muted-foreground">olay</span>
+      <div className="hidden w-16 flex-col items-end justify-center text-right sm:flex">
+        <span className="font-semibold text-lg tabular">{events}</span>
+        <span className="text-xs text-muted-foreground">olay</span>
       </div>
       {showUsers ? (
-        <div className="hidden w-14 flex-col items-end justify-center text-right sm:flex">
-          <span className="font-medium text-[13.5px] tabular">{formatCompact(issue.usersCount)}</span>
-          <span className="text-[11px] text-muted-foreground">kullanıcı</span>
+        <div className="hidden w-16 flex-col items-end justify-center text-right sm:flex">
+          <span className="font-semibold text-lg tabular">{users}</span>
+          <span className="text-xs text-muted-foreground">kullanıcı</span>
         </div>
       ) : null}
     </div>

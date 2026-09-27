@@ -3,23 +3,29 @@ import { cn } from "@/lib/utils";
 
 export type Stat = { label: string; value: React.ReactNode; note?: React.ReactNode };
 
-/** A row of headline numbers separated by hairlines. */
+/**
+ * A row of headline numbers separated by hairlines. Every cell draws its
+ * right and bottom edge; the grid reaches one pixel past the rounded frame,
+ * which clips the outermost edges, so the lines stay continuous in any column
+ * count and an unfilled last row stays empty.
+ */
 export function StatStrip({ stats, className }: { stats: Stat[]; className?: string }) {
   return (
-    <dl
-      className={cn(
-        "grid grid-cols-2 divide-x divide-y overflow-hidden rounded-lg border sm:grid-cols-3 xl:divide-y-0",
-        stats.length >= 6 ? "xl:grid-cols-6" : stats.length === 5 ? "xl:grid-cols-5" : "lg:grid-cols-4",
-        className,
-      )}
-    >
-      {stats.map((s) => (
-        <div key={s.label} className="min-w-0 px-4 py-3.5">
-          <dt className="truncate text-[12.5px] text-muted-foreground">{s.label}</dt>
-          <dd className="mt-1 font-semibold text-[22px] leading-tight tracking-tight tabular">{s.value}</dd>
-          {s.note ? <dd className="mt-0.5 truncate text-[12px] text-muted-foreground">{s.note}</dd> : null}
-        </div>
-      ))}
-    </dl>
+    <div className={cn("overflow-hidden rounded-lg border", className)}>
+      <dl
+        className={cn(
+          "-mr-px -mb-px grid grid-cols-2 sm:grid-cols-3",
+          stats.length >= 6 ? "xl:grid-cols-6" : stats.length === 5 ? "xl:grid-cols-5" : "lg:grid-cols-4",
+        )}
+      >
+        {stats.map((s) => (
+          <div key={s.label} className="flex min-w-0 flex-col border-r border-b px-4 py-4">
+            <dt className="text-sm text-muted-foreground">{s.label}</dt>
+            <dd className="mt-1 font-semibold text-2xl leading-tight tabular lg:text-3xl">{s.value}</dd>
+            {s.note ? <dd className="mt-1 text-sm text-muted-foreground">{s.note}</dd> : null}
+          </div>
+        ))}
+      </dl>
+    </div>
   );
 }

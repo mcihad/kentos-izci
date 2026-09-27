@@ -39,7 +39,7 @@ export function ProjectAi({ project }: { project: Project }) {
 
   return (
     <form
-      className="grid max-w-2xl grid-cols-1 gap-5 py-6"
+      className="grid max-w-2xl grid-cols-1 *:min-w-0 gap-5 py-6"
       onSubmit={(e) => {
         e.preventDefault();
         const settings = clone(ProjectSettingsSchema, project.settings ?? create(ProjectSettingsSchema));
@@ -56,8 +56,8 @@ export function ProjectAi({ project }: { project: Project }) {
       }}
     >
       <div>
-        <h2 className="font-semibold text-[15px]">Yapay zekâ ile analiz</h2>
-        <p className="mt-0.5 text-[13px] text-muted-foreground leading-relaxed">
+        <h2 className="font-semibold text-lg">Yapay zekâ ile analiz</h2>
+        <p className="mt-0.5 text-sm text-muted-foreground leading-relaxed">
           İzci, bağlı depodaki kodu opencode ile inceler, kök nedeni açıklar ve bir düzeltme önerir. Otomatik
           analiz, yeni hatalar için bu adımı sizin yerinize başlatır.
         </p>
@@ -138,7 +138,7 @@ export function ProjectAi({ project }: { project: Project }) {
           onChange={(e) => setModel(e.target.value)}
           disabled={!admin}
           placeholder="anthropic/claude-sonnet-5"
-          className="font-mono text-[13px]"
+          className="font-mono text-sm"
         />
       </Field>
       <Field
@@ -151,7 +151,7 @@ export function ProjectAi({ project }: { project: Project }) {
           value={commands}
           onChange={(e) => setCommands(e.target.value)}
           disabled={!admin}
-          className="min-h-20 font-mono text-[12.5px]"
+          className="min-h-20 font-mono text-sm"
           placeholder={"dotnet build\ndotnet test"}
         />
       </Field>
@@ -165,7 +165,7 @@ export function ProjectAi({ project }: { project: Project }) {
           value={instructions}
           onChange={(e) => setInstructions(e.target.value)}
           disabled={!admin}
-          className="min-h-28 text-[13px]"
+          className="min-h-28 text-sm"
         />
       </Field>
       {admin ? (

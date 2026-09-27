@@ -93,11 +93,11 @@ export function Integrations({ result }: { result?: string }) {
 
   const items = list.data?.integrations ?? [];
   return (
-    <div className="grid max-w-3xl grid-cols-1 gap-6 py-6">
+    <div className="grid max-w-3xl grid-cols-1 *:min-w-0 gap-6 py-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="max-w-xl">
-          <h2 className="font-semibold text-[15px]">GitHub</h2>
-          <p className="mt-0.5 text-[13px] text-muted-foreground leading-relaxed">
+          <h2 className="font-semibold text-lg">GitHub</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground leading-relaxed">
             İzci, bağlı GitHub hesapları üzerinden depoları okur; yapay zekânın önerdiği düzeltmeleri dal ve
             çekme isteği olarak gönderir. Erişim anahtarları şifrelenerek saklanır.
           </p>
@@ -177,19 +177,19 @@ function IntegrationRow({
     <li className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
       <UserAvatar name={i.accountLogin || i.name} src={i.accountAvatarUrl} className="size-8" />
       <div className="min-w-0 flex-1">
-        <p className="flex flex-wrap items-center gap-2 text-[13.5px]">
+        <p className="flex flex-wrap items-center gap-2 text-md">
           <span className="font-medium">{i.accountLogin || i.name}</span>
-          <span className="rounded-full border px-1.5 text-[11px] text-muted-foreground">
+          <span className="rounded-full border px-2 text-xs text-muted-foreground">
             {app ? "GitHub App" : "Erişim anahtarı"}
           </span>
         </p>
-        <p className="mt-0.5 truncate text-[12px] text-muted-foreground">
+        <p className="mt-0.5 truncate text-xs text-muted-foreground">
           {i.name}
           {i.createdBy ? ` · ${i.createdBy.name || i.createdBy.email}` : ""} ·{" "}
           <RelativeTime value={i.createdAt} /> bağlandı
         </p>
         {!i.healthy ? (
-          <p className="mt-1 flex items-center gap-1.5 text-[12px] text-level-error">
+          <p className="mt-1 flex items-center gap-1.5 text-xs text-level-error-ink">
             <CircleAlertIcon className="size-3.5" />
             GitHub kimlik bilgilerini reddetti{i.statusMessage ? `: ${i.statusMessage}` : ""}
           </p>
@@ -308,7 +308,7 @@ function ConnectTokenDialog({
               value={token}
               onChange={(e) => setToken(e.target.value)}
               placeholder="github_pat_…"
-              className={cn("font-mono text-[13px]")}
+              className={cn("font-mono text-sm")}
             />
           </Field>
           <FormError message={connect.error && !tokenError ? errorMessage(connect.error) : undefined} />

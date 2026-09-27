@@ -8,6 +8,7 @@ import { CodeBlock } from "@/components/common/code-block";
 import { CopyButton } from "@/components/common/copy-button";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
+import { TabStrip, tabActiveOptions, tabClass } from "@/components/common/tab-nav";
 import { EventView } from "@/components/event/event-view";
 import { FeedbackList } from "@/components/feedback/feedback-list";
 import { Activity } from "@/components/issue/activity";
@@ -38,6 +39,7 @@ import { type EventDetail, EventPick, EventService } from "@/gen/izci/api/v1/eve
 import { FeedbackService } from "@/gen/izci/api/v1/feedback_pb";
 import { AiState, IssueService } from "@/gen/izci/api/v1/issue_pb";
 import { isNotFound } from "@/lib/errors";
+import { formatCompact } from "@/lib/format";
 import { platformLabel } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
 import { canWrite } from "@/lib/session";
@@ -149,25 +151,27 @@ function IssuePage() {
   return (
     <div>
       <header className="border-b">
-        <div className={cn("pt-4 pb-4", gutter)}>
-          <nav className="flex items-center gap-1.5 text-[12.5px] text-muted-foreground" aria-label="Konum">
-            <Link to="/o/$org/issues" params={{ org: org.slug }} className="hover:text-foreground">
+        <div className={cn("pt-4 pb-4 sm:pt-5", gutter)}>
+          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground" aria-label="Konum">
+            <Link to="/o/$org/issues" params={{ org: org.slug }} className="-my-2 py-2 hover:text-foreground">
               Hatalar
             </Link>
             <ChevronRightIcon className="size-3.5" />
             <span className="font-medium font-mono text-foreground">{s.shortId}</span>
-            <CopyButton value={s.permalink} label="Bağlantıyı kopyala" className="size-6" />
+            <CopyButton value={s.permalink} label="Bağlantıyı kopyala" className="size-8" />
           </nav>
-          <div className="mt-2 flex gap-3">
-            <LevelBlaze level={s.level} className="w-1 self-stretch" />
+          <div className="mt-2.5 flex gap-3.5">
+            <LevelBlaze level={s.level} className="w-1.5 self-stretch" />
             <div className="min-w-0 flex-1">
-              <h1 className="break-words text-[19px] leading-snug tracking-[-0.01em]">
+              <h1 className="break-words text-xl leading-snug tracking-[-0.01em] sm:text-2xl sm:leading-tight">
                 <IssueTitle type={s.type} value={s.value} title={s.title} />
               </h1>
               {s.culprit ? (
-                <p className="mt-1 truncate font-mono text-[12.5px] text-muted-foreground">{s.culprit}</p>
+                <p className="mt-1.5 break-words font-mono text-sm text-muted-foreground sm:truncate">
+                  {s.culprit}
+                </p>
               ) : null}
-              <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12.5px] text-muted-foreground">
+              <div className="mt-3 flex flex-wrap items-center gap-x-3.5 gap-y-2 text-sm text-muted-foreground">
                 <StatusBadge status={s.status} />
                 <SubstatusBadge substatus={s.substatus} />
                 {s.unhandled ? <UnhandledBadge /> : null}
@@ -184,26 +188,43 @@ function IssuePage() {
               </div>
             </div>
           </div>
+          <dl className="mt-4 grid grid-cols-[1fr_1fr_1fr_1.7fr] gap-2 rounded-lg border px-3 py-2.5 lg:hidden">
+            {(
+              [
+                ["olay", formatCompact(s.timesSeen)],
+                ["kullanıcı", formatCompact(s.usersCount)],
+                ["müşteri", formatCompact(s.customersCount)],
+              ] as const
+            ).map(([label, value]) => (
+              <div key={label} className="flex min-w-0 flex-col-reverse">
+                <dt className="text-xs text-muted-foreground">{label}</dt>
+                <dd className="font-semibold text-lg tabular leading-tight">{value}</dd>
+              </div>
+            ))}
+            <div className="flex min-w-0 flex-col-reverse">
+              <dt className="text-xs text-muted-foreground">son görülme</dt>
+              <dd className="truncate font-semibold text-md leading-[1.5rem]">
+                <RelativeTime value={s.lastSeen} />
+              </dd>
+            </div>
+          </dl>
           <div className="mt-4">
             <TriageBar issue={issue} writable={writable} />
           </div>
         </div>
-        <nav className={cn("-mb-px flex gap-5 overflow-x-auto text-[13px]", gutter)} aria-label="Bölümler">
+        <TabStrip label="Bölümler" active={tab}>
           {tabs.map((t) => (
             <Link
               key={t.id}
               from={Route.fullPath}
               search={(p) => ({ ...p, tab: t.id === "event" ? undefined : t.id, run: undefined })}
-              className={cn(
-                "whitespace-nowrap border-b-2 pb-2.5 transition-colors",
-                tab === t.id
-                  ? "border-primary font-medium text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
-              )}
+              activeOptions={tabActiveOptions}
+              className={tabClass(tab === t.id)}
+              aria-current={tab === t.id ? "page" : undefined}
             >
               {t.label}
               {t.id === "feedback" && feedbackCount > 0 ? (
-                <span className="ml-1.5 rounded-full bg-muted px-1.5 py-px text-[11px] text-muted-foreground tabular">
+                <span className="ml-2 rounded-full bg-muted px-2 py-px font-medium text-xs text-muted-foreground tabular">
                   {feedbackCount >= 50 ? "50+" : feedbackCount}
                 </span>
               ) : null}
@@ -212,7 +233,7 @@ function IssuePage() {
               ) : null}
             </Link>
           ))}
-        </nav>
+        </TabStrip>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_20rem]">
@@ -284,12 +305,12 @@ function EventToolbar({
     oldest: "En eski olay",
   };
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b py-2.5 text-[12.5px]">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b py-2 text-sm">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="-ml-2 h-7 gap-1 px-2 font-medium text-[13px]">
+          <Button variant="ghost" size="sm" className="-ml-2 gap-1 px-2 font-semibold text-md">
             {labels[which] ?? "Seçili olay"}
-            <ChevronDownIcon className="size-3.5 text-muted-foreground" />
+            <ChevronDownIcon className="size-4 text-muted-foreground" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
@@ -312,8 +333,8 @@ function EventToolbar({
           {ev?.release ? <span className="font-mono text-muted-foreground">{ev.release}</span> : null}
         </>
       ) : null}
-      <div className="ml-auto flex items-center gap-1">
-        <Button variant="ghost" size="sm" className="h-7 px-2" disabled={!previousId} asChild={!!previousId}>
+      <div className="-mr-2 ml-auto flex items-center gap-0.5 max-sm:-ml-2 max-sm:w-full">
+        <Button variant="ghost" size="sm" className="px-2" disabled={!previousId} asChild={!!previousId}>
           {previousId ? (
             <Link
               from={Route.fullPath}
@@ -330,7 +351,7 @@ function EventToolbar({
             </span>
           )}
         </Button>
-        <Button variant="ghost" size="sm" className="h-7 px-2" disabled={!nextId} asChild={!!nextId}>
+        <Button variant="ghost" size="sm" className="px-2" disabled={!nextId} asChild={!!nextId}>
           {nextId ? (
             <Link from={Route.fullPath} search={(p) => ({ ...p, event: nextId })} aria-label="Sonraki olay">
               Sonraki
@@ -346,11 +367,11 @@ function EventToolbar({
         <Button
           variant="outline"
           size="sm"
-          className="ml-1 h-7 px-2"
+          className="ml-auto px-2.5 sm:ml-1"
           disabled={!detail}
           onClick={() => setRaw(true)}
         >
-          <BracesIcon className="size-3.5" />
+          <BracesIcon className="size-4" />
           Ham veri
         </Button>
       </div>

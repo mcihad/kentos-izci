@@ -9,6 +9,8 @@ describe("formatRelative", () => {
     [now - 3 * 3_600_000, "3 sa önce"],
     [now - 2 * 86_400_000, "2 gün önce"],
     [now + 10 * 60_000, "10 dk sonra"],
+    [now - 3590_000, "1 sa önce"],
+    [now - 23.8 * 3_600_000, "1 gün önce"],
   ])("%s → %s", (t, want) => {
     expect(formatRelative(new Date(t), now)).toBe(want);
   });

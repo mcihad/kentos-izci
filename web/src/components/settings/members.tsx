@@ -79,12 +79,12 @@ export function Members() {
 
   if (!members.data) return <Skeleton className="my-6 h-48 w-full max-w-4xl" />;
   return (
-    <div className="grid max-w-4xl grid-cols-1 gap-8 py-6">
+    <div className="grid max-w-4xl grid-cols-1 *:min-w-0 gap-8 py-6">
       <section>
         <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="font-semibold text-[15px]">Üyeler</h2>
-            <p className="mt-0.5 text-[13px] text-muted-foreground">
+            <h2 className="font-semibold text-lg">Üyeler</h2>
+            <p className="mt-0.5 text-sm text-muted-foreground">
               {members.data.members.length} kişi bu organizasyona erişebiliyor.
             </p>
           </div>
@@ -96,6 +96,9 @@ export function Members() {
         <ul className="divide-y rounded-lg border">
           {members.data.members.map((m) => {
             const self = m.user?.id === me;
+            // Your own membership, and an owner's when you are not one,
+            // cannot be changed here: show the role instead of dead controls.
+            const locked = self || (!owner && m.role === Role.OWNER);
             return (
               <li key={m.user?.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
                 <UserAvatar
@@ -103,14 +106,14 @@ export function Members() {
                   src={m.user?.avatarUrl}
                   className="size-8"
                 />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-[13.5px]">
+                <div className="min-w-0 flex-[1_1_14rem]">
+                  <p className="truncate font-medium text-md">
                     {m.user?.name || m.user?.email}
                     {self ? (
-                      <span className="ml-2 font-normal text-muted-foreground text-xs">siz</span>
+                      <span className="ml-2 font-normal text-muted-foreground text-sm">siz</span>
                     ) : null}
                   </p>
-                  <p className="truncate text-[12px] text-muted-foreground">
+                  <p className="truncate text-sm text-muted-foreground">
                     {m.user?.email}
                     {m.lastSeenAt ? (
                       <>
@@ -120,33 +123,42 @@ export function Members() {
                     ) : null}
                   </p>
                 </div>
-                <Select
-                  value={String(m.role)}
-                  disabled={self || (!owner && m.role === Role.OWNER) || update.isPending}
-                  onValueChange={(v) => update.mutate({ userId: m.user?.id ?? "", role: Number(v) as Role })}
-                >
-                  <SelectTrigger size="sm" className="h-8 w-32 text-[13px]" aria-label="Rol">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent align="end">
-                    {roles
-                      .filter((r) => owner || r !== Role.OWNER)
-                      .map((r) => (
-                        <SelectItem key={r} value={String(r)}>
-                          {roleLabels[r]}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-destructive"
-                  disabled={self || (!owner && m.role === Role.OWNER)}
-                  onClick={() => setRemoving(m)}
-                >
-                  Çıkar
-                </Button>
+                {locked ? (
+                  <span className="text-sm text-muted-foreground max-sm:ml-11 sm:pr-3">
+                    {roleLabels[m.role]}
+                  </span>
+                ) : (
+                  <>
+                    <Select
+                      value={String(m.role)}
+                      disabled={update.isPending}
+                      onValueChange={(v) =>
+                        update.mutate({ userId: m.user?.id ?? "", role: Number(v) as Role })
+                      }
+                    >
+                      <SelectTrigger size="sm" className="w-32 text-sm max-sm:ml-11" aria-label="Rol">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent align="end">
+                        {roles
+                          .filter((r) => owner || r !== Role.OWNER)
+                          .map((r) => (
+                            <SelectItem key={r} value={String(r)}>
+                              {roleLabels[r]}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive"
+                      onClick={() => setRemoving(m)}
+                    >
+                      Çıkar
+                    </Button>
+                  </>
+                )}
               </li>
             );
           })}
@@ -154,13 +166,13 @@ export function Members() {
       </section>
       {members.data.invitations.length > 0 ? (
         <section>
-          <h2 className="mb-3 font-semibold text-[15px]">Bekleyen davetler</h2>
+          <h2 className="mb-3 font-semibold text-lg">Bekleyen davetler</h2>
           <ul className="divide-y rounded-lg border">
             {members.data.invitations.map((i) => (
               <li key={i.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13.5px]">{i.email}</p>
-                  <p className="text-[12px] text-muted-foreground">
+                  <p className="truncate text-md">{i.email}</p>
+                  <p className="text-sm text-muted-foreground">
                     {roleLabels[i.role]}, <RelativeTime value={i.expiresAt} /> sona eriyor
                   </p>
                 </div>

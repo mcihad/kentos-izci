@@ -67,7 +67,7 @@ export function StackTrail({
   const [revealed, setRevealed] = useState<Set<string>>(new Set());
 
   if (frames.length === 0) {
-    return <p className="text-[13px] text-muted-foreground">Bu istisna için yığın izi gönderilmedi.</p>;
+    return <p className="text-sm text-muted-foreground">Bu istisna için yığın izi gönderilmedi.</p>;
   }
 
   return (
@@ -82,9 +82,9 @@ export function StackTrail({
               <button
                 type="button"
                 onClick={() => setRevealed((s) => new Set(s).add(item.key))}
-                className="flex h-8 items-center gap-1.5 text-[12.5px] text-muted-foreground hover:text-foreground"
+                className="flex h-10 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
               >
-                <ChevronRightIcon className="size-3.5" />
+                <ChevronRightIcon className="size-4" />
                 {item.frames.length} kütüphane çerçevesi
               </button>
             </li>
@@ -127,8 +127,8 @@ function Rail({ first, last, dashed = false }: { first: boolean; last: boolean; 
       className={cn(
         "absolute left-[11px] w-0 border-l",
         dashed ? "border-trail border-dashed" : "border-trail",
-        first ? "top-[15px]" : "top-0",
-        last ? "h-[15px]" : "bottom-0",
+        first ? "top-[17px]" : "top-0",
+        last ? "h-[17px]" : "bottom-0",
       )}
     />
   );
@@ -139,20 +139,20 @@ function Marker({ kind, color }: { kind: "crash" | "app" | "lib"; color: string 
     return (
       <span
         aria-hidden="true"
-        className="absolute top-[10px] left-[6.5px] size-[10px] rotate-45 rounded-[2px]"
+        className="absolute top-[12px] left-[6.5px] size-[10px] rotate-45 rounded-[2px]"
         style={{ background: color, boxShadow: `0 0 0 3px color-mix(in oklch, ${color} 22%, transparent)` }}
       />
     );
   }
   if (kind === "app") {
     return (
-      <span aria-hidden="true" className="absolute top-[11px] left-[7.5px] size-2 rounded-full bg-primary" />
+      <span aria-hidden="true" className="absolute top-[13px] left-[7.5px] size-2 rounded-full bg-primary" />
     );
   }
   return (
     <span
       aria-hidden="true"
-      className="absolute top-[12px] left-[8.5px] size-1.5 rounded-full border border-muted-foreground/60 bg-background"
+      className="absolute top-[14px] left-[8.5px] size-1.5 rounded-full border border-muted-foreground/60 bg-background"
     />
   );
 }
@@ -194,7 +194,7 @@ function FrameRow({
     <li className="relative pl-8">
       <Rail first={first} last={last} />
       <Marker kind={crash ? "crash" : app ? "app" : "lib"} color={levelColor} />
-      <div className="flex min-w-0 items-start gap-2 py-1.5">
+      <div className="flex min-w-0 items-start gap-2 py-2">
         <button
           type="button"
           disabled={!expandable}
@@ -204,7 +204,7 @@ function FrameRow({
         >
           <ChevronRightIcon
             className={cn(
-              "mt-[3px] size-3.5 shrink-0 text-muted-foreground transition-transform",
+              "mt-[3px] size-4 shrink-0 text-muted-foreground transition-transform",
               open && "rotate-90",
               !expandable && "invisible",
             )}
@@ -212,21 +212,21 @@ function FrameRow({
           <span className="min-w-0 flex-1">
             <span
               className={cn(
-                "block truncate font-mono text-[13px]",
+                "block font-mono text-sm [overflow-wrap:anywhere] sm:truncate",
                 app || crash ? "font-medium text-foreground" : "text-muted-foreground",
               )}
             >
               {fn}
             </span>
             {where || frame.module || frame.package ? (
-              <span className="block truncate font-mono text-[11.5px] text-muted-foreground">
+              <span className="mt-0.5 block font-mono text-sm text-muted-foreground [overflow-wrap:anywhere] sm:truncate">
                 {where || frame.module || frame.package}
               </span>
             ) : null}
           </span>
         </button>
         {file ? (
-          <span className="hidden shrink-0 pt-0.5 font-mono text-[11.5px] text-muted-foreground xl:inline">
+          <span className="hidden shrink-0 pt-px font-mono text-sm text-muted-foreground xl:inline">
             {basename(file)}
             {frame.lineno ? `:${frame.lineno}` : ""}
           </span>
@@ -239,9 +239,9 @@ function FrameRow({
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Kaynağı depoda aç"
-                className="grid size-6 shrink-0 place-items-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
+                className="-my-1.5 grid size-8 shrink-0 place-items-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
               >
-                <FileCodeIcon className="size-3.5" />
+                <FileCodeIcon className="size-4" />
               </a>
             </TooltipTrigger>
             <TooltipContent>Kaynağı depoda aç</TooltipContent>
@@ -260,7 +260,7 @@ function FrameRow({
             />
           ) : null}
           {hasVars ? (
-            <dl className="grid grid-cols-[minmax(6rem,auto)_1fr] gap-x-4 gap-y-1 rounded-md border px-3 py-2 font-mono text-[12px]">
+            <dl className="grid grid-cols-[minmax(6rem,auto)_1fr] gap-x-4 gap-y-1.5 rounded-md border px-3 py-2.5 font-mono text-sm">
               {Object.entries(frame.vars).map(([k, v]) => (
                 <div key={k} className="contents">
                   <dt className="text-muted-foreground">{k}</dt>

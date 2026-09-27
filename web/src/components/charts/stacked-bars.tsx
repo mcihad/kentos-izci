@@ -84,7 +84,7 @@ export function StackedBars({
                   className="stroke-border"
                   strokeDasharray="2 4"
                 />
-                <text x={0} y={plotH - plotH * f - 4} className="fill-muted-foreground text-[10.5px] tabular">
+                <text x={0} y={plotH - plotH * f - 4} className="fill-muted-foreground text-2xs tabular">
                   {formatCompact(top * f)}
                 </text>
               </g>
@@ -125,7 +125,7 @@ export function StackedBars({
                       x={i * band + band / 2}
                       y={height - padTop - 4}
                       textAnchor={i === 0 ? "start" : "middle"}
-                      className="fill-muted-foreground text-[10.5px] tabular"
+                      className="fill-muted-foreground text-2xs tabular"
                     >
                       {tickLabel(t, step, span)}
                     </text>
@@ -138,7 +138,7 @@ export function StackedBars({
       ) : null}
       {hover !== null && times[hover] ? (
         <div
-          className="pointer-events-none absolute top-1 z-10 min-w-40 rounded-md border bg-popover px-2.5 py-2 text-[12px] shadow-md"
+          className="pointer-events-none absolute top-1 z-10 min-w-40 rounded-md border bg-popover px-2.5 py-2 text-xs shadow-md"
           style={
             hover * band + band / 2 > width / 2
               ? { right: width - hover * band + 8 }

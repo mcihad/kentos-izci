@@ -66,8 +66,8 @@ export function Tokens() {
     <div className="max-w-3xl py-6">
       <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-semibold text-[15px]">Kişisel erişim anahtarları</h2>
-          <p className="mt-0.5 text-[13px] text-muted-foreground">
+          <h2 className="font-semibold text-lg">Kişisel erişim anahtarları</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">
             MCP istemcileri (Claude Code, opencode, Cursor), betikler ve API için. Anahtar sizin
             yetkilerinizle çalışır.
           </p>
@@ -86,8 +86,8 @@ export function Tokens() {
           {list.data.tokens.map((t) => (
             <li key={t.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
               <div className="min-w-0 flex-1">
-                <p className="font-medium text-[13.5px]">{t.name}</p>
-                <p className="mt-0.5 text-[12px] text-muted-foreground">
+                <p className="font-medium text-md">{t.name}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   <span className="font-mono">{t.prefix}…</span>,{" "}
                   {t.organization?.name ?? "tüm organizasyonlar"},{" "}
                   {t.scopes.map((s) => scopeLabels[s]).join(" + ")},{" "}
@@ -169,14 +169,14 @@ function CreateTokenDialog({ open, onOpenChange }: { open: boolean; onOpenChange
             <div className="grid gap-4">
               <SecretValue value={created.secret} />
               <div className="grid gap-1.5">
-                <p className="font-medium text-[13px]">Claude Code</p>
+                <p className="font-medium text-sm">Claude Code</p>
                 <CodeBlock
                   lang="shellscript"
                   code={`claude mcp add --transport http izci ${mcpUrl} \\\n  --header "Authorization: Bearer ${created.secret}"`}
                 />
               </div>
               <div className="grid gap-1.5">
-                <p className="font-medium text-[13px]">opencode (opencode.json)</p>
+                <p className="font-medium text-sm">opencode (opencode.json)</p>
                 <CodeBlock
                   lang="json"
                   code={JSON.stringify(
@@ -195,7 +195,7 @@ function CreateTokenDialog({ open, onOpenChange }: { open: boolean; onOpenChange
                 />
               </div>
               <div className="grid gap-1.5">
-                <p className="font-medium text-[13px]">Cursor (.cursor/mcp.json)</p>
+                <p className="font-medium text-sm">Cursor (.cursor/mcp.json)</p>
                 <CodeBlock
                   lang="json"
                   code={JSON.stringify(
@@ -210,7 +210,7 @@ function CreateTokenDialog({ open, onOpenChange }: { open: boolean; onOpenChange
                 />
               </div>
               <div className="grid gap-1.5">
-                <p className="font-medium text-[13px]">Yerel süreç olarak (stdio)</p>
+                <p className="font-medium text-sm">Yerel süreç olarak (stdio)</p>
                 <CodeBlock
                   lang="shellscript"
                   code={`IZCI_TOKEN=${created.secret} izci mcp --url ${window.location.origin}`}
@@ -268,22 +268,22 @@ function CreateTokenDialog({ open, onOpenChange }: { open: boolean; onOpenChange
                 </Select>
               </Field>
               <fieldset className="grid gap-2">
-                <legend className="mb-1 font-medium text-[13px]">Yetkiler</legend>
+                <legend className="mb-1 font-medium text-sm">Yetkiler</legend>
                 <div className="flex items-center gap-2">
                   <Checkbox id="tok-read" checked disabled />
-                  <Label htmlFor="tok-read" className="font-normal text-[13px]">
+                  <Label htmlFor="tok-read" className="font-normal text-sm">
                     Okuma: hataları, olayları ve müşterileri görme
                   </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Checkbox id="tok-write" checked={write} onCheckedChange={(v) => setWrite(v === true)} />
-                  <Label htmlFor="tok-write" className="font-normal text-[13px]">
+                  <Label htmlFor="tok-write" className="font-normal text-sm">
                     Yazma: hataları çözme, atama, yorum
                   </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Checkbox id="tok-ai" checked={ai} onCheckedChange={(v) => setAi(v === true)} />
-                  <Label htmlFor="tok-ai" className="font-normal text-[13px]">
+                  <Label htmlFor="tok-ai" className="font-normal text-sm">
                     Yapay zekâ: analiz başlatma ve çekme isteği açma
                   </Label>
                 </div>

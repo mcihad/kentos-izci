@@ -11,7 +11,7 @@ export function LevelBlaze({ level, className }: { level: Level; className?: str
   return (
     <span
       aria-hidden="true"
-      className={cn("block w-[3px] shrink-0 rounded-full", className)}
+      className={cn("block w-1 shrink-0 rounded-full", className)}
       style={{ background: levels[level].color }}
     />
   );
@@ -21,14 +21,13 @@ export function LevelBlaze({ level, className }: { level: Level; className?: str
 export function LevelLabel({ level, className }: { level: Level; className?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-1.5 whitespace-nowrap", className)}>
-      <span className="size-2 rounded-full" style={{ background: levels[level].color }} />
+      <span className="size-2.5 rounded-full" style={{ background: levels[level].color }} />
       {levels[level].label}
     </span>
   );
 }
 
-const pill =
-  "inline-flex h-5 items-center whitespace-nowrap rounded-full border px-1.5 font-medium text-[11px]";
+const pill = "inline-flex h-6 items-center whitespace-nowrap rounded-full border px-2 font-medium text-xs";
 
 export function SubstatusBadge({ substatus }: { substatus: IssueSubstatus }) {
   if (substatus === IssueSubstatus.UNSPECIFIED || substatus === IssueSubstatus.ONGOING) return null;
@@ -36,23 +35,23 @@ export function SubstatusBadge({ substatus }: { substatus: IssueSubstatus }) {
     substatus === IssueSubstatus.NEW
       ? "border-primary/40 text-primary"
       : substatus === IssueSubstatus.REGRESSED
-        ? "border-level-warning/45 text-level-warning"
-        : "border-level-error/45 text-level-error";
+        ? "border-level-warning/45 text-level-warning-ink"
+        : "border-level-error/45 text-level-error-ink";
   return <span className={cn(pill, tone)}>{substatusLabels[substatus]}</span>;
 }
 
 export function StatusBadge({ status }: { status: IssueStatus }) {
   const tone =
     status === IssueStatus.RESOLVED
-      ? "border-health-good/40 text-health-good"
+      ? "border-health-good/40 text-health-good-ink"
       : status === IssueStatus.IGNORED
         ? "border-border text-muted-foreground"
-        : "border-level-error/40 text-level-error";
+        : "border-level-error/40 text-level-error-ink";
   return <span className={cn(pill, tone)}>{statusLabels[status]}</span>;
 }
 
 export function UnhandledBadge() {
-  return <span className={cn(pill, "border-level-fatal/40 text-level-fatal")}>İşlenmemiş</span>;
+  return <span className={cn(pill, "border-level-fatal/40 text-level-fatal-ink")}>İşlenmemiş</span>;
 }
 
 export function PriorityBadge({ priority }: { priority: Priority }) {
@@ -62,8 +61,8 @@ export function PriorityBadge({ priority }: { priority: Priority }) {
       className={cn(
         pill,
         priority === Priority.CRITICAL
-          ? "border-level-fatal/40 text-level-fatal"
-          : "border-level-warning/40 text-level-warning",
+          ? "border-level-fatal/40 text-level-fatal-ink"
+          : "border-level-warning/40 text-level-warning-ink",
       )}
     >
       {priorityLabels[priority]}

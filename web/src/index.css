@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design tokens — the single source of truth for color, radius and type.
+ * Design tokens: the single source of truth for color, radius and type.
  * Components never hardcode values a token can express.
  * Palette: graphite neutrals + one signature teal ("izci" trail color) that
  * never collides with the severity scale (fatal/error/warning/info/debug).
@@ -18,32 +18,39 @@
   --card-foreground: var(--foreground);
   --popover: oklch(1 0 0);
   --popover-foreground: var(--foreground);
-  --primary: oklch(0.56 0.105 184);
+  --primary: oklch(0.515 0.1 184);
   --primary-foreground: oklch(0.985 0.01 184);
   --secondary: oklch(0.965 0.004 250);
   --secondary-foreground: oklch(0.27 0.012 255);
   --muted: oklch(0.965 0.004 250);
-  --muted-foreground: oklch(0.52 0.014 255);
+  --muted-foreground: oklch(0.455 0.014 255);
   --accent: oklch(0.958 0.004 250);
   --accent-foreground: oklch(0.21 0.012 255);
-  --destructive: oklch(0.58 0.21 27);
+  --destructive: oklch(0.555 0.2 27);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.915 0.005 250);
+  --border: oklch(0.905 0.006 250);
   --input: oklch(0.905 0.006 250);
-  --ring: oklch(0.56 0.105 184 / 0.55);
+  --ring: oklch(0.515 0.1 184 / 0.6);
 
   --level-fatal: oklch(0.55 0.22 350);
   --level-error: oklch(0.6 0.2 27);
   --level-warning: oklch(0.74 0.15 70);
   --level-info: oklch(0.6 0.14 250);
   --level-debug: oklch(0.6 0.015 255);
+  /* Text on light surfaces needs deeper tones than fills to reach 4.5:1. */
+  --level-fatal-ink: oklch(0.5 0.2 350);
+  --level-error-ink: oklch(0.525 0.19 27);
+  --level-warning-ink: oklch(0.53 0.115 62);
+  --level-info-ink: oklch(0.51 0.14 252);
+  --level-debug-ink: oklch(0.49 0.015 255);
 
   --health-good: oklch(0.6 0.13 155);
+  --health-good-ink: oklch(0.505 0.115 155);
   --trail: oklch(0.86 0.01 250);
   --code: oklch(0.975 0.003 250);
-  --highlight: oklch(0.56 0.105 184 / 0.1);
+  --highlight: oklch(0.515 0.1 184 / 0.1);
 
-  --chart-1: oklch(0.56 0.105 184);
+  --chart-1: oklch(0.515 0.1 184);
   --chart-2: oklch(0.6 0.2 27);
   --chart-3: oklch(0.74 0.15 70);
   --chart-4: oklch(0.6 0.14 250);
@@ -71,7 +78,7 @@
   --secondary: oklch(0.26 0.01 255);
   --secondary-foreground: oklch(0.9 0.006 250);
   --muted: oklch(0.255 0.01 255);
-  --muted-foreground: oklch(0.68 0.014 255);
+  --muted-foreground: oklch(0.75 0.012 255);
   --accent: oklch(0.275 0.011 255);
   --accent-foreground: oklch(0.95 0.006 250);
   --destructive: oklch(0.66 0.19 25);
@@ -85,8 +92,14 @@
   --level-warning: oklch(0.82 0.14 75);
   --level-info: oklch(0.72 0.12 250);
   --level-debug: oklch(0.66 0.014 255);
+  --level-fatal-ink: var(--level-fatal);
+  --level-error-ink: var(--level-error);
+  --level-warning-ink: var(--level-warning);
+  --level-info-ink: var(--level-info);
+  --level-debug-ink: var(--level-debug);
 
   --health-good: oklch(0.74 0.13 155);
+  --health-good-ink: var(--health-good);
   --trail: oklch(0.37 0.012 255);
   --code: oklch(0.185 0.009 255);
   --highlight: oklch(0.79 0.105 180 / 0.1);
@@ -107,9 +120,35 @@
   --sidebar-ring: var(--ring);
 }
 
+/*
+ * Type scale. Nothing an eye has to read is set below 12px; running text is
+ * 15px (text-md). text-base stays 16px because iOS zooms into smaller form
+ * fields.
+ */
+@theme {
+  --text-2xs: 0.75rem;
+  --text-2xs--line-height: 1rem;
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.125rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.3125rem;
+  --text-md: 0.9375rem;
+  --text-md--line-height: 1.4375rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg: 1.0625rem;
+  --text-lg--line-height: 1.5rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.625rem;
+  --text-2xl--line-height: 2rem;
+  --text-3xl: 2.125rem;
+  --text-3xl--line-height: 2.5rem;
+}
+
 @theme inline {
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", monospace;
+  --font-sans: "Atkinson Hyperlegible Next Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Atkinson Hyperlegible Mono Variable", ui-monospace, "SFMono-Regular", monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -141,6 +180,12 @@
   --color-level-info: var(--level-info);
   --color-level-debug: var(--level-debug);
   --color-health-good: var(--health-good);
+  --color-level-fatal-ink: var(--level-fatal-ink);
+  --color-level-error-ink: var(--level-error-ink);
+  --color-level-warning-ink: var(--level-warning-ink);
+  --color-level-info-ink: var(--level-info-ink);
+  --color-level-debug-ink: var(--level-debug-ink);
+  --color-health-good-ink: var(--health-good-ink);
   --color-trail: var(--trail);
   --color-code: var(--code);
   --color-highlight: var(--highlight);
@@ -169,8 +214,7 @@
     text-rendering: optimizeLegibility;
   }
   body {
-    @apply bg-background font-sans text-foreground;
-    font-feature-settings: "cv11", "ss01", "ss03";
+    @apply bg-background font-sans text-md text-foreground;
   }
   code,
   kbd,
@@ -206,6 +250,17 @@
 @layer utilities {
   .tabular {
     font-variant-numeric: tabular-nums;
+  }
+  /* Horizontal strips (tabs, chips) scroll without a visible bar. */
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  /* The end of a horizontally scrolling strip fades out, showing there is more. */
+  .fade-end {
+    mask-image: linear-gradient(to right, black calc(100% - 2rem), transparent);
   }
 }
 
@@ -243,11 +298,29 @@
 }
 
 /* Syntax highlighting: Shiki emits both theme colors as variables. */
-.shiki-t {
-  color: var(--shiki-light);
-  font-style: var(--shiki-light-font-style);
+/* Syntax colours for highlighted code; each clears 4.5:1 on --code, also
+   on the tinted line an error is marked on. */
+:root {
+  --syn-foreground: var(--foreground);
+  --syn-token-comment: oklch(0.5 0.02 250);
+  --syn-token-keyword: oklch(0.5 0.17 300);
+  --syn-token-function: oklch(0.49 0.14 255);
+  --syn-token-string: oklch(0.49 0.12 150);
+  --syn-token-string-expression: var(--syn-token-string);
+  --syn-token-constant: oklch(0.48 0.09 200);
+  --syn-token-parameter: oklch(0.42 0.03 255);
+  --syn-token-punctuation: oklch(0.47 0.015 255);
+  --syn-token-link: var(--primary);
+  --syn-token-inserted: var(--health-good-ink);
+  --syn-token-deleted: var(--level-error-ink);
+  --syn-token-changed: var(--level-warning-ink);
 }
-.dark .shiki-t {
-  color: var(--shiki-dark);
-  font-style: var(--shiki-dark-font-style);
+.dark {
+  --syn-token-comment: oklch(0.68 0.02 250);
+  --syn-token-keyword: oklch(0.77 0.13 305);
+  --syn-token-function: oklch(0.78 0.11 250);
+  --syn-token-string: oklch(0.8 0.13 150);
+  --syn-token-constant: oklch(0.81 0.1 195);
+  --syn-token-parameter: oklch(0.86 0.03 255);
+  --syn-token-punctuation: oklch(0.7 0.015 255);
 }

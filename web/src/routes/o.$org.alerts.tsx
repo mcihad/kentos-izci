@@ -97,7 +97,7 @@ function AlertsPage() {
       <PageHeader title="Uyarılar" description="Hangi hataların hangi Telegram sohbetlerine bildirileceği" />
       <div className={cn("max-w-4xl space-y-10 pt-6", gutter)}>
         {!configured ? (
-          <div className="rounded-lg border border-level-warning/40 px-4 py-3 text-[13px]">
+          <div className="rounded-lg border border-level-warning/40 px-4 py-3 text-sm">
             <p className="font-medium">Telegram botu yapılandırılmamış</p>
             <p className="mt-0.5 text-muted-foreground">
               Sunucu yöneticisi <code className="font-mono">TELEGRAM_BOT_TOKEN</code> değişkenini
@@ -133,8 +133,8 @@ function AlertsPage() {
               {chs.map((c) => (
                 <li key={c.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-[13.5px]">{c.name}</p>
-                    <p className="mt-0.5 text-[12px] text-muted-foreground">
+                    <p className="truncate font-medium text-md">{c.name}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
                       {chatTypes[c.telegram?.type ?? ""] ?? "Sohbet"}
                       {c.telegram?.threadId ? ", bir konu" : ""},{" "}
                       {c.project ? `${c.project.name} projesi` : "tüm projeler"},{" "}
@@ -147,9 +147,7 @@ function AlertsPage() {
                       )}
                     </p>
                     {c.lastError ? (
-                      <p className="mt-1 text-[12px] text-destructive">
-                        Son gönderim başarısız: {c.lastError}
-                      </p>
+                      <p className="mt-1 text-xs text-destructive">Son gönderim başarısız: {c.lastError}</p>
                     ) : null}
                   </div>
                   {admin ? (
@@ -162,10 +160,7 @@ function AlertsPage() {
                             updateChannel.mutate({ id: c.id, name: c.name, muted: !on })
                           }
                         />
-                        <Label
-                          htmlFor={`mute-${c.id}`}
-                          className="font-normal text-[12.5px] text-muted-foreground"
-                        >
+                        <Label htmlFor={`mute-${c.id}`} className="font-normal text-sm text-muted-foreground">
                           Bildirimler açık
                         </Label>
                       </div>
@@ -230,14 +225,14 @@ function AlertsPage() {
                     className="mt-0.5"
                   />
                   <div className="min-w-0 flex-1">
-                    <p className={cn("font-medium text-[13.5px]", !r.enabled && "text-muted-foreground")}>
+                    <p className={cn("font-medium text-md", !r.enabled && "text-muted-foreground")}>
                       {r.name}
                     </p>
-                    <p className="mt-0.5 text-[12.5px] text-muted-foreground leading-relaxed">
+                    <p className="mt-0.5 text-sm text-muted-foreground leading-relaxed">
                       {describeRule(r, chs)}
                     </p>
                     {r.lastTriggeredAt ? (
-                      <p className="mt-1 text-[12px] text-muted-foreground">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         Son tetiklenme <RelativeTime value={r.lastTriggeredAt} />
                       </p>
                     ) : null}

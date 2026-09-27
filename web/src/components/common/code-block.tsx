@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import type { ThemedToken } from "shiki/core";
 import { useTokens } from "@/lib/highlight";
 import { cn } from "@/lib/utils";
@@ -12,7 +11,7 @@ export function TokenLine({ tokens, text }: { tokens?: ThemedToken[]; text: stri
     <>
       {tokens.map((t, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: tokens of a line never reorder
-        <span key={i} className="shiki-t" style={t.htmlStyle as CSSProperties}>
+        <span key={i} style={t.color ? { color: t.color } : undefined}>
           {t.content}
         </span>
       ))}
@@ -43,7 +42,7 @@ export function CodeLines({
   return (
     <div
       className={cn(
-        "overflow-x-auto rounded-md border bg-code py-1.5 font-mono text-[12.5px] leading-[1.65]",
+        "overflow-x-auto rounded-md border bg-code py-1.5 font-mono text-sm leading-[1.65]",
         className,
       )}
     >
@@ -60,7 +59,7 @@ export function CodeLines({
                 }
               >
                 <td
-                  className="w-px select-none whitespace-nowrap border-transparent border-l-2 pr-3 pl-3 text-right text-muted-foreground/70 tabular"
+                  className="w-px select-none whitespace-nowrap border-transparent border-l-2 pr-3 pl-3 text-right text-muted-foreground tabular"
                   style={marked ? { borderLeftColor: markColor, color: markColor } : undefined}
                 >
                   {start + i}
@@ -98,13 +97,10 @@ export function CodeBlock({
       {copy ? (
         <CopyButton
           value={code}
-          className="absolute top-1.5 right-1.5 z-10 bg-code opacity-0 group-hover/code:opacity-100 focus-visible:opacity-100"
+          className="absolute top-1.5 right-1.5 z-10 bg-code opacity-0 group-hover/code:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
         />
       ) : null}
-      <pre
-        className="overflow-auto px-3.5 py-2.5 font-mono text-[12.5px] leading-[1.65]"
-        style={{ maxHeight }}
-      >
+      <pre className="overflow-auto px-3.5 py-2.5 font-mono text-sm leading-[1.65]" style={{ maxHeight }}>
         {lines.map((text, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: line positions are stable
           <div key={i}>

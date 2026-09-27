@@ -35,8 +35,8 @@ export function Impact({ facets }: { facets: TagFacet[] | undefined }) {
       {facets.map((f) => (
         <section key={f.key} className="min-w-0">
           <div className="mb-2 flex items-baseline justify-between gap-3">
-            <h3 className="font-medium text-[13px]">{facetLabels[f.key] ?? f.key}</h3>
-            <span className="text-[12px] text-muted-foreground tabular">
+            <h3 className="font-medium text-sm">{facetLabels[f.key] ?? f.key}</h3>
+            <span className="text-xs text-muted-foreground tabular">
               {f.uniqueValues > f.values.length ? `${f.uniqueValues} farklı değer` : null}
             </span>
           </div>
@@ -52,7 +52,7 @@ export function Impact({ facets }: { facets: TagFacet[] | undefined }) {
                     search={{
                       query: `is:unresolved ${key}:${/[\s"]/.test(v.value) ? JSON.stringify(v.value) : v.value}`,
                     }}
-                    className="group relative flex h-7 items-center gap-3 overflow-hidden rounded px-2 text-[12.5px]"
+                    className="group relative flex h-7 items-center gap-3 overflow-hidden rounded px-2 text-sm"
                   >
                     <span
                       aria-hidden="true"

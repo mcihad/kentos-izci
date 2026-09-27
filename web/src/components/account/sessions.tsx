@@ -31,8 +31,8 @@ export function Sessions() {
     <div className="max-w-3xl py-6">
       <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-semibold text-[15px]">Açık oturumlar</h2>
-          <p className="mt-0.5 text-[13px] text-muted-foreground">
+          <h2 className="font-semibold text-lg">Açık oturumlar</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">
             Tanımadığınız bir oturum görürseniz kapatın ve parolanızı değiştirin.
           </p>
         </div>
@@ -51,11 +51,11 @@ export function Sessions() {
         {list.data.sessions.map((s) => (
           <li key={s.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[13.5px]">
+              <p className="truncate text-md">
                 {s.client || "Bilinmeyen istemci"}
                 {s.current ? <span className="ml-2 text-primary text-xs">bu cihaz</span> : null}
               </p>
-              <p className="text-[12px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 <span className="font-mono">{s.ipAddress}</span>, son etkinlik{" "}
                 <RelativeTime value={s.lastSeenAt} />, açılış <RelativeTime value={s.createdAt} />
               </p>

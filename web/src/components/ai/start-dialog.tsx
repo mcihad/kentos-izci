@@ -75,8 +75,8 @@ export function StartRunDialog({
                 className="mt-0.5"
               />
               <span className="grid gap-0.5">
-                <span className="font-medium text-[13px]">Kök nedeni bul ve düzeltme öner</span>
-                <span className="font-normal text-[12px] text-muted-foreground leading-relaxed">
+                <span className="font-medium text-sm">Kök nedeni bul ve düzeltme öner</span>
+                <span className="font-normal text-xs text-muted-foreground leading-relaxed">
                   {hasRepository
                     ? "Ajan kodda en küçük güvenli değişikliği yapar; siz inceleyip dal ya da çekme isteği açarsınız."
                     : "Bu seçenek için projeye bir depo bağlanmalı."}
@@ -89,15 +89,15 @@ export function StartRunDialog({
             >
               <RadioGroupItem id="mode-analyze" value={String(AiRunMode.ANALYZE)} className="mt-0.5" />
               <span className="grid gap-0.5">
-                <span className="font-medium text-[13px]">Yalnız analiz et</span>
-                <span className="font-normal text-[12px] text-muted-foreground leading-relaxed">
+                <span className="font-medium text-sm">Yalnız analiz et</span>
+                <span className="font-normal text-xs text-muted-foreground leading-relaxed">
                   Kod değişmez; kök neden ve önerilen düzeltme rapor olarak yazılır.
                 </span>
               </span>
             </Label>
           </RadioGroup>
           <div className="grid gap-1.5">
-            <Label htmlFor="ai-instructions" className="text-[13px]">
+            <Label htmlFor="ai-instructions" className="text-sm">
               Ek bilgi <span className="font-normal text-muted-foreground">(isteğe bağlı)</span>
             </Label>
             <Textarea
@@ -106,7 +106,7 @@ export function StartRunDialog({
               onChange={(e) => setInstructions(e.target.value)}
               maxLength={4000}
               placeholder="Örneğin: hata yalnız eski tarifedeki abonelerde görülüyor."
-              className="min-h-20 text-[13px]"
+              className="min-h-20 text-sm"
             />
           </div>
           <FormError message={start.error ? errorMessage(start.error) : undefined} />

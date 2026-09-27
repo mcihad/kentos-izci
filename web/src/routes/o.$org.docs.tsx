@@ -61,7 +61,7 @@ function DocsLayout() {
           <div className="sticky top-6 grid gap-5">
             {groups.map((s) => (
               <div key={s.name}>
-                <p className="mb-1.5 px-2 font-medium text-[12px] text-muted-foreground">{s.name}</p>
+                <p className="mb-1.5 px-2 font-medium text-xs text-muted-foreground">{s.name}</p>
                 <ul className="grid gap-px">
                   {s.guides.map((g) => (
                     <li key={g.slug}>
@@ -69,7 +69,7 @@ function DocsLayout() {
                         to="/o/$org/docs/$"
                         params={{ org: org.slug, _splat: g.slug }}
                         className={cn(
-                          "block rounded-md px-2 py-1 text-[13px] transition-colors",
+                          "block rounded-md px-2 py-1 text-sm transition-colors",
                           g.slug === active
                             ? "bg-accent font-medium text-foreground"
                             : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",

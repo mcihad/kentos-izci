@@ -47,16 +47,16 @@ type Variant = "report" | "doc";
 
 const headings: Record<Variant, Record<"h1" | "h2" | "h3" | "h4", string>> = {
   report: {
-    h1: "mt-6 mb-2 font-semibold text-[15px] first:mt-0",
-    h2: "mt-6 mb-2 font-semibold text-[15px] first:mt-0",
-    h3: "mt-5 mb-1.5 font-semibold text-[14px] first:mt-0",
-    h4: "mt-4 mb-1 font-medium text-[13.5px] first:mt-0",
+    h1: "mt-6 mb-2 font-semibold text-lg first:mt-0",
+    h2: "mt-6 mb-2 font-semibold text-lg first:mt-0",
+    h3: "mt-5 mb-1.5 font-semibold text-md first:mt-0",
+    h4: "mt-4 mb-1 font-medium text-md first:mt-0",
   },
   doc: {
-    h1: "mb-5 font-semibold text-[26px] leading-tight tracking-[-0.02em]",
-    h2: "mt-11 mb-3 scroll-mt-20 border-b pb-2 font-semibold text-[19px] tracking-[-0.01em] first:mt-0",
-    h3: "mt-8 mb-2 scroll-mt-20 font-semibold text-[15.5px]",
-    h4: "mt-6 mb-1.5 scroll-mt-20 font-medium text-[14px]",
+    h1: "mb-5 font-semibold text-2xl leading-tight tracking-[-0.02em]",
+    h2: "mt-11 mb-3 scroll-mt-20 border-b pb-2 font-semibold text-xl tracking-[-0.01em] first:mt-0",
+    h3: "mt-8 mb-2 scroll-mt-20 font-semibold text-lg",
+    h4: "mt-6 mb-1.5 scroll-mt-20 font-medium text-md",
   },
 };
 
@@ -126,7 +126,7 @@ function components(
     ),
     table: ({ children }) => (
       <div className="my-4 overflow-x-auto rounded-md border">
-        <table className="w-full border-collapse text-[13px]">{children}</table>
+        <table className="w-full border-collapse text-sm">{children}</table>
       </div>
     ),
     th: ({ children, style }) => (
@@ -196,7 +196,7 @@ export default function Markdown({
     [variant, resolveLink, router],
   );
   return (
-    <div className={cn("[overflow-wrap:anywhere]", variant === "doc" ? "text-[14.5px]" : "text-[13.5px]")}>
+    <div className={cn("[overflow-wrap:anywhere]", variant === "doc" ? "text-md" : "text-md")}>
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={comps}>
         {text}
       </ReactMarkdown>

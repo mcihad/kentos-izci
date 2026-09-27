@@ -55,7 +55,7 @@ export function CopyButton({
 export function SecretValue({ value, className }: { value: string; className?: string }) {
   return (
     <div className={cn("flex items-center gap-1 rounded-md border bg-code py-1 pr-1 pl-3", className)}>
-      <code className="min-w-0 flex-1 truncate text-[12.5px]">{value}</code>
+      <code className="min-w-0 flex-1 truncate text-sm">{value}</code>
       <CopyButton value={value} />
     </div>
   );

@@ -20,7 +20,7 @@ export function Field({
 }) {
   return (
     <div className={cn("grid gap-1.5", className)}>
-      <Label htmlFor={htmlFor} className="font-medium text-[13px]">
+      <Label htmlFor={htmlFor} className="font-medium text-sm">
         {label}
       </Label>
       {children}
@@ -41,7 +41,7 @@ export function FormError({ message }: { message?: string }) {
   return (
     <p
       role="alert"
-      className="rounded-md border border-destructive/30 bg-destructive/8 px-3 py-2 text-[13px] text-destructive"
+      className="rounded-md border border-destructive/30 bg-destructive/8 px-3 py-2 text-sm text-destructive"
     >
       {message}
     </p>

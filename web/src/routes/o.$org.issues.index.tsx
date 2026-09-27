@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { PeriodSelect, ProjectFilter, parsePeriod } from "@/components/app/filters";
 import { gutter, PageHeader } from "@/components/app/page";
 import { EmptyState, ErrorState } from "@/components/common/states";
+import { TabStrip, tabActiveOptions, tabClass } from "@/components/common/tab-nav";
 import { IssueRow } from "@/components/issue/issue-row";
 import { SearchBar, type SearchBarHandle } from "@/components/issue/search-bar";
 import { Button } from "@/components/ui/button";
@@ -159,33 +160,30 @@ function IssuesPage() {
           )
         }
       >
-        <nav className={cn("-mb-px flex gap-5 overflow-x-auto text-[13px]", gutter)} aria-label="Görünümler">
+        <TabStrip label="Görünümler" active={activeView?.label ?? ""}>
           {views.map((v) => (
             <Link
               key={v.label}
               from={Route.fullPath}
               search={(prev) => ({ ...prev, query: v.query === defaultQuery ? undefined : v.query })}
-              className={cn(
-                "whitespace-nowrap border-b-2 pb-2.5 transition-colors",
-                activeView === v
-                  ? "border-primary font-medium text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
-              )}
+              activeOptions={tabActiveOptions}
+              className={tabClass(activeView === v)}
+              aria-current={activeView === v ? "page" : undefined}
             >
               {v.label}
             </Link>
           ))}
-        </nav>
+        </TabStrip>
       </PageHeader>
 
-      <div className={cn("flex flex-col gap-2 border-b py-3 md:flex-row md:items-center", gutter)}>
+      <div className={cn("flex flex-col gap-2.5 border-b py-3 md:flex-row md:items-center", gutter)}>
         <SearchBar
           ref={searchRef}
           value={query}
           onSubmit={(q) => setSearch({ query: q === defaultQuery ? undefined : q || undefined })}
           className="flex-1"
         />
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="scrollbar-none -mx-4 flex items-center gap-2 overflow-x-auto px-4 *:shrink-0 sm:-mx-6 sm:px-6 md:mx-0 md:overflow-visible md:px-0">
           <ProjectFilter
             value={projects}
             onChange={(p) => setSearch({ projects: p.length ? p.join(",") : undefined })}
@@ -194,7 +192,7 @@ function IssuesPage() {
             value={sort}
             onValueChange={(v) => setSearch({ sort: v === "last_seen" ? undefined : (v as SortKey) })}
           >
-            <SelectTrigger size="sm" className="h-8 text-[13px]" aria-label="Sıralama">
+            <SelectTrigger size="sm" className="text-sm" aria-label="Sıralama">
               <SelectValue />
             </SelectTrigger>
             <SelectContent align="end">
@@ -213,7 +211,7 @@ function IssuesPage() {
       </div>
 
       {invalidQuery ? (
-        <p className={cn("border-b py-2.5 text-[13px] text-destructive", gutter)}>
+        <p className={cn("border-b py-2.5 text-sm text-destructive", gutter)}>
           Arama ifadesi anlaşılamadı: {issues.error?.rawMessage}
         </p>
       ) : null}
@@ -269,7 +267,7 @@ function IssuesPage() {
       {selected.size > 0 ? (
         <div className="fixed inset-x-0 bottom-5 z-40 flex justify-center px-4">
           <div className="flex items-center gap-1 rounded-lg border bg-popover p-1.5 pl-3.5 shadow-xl">
-            <span className="mr-2 text-[13px] tabular">{selected.size} hata seçildi</span>
+            <span className="mr-2 text-sm tabular">{selected.size} hata seçildi</span>
             <Button
               size="sm"
               variant="ghost"

@@ -6,8 +6,8 @@ export const runStatus: Record<AiRunStatus, { label: string; tone: string; activ
   [AiRunStatus.QUEUED]: { label: "Sırada", tone: "text-muted-foreground border-border", active: true },
   [AiRunStatus.PREPARING]: { label: "Hazırlanıyor", tone: "text-primary border-primary/40", active: true },
   [AiRunStatus.RUNNING]: { label: "Çalışıyor", tone: "text-primary border-primary/40", active: true },
-  [AiRunStatus.SUCCEEDED]: { label: "Tamamlandı", tone: "text-health-good border-health-good/40" },
-  [AiRunStatus.FAILED]: { label: "Başarısız", tone: "text-level-error border-level-error/40" },
+  [AiRunStatus.SUCCEEDED]: { label: "Tamamlandı", tone: "text-health-good-ink border-health-good/40" },
+  [AiRunStatus.FAILED]: { label: "Başarısız", tone: "text-level-error-ink border-level-error/40" },
   [AiRunStatus.CANCELLED]: { label: "İptal edildi", tone: "text-muted-foreground border-border" },
 };
 
@@ -22,9 +22,9 @@ export const runTrigger: Record<AiRunTrigger, string> = {
 
 export const riskLabels: Record<Risk, { label: string; tone: string } | undefined> = {
   [Risk.UNSPECIFIED]: undefined,
-  [Risk.LOW]: { label: "Düşük risk", tone: "text-health-good" },
-  [Risk.MEDIUM]: { label: "Orta risk", tone: "text-level-warning" },
-  [Risk.HIGH]: { label: "Yüksek risk", tone: "text-level-error" },
+  [Risk.LOW]: { label: "Düşük risk", tone: "text-health-good-ink" },
+  [Risk.MEDIUM]: { label: "Orta risk", tone: "text-level-warning-ink" },
+  [Risk.HIGH]: { label: "Yüksek risk", tone: "text-level-error-ink" },
 };
 
 /** True while a run is queued or working. */

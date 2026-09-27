@@ -27,16 +27,14 @@ let core: Promise<HighlighterCore> | undefined;
 
 function highlighter(): Promise<HighlighterCore> {
   core ??= (async () => {
-    const [{ createHighlighterCore }, { createJavaScriptRegexEngine }, light, dark] = await Promise.all([
-      import("shiki/core"),
-      import("shiki/engine/javascript"),
-      import("shiki/dist/themes/vitesse-light.mjs"),
-      import("shiki/dist/themes/vitesse-dark.mjs"),
-    ]);
+    const [{ createHighlighterCore, createCssVariablesTheme }, { createJavaScriptRegexEngine }] =
+      await Promise.all([import("shiki/core"), import("shiki/engine/javascript")]);
+    // Token colours are CSS variables (--syn-*, see index.css), so one
+    // tokenization serves both themes and every colour is tuned for contrast.
     // The JavaScript regex engine avoids WebAssembly, which the page's CSP
     // does not allow.
     return createHighlighterCore({
-      themes: [light.default, dark.default],
+      themes: [createCssVariablesTheme({ name: "izci", variablePrefix: "--syn-" })],
       langs: [],
       engine: createJavaScriptRegexEngine(),
     });
@@ -93,11 +91,7 @@ async function tokenize(code: string, lang: string): Promise<ThemedToken[][]> {
   const hl = await highlighter();
   if (!load) return [];
   if (!hl.getLoadedLanguages().includes(lang)) await hl.loadLanguage((await load()).default);
-  return hl.codeToTokens(code, {
-    lang,
-    themes: { light: "vitesse-light", dark: "vitesse-dark" },
-    defaultColor: false,
-  }).tokens;
+  return hl.codeToTokens(code, { lang, theme: "izci" }).tokens;
 }
 
 /** Highlighted lines of code; undefined while loading or for unknown languages. */

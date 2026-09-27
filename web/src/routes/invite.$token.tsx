@@ -47,7 +47,7 @@ function InvitePage() {
       <AuthLayout>
         <div className="space-y-4">
           <h1 className="font-semibold text-2xl tracking-tight">Davet açılamadı</h1>
-          <p className="text-muted-foreground text-sm">{errorMessage(info.error)}</p>
+          <p className="text-md text-muted-foreground">{errorMessage(info.error)}</p>
           <Button asChild variant="outline">
             <Link to="/login">Giriş sayfasına git</Link>
           </Button>
@@ -87,7 +87,7 @@ function InvitePage() {
           </div>
         ) : signedInAs ? (
           <div className="grid gap-3">
-            <p className="text-muted-foreground text-sm">
+            <p className="text-md text-muted-foreground">
               <span className="text-foreground">{signedInAs}</span> olarak oturum açtınız.
             </p>
             <FormError message={accept.error ? errorMessage(accept.error) : undefined} />

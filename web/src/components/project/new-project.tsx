@@ -120,7 +120,7 @@ export function NewProjectDialog({
                     setSlug(e.target.value.toLowerCase());
                     setEdited(true);
                   }}
-                  className="font-mono text-[13px]"
+                  className="font-mono text-sm"
                 />
               </Field>
               <Field label="Platform" htmlFor="np-platform">

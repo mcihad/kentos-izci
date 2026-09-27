@@ -70,11 +70,11 @@ function ProjectsPage() {
                   <Link
                     to="/o/$org/projects/$slug"
                     params={{ org: org.slug, slug: p.slug }}
-                    className="font-medium text-[14px] after:absolute after:inset-0"
+                    className="font-medium text-md after:absolute after:inset-0"
                   >
                     {p.name}
                   </Link>
-                  <p className="mt-0.5 flex flex-wrap gap-x-3 text-[12px] text-muted-foreground">
+                  <p className="mt-0.5 flex flex-wrap gap-x-3 text-xs text-muted-foreground">
                     <span className="font-mono">{p.slug}</span>
                     <span>{platformLabel(p.platform)}</span>
                     <span>
@@ -95,16 +95,14 @@ function ProjectsPage() {
                 </div>
                 <Sparkline series={p.stats?.series24h} className="hidden h-6 w-28 sm:block" />
                 <div className="w-16 text-right">
-                  <p className="font-medium text-[13.5px] tabular">
-                    {formatCompact(p.stats?.events24h ?? 0n)}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">olay, 24 sa</p>
+                  <p className="font-medium text-md tabular">{formatCompact(p.stats?.events24h ?? 0n)}</p>
+                  <p className="text-xs text-muted-foreground">olay, 24 sa</p>
                 </div>
                 <div className="w-16 text-right">
-                  <p className="font-medium text-[13.5px] tabular">
+                  <p className="font-medium text-md tabular">
                     {formatNumber(p.stats?.unresolvedIssues ?? 0)}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">açık hata</p>
+                  <p className="text-xs text-muted-foreground">açık hata</p>
                 </div>
               </div>
             </li>

@@ -32,12 +32,16 @@ export function PageHeader({
   useDocumentTitle(typeof title === "string" ? title : undefined);
   return (
     <header className={cn("border-b", className)}>
-      <div className={cn("flex flex-wrap items-center gap-x-4 gap-y-3 pt-5 pb-4", gutter)}>
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate font-semibold text-[20px] leading-tight tracking-[-0.015em]">{title}</h1>
-          {description ? <div className="mt-1 text-[13px] text-muted-foreground">{description}</div> : null}
+      <div className={cn("flex flex-wrap items-end gap-x-6 gap-y-3 pt-5 pb-4 sm:pt-7 sm:pb-5", gutter)}>
+        <div className="min-w-0 flex-[1_1_16rem]">
+          <h1 className="font-semibold text-xl leading-tight tracking-[-0.01em] sm:text-2xl">{title}</h1>
+          {description ? <div className="mt-1.5 text-md text-muted-foreground">{description}</div> : null}
         </div>
-        {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+        {actions ? (
+          <div className="scrollbar-none flex items-center gap-2 *:shrink-0 max-sm:-mx-4 max-sm:w-[calc(100%+2rem)] max-sm:overflow-x-auto max-sm:px-4 sm:flex-wrap">
+            {actions}
+          </div>
+        ) : null}
       </div>
       {children}
     </header>
@@ -60,10 +64,10 @@ export function Section({
 }) {
   return (
     <section className={cn("min-w-0", className)}>
-      <div className="mb-3 flex items-end justify-between gap-3">
+      <div className="mb-3.5 flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="font-semibold text-[14px] tracking-tight">{title}</h2>
-          {description ? <p className="mt-0.5 text-[12.5px] text-muted-foreground">{description}</p> : null}
+          <h2 className="font-semibold text-lg leading-snug">{title}</h2>
+          {description ? <p className="mt-0.5 text-sm text-muted-foreground">{description}</p> : null}
         </div>
         {actions}
       </div>

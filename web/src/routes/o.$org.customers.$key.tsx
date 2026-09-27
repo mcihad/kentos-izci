@@ -87,8 +87,12 @@ function CustomerPage() {
     <div className="pb-12">
       <header className="border-b">
         <div className={cn("pt-4 pb-5", gutter)}>
-          <nav className="flex items-center gap-1.5 text-[12.5px] text-muted-foreground" aria-label="Konum">
-            <Link to="/o/$org/customers" params={{ org: org.slug }} className="hover:text-foreground">
+          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground" aria-label="Konum">
+            <Link
+              to="/o/$org/customers"
+              params={{ org: org.slug }}
+              className="-my-2 py-2 hover:text-foreground"
+            >
               Müşteriler
             </Link>
             <ChevronRightIcon className="size-3.5" />
@@ -96,10 +100,8 @@ function CustomerPage() {
           </nav>
           <div className="mt-2 flex flex-wrap items-start gap-3">
             <div className="min-w-0 flex-1">
-              <h1 className="font-semibold text-[20px] leading-tight tracking-[-0.015em]">
-                {c.name || c.key}
-              </h1>
-              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] text-muted-foreground">
+              <h1 className="font-semibold text-xl leading-tight tracking-[-0.015em]">{c.name || c.key}</h1>
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                 <HealthLabel health={s.health} className="text-foreground" />
                 <span>
                   İlk olay <RelativeTime value={c.firstSeen} />
@@ -156,7 +158,7 @@ function CustomerPage() {
         <div className="grid grid-cols-1 gap-9 xl:grid-cols-[minmax(0,1fr)_22rem]">
           <Section title="Açık hatalar" description="Bu müşteriden en çok olay gelen çözülmemiş hatalar">
             {d.topIssues.length === 0 ? (
-              <p className="rounded-lg border px-4 py-8 text-center text-[13px] text-muted-foreground">
+              <p className="rounded-lg border px-4 py-8 text-center text-sm text-muted-foreground">
                 Açık hata yok.
               </p>
             ) : (
@@ -171,10 +173,10 @@ function CustomerPage() {
             <Section title="Projelere göre">
               <ul className="divide-y rounded-lg border">
                 {d.projects.map((p) => (
-                  <li key={p.project?.id} className="flex items-center gap-3 px-3 py-2.5 text-[13px]">
+                  <li key={p.project?.id} className="flex items-center gap-3 px-3 py-2.5 text-sm">
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-medium">{p.project?.name}</span>
-                      <span className="text-[12px] text-muted-foreground tabular">
+                      <span className="text-xs text-muted-foreground tabular">
                         {formatNumber(p.unresolvedIssues)} açık hata
                       </span>
                     </span>
@@ -186,14 +188,14 @@ function CustomerPage() {
             </Section>
             {c.notes ? (
               <Section title="Notlar">
-                <p className="whitespace-pre-wrap rounded-lg border px-4 py-3 text-[13px] leading-relaxed">
+                <p className="whitespace-pre-wrap rounded-lg border px-4 py-3 text-sm leading-relaxed">
                   {c.notes}
                 </p>
               </Section>
             ) : null}
             {Object.keys(c.attributes).length > 0 ? (
               <Section title="Uygulamanın bildirdiği bilgiler">
-                <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 gap-y-1.5 text-[13px]">
+                <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 gap-y-1.5 text-sm">
                   {Object.entries(c.attributes).map(([k, v]) => (
                     <div key={k} className="contents">
                       <dt className="text-muted-foreground">{k}</dt>

@@ -12,9 +12,9 @@ export function AuthLayout({ children, wide = false }: { children: React.ReactNo
         <Wordmark />
       </header>
       <main className="flex flex-1 items-center justify-center py-10">
-        <div className={wide ? "w-full max-w-lg" : "w-full max-w-[22rem]"}>{children}</div>
+        <div className={wide ? "w-full max-w-lg" : "w-full max-w-[24rem]"}>{children}</div>
       </main>
-      <footer className="mx-auto w-full max-w-5xl text-muted-foreground text-xs">
+      <footer className="mx-auto w-full max-w-5xl text-muted-foreground text-sm">
         KentOS İzci {setup.data?.version ? <span className="tabular">{setup.data.version}</span> : null}
       </footer>
     </div>

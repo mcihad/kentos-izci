@@ -26,19 +26,19 @@ export function Telegram() {
   });
   const tg = user?.telegram;
   return (
-    <div className="grid max-w-2xl grid-cols-1 gap-5 py-6">
+    <div className="grid max-w-2xl grid-cols-1 *:min-w-0 gap-5 py-6">
       <div>
-        <h2 className="font-semibold text-[15px]">Telegram hesabı</h2>
-        <p className="mt-0.5 text-[13px] text-muted-foreground leading-relaxed">
+        <h2 className="font-semibold text-lg">Telegram hesabı</h2>
+        <p className="mt-0.5 text-sm text-muted-foreground leading-relaxed">
           Hesabınızı bağladığınızda Telegram bildirimlerindeki “Çöz”, “Yoksay” ve “Analiz et” düğmeleri sizin
           adınıza çalışır.
         </p>
       </div>
       {tg && tg.userId !== 0n ? (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3">
-          <p className="text-[13.5px]">
+          <p className="text-md">
             {tg.username ? <span className="font-medium">@{tg.username}</span> : "Telegram hesabı"} bağlı
-            <span className="ml-2 text-[12px] text-muted-foreground">
+            <span className="ml-2 text-xs text-muted-foreground">
               <RelativeTime value={tg.linkedAt} />
             </span>
           </p>
@@ -54,7 +54,7 @@ export function Telegram() {
         </div>
       ) : code.data ? (
         <div className="grid gap-3 rounded-lg border px-4 py-4">
-          <p className="text-[13.5px]">
+          <p className="text-md">
             Telegram'da <span className="font-medium">@{code.data.botUsername}</span> botuna aşağıdaki komutu
             gönderin. Kod <RelativeTime value={code.data.expiresAt} /> geçersiz olur.
           </p>

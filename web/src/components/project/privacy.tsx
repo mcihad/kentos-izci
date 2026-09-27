@@ -39,7 +39,7 @@ export function ProjectPrivacy({ project }: { project: Project }) {
 
   return (
     <form
-      className="grid max-w-2xl grid-cols-1 gap-8 py-6"
+      className="grid max-w-2xl grid-cols-1 *:min-w-0 gap-8 py-6"
       onSubmit={(e) => {
         e.preventDefault();
         const settings = clone(ProjectSettingsSchema, project.settings ?? create(ProjectSettingsSchema));
@@ -57,8 +57,8 @@ export function ProjectPrivacy({ project }: { project: Project }) {
     >
       <section className="grid gap-3">
         <div>
-          <h2 className="font-semibold text-[15px]">İstemci IP adresi</h2>
-          <p className="mt-0.5 text-[13px] text-muted-foreground">
+          <h2 className="font-semibold text-lg">İstemci IP adresi</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">
             Olaylarla gelen IP adreslerinin nasıl saklanacağı.
           </p>
         </div>
@@ -72,8 +72,8 @@ export function ProjectPrivacy({ project }: { project: Project }) {
             <div key={o.value} className="flex items-start gap-2.5">
               <RadioGroupItem value={String(o.value)} id={`ip-${o.value}`} className="mt-0.5" />
               <Label htmlFor={`ip-${o.value}`} className="grid gap-0.5 font-normal">
-                <span className="text-[13px]">{o.label}</span>
-                <span className="text-[12px] text-muted-foreground">{o.hint}</span>
+                <span className="text-sm">{o.label}</span>
+                <span className="text-xs text-muted-foreground">{o.hint}</span>
               </Label>
             </div>
           ))}
@@ -82,8 +82,8 @@ export function ProjectPrivacy({ project }: { project: Project }) {
 
       <section className="grid gap-4">
         <div>
-          <h2 className="font-semibold text-[15px]">Hassas veriler</h2>
-          <p className="mt-0.5 text-[13px] text-muted-foreground">
+          <h2 className="font-semibold text-lg">Hassas veriler</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">
             Parola, token, kart numarası ve T.C. kimlik numarası gibi değerler her zaman gizlenir. Buradaki
             alanlar da gizlenir.
           </p>
@@ -98,7 +98,7 @@ export function ProjectPrivacy({ project }: { project: Project }) {
             value={scrub}
             onChange={(e) => setScrub(e.target.value)}
             disabled={!admin}
-            className="min-h-20 font-mono text-[12.5px]"
+            className="min-h-20 font-mono text-sm"
             placeholder="iban\nvergi_no"
           />
         </Field>
@@ -108,18 +108,18 @@ export function ProjectPrivacy({ project }: { project: Project }) {
             value={safe}
             onChange={(e) => setSafe(e.target.value)}
             disabled={!admin}
-            className="min-h-16 font-mono text-[12.5px]"
+            className="min-h-16 font-mono text-sm"
           />
         </Field>
         <div className="flex items-center gap-2.5">
           <Switch id="cookies" checked={cookies} onCheckedChange={setCookies} disabled={!admin} />
-          <Label htmlFor="cookies" className="font-normal text-[13px]">
+          <Label htmlFor="cookies" className="font-normal text-sm">
             Çerez değerlerini sakla
           </Label>
         </div>
         <div className="flex items-center gap-2.5">
           <Switch id="bodies" checked={bodies} onCheckedChange={setBodies} disabled={!admin} />
-          <Label htmlFor="bodies" className="font-normal text-[13px]">
+          <Label htmlFor="bodies" className="font-normal text-sm">
             İstek gövdelerini sakla (gizlenmiş alanlarla)
           </Label>
         </div>
@@ -131,9 +131,9 @@ export function ProjectPrivacy({ project }: { project: Project }) {
             disabled={!admin}
             className="mt-0.5"
           />
-          <Label htmlFor="attachments" className="grid gap-0.5 font-normal text-[13px]">
+          <Label htmlFor="attachments" className="grid gap-0.5 font-normal text-sm">
             <span>Olay eklerini sakla</span>
-            <span className="text-[12.5px] text-muted-foreground">
+            <span className="text-sm text-muted-foreground">
               Ekran görüntüleri ve günlük dosyaları gizleme kurallarından geçmeden saklanır. Uygulama
               göndermiyorsa bu ayarın etkisi yoktur.
             </span>
@@ -143,8 +143,8 @@ export function ProjectPrivacy({ project }: { project: Project }) {
 
       <section className="grid gap-4">
         <div>
-          <h2 className="font-semibold text-[15px]">Uygulama kodu</h2>
-          <p className="mt-0.5 text-[13px] text-muted-foreground">
+          <h2 className="font-semibold text-lg">Uygulama kodu</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">
             Yığın izinde hangi çerçevelerin sizin kodunuz sayılacağı. Gruplama ve “yalnız uygulama kodu”
             görünümü buna göre çalışır.
           </p>
@@ -159,7 +159,7 @@ export function ProjectPrivacy({ project }: { project: Project }) {
             value={include}
             onChange={(e) => setInclude(e.target.value)}
             disabled={!admin}
-            className="min-h-16 font-mono text-[12.5px]"
+            className="min-h-16 font-mono text-sm"
             placeholder="KentOS.\ngithub.com/kentos/"
           />
         </Field>
@@ -169,7 +169,7 @@ export function ProjectPrivacy({ project }: { project: Project }) {
             value={exclude}
             onChange={(e) => setExclude(e.target.value)}
             disabled={!admin}
-            className="min-h-16 font-mono text-[12.5px]"
+            className="min-h-16 font-mono text-sm"
           />
         </Field>
       </section>

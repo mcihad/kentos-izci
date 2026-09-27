@@ -76,11 +76,15 @@ export function formatRelative(d: Date | Timestamp | undefined, now = Date.now()
   const diff = Math.round((now - date.getTime()) / 1000);
   const future = diff < 0;
   const s = Math.abs(diff);
-  let text: string;
   if (s < 45) return future ? "birazdan" : "az önce";
-  if (s < 3600) text = `${Math.max(1, Math.round(s / 60))} dk`;
-  else if (s < 86_400) text = `${Math.round(s / 3600)} sa`;
-  else if (s < 30 * 86_400) text = `${Math.round(s / 86_400)} gün`;
+  // Pick the unit by the rounded amount, so 59.6 minutes reads "1 sa", not "60 dk".
+  const minutes = Math.max(1, Math.round(s / 60));
+  const hours = Math.round(s / 3600);
+  const days = Math.round(s / 86_400);
+  let text: string;
+  if (minutes < 60) text = `${minutes} dk`;
+  else if (hours < 24) text = `${hours} sa`;
+  else if (days < 30) text = `${days} gün`;
   else return formatDate(date);
   return future ? `${text} sonra` : `${text} önce`;
 }

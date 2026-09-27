@@ -60,7 +60,7 @@ export const SearchBar = forwardRef<
           onSubmit(text.trim());
         }}
       >
-        <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+        <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
         <input
           ref={inputRef}
           value={text}
@@ -71,7 +71,7 @@ export const SearchBar = forwardRef<
           aria-controls="issue-search-suggestions"
           aria-label="Hatalarda ara"
           placeholder={placeholder ?? 'is:unresolved level:error customer:sivas-belediyesi "timeout"'}
-          className="h-9 w-full rounded-md border bg-card pr-8 pl-8 font-mono text-[12.5px] outline-none transition-shadow placeholder:font-sans placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30"
+          className="h-10 w-full rounded-md border bg-card pr-9 pl-9 font-mono text-base outline-none md:h-9 md:text-sm transition-shadow placeholder:font-sans placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30"
           onChange={(e) => {
             setText(e.target.value);
             setCursor(e.target.selectionStart ?? e.target.value.length);
@@ -101,14 +101,14 @@ export const SearchBar = forwardRef<
           <button
             type="button"
             aria-label="Aramayı temizle"
-            className="absolute top-1/2 right-2 grid size-5 -translate-y-1/2 place-items-center rounded text-muted-foreground hover:text-foreground"
+            className="absolute top-1/2 right-1 grid size-8 -translate-y-1/2 place-items-center rounded text-muted-foreground hover:text-foreground"
             onClick={() => {
               setText("");
               onSubmit("");
               inputRef.current?.focus();
             }}
           >
-            <XIcon className="size-3.5" />
+            <XIcon className="size-4" />
           </button>
         ) : null}
       </form>
@@ -130,15 +130,13 @@ export const SearchBar = forwardRef<
               }}
               onMouseEnter={() => setActive(i)}
               className={cn(
-                "flex cursor-default items-center gap-3 rounded px-2 py-1.5 text-[13px]",
+                "flex cursor-default items-center gap-3 rounded px-2.5 py-2 text-sm",
                 i === active && "bg-accent",
               )}
             >
-              <span className="font-mono text-[12.5px]">
-                {s.kind === SuggestionKind.KEY ? s.text : s.label}
-              </span>
+              <span className="font-mono text-sm">{s.kind === SuggestionKind.KEY ? s.text : s.label}</span>
               {s.description ? (
-                <span className="truncate text-muted-foreground text-xs">{s.description}</span>
+                <span className="truncate text-muted-foreground text-sm">{s.description}</span>
               ) : null}
               {s.kind === SuggestionKind.VALUE && s.label !== s.text.split(":").slice(1).join(":") ? (
                 <span className="truncate font-mono text-muted-foreground text-xs">{s.text}</span>

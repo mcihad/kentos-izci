@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRightIcon } from "lucide-react";
 import { gutter, useDocumentTitle } from "@/components/app/page";
 import { EmptyState, ErrorState } from "@/components/common/states";
+import { TabStrip, tabActiveOptions, tabClass } from "@/components/common/tab-nav";
 import { ProjectAi } from "@/components/project/ai";
 import { ProjectGeneral } from "@/components/project/general";
 import { ProjectKeys } from "@/components/project/keys";
@@ -66,39 +67,37 @@ function ProjectPage() {
     <div className="pb-12">
       <header className="border-b">
         <div className={cn("pt-4 pb-4", gutter)}>
-          <nav className="flex items-center gap-1.5 text-[12.5px] text-muted-foreground" aria-label="Konum">
-            <Link to="/o/$org/projects" params={{ org: org.slug }} className="hover:text-foreground">
+          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground" aria-label="Konum">
+            <Link
+              to="/o/$org/projects"
+              params={{ org: org.slug }}
+              className="-my-2 py-2 hover:text-foreground"
+            >
               Projeler
             </Link>
             <ChevronRightIcon className="size-3.5" />
             <span className="font-mono text-foreground">{project.slug}</span>
           </nav>
-          <h1 className="mt-2 font-semibold text-[20px] leading-tight tracking-[-0.015em]">{project.name}</h1>
-          <p className="mt-1 text-[12.5px] text-muted-foreground">
+          <h1 className="mt-2 font-semibold text-xl leading-tight tracking-[-0.015em]">{project.name}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             {platformLabel(project.platform)} projesi, Sentry numarası{" "}
             <span className="font-mono">{String(project.publicId)}</span>
           </p>
         </div>
-        <nav
-          className={cn("-mb-px flex gap-5 overflow-x-auto text-[13px]", gutter)}
-          aria-label="Ayar bölümleri"
-        >
+        <TabStrip label="Ayar bölümleri" active={tab}>
           {tabs.map((t) => (
             <Link
               key={t.id}
               from={Route.fullPath}
               search={{ tab: t.id }}
-              className={cn(
-                "whitespace-nowrap border-b-2 pb-2.5 transition-colors",
-                tab === t.id
-                  ? "border-primary font-medium text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
-              )}
+              activeOptions={tabActiveOptions}
+              className={tabClass(tab === t.id)}
+              aria-current={tab === t.id ? "page" : undefined}
             >
               {t.label}
             </Link>
           ))}
-        </nav>
+        </TabStrip>
       </header>
       <div className={gutter} key={project.id}>
         {tab === "general" ? <ProjectGeneral project={project} /> : null}

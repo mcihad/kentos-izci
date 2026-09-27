@@ -36,12 +36,12 @@ export function TriageBar({ issue, writable }: { issue: Issue; writable: boolean
   const disabled = !writable || triage.pending;
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
       {s.status === IssueStatus.UNRESOLVED ? (
         <div className="flex">
           <Button
             size="sm"
-            className="rounded-r-none"
+            className="flex-1 rounded-r-none"
             disabled={disabled}
             onClick={() => void triage.resolve(ids)}
           >
@@ -74,7 +74,13 @@ export function TriageBar({ issue, writable }: { issue: Issue; writable: boolean
           </DropdownMenu>
         </div>
       ) : (
-        <Button size="sm" variant="outline" disabled={disabled} onClick={() => void triage.reopen(ids)}>
+        <Button
+          size="sm"
+          variant="outline"
+          className="max-sm:col-span-2"
+          disabled={disabled}
+          onClick={() => void triage.reopen(ids)}
+        >
           <RotateCcwIcon className="size-4" />
           {s.status === IssueStatus.RESOLVED ? "Yeniden aç" : "Yoksaymayı kaldır"}
         </Button>
@@ -85,7 +91,7 @@ export function TriageBar({ issue, writable }: { issue: Issue; writable: boolean
             <Button size="sm" variant="outline" disabled={disabled}>
               <EyeOffIcon className="size-4" />
               Yoksay
-              <ChevronDownIcon className="size-3.5 text-muted-foreground" />
+              <ChevronDownIcon className="size-4 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-64">
@@ -94,7 +100,7 @@ export function TriageBar({ issue, writable }: { issue: Issue; writable: boolean
               Artış görülene kadar
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuLabel className="font-normal text-muted-foreground text-xs">
+            <DropdownMenuLabel className="font-normal text-muted-foreground text-sm">
               Belirli bir süre
             </DropdownMenuLabel>
             <DropdownMenuItem onSelect={() => void triage.ignore(ids, { duration: hours(1) })}>
@@ -107,7 +113,7 @@ export function TriageBar({ issue, writable }: { issue: Issue; writable: boolean
               1 hafta
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuLabel className="font-normal text-muted-foreground text-xs">
+            <DropdownMenuLabel className="font-normal text-muted-foreground text-sm">
               Olay sayısına göre
             </DropdownMenuLabel>
             <DropdownMenuItem onSelect={() => void triage.ignore(ids, { count: 100n })}>
@@ -121,7 +127,7 @@ export function TriageBar({ issue, writable }: { issue: Issue; writable: boolean
       ) : null}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button size="sm" variant="outline" disabled={disabled} className="max-w-52">
+          <Button size="sm" variant="outline" disabled={disabled} className="min-w-0 sm:max-w-52">
             {s.assignee ? (
               <UserAvatar
                 name={s.assignee.name || s.assignee.email}
@@ -142,7 +148,7 @@ export function TriageBar({ issue, writable }: { issue: Issue; writable: boolean
             <DropdownMenuItem onSelect={() => void triage.assign(ids, "")}>Atamayı kaldır</DropdownMenuItem>
           ) : null}
           <DropdownMenuSeparator />
-          <DropdownMenuLabel className="font-normal text-muted-foreground text-xs">Üyeler</DropdownMenuLabel>
+          <DropdownMenuLabel className="font-normal text-muted-foreground text-sm">Üyeler</DropdownMenuLabel>
           {members.data?.members.map((m) => (
             <DropdownMenuItem key={m.user?.id} onSelect={() => void triage.assign(ids, m.user?.id ?? "")}>
               <UserAvatar
@@ -158,9 +164,9 @@ export function TriageBar({ issue, writable }: { issue: Issue; writable: boolean
       </DropdownMenu>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button size="sm" variant="outline" disabled={disabled}>
-            Öncelik: {priorityLabels[s.priority] || "Orta"}
-            <ChevronDownIcon className="size-3.5 text-muted-foreground" />
+          <Button size="sm" variant="outline" disabled={disabled} className="min-w-0">
+            <span className="truncate">Öncelik: {priorityLabels[s.priority] || "Orta"}</span>
+            <ChevronDownIcon className="size-4 text-muted-foreground" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">

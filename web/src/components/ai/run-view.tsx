@@ -39,7 +39,7 @@ export function RunStatusPill({ run, className }: { run: AiRun; className?: stri
   return (
     <span
       className={cn(
-        "inline-flex h-5 items-center gap-1.5 whitespace-nowrap rounded-full border px-2 font-medium text-[11px]",
+        "inline-flex h-6 items-center gap-1.5 whitespace-nowrap rounded-full border px-2 font-medium text-xs",
         s.tone,
         className,
       )}
@@ -80,7 +80,7 @@ function RunMeta({ run, repository }: { run: AiRun; repository?: ProjectReposito
   if (elapsed !== undefined) parts.push(<span key="dur">{formatDuration(elapsed)}</span>);
   if (run.model)
     parts.push(
-      <span key="model" className="font-mono text-[11.5px]">
+      <span key="model" className="font-mono text-xs">
         {run.model}
       </span>,
     );
@@ -99,19 +99,19 @@ function RunMeta({ run, repository }: { run: AiRun; repository?: ProjectReposito
           href={`${repository.url}/commit/${run.baseCommit}`}
           target="_blank"
           rel="noreferrer"
-          className="font-mono text-[11.5px] hover:text-foreground hover:underline"
+          className="font-mono text-xs hover:text-foreground hover:underline"
         >
           {short}
         </a>
       ) : (
-        <span key="commit" className="font-mono text-[11.5px]">
+        <span key="commit" className="font-mono text-xs">
           {short}
         </span>
       ),
     );
   }
   return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted-foreground">
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
       {parts.map((p, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: fixed order
         <span key={i} className="inline-flex items-center gap-2">
@@ -132,7 +132,7 @@ function Confidence({ value }: { value: number }) {
       <div className="h-1.5 w-20 overflow-hidden rounded-full bg-muted">
         <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
       </div>
-      <span className="tabular text-[12px] text-muted-foreground">%{pct} güven</span>
+      <span className="tabular text-xs text-muted-foreground">%{pct} güven</span>
     </div>
   );
 }
@@ -144,23 +144,23 @@ function ResultSummary({ run }: { run: AiRun }) {
   const stats = changeStats(run);
   return (
     <div className="grid gap-3">
-      {r.summary ? <p className="text-[15px] leading-relaxed">{r.summary}</p> : null}
+      {r.summary ? <p className="text-lg leading-relaxed">{r.summary}</p> : null}
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
         {r.confidence > 0 ? <Confidence value={r.confidence} /> : null}
-        {risk ? <span className={cn("font-medium text-[12px]", risk.tone)}>{risk.label}</span> : null}
+        {risk ? <span className={cn("font-medium text-xs", risk.tone)}>{risk.label}</span> : null}
         {stats.files > 0 ? (
-          <span className="tabular text-[12px] text-muted-foreground">
-            {stats.files} dosya <span className="font-mono text-health-good">+{stats.additions}</span>{" "}
-            <span className="font-mono text-level-error">−{stats.deletions}</span>
+          <span className="tabular text-xs text-muted-foreground">
+            {stats.files} dosya <span className="font-mono text-health-good-ink">+{stats.additions}</span>{" "}
+            <span className="font-mono text-level-error-ink">−{stats.deletions}</span>
           </span>
         ) : run.mode === AiRunMode.FIX ? (
-          <span className="text-[12px] text-muted-foreground">Kod değişikliği önerilmedi</span>
+          <span className="text-xs text-muted-foreground">Kod değişikliği önerilmedi</span>
         ) : null}
       </div>
       {r.rootCause ? (
         <div className="grid gap-1 border-l-2 border-primary/50 pl-3">
-          <p className="font-medium text-[12px] text-muted-foreground">Kök neden</p>
-          <p className="text-[13.5px] leading-relaxed [overflow-wrap:anywhere]">{r.rootCause}</p>
+          <p className="font-medium text-xs text-muted-foreground">Kök neden</p>
+          <p className="text-md leading-relaxed [overflow-wrap:anywhere]">{r.rootCause}</p>
         </div>
       ) : null}
     </div>
@@ -207,13 +207,13 @@ function PublishBar({
         {published.draft ? (
           <GitPullRequestDraftIcon className="size-4 text-muted-foreground" />
         ) : (
-          <GitPullRequestIcon className="size-4 text-health-good" />
+          <GitPullRequestIcon className="size-4 text-health-good-ink" />
         )}
         <div className="min-w-0 flex-1">
-          <p className="truncate font-medium text-[13px]">
+          <p className="truncate font-medium text-sm">
             #{published.number} {published.title}
           </p>
-          <p className="truncate font-mono text-[11.5px] text-muted-foreground">
+          <p className="truncate font-mono text-xs text-muted-foreground">
             {published.draft ? "Taslak · " : ""}
             {published.branch}
           </p>
@@ -228,23 +228,23 @@ function PublishBar({
     <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/30 px-4 py-3">
       <div className="min-w-0 flex-[1_1_16rem]">
         {published ? (
-          <p className="text-[13px]">
+          <p className="text-sm">
             Düzeltme{" "}
             <a
               href={published.url}
               target="_blank"
               rel="noreferrer"
-              className="font-mono text-[12.5px] hover:underline"
+              className="font-mono text-sm hover:underline"
             >
               {published.branch}
             </a>{" "}
             dalında.
           </p>
         ) : (
-          <p className="text-[13px]">Önerilen düzeltmeyi inceleyin; uygunsa GitHub'a gönderin.</p>
+          <p className="text-sm">Önerilen düzeltmeyi inceleyin; uygunsa GitHub'a gönderin.</p>
         )}
         {!canPublish ? (
-          <p className="mt-0.5 text-[12px] text-muted-foreground">
+          <p className="mt-0.5 text-xs text-muted-foreground">
             Göndermek için projenin deposunu bir GitHub bağlantısıyla bağlayın:{" "}
             <Link
               to="/o/$org/projects/$slug"
@@ -344,7 +344,7 @@ export function RunView({
         <div className="grid gap-1.5">
           <div className="flex items-center gap-2">
             <RunStatusPill run={run} />
-            <span className="text-[13px] text-muted-foreground">
+            <span className="text-sm text-muted-foreground">
               {run.mode === AiRunMode.FIX ? "Kök neden ve düzeltme" : "Kök neden analizi"}
             </span>
           </div>
@@ -366,7 +366,7 @@ export function RunView({
       {active ? (
         <section className="rounded-lg border px-4 py-4" aria-label="Canlı günlük">
           {watch.log.length === 0 ? (
-            <p className="text-[13px] text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {run.status === AiRunStatus.QUEUED
                 ? "Analiz sırada; boş bir çalışan bekleniyor."
                 : "Kod hazırlanıyor…"}
@@ -388,18 +388,18 @@ export function RunView({
           {hasDiff ? <PublishBar run={run} repository={repository} writable={writable} /> : null}
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList variant="line" className="h-8 px-0">
-              <TabsTrigger value="analysis" className="px-0 pr-4 text-[13px]">
+              <TabsTrigger value="analysis" className="px-0 pr-4 text-sm">
                 Analiz
               </TabsTrigger>
               {hasDiff ? (
-                <TabsTrigger value="diff" className="px-0 pr-4 text-[13px]">
+                <TabsTrigger value="diff" className="px-0 pr-4 text-sm">
                   Değişiklik
-                  <span className="tabular rounded bg-muted px-1 text-[11px] text-muted-foreground">
+                  <span className="tabular rounded bg-muted px-1.5 text-xs text-muted-foreground">
                     {run.files.length}
                   </span>
                 </TabsTrigger>
               ) : null}
-              <TabsTrigger value="log" className="px-0 text-[13px]">
+              <TabsTrigger value="log" className="px-0 text-sm">
                 Günlük
               </TabsTrigger>
             </TabsList>
@@ -409,8 +409,8 @@ export function RunView({
               </Suspense>
               {run.result?.testSuggestions.length ? (
                 <div className="mt-5 rounded-lg border px-4 py-3">
-                  <p className="mb-1.5 font-medium text-[13px]">Doğrulama önerileri</p>
-                  <ul className="list-disc space-y-1 pl-5 text-[13px] marker:text-muted-foreground">
+                  <p className="mb-1.5 font-medium text-sm">Doğrulama önerileri</p>
+                  <ul className="list-disc space-y-1 pl-5 text-sm marker:text-muted-foreground">
                     {run.result.testSuggestions.map((s) => (
                       <li key={s}>{s}</li>
                     ))}
@@ -432,14 +432,14 @@ export function RunView({
         <>
           <section
             className={cn(
-              "rounded-lg border px-4 py-3 text-[13px]",
+              "rounded-lg border px-4 py-3 text-sm",
               run.status === AiRunStatus.FAILED && "border-level-error/40",
             )}
           >
             {run.status === AiRunStatus.FAILED ? (
               <>
-                <p className="font-medium text-level-error">Analiz tamamlanamadı</p>
-                <p className="mt-1 font-mono text-[12px] text-muted-foreground [overflow-wrap:anywhere]">
+                <p className="font-medium text-level-error-ink">Analiz tamamlanamadı</p>
+                <p className="mt-1 font-mono text-xs text-muted-foreground [overflow-wrap:anywhere]">
                   {run.error}
                 </p>
               </>

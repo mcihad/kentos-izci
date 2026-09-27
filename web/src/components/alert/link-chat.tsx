@@ -68,14 +68,14 @@ export function LinkChatDialog({
           <div className="flex items-start gap-3 rounded-lg border border-primary/40 px-4 py-3">
             <CheckCircle2Icon className="mt-0.5 size-5 text-primary" />
             <div>
-              <p className="font-medium text-[14px]">{linked.name} bağlandı</p>
-              <p className="text-[13px] text-muted-foreground">
+              <p className="font-medium text-md">{linked.name} bağlandı</p>
+              <p className="text-sm text-muted-foreground">
                 İlk sohbetinizse, üretimdeki yeni ve geri dönen hatalar için iki kural da eklendi.
               </p>
             </div>
           </div>
         ) : code ? (
-          <ol className="grid gap-4 text-[13.5px]">
+          <ol className="grid gap-4 text-md">
             <li className="grid gap-2">
               <span>
                 <span className="mr-2 font-medium text-muted-foreground tabular">1</span>@{code.botUsername}{" "}

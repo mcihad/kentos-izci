@@ -20,16 +20,16 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-dvh bg-background">
-      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 border-sidebar-border border-r bg-sidebar md:block">
+      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 border-sidebar-border border-r bg-sidebar md:block">
         <SidebarContent onSearch={() => setPaletteOpen(true)} />
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-12 items-center gap-1 border-b bg-background/85 px-2 backdrop-blur-md md:hidden">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-1.5 border-b bg-background/90 px-2 backdrop-blur-md md:hidden">
           <Button variant="ghost" size="icon" onClick={() => setMobileNav(true)} aria-label="Menüyü aç">
             <MenuIcon className="size-5" />
           </Button>
-          <Logo className="size-5" />
-          <span className="truncate font-semibold text-sm tracking-tight">{org.name}</span>
+          <Logo className="size-6" />
+          <span className="truncate font-semibold text-lg">{org.name}</span>
           <Button
             variant="ghost"
             size="icon"
@@ -37,13 +37,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             onClick={() => setPaletteOpen(true)}
             aria-label="Ara"
           >
-            <SearchIcon className="size-[18px]" />
+            <SearchIcon className="size-5" />
           </Button>
         </header>
         <main className="min-w-0 flex-1">{children}</main>
       </div>
       <Sheet open={mobileNav} onOpenChange={setMobileNav}>
-        <SheetContent side="left" className="w-72 gap-0 border-sidebar-border bg-sidebar p-0">
+        <SheetContent side="left" className="w-[min(20rem,86vw)] gap-0 border-sidebar-border bg-sidebar p-0">
           <SheetTitle className="sr-only">Menü</SheetTitle>
           <SheetDescription className="sr-only">Sayfalar arasında gezinin</SheetDescription>
           <SidebarContent

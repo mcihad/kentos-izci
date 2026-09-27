@@ -57,7 +57,7 @@ function EntryIcon({ entry }: { entry: AiLogEntry }) {
       break;
     case AiLogKind.ERROR:
       Icon = CircleAlertIcon;
-      tone = "text-level-error";
+      tone = "text-level-error-ink";
       break;
     case AiLogKind.TOOL:
       Icon = toolIcons[entry.tool] ?? WrenchIcon;
@@ -100,7 +100,7 @@ export function RunLog({ entries, live = false }: { entries: AiLogEntry[]; live?
         if (e.kind === AiLogKind.STEP) {
           return (
             // biome-ignore lint/suspicious/noArrayIndexKey: log entries only append
-            <li key={i} className="flex items-center gap-3 py-1 pl-[7px] text-[11.5px] text-muted-foreground">
+            <li key={i} className="flex items-center gap-3 py-1 pl-[7px] text-xs text-muted-foreground">
               <span className="relative z-10 size-2.5 rounded-full border bg-background" />
               {e.message}
             </li>
@@ -118,19 +118,17 @@ export function RunLog({ entries, live = false }: { entries: AiLogEntry[]; live?
             <div className="min-w-0 flex-1 pt-0.5">
               <p
                 className={cn(
-                  "text-[13px] leading-relaxed [overflow-wrap:anywhere]",
+                  "text-sm leading-relaxed [overflow-wrap:anywhere]",
                   e.kind === AiLogKind.TEXT && "whitespace-pre-wrap",
-                  e.kind === AiLogKind.ERROR && "text-level-error",
+                  e.kind === AiLogKind.ERROR && "text-level-error-ink",
                   e.kind === AiLogKind.SYSTEM && "font-medium",
                 )}
               >
                 {verb ? <span className="text-muted-foreground">{verb} </span> : null}
-                <span className={cn(e.kind === AiLogKind.TOOL && "font-mono text-[12.5px]")}>
-                  {e.message}
-                </span>
+                <span className={cn(e.kind === AiLogKind.TOOL && "font-mono text-sm")}>{e.message}</span>
               </p>
             </div>
-            <time className="tabular shrink-0 pt-1 text-[11px] text-muted-foreground">
+            <time className="tabular shrink-0 pt-0.5 text-xs text-muted-foreground">
               {time ? formatClock(time) : ""}
             </time>
           </li>

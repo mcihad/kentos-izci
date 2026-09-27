@@ -124,12 +124,12 @@ function SetupPage() {
       <div className="space-y-7">
         <div className="space-y-1.5">
           <h1 className="font-semibold text-2xl tracking-tight">İzci'yi kurun</h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-md text-muted-foreground">
             Üç adımda yönetici hesabını, organizasyonunuzu ve ilk projenizi oluşturun.
           </p>
         </div>
 
-        <ol className="flex items-center gap-2 text-[13px]">
+        <ol className="flex items-center gap-2 text-sm">
           {steps.map((label, i) => (
             <li key={label} className="flex flex-1 items-center gap-2">
               <button
@@ -224,7 +224,7 @@ function SetupPage() {
                   id="slug"
                   required
                   pattern="[a-z][a-z0-9\-]{0,48}[a-z0-9]"
-                  className="font-mono text-[13px]"
+                  className="font-mono text-sm"
                   value={form.organizationSlug}
                   onChange={(e) => set({ organizationSlug: e.target.value.toLowerCase(), slugEdited: true })}
                 />

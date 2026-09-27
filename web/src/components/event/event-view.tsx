@@ -45,14 +45,14 @@ export function EventView({ detail }: { detail: EventDetail }) {
       {hasApp ? (
         <div className="flex items-center gap-2">
           <Switch id="app-only" checked={appOnly} onCheckedChange={setAppOnly} />
-          <Label htmlFor="app-only" className="font-normal text-[12.5px] text-muted-foreground">
+          <Label htmlFor="app-only" className="font-normal text-sm text-muted-foreground">
             Yalnız uygulama kodu
           </Label>
         </div>
       ) : null}
       <div className="flex items-center gap-2">
         <Switch id="newest-first" checked={newestFirst} onCheckedChange={setNewestFirst} />
-        <Label htmlFor="newest-first" className="font-normal text-[12.5px] text-muted-foreground">
+        <Label htmlFor="newest-first" className="font-normal text-sm text-muted-foreground">
           En yeni çağrı üstte
         </Label>
       </div>
@@ -63,9 +63,9 @@ export function EventView({ detail }: { detail: EventDetail }) {
     <div className="@container">
       {ev.message?.formatted && chain.length === 0 ? (
         <EventSection title="Mesaj">
-          <p className="whitespace-pre-wrap break-words font-mono text-[13px]">{ev.message.formatted}</p>
+          <p className="whitespace-pre-wrap break-words font-mono text-sm">{ev.message.formatted}</p>
           {ev.message.template && ev.message.template !== ev.message.formatted ? (
-            <p className="mt-2 font-mono text-[12px] text-muted-foreground">
+            <p className="mt-2 font-mono text-sm text-muted-foreground">
               Şablon: {ev.message.template}
               {ev.message.params.length ? `  (${ev.message.params.join(", ")})` : ""}
             </p>
@@ -139,6 +139,7 @@ export function EventView({ detail }: { detail: EventDetail }) {
             eventTime={toDate(ev.timestamp)}
             errorTitle={title}
             levelColor={color}
+            levelInk={levels[ev.level].ink}
           />
         </EventSection>
       ) : null}
@@ -200,10 +201,10 @@ export function EventView({ detail }: { detail: EventDetail }) {
                 to="/o/$org/issues"
                 params={{ org: org.slug }}
                 search={{ query: `${k}:${/[\s"]/.test(v) ? JSON.stringify(v) : v}` }}
-                className="inline-flex max-w-full items-center overflow-hidden rounded-md border text-[12px] transition-colors hover:border-foreground/30"
+                className="inline-flex max-w-full items-center overflow-hidden rounded-md border text-sm transition-colors hover:border-foreground/30"
               >
-                <span className="bg-muted/60 px-2 py-0.5 text-muted-foreground">{k}</span>
-                <span className="truncate px-2 py-0.5 font-mono">{v}</span>
+                <span className="bg-muted/60 px-2.5 py-1 text-muted-foreground">{k}</span>
+                <span className="truncate px-2.5 py-1 font-mono">{v}</span>
               </Link>
             ))}
           </div>
@@ -212,7 +213,7 @@ export function EventView({ detail }: { detail: EventDetail }) {
 
       {extra && typeof extra === "object" && Object.keys(extra).length > 0 ? (
         <EventSection title="Ek veriler">
-          <div className="font-mono text-[12.5px] leading-relaxed">
+          <div className="font-mono text-sm leading-relaxed">
             <JsonTree value={extra} />
           </div>
         </EventSection>
@@ -241,7 +242,7 @@ export function EventView({ detail }: { detail: EventDetail }) {
           ]}
         />
         {detail.warnings.length > 0 ? (
-          <div className="mt-4 rounded-md border px-3 py-2.5 text-[12.5px]">
+          <div className="mt-4 rounded-md border px-3 py-2.5 text-sm">
             <p className="mb-1 flex items-center gap-1.5 font-medium">
               <InfoIcon className="size-3.5 text-muted-foreground" />
               Kayıt sırasında yapılan düzeltmeler
@@ -254,11 +255,11 @@ export function EventView({ detail }: { detail: EventDetail }) {
           </div>
         ) : null}
         {Object.keys(ev.modules).length > 0 ? (
-          <details className="mt-4 text-[12.5px]">
+          <details className="mt-4 text-sm">
             <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
               Yüklü paketler ({Object.keys(ev.modules).length})
             </summary>
-            <dl className="mt-2 grid grid-cols-[1fr_auto] gap-x-6 gap-y-0.5 font-mono text-[12px]">
+            <dl className="mt-2 grid grid-cols-[1fr_auto] gap-x-6 gap-y-1 font-mono text-sm">
               {Object.entries(ev.modules)
                 .sort(([a], [b]) => a.localeCompare(b))
                 .map(([name, version]) => (
@@ -295,22 +296,24 @@ function ExceptionBlock({
   const m = ex.mechanism;
   return (
     <div>
-      {cause ? <p className="mb-2 font-medium text-[12px] text-muted-foreground">Nedeni</p> : null}
-      <div className="mb-3">
-        <p className="break-words text-[14px]">
-          <span className="font-semibold font-mono text-[13.5px]">{ex.type || "Hata"}</span>
+      {cause ? <p className="mb-2 font-semibold text-sm text-muted-foreground">Nedeni</p> : null}
+      <div className="mb-4">
+        <p className="break-words">
+          <span className="font-mono font-semibold text-md [overflow-wrap:anywhere]">
+            {ex.type || "Hata"}
+          </span>
           {ex.module ? (
-            <span className="ml-2 font-mono text-[12px] text-muted-foreground">{ex.module}</span>
+            <span className="mt-0.5 block font-mono text-sm text-muted-foreground sm:mt-0 sm:ml-2 sm:inline">
+              {ex.module}
+            </span>
           ) : null}
         </p>
         {ex.value ? (
-          <p className="mt-1 whitespace-pre-wrap break-words text-[13.5px] text-muted-foreground">
-            {ex.value}
-          </p>
+          <p className="mt-1.5 whitespace-pre-wrap break-words text-base leading-relaxed">{ex.value}</p>
         ) : null}
         {m ? (
-          <p className="mt-1.5 flex flex-wrap gap-x-3 text-[12px] text-muted-foreground">
-            {m.handled === false ? <span style={{ color: "var(--level-fatal)" }}>İşlenmemiş</span> : null}
+          <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground">
+            {m.handled === false ? <span className="text-level-fatal-ink">İşlenmemiş</span> : null}
             {m.handled === true ? <span>İşlendi</span> : null}
             {m.type ? <span className="font-mono">{m.type}</span> : null}
             {m.description ? <span>{m.description}</span> : null}
@@ -348,7 +351,7 @@ function ThreadList({
       <div className="grid grid-cols-1 gap-3">
         {threads.map((t) => (
           <details key={t.id || t.name} className="rounded-md border px-3 py-2">
-            <summary className="cursor-pointer font-mono text-[12.5px]">
+            <summary className="cursor-pointer font-mono text-sm">
               {t.name || t.id}
               {t.state ? <span className="ml-2 text-muted-foreground">{t.state}</span> : null}
             </summary>

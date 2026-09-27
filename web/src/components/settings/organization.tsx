@@ -7,6 +7,7 @@ import { StackedBars } from "@/components/charts/stacked-bars";
 import { Field } from "@/components/common/field";
 import { RelativeTime } from "@/components/common/relative-time";
 import { StatStrip } from "@/components/common/stat-strip";
+import { EmptyState } from "@/components/common/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -85,7 +86,7 @@ function GeneralForm({
   });
   return (
     <form
-      className="grid max-w-2xl grid-cols-1 gap-5 py-6"
+      className="grid max-w-2xl grid-cols-1 *:min-w-0 gap-5 py-6"
       onSubmit={(e) => {
         e.preventDefault();
         update.mutate({
@@ -105,7 +106,7 @@ function GeneralForm({
         <Input id="org-name" required value={name} onChange={(e) => setName(e.target.value)} />
       </Field>
       <Field label="Kısa ad" hint="Adreslerde görünür; değiştirilemez.">
-        <Input value={org.slug} disabled className="font-mono text-[13px]" />
+        <Input value={org.slug} disabled className="font-mono text-sm" />
       </Field>
       <Field
         label="Saat dilimi"
@@ -151,7 +152,7 @@ function GeneralForm({
           </SelectContent>
         </Select>
       </Field>
-      <p className="text-[12.5px] text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Plan: <span className="text-foreground">{plan || "varsayılan"}</span>
       </p>
       <div>
@@ -187,7 +188,7 @@ export function Usage() {
     new Date(year ?? 2000, (month ?? 1) - 1, 1),
   );
   return (
-    <div className="grid max-w-4xl grid-cols-1 gap-8 py-6">
+    <div className="grid max-w-4xl grid-cols-1 *:min-w-0 gap-8 py-6">
       <StatStrip
         stats={[
           {
@@ -204,7 +205,7 @@ export function Usage() {
         ]}
       />
       <section>
-        <h2 className="mb-3 font-semibold text-[15px]">Günlük dağılım</h2>
+        <h2 className="mb-3 font-semibold text-lg">Günlük dağılım</h2>
         <StackedBars
           height={180}
           step={86_400_000}
@@ -232,8 +233,8 @@ export function Usage() {
       </section>
       {u.limits ? (
         <section>
-          <h2 className="mb-3 font-semibold text-[15px]">Plan sınırları</h2>
-          <dl className="grid max-w-md grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-1.5 text-[13px]">
+          <h2 className="mb-3 font-semibold text-lg">Plan sınırları</h2>
+          <dl className="grid max-w-md grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-1.5 text-sm">
             <dt className="text-muted-foreground">Aylık olay</dt>
             <dd className="tabular">
               {u.limits.monthlyEvents ? formatNumber(u.limits.monthlyEvents) : "Sınırsız"}
@@ -283,33 +284,58 @@ export function AuditLog() {
   );
   const rows = q.data?.pages.flatMap((p) => p.entries) ?? [];
   if (q.isPending) return <Skeleton className="my-6 h-72 w-full max-w-4xl" />;
+  if (rows.length === 0)
+    return (
+      <EmptyState title="Henüz kayıt yok" className="my-6 max-w-4xl rounded-lg border py-10">
+        Üyeler, projeler ve anahtarlar değiştikçe kimin neyi ne zaman yaptığı burada görünür.
+      </EmptyState>
+    );
   return (
     <div className="max-w-4xl py-6">
-      <div className="overflow-x-auto rounded-lg border">
-        <table className="w-full min-w-[640px] text-[13px]">
-          <thead className="bg-muted/40 text-left text-[12px] text-muted-foreground">
+      <ul className="divide-y rounded-lg border md:hidden">
+        {rows.map((e) => (
+          <li key={e.id} className="px-4 py-3">
+            <div className="flex items-baseline justify-between gap-3">
+              <p className="font-medium text-md">{actionLabels[e.action] ?? e.action}</p>
+              <span className="shrink-0 text-sm text-muted-foreground">
+                <RelativeTime value={e.createdAt} />
+              </span>
+            </div>
+            <p className="mt-0.5 truncate text-sm text-muted-foreground">
+              {e.actor?.name || e.actor?.email || "Sistem"}
+              {e.ipAddress ? `, ${e.ipAddress}` : ""}
+            </p>
+            {e.targetName || e.targetId ? (
+              <p className="mt-1 truncate font-mono text-sm">{e.targetName || e.targetId}</p>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+      <div className="hidden overflow-x-auto rounded-lg border md:block">
+        <table className="w-full text-md">
+          <thead className="bg-muted/40 text-left text-sm text-muted-foreground">
             <tr>
-              <th className="px-3 py-2 font-medium">Zaman</th>
-              <th className="px-3 py-2 font-medium">Kişi</th>
-              <th className="px-3 py-2 font-medium">İşlem</th>
-              <th className="px-3 py-2 font-medium">Hedef</th>
-              <th className="px-3 py-2 font-medium">IP</th>
+              <th className="px-3 py-2.5 font-medium">Zaman</th>
+              <th className="px-3 py-2.5 font-medium">Kişi</th>
+              <th className="px-3 py-2.5 font-medium">İşlem</th>
+              <th className="px-3 py-2.5 font-medium">Hedef</th>
+              <th className="px-3 py-2.5 font-medium">IP</th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {rows.map((e) => (
               <tr key={e.id}>
-                <td className="whitespace-nowrap px-3 py-2 text-muted-foreground">
+                <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
                   <RelativeTime value={e.createdAt} />
                 </td>
-                <td className="max-w-44 truncate px-3 py-2">{e.actor?.name || e.actor?.email || "Sistem"}</td>
-                <td className="px-3 py-2">{actionLabels[e.action] ?? e.action}</td>
-                <td className="max-w-52 truncate px-3 py-2 font-mono text-[12px] text-muted-foreground">
+                <td className="max-w-44 truncate px-3 py-2.5">
+                  {e.actor?.name || e.actor?.email || "Sistem"}
+                </td>
+                <td className="px-3 py-2.5">{actionLabels[e.action] ?? e.action}</td>
+                <td className="max-w-52 truncate px-3 py-2.5 font-mono text-sm text-muted-foreground">
                   {e.targetName || e.targetId}
                 </td>
-                <td className="px-3 py-2 font-mono text-[12px] text-muted-foreground">
-                  {e.ipAddress || "—"}
-                </td>
+                <td className="px-3 py-2.5 font-mono text-sm text-muted-foreground">{e.ipAddress || "—"}</td>
               </tr>
             ))}
           </tbody>

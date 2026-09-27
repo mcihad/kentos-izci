@@ -244,12 +244,12 @@ export function RuleDialog({
               checked={unhandled}
               onCheckedChange={(v) => setUnhandled(v === true)}
             />
-            <Label htmlFor="rule-unhandled" className="font-normal text-[13px]">
+            <Label htmlFor="rule-unhandled" className="font-normal text-sm">
               Yalnız işlenmemiş istisnalar
             </Label>
           </div>
           <fieldset className="grid gap-2">
-            <legend className="mb-1 font-medium text-[13px]">Bildirilecek sohbetler</legend>
+            <legend className="mb-1 font-medium text-sm">Bildirilecek sohbetler</legend>
             {channels.map((c) => (
               <div key={c.id} className="flex items-center gap-2">
                 <Checkbox
@@ -259,7 +259,7 @@ export function RuleDialog({
                     setSelected((s) => (v === true ? [...s, c.id] : s.filter((x) => x !== c.id)))
                   }
                 />
-                <Label htmlFor={`rule-ch-${c.id}`} className="font-normal text-[13px]">
+                <Label htmlFor={`rule-ch-${c.id}`} className="font-normal text-sm">
                   {c.name}
                 </Label>
               </div>

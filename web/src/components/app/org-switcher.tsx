@@ -23,15 +23,13 @@ export function OrgSwitcher() {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger className="flex h-10 items-center gap-2.5 rounded-md px-1.5 text-left transition-colors hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent">
-          <Logo className="size-6" />
+        <DropdownMenuTrigger className="flex h-12 items-center gap-3 rounded-md px-1.5 text-left transition-colors hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent">
+          <Logo className="size-7" />
           <span className="min-w-0 flex-1">
-            <span className="block truncate font-semibold text-[14px] leading-tight tracking-tight">
-              {org.name}
-            </span>
-            <span className="block truncate text-[11.5px] text-muted-foreground leading-tight">İzci</span>
+            <span className="block truncate font-semibold text-lg leading-tight">{org.name}</span>
+            <span className="block truncate text-sm text-muted-foreground leading-tight">İzci</span>
           </span>
-          <ChevronsUpDownIcon className="size-3.5 shrink-0 text-muted-foreground" />
+          <ChevronsUpDownIcon className="size-4 shrink-0 text-muted-foreground" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-64">
           <DropdownMenuLabel className="font-normal text-muted-foreground text-xs">

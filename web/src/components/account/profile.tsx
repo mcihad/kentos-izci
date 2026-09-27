@@ -35,7 +35,7 @@ export function Profile() {
   });
   if (!user) return null;
   return (
-    <div className="grid max-w-2xl grid-cols-1 gap-10 py-6">
+    <div className="grid max-w-2xl grid-cols-1 *:min-w-0 gap-10 py-6">
       <form
         className="grid gap-5"
         onSubmit={(e) => {
@@ -43,7 +43,7 @@ export function Profile() {
           profile.mutate({ name });
         }}
       >
-        <h2 className="font-semibold text-[15px]">Profil</h2>
+        <h2 className="font-semibold text-lg">Profil</h2>
         <Field label="Ad soyad" htmlFor="me-name">
           <Input id="me-name" required value={name} onChange={(e) => setName(e.target.value)} />
         </Field>
@@ -71,7 +71,7 @@ export function Profile() {
             password.mutate({ currentPassword: current, newPassword: next });
           }}
         >
-          <h2 className="font-semibold text-[15px]">Parola</h2>
+          <h2 className="font-semibold text-lg">Parola</h2>
           <Field label="Şu anki parola" htmlFor="pw-current">
             <Input
               id="pw-current"
@@ -116,7 +116,7 @@ export function Profile() {
           </div>
         </form>
       ) : (
-        <p className="text-[13px] text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Hesabınız kimlik sağlayıcısıyla giriş yapıyor; parola tanımlı değil.
         </p>
       )}

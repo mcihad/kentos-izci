@@ -41,7 +41,7 @@ export function Attachments({ files }: { files: EventAttachment[] }) {
               >
                 <img src={f.url} alt={f.name} loading="lazy" className="max-h-72 w-full object-contain" />
               </a>
-              <figcaption className="mt-1.5 flex items-center justify-between gap-2 text-[12px] text-muted-foreground">
+              <figcaption className="mt-1.5 flex items-center justify-between gap-2 text-xs text-muted-foreground">
                 <span className="truncate font-mono" title={f.name}>
                   {f.name}
                 </span>
@@ -62,21 +62,21 @@ export function Attachments({ files }: { files: EventAttachment[] }) {
           {others.map((f) => {
             const Icon = texts.includes(f.contentType) ? FileTextIcon : FileIcon;
             return (
-              <li key={f.id} className="flex items-center gap-3 px-3 py-2 text-[13px]">
+              <li key={f.id} className="flex items-center gap-3 px-3 py-2 text-sm">
                 <Icon className="size-4 shrink-0 text-muted-foreground" />
                 {texts.includes(f.contentType) ? (
                   <a
                     href={f.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="min-w-0 truncate font-mono text-[12.5px] hover:underline"
+                    className="min-w-0 truncate font-mono text-sm hover:underline"
                   >
                     {f.name}
                   </a>
                 ) : (
-                  <span className="min-w-0 truncate font-mono text-[12.5px]">{f.name}</span>
+                  <span className="min-w-0 truncate font-mono text-sm">{f.name}</span>
                 )}
-                <span className="ml-auto flex shrink-0 gap-3 text-[12px] text-muted-foreground">
+                <span className="ml-auto flex shrink-0 gap-3 text-xs text-muted-foreground">
                   <span>{kind(f)}</span>
                   <span className="tabular">{formatBytes(f.sizeBytes)}</span>
                 </span>

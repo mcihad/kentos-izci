@@ -17,9 +17,9 @@ export function EventSection({
   className?: string;
 }) {
   return (
-    <section className={cn("border-b py-5 last:border-b-0", className)}>
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <h3 className="font-semibold text-[14px] tracking-tight">{title}</h3>
+    <section className={cn("border-b py-6 last:border-b-0", className)}>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2.5">
+        <h3 className="font-semibold text-lg leading-snug">{title}</h3>
         {aside ? <div className="flex flex-wrap items-center gap-3">{aside}</div> : null}
       </div>
       {children}
@@ -36,14 +36,14 @@ export function KVList({ items, className }: { items: KV[]; className?: string }
   return (
     <dl
       className={cn(
-        "grid grid-cols-[minmax(7.5rem,max-content)_1fr] gap-x-5 gap-y-1.5 text-[13px]",
+        "grid grid-cols-[minmax(6.5rem,max-content)_1fr] gap-x-5 gap-y-2 text-md sm:grid-cols-[minmax(8rem,max-content)_1fr]",
         className,
       )}
     >
       {visible.map(([label, value, opts]) => (
         <div key={label} className="contents">
-          <dt className="text-muted-foreground">{label}</dt>
-          <dd className={cn("min-w-0 break-words", opts?.mono && "font-mono text-[12.5px]")}>{value}</dd>
+          <dt className="text-sm text-muted-foreground leading-[1.4375rem]">{label}</dt>
+          <dd className={cn("min-w-0 break-words", opts?.mono && "font-mono text-sm")}>{value}</dd>
         </div>
       ))}
     </dl>
@@ -61,8 +61,8 @@ export function Panel({
   className?: string;
 }) {
   return (
-    <div className={cn("min-w-0 rounded-lg border px-4 py-3.5", className)}>
-      <h4 className="mb-2.5 font-medium text-[13px]">{title}</h4>
+    <div className={cn("min-w-0 rounded-lg border px-4 py-4", className)}>
+      <h4 className="mb-3 font-semibold text-md">{title}</h4>
       {children}
     </div>
   );
@@ -74,7 +74,7 @@ export function Meter({ value, label }: { value: number; label: string }) {
   const color = v >= 90 ? "var(--level-error)" : v >= 70 ? "var(--level-warning)" : "var(--primary)";
   return (
     <div className="grid gap-1">
-      <div className="flex items-baseline justify-between text-[12.5px]">
+      <div className="flex items-baseline justify-between text-sm">
         <span className="text-muted-foreground">{label}</span>
         <span className="font-medium tabular">
           %{v.toLocaleString("tr-TR", { maximumFractionDigits: 1 })}
@@ -89,9 +89,9 @@ export function Meter({ value, label }: { value: number; label: string }) {
 
 /** Collapsible JSON view. */
 export function JsonTree({ value, depth = 0 }: { value: JsonValue; depth?: number }) {
-  if (value === null) return <span className="text-level-warning">null</span>;
-  if (typeof value === "boolean") return <span className="text-level-warning">{String(value)}</span>;
-  if (typeof value === "number") return <span className="text-level-info tabular">{value}</span>;
+  if (value === null) return <span className="text-level-warning-ink">null</span>;
+  if (typeof value === "boolean") return <span className="text-level-warning-ink">{String(value)}</span>;
+  if (typeof value === "number") return <span className="text-level-info-ink tabular">{value}</span>;
   if (typeof value === "string") return <span className="break-all text-foreground">"{value}"</span>;
   const entries: [string, JsonValue][] = Array.isArray(value)
     ? value.map((v, i) => [String(i), v])
@@ -115,9 +115,9 @@ function JsonNode({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="inline-flex items-center text-muted-foreground hover:text-foreground"
+        className="-my-0.5 inline-flex items-center py-0.5 text-muted-foreground hover:text-foreground"
       >
-        <ChevronRightIcon className={cn("size-3 transition-transform", open && "rotate-90")} />
+        <ChevronRightIcon className={cn("size-3.5 transition-transform", open && "rotate-90")} />
         {array ? `[${entries.length}]` : `{${entries.length}}`}
       </button>
       {open ? (

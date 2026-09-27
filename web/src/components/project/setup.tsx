@@ -43,24 +43,24 @@ export function ProjectSetup({ project }: { project: Project }) {
   const current = snippets.find((s) => s.id === active) ?? snippets[0];
 
   return (
-    <div className="grid max-w-4xl grid-cols-1 gap-8 py-6">
+    <div className="grid max-w-4xl grid-cols-1 *:min-w-0 gap-8 py-6">
       <section className="grid gap-3">
-        <h2 className="font-semibold text-[15px]">Bağlantı bilgileri</h2>
+        <h2 className="font-semibold text-lg">Bağlantı bilgileri</h2>
         <dl className="grid grid-cols-1 gap-3 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-x-5">
-          <dt className="text-[13px] text-muted-foreground">Adres</dt>
+          <dt className="text-sm text-muted-foreground">Adres</dt>
           <dd>
             <SecretValue value={ep.data.baseUrl} />
           </dd>
-          <dt className="text-[13px] text-muted-foreground">gRPC hedefi</dt>
+          <dt className="text-sm text-muted-foreground">gRPC hedefi</dt>
           <dd>
             <SecretValue value={ep.data.grpcTarget} />
           </dd>
-          <dt className="text-[13px] text-muted-foreground">Sentry DSN</dt>
+          <dt className="text-sm text-muted-foreground">Sentry DSN</dt>
           <dd>
             <SecretValue value={ep.data.sentryDsnTemplate.replace("<key>", "<anahtar>")} />
           </dd>
         </dl>
-        <p className="text-[12.5px] text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Kodlarda geçen <code className="font-mono">&lt;anahtar&gt;</code> ve{" "}
           <code className="font-mono">IZCI_KEY</code> yerine{" "}
           <Link
@@ -76,7 +76,7 @@ export function ProjectSetup({ project }: { project: Project }) {
 
       <section className="grid gap-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 className="font-semibold text-[15px]">Uygulamanıza ekleyin</h2>
+          <h2 className="font-semibold text-lg">Uygulamanıza ekleyin</h2>
           {canWrite(org.role) ? (
             <Button
               variant="outline"
@@ -84,12 +84,16 @@ export function ProjectSetup({ project }: { project: Project }) {
               onClick={() => test.mutate({ project: project.slug })}
               disabled={test.isPending}
             >
-              <SendIcon className="size-3.5" />
+              <SendIcon className="size-4" />
               {test.isPending ? "Gönderiliyor…" : "Test olayı gönder"}
             </Button>
           ) : null}
         </div>
-        <div className="flex gap-1 overflow-x-auto border-b" role="tablist" aria-label="Dil">
+        <div
+          className="scrollbar-none flex gap-1 overflow-x-auto border-b max-sm:fade-end max-sm:pr-8"
+          role="tablist"
+          aria-label="Dil"
+        >
           {snippets.map((s) => (
             <button
               key={s.id}
@@ -98,9 +102,9 @@ export function ProjectSetup({ project }: { project: Project }) {
               aria-selected={s.id === current?.id}
               onClick={() => setActive(s.id)}
               className={cn(
-                "-mb-px whitespace-nowrap border-b-2 px-2.5 pb-2 text-[13px] transition-colors",
+                "-mb-px min-h-11 whitespace-nowrap border-b-2 px-3 text-md transition-colors sm:min-h-10",
                 s.id === current?.id
-                  ? "border-primary font-medium text-foreground"
+                  ? "border-primary font-semibold text-foreground"
                   : "border-transparent text-muted-foreground hover:text-foreground",
               )}
             >
@@ -110,7 +114,7 @@ export function ProjectSetup({ project }: { project: Project }) {
         </div>
         {current ? (
           <>
-            <p className="text-[13px] text-muted-foreground">{current.intro}</p>
+            <p className="text-md text-muted-foreground">{current.intro}</p>
             <CodeBlock code={current.code} lang={current.lang} maxHeight="34rem" />
           </>
         ) : null}

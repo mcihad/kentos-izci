@@ -73,17 +73,17 @@ function Instance() {
   if (!i) return <Skeleton className="my-6 h-64 w-full max-w-2xl" />;
   const feature = (on: boolean) => (on ? "Açık" : "Kapalı");
   return (
-    <dl className="grid max-w-2xl grid-cols-[auto_minmax(0,1fr)] gap-x-8 gap-y-2 py-6 text-[13px]">
+    <dl className="grid max-w-2xl grid-cols-[auto_minmax(0,1fr)] gap-x-8 gap-y-2 py-6 text-sm">
       <dt className="text-muted-foreground">Sürüm</dt>
-      <dd className="font-mono text-[12.5px]">
+      <dd className="font-mono text-sm">
         {i.version} {i.commit ? `(${i.commit.slice(0, 12)})` : ""}
       </dd>
       <dt className="text-muted-foreground">Go</dt>
-      <dd className="font-mono text-[12.5px]">{i.goVersion}</dd>
+      <dd className="font-mono text-sm">{i.goVersion}</dd>
       <dt className="text-muted-foreground">PostgreSQL</dt>
-      <dd className="font-mono text-[12.5px]">{i.postgresVersion}</dd>
+      <dd className="font-mono text-sm">{i.postgresVersion}</dd>
       <dt className="text-muted-foreground">Genel adres</dt>
-      <dd className="font-mono text-[12.5px]">{i.publicUrl}</dd>
+      <dd className="font-mono text-sm">{i.publicUrl}</dd>
       <dt className="text-muted-foreground">Çalışma başlangıcı</dt>
       <dd>{formatDateTime(i.startedAt)}</dd>
       <dt className="text-muted-foreground">Organizasyon</dt>
@@ -123,38 +123,56 @@ function Organizations() {
         className="mb-3 max-w-sm"
         aria-label="Organizasyon ara"
       />
-      <div className="overflow-x-auto rounded-lg border">
-        <table className="w-full min-w-[720px] text-[13px]">
-          <thead className="bg-muted/40 text-left text-[12px] text-muted-foreground">
+      <ul className="divide-y rounded-lg border md:hidden">
+        {q.data?.organizations.map((o) => (
+          <li key={o.organization?.id} className="flex items-center gap-3 px-4 py-3">
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium text-md">{o.organization?.name}</p>
+              <p className="truncate font-mono text-sm text-muted-foreground">{o.organization?.slug}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {o.organization?.plan || "Plan yok"}, {formatNumber(o.organization?.projectCount ?? 0)} proje,{" "}
+                {formatNumber(o.organization?.memberCount ?? 0)} üye, bu ay {formatCompact(o.monthEvents)}{" "}
+                olay
+              </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => setEditing(o)}>
+              Plan
+            </Button>
+          </li>
+        ))}
+      </ul>
+      <div className="hidden overflow-x-auto rounded-lg border md:block">
+        <table className="w-full text-md">
+          <thead className="bg-muted/40 text-left text-sm text-muted-foreground">
             <tr>
-              <th className="px-3 py-2 font-medium">Organizasyon</th>
-              <th className="px-3 py-2 font-medium">Plan</th>
-              <th className="px-3 py-2 text-right font-medium">Proje</th>
-              <th className="px-3 py-2 text-right font-medium">Üye</th>
-              <th className="px-3 py-2 text-right font-medium">Bu ay olay</th>
-              <th className="px-3 py-2 font-medium">Son olay</th>
-              <th className="px-3 py-2" />
+              <th className="px-3 py-2.5 font-medium">Organizasyon</th>
+              <th className="px-3 py-2.5 font-medium">Plan</th>
+              <th className="px-3 py-2.5 text-right font-medium">Proje</th>
+              <th className="px-3 py-2.5 text-right font-medium">Üye</th>
+              <th className="px-3 py-2.5 text-right font-medium">Bu ay olay</th>
+              <th className="px-3 py-2.5 font-medium">Son olay</th>
+              <th className="px-3 py-2.5" />
             </tr>
           </thead>
           <tbody className="divide-y">
             {q.data?.organizations.map((o) => (
               <tr key={o.organization?.id}>
-                <td className="px-3 py-2">
+                <td className="px-3 py-2.5">
                   <p className="font-medium">{o.organization?.name}</p>
-                  <p className="font-mono text-[11.5px] text-muted-foreground">{o.organization?.slug}</p>
+                  <p className="font-mono text-sm text-muted-foreground">{o.organization?.slug}</p>
                 </td>
-                <td className="px-3 py-2">{o.organization?.plan || "—"}</td>
-                <td className="px-3 py-2 text-right tabular">
+                <td className="px-3 py-2.5">{o.organization?.plan || "—"}</td>
+                <td className="px-3 py-2.5 text-right tabular">
                   {formatNumber(o.organization?.projectCount ?? 0)}
                 </td>
-                <td className="px-3 py-2 text-right tabular">
+                <td className="px-3 py-2.5 text-right tabular">
                   {formatNumber(o.organization?.memberCount ?? 0)}
                 </td>
-                <td className="px-3 py-2 text-right tabular">{formatCompact(o.monthEvents)}</td>
-                <td className="px-3 py-2 text-muted-foreground">
+                <td className="px-3 py-2.5 text-right tabular">{formatCompact(o.monthEvents)}</td>
+                <td className="px-3 py-2.5 text-muted-foreground">
                   <RelativeTime value={o.lastEventAt} />
                 </td>
-                <td className="px-3 py-2 text-right">
+                <td className="px-3 py-2.5 text-right">
                   <Button variant="ghost" size="sm" onClick={() => setEditing(o)}>
                     Plan
                   </Button>
@@ -326,8 +344,8 @@ function Users() {
                 className="size-8"
               />
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-[13.5px]">{u.user?.name || u.user?.email}</p>
-                <p className="truncate text-[12px] text-muted-foreground">
+                <p className="truncate font-medium text-md">{u.user?.name || u.user?.email}</p>
+                <p className="truncate text-xs text-muted-foreground">
                   {u.user?.email}, {u.organizationCount} organizasyon,{" "}
                   {u.lastLoginAt ? (
                     <>
@@ -345,10 +363,7 @@ function Users() {
                   disabled={self || update.isPending}
                   onCheckedChange={(v) => update.mutate({ userId: u.user?.id ?? "", superadmin: v })}
                 />
-                <Label
-                  htmlFor={`sa-${u.user?.id}`}
-                  className="font-normal text-[12.5px] text-muted-foreground"
-                >
+                <Label htmlFor={`sa-${u.user?.id}`} className="font-normal text-sm text-muted-foreground">
                   Sunucu yöneticisi
                 </Label>
               </div>
@@ -359,10 +374,7 @@ function Users() {
                   disabled={self || update.isPending}
                   onCheckedChange={(v) => update.mutate({ userId: u.user?.id ?? "", disabled: v })}
                 />
-                <Label
-                  htmlFor={`off-${u.user?.id}`}
-                  className="font-normal text-[12.5px] text-muted-foreground"
-                >
+                <Label htmlFor={`off-${u.user?.id}`} className="font-normal text-sm text-muted-foreground">
                   Devre dışı
                 </Label>
               </div>

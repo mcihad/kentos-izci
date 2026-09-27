@@ -35,59 +35,86 @@ export function IssueEvents({ issueId, shortId }: { issueId: string; shortId: st
           onChange={(e) => setDraft(e.target.value)}
           placeholder="environment:production customer:sivas-belediyesi release:1.4.2 browser:Chrome*"
           aria-label="Olaylarda ara"
-          className="h-9 w-full rounded-md border bg-card pr-3 pl-8 font-mono text-[12.5px] outline-none placeholder:font-sans placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30"
+          className="h-10 w-full rounded-md border bg-card pr-3 pl-8 font-mono text-base outline-none md:h-9 md:text-sm placeholder:font-sans placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30"
         />
       </form>
       {events.error ? (
-        <p className="py-6 text-center text-[13px] text-destructive">{errorMessage(events.error)}</p>
+        <p className="py-6 text-center text-sm text-destructive">{errorMessage(events.error)}</p>
       ) : events.isPending ? (
-        <p className="py-6 text-center text-[13px] text-muted-foreground">Yükleniyor…</p>
+        <p className="py-6 text-center text-sm text-muted-foreground">Yükleniyor…</p>
       ) : rows.length === 0 ? (
         <EmptyState title="Eşleşen olay yok">Arama ifadesini değiştirin ya da temizleyin.</EmptyState>
       ) : (
-        <div className="overflow-x-auto rounded-md border">
-          <table className="w-full min-w-[720px] text-[12.5px]">
-            <thead className="bg-muted/40 text-left text-muted-foreground">
-              <tr>
-                <th className="px-3 py-2 font-medium">Zaman</th>
-                <th className="px-3 py-2 font-medium">Müşteri</th>
-                <th className="px-3 py-2 font-medium">Kullanıcı</th>
-                <th className="px-3 py-2 font-medium">Ortam</th>
-                <th className="px-3 py-2 font-medium">Sürüm</th>
-                <th className="px-3 py-2 font-medium">Tarayıcı / OS</th>
-                <th className="px-3 py-2 font-medium">Sunucu</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {rows.map((ev) => (
-                <tr key={ev.id} className="group hover:bg-accent/45">
-                  <td className="whitespace-nowrap px-3 py-2">
-                    <Link
-                      to="/o/$org/issues/$issueId"
-                      params={{ org: org.slug, issueId: shortId }}
-                      search={{ event: ev.id }}
-                      className="underline-offset-4 group-hover:underline"
-                    >
-                      <RelativeTime value={ev.receivedAt} />
-                    </Link>
-                  </td>
-                  <td className="max-w-40 truncate px-3 py-2">
-                    {ev.customer?.name || ev.customer?.key || "—"}
-                  </td>
-                  <td className="max-w-44 truncate px-3 py-2">{ev.user || "—"}</td>
-                  <td className="px-3 py-2">{ev.environment || "—"}</td>
-                  <td className="px-3 py-2 font-mono text-[12px]">{ev.release || "—"}</td>
-                  <td className="max-w-44 truncate px-3 py-2 text-muted-foreground">
-                    {[ev.browser, ev.os].filter(Boolean).join(", ") || "—"}
-                  </td>
-                  <td className="max-w-36 truncate px-3 py-2 font-mono text-[12px] text-muted-foreground">
-                    {ev.serverName || "—"}
-                  </td>
+        <>
+          <ul className="divide-y rounded-md border md:hidden">
+            {rows.map((ev) => (
+              <li key={ev.id} className="relative px-4 py-3 hover:bg-accent/45">
+                <div className="flex items-baseline justify-between gap-3">
+                  <Link
+                    to="/o/$org/issues/$issueId"
+                    params={{ org: org.slug, issueId: shortId }}
+                    search={{ event: ev.id }}
+                    className="font-semibold text-md after:absolute after:inset-0"
+                  >
+                    <RelativeTime value={ev.receivedAt} />
+                  </Link>
+                  <span className="truncate text-sm text-muted-foreground">{ev.environment}</span>
+                </div>
+                <p className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                  {ev.customer ? (
+                    <span className="text-foreground">{ev.customer.name || ev.customer.key}</span>
+                  ) : null}
+                  {ev.user ? <span className="max-w-full truncate">{ev.user}</span> : null}
+                  {ev.release ? <span className="font-mono">{ev.release}</span> : null}
+                  {ev.browser || ev.os ? <span>{[ev.browser, ev.os].filter(Boolean).join(", ")}</span> : null}
+                </p>
+              </li>
+            ))}
+          </ul>
+          <div className="hidden overflow-x-auto rounded-md border md:block">
+            <table className="w-full min-w-[720px] text-md">
+              <thead className="bg-muted/40 text-left text-sm text-muted-foreground">
+                <tr>
+                  <th className="px-3 py-2.5 font-medium">Zaman</th>
+                  <th className="px-3 py-2.5 font-medium">Müşteri</th>
+                  <th className="px-3 py-2.5 font-medium">Kullanıcı</th>
+                  <th className="px-3 py-2.5 font-medium">Ortam</th>
+                  <th className="px-3 py-2.5 font-medium">Sürüm</th>
+                  <th className="px-3 py-2.5 font-medium">Tarayıcı / OS</th>
+                  <th className="px-3 py-2.5 font-medium">Sunucu</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y">
+                {rows.map((ev) => (
+                  <tr key={ev.id} className="group hover:bg-accent/45">
+                    <td className="whitespace-nowrap px-3 py-2.5">
+                      <Link
+                        to="/o/$org/issues/$issueId"
+                        params={{ org: org.slug, issueId: shortId }}
+                        search={{ event: ev.id }}
+                        className="underline-offset-4 group-hover:underline"
+                      >
+                        <RelativeTime value={ev.receivedAt} />
+                      </Link>
+                    </td>
+                    <td className="max-w-40 truncate px-3 py-2.5">
+                      {ev.customer?.name || ev.customer?.key || "—"}
+                    </td>
+                    <td className="max-w-44 truncate px-3 py-2.5">{ev.user || "—"}</td>
+                    <td className="px-3 py-2.5">{ev.environment || "—"}</td>
+                    <td className="px-3 py-2.5 font-mono text-sm">{ev.release || "—"}</td>
+                    <td className="max-w-44 truncate px-3 py-2.5 text-muted-foreground">
+                      {[ev.browser, ev.os].filter(Boolean).join(", ") || "—"}
+                    </td>
+                    <td className="max-w-36 truncate px-3 py-2.5 font-mono text-sm text-muted-foreground">
+                      {ev.serverName || "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
       {events.hasNextPage ? (
         <div className="mt-3 flex justify-center">

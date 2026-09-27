@@ -24,7 +24,7 @@ const kindLabels: Partial<Record<LiveEventKind, { label: string; className: stri
   [LiveEventKind.ISSUE_CREATED]: { label: "Yeni hata", className: "border-primary/40 text-primary" },
   [LiveEventKind.ISSUE_REGRESSED]: {
     label: "Geri döndü",
-    className: "border-level-warning/45 text-level-warning",
+    className: "border-level-warning/45 text-level-warning-ink",
   },
   [LiveEventKind.ISSUE_UPDATED]: { label: "Güncellendi", className: "border-border text-muted-foreground" },
 };
@@ -112,7 +112,7 @@ function LivePage() {
           <>
             <ProjectFilter value={projects} onChange={setProjects} />
             <Select value={min} onValueChange={setMin}>
-              <SelectTrigger size="sm" className="h-8 text-[13px]" aria-label="En düşük seviye">
+              <SelectTrigger size="sm" className="text-sm" aria-label="En düşük seviye">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent align="end">
@@ -123,7 +123,7 @@ function LivePage() {
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="outline" size="sm" className="h-8" onClick={() => setPaused(!paused)}>
+            <Button variant="outline" size="sm" onClick={() => setPaused(!paused)}>
               {paused ? <PlayIcon className="size-3.5" /> : <PauseIcon className="size-3.5" />}
               {paused ? "Sürdür" : "Duraklat"}
             </Button>
@@ -150,21 +150,19 @@ function LivePage() {
                   className={cn("flex items-stretch gap-3 py-2.5 hover:bg-accent/40", gutter)}
                 >
                   <LevelBlaze level={r.event?.level ?? issue?.level ?? Level.ERROR} />
-                  <time className="w-16 shrink-0 pt-0.5 font-mono text-[12px] text-muted-foreground tabular">
+                  <time className="w-16 shrink-0 pt-0.5 font-mono text-xs text-muted-foreground tabular">
                     {t ? `${formatTime(t)}:${String(t.getSeconds()).padStart(2, "0")}` : ""}
                   </time>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13px]">
+                    <p className="truncate text-sm">
                       {issue ? (
                         <IssueTitle type={issue.type} value={issue.value} title={issue.title} />
                       ) : null}
                     </p>
-                    <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12px] text-muted-foreground">
-                      <span className="font-mono text-[11.5px] text-foreground/80">{issue?.shortId}</span>
+                    <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                      <span className="font-mono text-xs text-foreground/80">{issue?.shortId}</span>
                       {kind ? (
-                        <span
-                          className={cn("rounded-full border px-1.5 font-medium text-[11px]", kind.className)}
-                        >
+                        <span className={cn("rounded-full border px-2 font-medium text-xs", kind.className)}>
                           {kind.label}
                         </span>
                       ) : null}

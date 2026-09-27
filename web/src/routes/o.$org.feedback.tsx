@@ -35,7 +35,7 @@ function FeedbackPage() {
               void navigate({ search: (p) => ({ ...p, project: v === "all" ? undefined : v }) })
             }
           >
-            <SelectTrigger className="h-8 w-44 text-[13px]" aria-label="Proje">
+            <SelectTrigger size="sm" className="w-44 text-sm" aria-label="Proje">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -63,7 +63,7 @@ function FeedbackPage() {
             onChange={(e) => setDraft(e.target.value)}
             placeholder="Mesajda, adda ya da e-postada ara"
             aria-label="Geri bildirimlerde ara"
-            className="h-9 w-full rounded-md border bg-card pr-3 pl-8 text-[13px] outline-none placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30"
+            className="h-10 w-full rounded-md border bg-card pr-3 pl-8 text-base outline-none md:h-9 md:text-sm placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30"
           />
         </form>
         <FeedbackList project={search.project} query={search.q} />

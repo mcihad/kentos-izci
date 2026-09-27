@@ -65,13 +65,13 @@ export function CommandPalette({
         <DialogDescription className="sr-only">Sayfa, proje ya da hata kimliği arayın</DialogDescription>
         <Command
           loop
-          className="[&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:text-[11.5px] [&_[cmdk-item]]:h-9 [&_[cmdk-item]]:gap-2.5 [&_[cmdk-item]]:px-2.5 [&_[cmdk-item]]:text-[13.5px]"
+          className="[&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-item]]:h-9 [&_[cmdk-item]]:gap-2.5 [&_[cmdk-item]]:px-2.5 [&_[cmdk-item]]:text-md"
         >
           <CommandInput
             value={value}
             onValueChange={setValue}
             placeholder="Sayfa, proje ya da KALEM-1A gibi bir hata kimliği yazın"
-            className="h-12 text-[14px]"
+            className="h-12 text-md"
           />
           <CommandList className="max-h-[min(60vh,420px)] p-1.5">
             <CommandEmpty className="py-8 text-center text-muted-foreground text-sm">Sonuç yok.</CommandEmpty>

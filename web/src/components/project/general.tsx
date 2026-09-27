@@ -36,7 +36,7 @@ export function ProjectGeneral({ project }: { project: Project }) {
   const [deleting, setDeleting] = useState(false);
 
   return (
-    <div className="grid max-w-2xl grid-cols-1 gap-10 py-6">
+    <div className="grid max-w-2xl grid-cols-1 *:min-w-0 gap-10 py-6">
       <form
         className="grid gap-5"
         onSubmit={(e) => {
@@ -65,7 +65,7 @@ export function ProjectGeneral({ project }: { project: Project }) {
           />
         </Field>
         <Field label="Kısa ad" hint="Adreslerde ve hata kimliklerinde (KALEM-1A) kullanılır; değiştirilemez.">
-          <Input value={project.slug} disabled className="font-mono text-[13px]" />
+          <Input value={project.slug} disabled className="font-mono text-sm" />
         </Field>
         <Field label="Platform" htmlFor="p-platform">
           <Select value={platform} onValueChange={setPlatform} disabled={!admin}>
@@ -119,8 +119,8 @@ export function ProjectGeneral({ project }: { project: Project }) {
 
       {org.role === Role.OWNER ? (
         <section className="rounded-lg border border-destructive/35 px-5 py-4">
-          <h2 className="font-semibold text-[14px]">Projeyi sil</h2>
-          <p className="mt-1 text-[13px] text-muted-foreground">
+          <h2 className="font-semibold text-md">Projeyi sil</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
             Projenin tüm hataları, olayları ve anahtarları kalıcı olarak silinir. Anahtarlarla gelen olaylar
             hemen reddedilir.
           </p>
@@ -169,7 +169,7 @@ function DeleteProjectDialog({
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           autoFocus
-          className="font-mono text-[13px]"
+          className="font-mono text-sm"
         />
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>

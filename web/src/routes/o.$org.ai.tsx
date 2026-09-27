@@ -70,7 +70,7 @@ function AiPage() {
                 void navigate({ search: (p) => ({ ...p, project: v === "all" ? undefined : v }) })
               }
             >
-              <SelectTrigger className="h-8 w-44 text-[13px]" aria-label="Proje">
+              <SelectTrigger size="sm" className="w-44 text-sm" aria-label="Proje">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -90,7 +90,7 @@ function AiPage() {
                 })
               }
             >
-              <SelectTrigger className="h-8 w-40 text-[13px]" aria-label="Durum">
+              <SelectTrigger size="sm" className="w-40 text-sm" aria-label="Durum">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -115,7 +115,7 @@ function AiPage() {
               },
               {
                 label: "Model",
-                value: <span className="text-[15px]">{st.defaultModel || "Varsayılan"}</span>,
+                value: <span className="text-lg">{st.defaultModel || "Varsayılan"}</span>,
               },
               {
                 label: "Çalışan",
@@ -188,28 +188,28 @@ function RunRow({ run }: { run: AiRun }) {
       >
         <RunStatusPill run={run} className="w-[6.5rem] justify-center" />
         <div className="min-w-0">
-          <p className="truncate text-[13.5px]">
-            <span className="mr-2 font-mono text-[12px] text-muted-foreground">{run.issue?.shortId}</span>
+          <p className="truncate text-md">
+            <span className="mr-2 font-mono text-xs text-muted-foreground">{run.issue?.shortId}</span>
             {run.result?.summary || run.issue?.title}
           </p>
-          <p className="mt-0.5 truncate text-[12px] text-muted-foreground">
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">
             {run.project?.name} · {runTrigger[run.trigger]}
             {run.requestedBy ? `, ${run.requestedBy.name || run.requestedBy.email}` : ""} ·{" "}
             <RelativeTime value={run.createdAt} />
           </p>
         </div>
-        <div className="flex items-center gap-4 text-[12px] text-muted-foreground">
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
           {stats.files > 0 ? (
             <span className="tabular hidden font-mono sm:inline">
-              <span className="text-health-good">+{stats.additions}</span>{" "}
-              <span className="text-level-error">−{stats.deletions}</span>
+              <span className="text-health-good-ink">+{stats.additions}</span>{" "}
+              <span className="text-level-error-ink">−{stats.deletions}</span>
             </span>
           ) : null}
           {pr?.number ? (
             pr.draft ? (
               <GitPullRequestDraftIcon className="size-4" aria-label="Taslak çekme isteği" />
             ) : (
-              <GitPullRequestIcon className="size-4 text-health-good" aria-label="Çekme isteği" />
+              <GitPullRequestIcon className="size-4 text-health-good-ink" aria-label="Çekme isteği" />
             )
           ) : null}
           {took !== undefined && run.finishedAt ? (

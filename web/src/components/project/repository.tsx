@@ -64,7 +64,7 @@ function RepositoryPicker({
                 }}
                 className="flex items-center gap-2"
               >
-                <span className="min-w-0 flex-1 truncate font-mono text-[12.5px]">{r.fullName}</span>
+                <span className="min-w-0 flex-1 truncate font-mono text-sm">{r.fullName}</span>
                 {r.private ? (
                   <LockIcon className="size-3.5 text-muted-foreground" aria-label="Özel depo" />
                 ) : null}
@@ -110,10 +110,10 @@ export function ProjectRepository({ project }: { project: Project }) {
     setMappings((m) => m.map((x, j) => (j === i ? { ...x, ...patch } : x)));
 
   return (
-    <div className="grid max-w-2xl grid-cols-1 gap-6 py-6">
+    <div className="grid max-w-2xl grid-cols-1 *:min-w-0 gap-6 py-6">
       <div>
-        <h2 className="font-semibold text-[15px]">Kaynak kod deposu</h2>
-        <p className="mt-0.5 text-[13px] text-muted-foreground leading-relaxed">
+        <h2 className="font-semibold text-lg">Kaynak kod deposu</h2>
+        <p className="mt-0.5 text-sm text-muted-foreground leading-relaxed">
           Depo bağlandığında yığın izindeki satırlar doğrudan GitHub'daki koda bağlanır. Yapay zekâ analizi
           için ayrıca bir GitHub entegrasyonu gerekir.
         </p>
@@ -125,11 +125,11 @@ export function ProjectRepository({ project }: { project: Project }) {
               href={repo.url}
               target="_blank"
               rel="noreferrer"
-              className="font-medium font-mono text-[13px] hover:underline"
+              className="font-medium font-mono text-sm hover:underline"
             >
               {repo.owner}/{repo.name}
             </a>
-            <p className="mt-0.5 text-[12px] text-muted-foreground">
+            <p className="mt-0.5 text-xs text-muted-foreground">
               {repo.defaultBranch} dalı, <RelativeTime value={repo.linkedAt} /> bağlandı
               {repo.integrationId ? "" : " · GitHub bağlantısı yok, yapay zekâ yalnız analiz yapar"}
             </p>
@@ -215,7 +215,7 @@ export function ProjectRepository({ project }: { project: Project }) {
                 value={repository}
                 onChange={(e) => setRepository(e.target.value)}
                 placeholder="kentos/kalem"
-                className="font-mono text-[13px]"
+                className="font-mono text-sm"
               />
               {integrationId !== noIntegration ? (
                 <RepositoryPicker
@@ -238,12 +238,12 @@ export function ProjectRepository({ project }: { project: Project }) {
               value={branch}
               onChange={(e) => setBranch(e.target.value)}
               placeholder="main"
-              className="w-60 font-mono text-[13px]"
+              className="w-60 font-mono text-sm"
             />
           </Field>
           <div className="grid gap-2">
-            <p className="font-medium text-[13px]">Yol eşlemeleri</p>
-            <p className="-mt-1 text-[12px] text-muted-foreground">
+            <p className="font-medium text-sm">Yol eşlemeleri</p>
+            <p className="-mt-1 text-xs text-muted-foreground">
               Uygulamanın bildirdiği dosya yolunu depodaki yola çevirir, örneğin{" "}
               <code className="font-mono">/app/</code> → <code className="font-mono">src/</code>
             </p>
@@ -255,7 +255,7 @@ export function ProjectRepository({ project }: { project: Project }) {
                   value={m.from}
                   onChange={(e) => setMapping(i, { from: e.target.value })}
                   placeholder="/app/"
-                  className="font-mono text-[12.5px]"
+                  className="font-mono text-sm"
                 />
                 <span className="text-muted-foreground">→</span>
                 <Input
@@ -263,7 +263,7 @@ export function ProjectRepository({ project }: { project: Project }) {
                   value={m.to}
                   onChange={(e) => setMapping(i, { to: e.target.value })}
                   placeholder="src/"
-                  className="font-mono text-[12.5px]"
+                  className="font-mono text-sm"
                 />
                 <Button
                   type="button"

@@ -35,7 +35,7 @@ function SignupPage() {
       <AuthLayout>
         <div className="space-y-4">
           <h1 className="font-semibold text-2xl tracking-tight">Kayıt kapalı</h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-md text-muted-foreground">
             Bu sunucuya yalnızca davetle katılabilirsiniz. Organizasyonunuzun yöneticisinden davet isteyin.
           </p>
           <Button asChild variant="outline">
@@ -51,7 +51,7 @@ function SignupPage() {
       <div className="space-y-7">
         <div className="space-y-1.5">
           <h1 className="font-semibold text-2xl tracking-tight">Hesap açın</h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-md text-muted-foreground">
             Hesabınızla birlikte ekibiniz için bir organizasyon oluşturulur.
           </p>
         </div>
@@ -111,7 +111,7 @@ function SignupPage() {
           <Button type="submit" className="h-10" disabled={signup.isPending}>
             {signup.isPending ? "Hesap açılıyor…" : "Hesap aç"}
           </Button>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-md text-muted-foreground">
             Hesabınız var mı?{" "}
             <Link to="/login" className="font-medium text-foreground underline-offset-4 hover:underline">
               Giriş yapın

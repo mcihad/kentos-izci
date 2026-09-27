@@ -22,10 +22,8 @@ export function EmptyState({
     <div className={cn("flex flex-col items-center gap-3 px-6 py-14 text-center", className)}>
       {Icon ? <Icon className="size-6 text-muted-foreground/70" strokeWidth={1.5} /> : null}
       <div className="max-w-sm space-y-1">
-        <p className="font-medium text-[14px]">{title}</p>
-        {children ? (
-          <div className="text-[13px] text-muted-foreground leading-relaxed">{children}</div>
-        ) : null}
+        <p className="font-medium text-md">{title}</p>
+        {children ? <div className="text-sm text-muted-foreground leading-relaxed">{children}</div> : null}
       </div>
       {action}
     </div>
@@ -44,7 +42,7 @@ export function ErrorState({
 }) {
   return (
     <div className={cn("flex flex-col items-center gap-3 px-6 py-12 text-center", className)}>
-      <p className="max-w-sm text-[13px] text-muted-foreground">{errorMessage(error)}</p>
+      <p className="max-w-sm text-sm text-muted-foreground">{errorMessage(error)}</p>
       {onRetry ? (
         <Button variant="outline" size="sm" onClick={onRetry}>
           Yeniden dene

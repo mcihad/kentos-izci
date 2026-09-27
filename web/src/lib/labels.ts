@@ -1,14 +1,42 @@
 import { IssueStatus, IssueSubstatus, Priority, Role, StatsPeriod } from "@/gen/izci/api/v1/common_pb";
 import { Level } from "@/gen/izci/ingest/v1/event_pb";
 
-/** Turkish level names and the token each level is drawn with. */
-export const levels: Record<Level, { label: string; color: string; search: string }> = {
-  [Level.UNSPECIFIED]: { label: "Belirsiz", color: "var(--level-debug)", search: "" },
-  [Level.DEBUG]: { label: "Ayıklama", color: "var(--level-debug)", search: "debug" },
-  [Level.INFO]: { label: "Bilgi", color: "var(--level-info)", search: "info" },
-  [Level.WARNING]: { label: "Uyarı", color: "var(--level-warning)", search: "warning" },
-  [Level.ERROR]: { label: "Hata", color: "var(--level-error)", search: "error" },
-  [Level.FATAL]: { label: "Ölümcül", color: "var(--level-fatal)", search: "fatal" },
+/**
+ * Turkish level names and the tokens each level is drawn with: `color` for
+ * fills and marks, `ink` for text, which stays readable on light surfaces.
+ */
+export const levels: Record<Level, { label: string; color: string; ink: string; search: string }> = {
+  [Level.UNSPECIFIED]: {
+    label: "Belirsiz",
+    color: "var(--level-debug)",
+    ink: "var(--level-debug-ink)",
+    search: "",
+  },
+  [Level.DEBUG]: {
+    label: "Ayıklama",
+    color: "var(--level-debug)",
+    ink: "var(--level-debug-ink)",
+    search: "debug",
+  },
+  [Level.INFO]: { label: "Bilgi", color: "var(--level-info)", ink: "var(--level-info-ink)", search: "info" },
+  [Level.WARNING]: {
+    label: "Uyarı",
+    color: "var(--level-warning)",
+    ink: "var(--level-warning-ink)",
+    search: "warning",
+  },
+  [Level.ERROR]: {
+    label: "Hata",
+    color: "var(--level-error)",
+    ink: "var(--level-error-ink)",
+    search: "error",
+  },
+  [Level.FATAL]: {
+    label: "Ölümcül",
+    color: "var(--level-fatal)",
+    ink: "var(--level-fatal-ink)",
+    search: "fatal",
+  },
 };
 
 /** Levels from most to least severe. */

@@ -31,7 +31,7 @@ function IssueChart({
   const points = seriesPoints(stats.data?.series);
   return (
     <div>
-      <div className="mb-1 flex items-baseline justify-between text-[12.5px]">
+      <div className="mb-1 flex items-baseline justify-between text-sm">
         <span className="text-muted-foreground">{title}</span>
         <span className="font-medium tabular">{stats.data ? formatNumber(stats.data.total) : "…"}</span>
       </div>
@@ -55,19 +55,19 @@ export function IssueAside({ issue, facets }: { issue: Issue; facets: TagFacet[]
       <IssueChart issueId={s.id} period={StatsPeriod.LAST_24_HOURS} title="Son 24 saat" color={color} />
       <IssueChart issueId={s.id} period={StatsPeriod.LAST_30_DAYS} title="Son 30 gün" color={color} />
 
-      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-[13px]">
+      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2.5 text-md">
         <dt className="text-muted-foreground">İlk görülme</dt>
         <dd className="text-right">
           <RelativeTime value={s.firstSeen} />
           {issue.firstRelease ? (
-            <span className="block font-mono text-[11.5px] text-muted-foreground">{issue.firstRelease}</span>
+            <span className="block font-mono text-sm text-muted-foreground">{issue.firstRelease}</span>
           ) : null}
         </dd>
         <dt className="text-muted-foreground">Son görülme</dt>
         <dd className="text-right">
           <RelativeTime value={s.lastSeen} />
           {issue.lastRelease ? (
-            <span className="block font-mono text-[11.5px] text-muted-foreground">{issue.lastRelease}</span>
+            <span className="block font-mono text-sm text-muted-foreground">{issue.lastRelease}</span>
           ) : null}
         </dd>
         <dt className="text-muted-foreground">Toplam olay</dt>
@@ -84,12 +84,12 @@ export function IssueAside({ issue, facets }: { issue: Issue; facets: TagFacet[]
                 <RelativeTime value={issue.resolvedAt} />
               </span>
               {issue.resolvedBy ? (
-                <span className="block text-[11.5px] text-muted-foreground">
+                <span className="block text-sm text-muted-foreground">
                   {issue.resolvedBy.name || issue.resolvedBy.email}
                 </span>
               ) : null}
               {issue.resolvedInRelease ? (
-                <span className="block font-mono text-[11.5px] text-muted-foreground">
+                <span className="block font-mono text-sm text-muted-foreground">
                   {issue.resolvedInRelease} sürümünde
                 </span>
               ) : null}
@@ -99,7 +99,7 @@ export function IssueAside({ issue, facets }: { issue: Issue; facets: TagFacet[]
         {issue.snooze ? (
           <>
             <dt className="text-muted-foreground">Yoksayma</dt>
-            <dd className="text-right text-[12.5px]">
+            <dd className="text-right text-sm">
               {issue.snooze.until ? (
                 <span className="block">
                   <RelativeTime value={issue.snooze.until} /> bitiyor
@@ -121,10 +121,10 @@ export function IssueAside({ issue, facets }: { issue: Issue; facets: TagFacet[]
 
       {customers && customers.values.length > 0 ? (
         <div>
-          <h3 className="mb-2 font-medium text-[13px]">Etkilenen müşteriler</h3>
-          <ul className="grid gap-1.5">
+          <h3 className="mb-2.5 font-semibold text-md">Etkilenen müşteriler</h3>
+          <ul className="grid gap-2">
             {customers.values.slice(0, 6).map((v) => (
-              <li key={v.value} className="flex items-center justify-between gap-3 text-[13px]">
+              <li key={v.value} className="flex items-center justify-between gap-3 text-md">
                 <Link
                   to="/o/$org/customers/$key"
                   params={{ org: org.slug, key: v.value }}
@@ -141,13 +141,13 @@ export function IssueAside({ issue, facets }: { issue: Issue; facets: TagFacet[]
 
       {issue.grouping ? (
         <div>
-          <h3 className="mb-1.5 font-medium text-[13px]">Neden bu grupta?</h3>
-          <p className="text-[12.5px] text-muted-foreground leading-relaxed">
+          <h3 className="mb-2 font-semibold text-md">Neden bu grupta?</h3>
+          <p className="text-sm text-muted-foreground leading-relaxed">
             Bu olaylar {strategyLabels[issue.grouping.strategy] ?? issue.grouping.strategy} aynı olduğu için
             tek bir hatada toplandı.
           </p>
           {issue.grouping.components.length ? (
-            <ul className="mt-2 grid gap-0.5 font-mono text-[11.5px] text-muted-foreground">
+            <ul className="mt-2 grid gap-1 font-mono text-sm text-muted-foreground">
               {issue.grouping.components.slice(0, 12).map((c) => (
                 <li key={c} className="truncate" title={c}>
                   {c}
@@ -155,7 +155,9 @@ export function IssueAside({ issue, facets }: { issue: Issue; facets: TagFacet[]
               ))}
             </ul>
           ) : null}
-          <p className="mt-2 font-mono text-[11px] text-muted-foreground/80">{issue.grouping.fingerprint}</p>
+          <p className="mt-2 font-mono text-xs text-muted-foreground [overflow-wrap:anywhere]">
+            {issue.grouping.fingerprint}
+          </p>
         </div>
       ) : null}
     </div>

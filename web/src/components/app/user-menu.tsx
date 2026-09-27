@@ -39,14 +39,12 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex w-full items-center gap-2.5 rounded-md px-1.5 py-1.5 text-left transition-colors hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent">
-        <UserAvatar name={user?.name || user?.email || ""} src={user?.avatarUrl} className="size-7" />
+        <UserAvatar name={user?.name || user?.email || ""} src={user?.avatarUrl} className="size-8" />
         <span className="min-w-0 flex-1">
-          <span className="block truncate font-medium text-[13px] leading-tight">
+          <span className="block truncate font-medium text-md leading-tight">
             {user?.name || user?.email}
           </span>
-          <span className="block truncate text-[11.5px] text-muted-foreground leading-tight">
-            {user?.email}
-          </span>
+          <span className="block truncate text-sm text-muted-foreground leading-tight">{user?.email}</span>
         </span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" side="top" className="w-60">

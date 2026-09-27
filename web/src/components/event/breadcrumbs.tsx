@@ -38,11 +38,15 @@ export function BreadcrumbTrail({
   eventTime,
   errorTitle,
   levelColor,
+  levelInk,
 }: {
   crumbs: Breadcrumb[];
   eventTime: Date | undefined;
   errorTitle: string;
+  /** Fill for the error marker. */
   levelColor: string;
+  /** Text colour for the error row. */
+  levelInk: string;
 }) {
   const [all, setAll] = useState(false);
   const shown = all ? crumbs : crumbs.slice(-10);
@@ -53,7 +57,7 @@ export function BreadcrumbTrail({
         <Button
           variant="ghost"
           size="sm"
-          className="mb-1 -ml-2 h-7 text-muted-foreground"
+          className="mb-1 -ml-2 text-muted-foreground"
           onClick={() => setAll(true)}
         >
           Önceki {hidden} adımı göster
@@ -64,20 +68,20 @@ export function BreadcrumbTrail({
           // biome-ignore lint/suspicious/noArrayIndexKey: breadcrumbs have no identity
           <Crumb key={i} crumb={c} first={i === 0} eventTime={eventTime} />
         ))}
-        <li className="relative grid grid-cols-[4.5rem_5rem_1fr] items-baseline gap-3 py-1.5 pl-8 text-[12.5px]">
-          <span aria-hidden="true" className="absolute top-0 left-[11px] h-3.5 border-trail border-l" />
+        <li className="relative grid grid-cols-[3.75rem_1fr] items-baseline gap-x-3 py-2 pl-8 text-sm sm:grid-cols-[4.5rem_6rem_1fr]">
+          <span aria-hidden="true" className="absolute top-0 left-[11px] h-[18px] border-trail border-l" />
           <span
             aria-hidden="true"
-            className="absolute top-[9px] left-[6.5px] size-[10px] rotate-45 rounded-[2px]"
+            className="absolute top-[13px] left-[6.5px] size-[10px] rotate-45 rounded-[2px]"
             style={{ background: levelColor }}
           />
-          <span className="text-right font-medium tabular" style={{ color: levelColor }}>
+          <span className="text-right font-medium tabular" style={{ color: levelInk }}>
             0 sn
           </span>
-          <span className="font-medium" style={{ color: levelColor }}>
+          <span className="font-medium" style={{ color: levelInk }}>
             hata
           </span>
-          <span className="truncate font-medium">{errorTitle}</span>
+          <span className="min-w-0 break-words font-medium max-sm:col-start-2">{errorTitle}</span>
         </li>
       </ol>
     </div>
@@ -100,14 +104,18 @@ function Crumb({
       ? levels[c.level].color
       : undefined;
   return (
-    <li className="relative grid grid-cols-[4.5rem_5rem_1fr] items-baseline gap-3 py-1.5 pl-8 text-[12.5px]">
+    <li className="relative grid grid-cols-[3.75rem_1fr] items-baseline gap-x-3 py-2 pl-8 text-sm sm:grid-cols-[4.5rem_6rem_1fr]">
       <span
         aria-hidden="true"
-        className={cn("absolute left-[11px] border-trail border-l", first ? "top-3.5" : "top-0", "bottom-0")}
+        className={cn(
+          "absolute left-[11px] border-trail border-l",
+          first ? "top-[18px]" : "top-0",
+          "bottom-0",
+        )}
       />
       <span
         aria-hidden="true"
-        className="absolute top-[11px] left-[8.5px] size-1.5 rounded-full border border-muted-foreground/60 bg-background"
+        className="absolute top-[15px] left-[8.5px] size-1.5 rounded-full border border-muted-foreground/60 bg-background"
         style={color ? { background: color, borderColor: color } : undefined}
       />
       <time
@@ -120,10 +128,10 @@ function Crumb({
       <span className="truncate text-muted-foreground">
         {categoryLabels[c.category] ?? (c.category || c.type)}
       </span>
-      <span className="min-w-0">
-        <span className="block break-words font-mono text-[12px]">{c.message}</span>
+      <span className="min-w-0 max-sm:col-start-2">
+        <span className="block font-mono text-sm [overflow-wrap:anywhere]">{c.message}</span>
         {data && typeof data === "object" && !Array.isArray(data) && Object.keys(data).length > 0 ? (
-          <span className="mt-0.5 block font-mono text-[11.5px] text-muted-foreground">
+          <span className="mt-0.5 block font-mono text-sm text-muted-foreground [overflow-wrap:anywhere]">
             {Object.entries(data)
               .map(([k, v]) => `${k}=${typeof v === "string" ? v : JSON.stringify(v)}`)
               .join("  ")}
