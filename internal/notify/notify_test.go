@@ -352,7 +352,9 @@ func TestSlackTeamsWebhook(t *testing.T) {
 	_ = json.Unmarshal(teams.body[0], &tp)
 	card := tp["attachments"].([]any)[0].(map[string]any)
 	content, _ := json.Marshal(card["content"])
-	if card["contentType"] != "application/vnd.microsoft.card.adaptive" || !strings.Contains(string(content), `"type":"FactSet"`) ||
+	if card["contentType"] != "application/vnd.microsoft.card.adaptive" ||
+		!strings.Contains(string(content), `{"text":"Sivas Belediyesi","type":"TextRun"}`) ||
+		strings.Contains(string(content), `"TextBlock"`) || strings.Contains(string(content), `"FactSet"`) ||
 		!strings.Contains(string(content), `"url":"https://izci.example.com/o/kentos/issues/KALEM-1"`) {
 		t.Fatalf("teams: %s", teams.body[0])
 	}
@@ -541,5 +543,34 @@ func TestSendMail(t *testing.T) {
 	sink.reject = "550 no such user"
 	if err := email.SendMail(context.Background(), "yok@kentos.example", "x", "x", "x"); err == nil {
 		t.Fatal("a rejected recipient must fail")
+	}
+}
+
+// TestNoLinksFromEventData checks that text from events cannot become a
+// disguised link in Slack or Teams messages.
+func TestNoLinksFromEventData(t *testing.T) {
+	n := &notify.Notification{
+		Item: store.OutboxItem{Kind: store.NotifyNewIssue},
+		Issue: &notify.IssueView{ShortID: "KALEM-1", Type: "Exception", Value: "[Hesabınız kilitlendi](https://evil.example) <https://evil.example|tıklayın>",
+			Release: "**1.0** [x](https://evil.example)"},
+		Link: "https://izci.example.com/o/kentos/issues/KALEM-1",
+	}
+	slack, _ := json.Marshal(notify.SlackMessage(n))
+	if strings.Contains(string(slack), "<https://evil.example|") {
+		t.Fatalf("slack: %s", slack)
+	}
+	var sm struct {
+		Text string `json:"text"`
+	}
+	_ = json.Unmarshal(slack, &sm)
+	if !strings.Contains(sm.Text, "&lt;https://evil.example|tıklayın&gt;") {
+		t.Fatalf("slack fallback text: %q", sm.Text)
+	}
+	teams, _ := json.Marshal(notify.TeamsMessage(n))
+	if strings.Contains(string(teams), `"TextBlock"`) || strings.Contains(string(teams), `"FactSet"`) {
+		t.Fatalf("teams renders Markdown: %s", teams)
+	}
+	if !strings.Contains(string(teams), `"text":"[Hesabınız kilitlendi](https://evil.example) \u003chttps://evil.example|tıklayın\u003e","type":"TextRun"`) {
+		t.Fatalf("teams: %s", teams)
 	}
 }

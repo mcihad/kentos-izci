@@ -64,6 +64,7 @@ Projeye özel ayarlar **Projeler › proje › Gizlilik** bölümündedir:
 - GitHub erişim anahtarları gibi üçüncü taraf sırları `IZCI_SECRET_KEY`'den türetilen anahtarla **AES-256-GCM** ile şifrelenir. Şifreli metin kaydın kimliğine bağlıdır; başka bir kayda kopyalanırsa çözülmez.
 - Telegram düğmeleri ve GitHub App kurulum dönüşü HMAC ile imzalanır.
 - Bildirim kanallarının webhook adresleri, imza anahtarları ve Jira anahtarları `IZCI_SECRET_KEY` ile şifrelenir; şifreli değer kanala bağlıdır, başka bir satıra taşınınca çözülmez. Webhook istekleri HMAC-SHA256 ile [imzalanır](bildirimler.md#imzayı-doğrulama).
+- Bildirimlerde olay verisi (hata mesajı, etiketler, sürüm) biçimlendirme olarak yorumlanmaz: Slack'te kaçışlanır, Teams kartında Markdown işlenmeyen metin olarak gönderilir, Telegram'da HTML'e karşı kaçışlanır. Böylece hata mesajına yazılmış `[Hesabınız kilitlendi](https://…)` gibi bir metin, oltalama için kullanılabilecek bir bağlantıya dönüşmez.
 - Slack, Teams, webhook ve Jira kanalları varsayılan olarak iç ağ adreslerine istek atamaz (bağlantı anında, DNS çözümlemesinden sonra denetlenir); böylece organizasyon yöneticileri sunucunun ağına ulaşamaz. İzin vermek için `NOTIFY_ALLOW_PRIVATE_NETWORKS=true`.
 - Aktarım şifrelemesi için İzci'yi TLS ile (`IZCI_TLS_*`) ya da TLS sonlandıran bir ters vekilin arkasında çalıştırın.
 

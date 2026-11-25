@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"net/http"
 	"strconv"
 	"strings"
@@ -114,7 +115,9 @@ func SlackMessage(n *Notification) map[string]any {
 	}
 	blocks = append(blocks, map[string]any{"type": "context", "elements": []any{mrkdwn(slackEscape(Stats(v)))}})
 	return map[string]any{
-		"text":   fmt.Sprintf("%s: %s %s", Headline(n.Item.Kind, n.Item.Payload), v.ShortID, Truncate(Summary(v), 150)),
+		// The fallback text of notifications is mrkdwn too: escaped, an
+		// error message cannot turn into a disguised link.
+		"text":   slackEscape(fmt.Sprintf("%s: %s %s", Headline(n.Item.Kind, n.Item.Payload), v.ShortID, Truncate(Summary(v), 150))),
 		"blocks": blocks,
 	}
 }
@@ -131,45 +134,57 @@ func (w *Webhooks) slack(ctx context.Context, n *Notification) (*Receipt, error)
 
 // ── Microsoft Teams ────────────────────────────────────────────────────────
 
+// teamsText is a block of text exactly as given. Teams renders Markdown in
+// TextBlocks and fact values, but not in the TextRuns of a RichTextBlock:
+// an error message like "[Hesabınız kilitlendi](https://…)" stays text
+// instead of becoming a disguised link. run styles the text (weight, size,
+// isSubtle, fontType), block places it (spacing).
+func teamsText(s string, run, block map[string]any) map[string]any {
+	r := map[string]any{"type": "TextRun", "text": s}
+	maps.Copy(r, run)
+	b := map[string]any{"type": "RichTextBlock", "inlines": []any{r}}
+	maps.Copy(b, block)
+	return b
+}
+
 // TeamsMessage builds a message with an Adaptive Card, the format both
-// Teams Workflows webhooks and the older incoming webhooks accept.
+// Teams Workflows webhooks and the older incoming webhooks accept. Nothing
+// in it is Markdown.
 func TeamsMessage(n *Notification) map[string]any {
 	var body []any
 	var actions []any
-	text := func(s string, extra map[string]any) map[string]any {
-		b := map[string]any{"type": "TextBlock", "text": s, "wrap": true}
-		for k, v := range extra {
-			b[k] = v
-		}
-		return b
-	}
 	if n.Test() {
 		body = []any{
-			text("✅ Test bildirimi", map[string]any{"weight": "Bolder", "size": "Medium"}),
-			text(testText(n.Channel.Name, n.OrgName), nil),
+			teamsText("✅ Test bildirimi", map[string]any{"weight": "Bolder", "size": "Medium"}, nil),
+			teamsText(testText(n.Channel.Name, n.OrgName), nil, nil),
 		}
 	} else {
 		v := n.Issue
-		body = append(body, text(fmt.Sprintf("%s %s: %s", LevelMark(v.Level), Headline(n.Item.Kind, n.Item.Payload), v.ShortID),
-			map[string]any{"weight": "Bolder", "size": "Medium"}))
+		body = append(body, teamsText(fmt.Sprintf("%s %s: %s", LevelMark(v.Level), Headline(n.Item.Kind, n.Item.Payload), v.ShortID),
+			map[string]any{"weight": "Bolder", "size": "Medium"}, nil))
 		if s := StatusText(v); s != "" {
-			body = append(body, text(s, map[string]any{"isSubtle": true, "spacing": "None"}))
+			body = append(body, teamsText(s, map[string]any{"isSubtle": true}, map[string]any{"spacing": "None"}))
 		}
-		body = append(body, text(Truncate(firstNonEmpty(v.Type, v.Title), 200), map[string]any{"weight": "Bolder"}))
+		body = append(body, teamsText(Truncate(firstNonEmpty(v.Type, v.Title), 200), map[string]any{"weight": "Bolder"}, nil))
 		if v.Type != "" && v.Value != "" {
-			body = append(body, text(Truncate(v.Value, 1500), map[string]any{"spacing": "Small"}))
+			body = append(body, teamsText(Truncate(v.Value, 1500), nil, map[string]any{"spacing": "Small"}))
 		}
 		if loc := Location(v); loc != "" {
-			body = append(body, text(Truncate(loc, 300), map[string]any{"fontType": "Monospace", "isSubtle": true}))
+			body = append(body, teamsText(Truncate(loc, 300), map[string]any{"fontType": "Monospace", "isSubtle": true}, nil))
 		}
-		var facts []any
-		for _, f := range Facts(v) {
-			facts = append(facts, map[string]any{"title": f.Label, "value": Truncate(f.Value, 200)})
+		// Facts as text runs rather than a FactSet, whose values are
+		// Markdown.
+		for i, f := range Facts(v) {
+			spacing := "None"
+			if i == 0 {
+				spacing = "Medium"
+			}
+			body = append(body, map[string]any{"type": "RichTextBlock", "spacing": spacing, "inlines": []any{
+				map[string]any{"type": "TextRun", "text": f.Label + ": ", "weight": "Bolder"},
+				map[string]any{"type": "TextRun", "text": Truncate(f.Value, 200)},
+			}})
 		}
-		if len(facts) > 0 {
-			body = append(body, map[string]any{"type": "FactSet", "facts": facts})
-		}
-		body = append(body, text(Stats(v), map[string]any{"isSubtle": true, "size": "Small"}))
+		body = append(body, teamsText(Stats(v), map[string]any{"isSubtle": true, "size": "Small"}, nil))
 		actions = append(actions, map[string]any{"type": "Action.OpenUrl", "title": "Hatayı aç", "url": n.Link})
 	}
 	card := map[string]any{
