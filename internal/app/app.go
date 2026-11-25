@@ -11,6 +11,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -391,6 +392,10 @@ func Prepare(ctx context.Context, cfg *config.Config, log *slog.Logger, database
 func (a *App) Run(ctx context.Context) error {
 	if err := protectProcess(); err != nil {
 		a.Log.Warn("cannot hide the process environment from other processes", slog.Any("err", err))
+	}
+	if required, err := a.Auth.SetupRequired(ctx); err == nil && required {
+		a.Log.Warn("izci is not set up yet: open the setup page and enter the setup code",
+			slog.String("setup_url", strings.TrimRight(a.Config.PublicURL, "/")+"/setup"), slog.String("setup_code", a.Auth.SetupToken()))
 	}
 	a.Pipeline.Start()
 	jobCtx, stopJobs := context.WithCancel(context.Background())

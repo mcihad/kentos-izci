@@ -285,4 +285,7 @@ enum ErrorReason {
   // An AI run changes files CI, build tools or git run; metadata "files"
   // lists them. Publish with allow_sensitive_changes after reviewing them.
   ERROR_REASON_AI_SENSITIVE_CHANGES = 35;
+  // The setup code is missing or wrong; izci prints it in its log while no
+  // user exists.
+  ERROR_REASON_SETUP_TOKEN_INVALID = 36;
 }

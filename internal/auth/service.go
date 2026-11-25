@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"crypto/subtle"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -279,6 +280,25 @@ func (s *Service) TokenOrg(ctx context.Context, p *Principal) (*Tenant, error) {
 		return nil, err
 	}
 	return s.ResolveTenant(ctx, p, org.Slug)
+}
+
+// SetupToken is the code the setup screen asks for: IZCI_SETUP_TOKEN, or
+// one derived from IZCI_SECRET_KEY, the same on every instance.
+func (s *Service) SetupToken() string {
+	if t := strings.TrimSpace(s.cfg.Auth.SetupToken.Value()); t != "" {
+		return t
+	}
+	return s.box.Code("setup", 16)
+}
+
+// SetupTokenValid compares a typed setup code; case, spaces and dashes do
+// not matter.
+func (s *Service) SetupTokenValid(code string) bool {
+	norm := func(v string) string {
+		return strings.ToUpper(strings.NewReplacer(" ", "", "-", "").Replace(strings.TrimSpace(v)))
+	}
+	got := norm(code)
+	return got != "" && subtle.ConstantTimeCompare([]byte(got), []byte(norm(s.SetupToken()))) == 1
 }
 
 // SetupRequired reports whether no user exists yet.

@@ -14,6 +14,10 @@ const reasonMessages: Partial<Record<ErrorReason, string>> = {
   [ErrorReason.WEAK_PASSWORD]: "Parola en az 10 karakter olmalı ve kolay tahmin edilmemeli.",
   [ErrorReason.SETUP_COMPLETED]: "Kurulum zaten tamamlanmış. Giriş yapabilirsiniz.",
   [ErrorReason.SETUP_REQUIRED]: "Önce kurulumu tamamlayın.",
+  [ErrorReason.SETUP_TOKEN_INVALID]:
+    "Kurulum kodu hatalı. Kodu sunucunun günlüğünde (setup_code) ya da izci setup --print-code çıktısında bulabilirsiniz.",
+  [ErrorReason.AI_SENSITIVE_CHANGES]:
+    "Değişiklik CI ya da derleme dosyalarına dokunuyor. Dosyaları inceleyip onay kutusunu işaretleyin.",
   [ErrorReason.SIGNUP_DISABLED]: "Kayıt kapalı. Bir yöneticiden davet isteyin.",
   [ErrorReason.EMAIL_TAKEN]: "Bu e-posta adresiyle açılmış bir hesap var.",
   [ErrorReason.SLUG_TAKEN]: "Bu kısa ad kullanılıyor. Başka bir kısa ad seçin.",

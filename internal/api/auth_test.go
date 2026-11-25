@@ -25,6 +25,9 @@ import (
 	"github.com/mcihad/kentos-izci/internal/testutil"
 )
 
+// testSetupToken is the setup code of test servers (IZCI_SETUP_TOKEN).
+const testSetupToken = "TEST-SETUP-CODE"
+
 type env struct {
 	srv      *httptest.Server
 	cfg      *config.Config
@@ -43,7 +46,7 @@ func newEnv(t *testing.T, opts ...envOption) *env {
 	database := testutil.NewDB(t)
 	cfg := &config.Config{
 		Env: config.EnvTest, PublicURL: "http://izci.test",
-		Auth:      config.AuthConfig{Signup: "invite", SessionTTL: time.Hour, PasswordLogin: true, InvitationTTL: time.Hour},
+		Auth:      config.AuthConfig{Signup: "invite", SessionTTL: time.Hour, PasswordLogin: true, InvitationTTL: time.Hour, SetupToken: config.Secret(testSetupToken)},
 		Retention: config.RetentionConfig{Days: 30, PremakeDays: 2},
 	}
 	box, _ := secret.NewBox(make([]byte, 32))
@@ -193,11 +196,19 @@ func TestSetupLoginAndSessions(t *testing.T) {
 	if err != nil || !st.Msg.GetSetupRequired() {
 		t.Fatalf("setup state: %v %v", st, err)
 	}
-	if _, err := admin.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{Name: "Ayşe", Email: "ayse@example.com",
+	if _, err := admin.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{SetupToken: testSetupToken, Name: "Ayşe", Email: "ayse@example.com",
 		Password: "123", OrganizationName: "KentOS", OrganizationSlug: "kentos", ProjectName: "Kalem"})); reason(err) != apiv1.ErrorReason_ERROR_REASON_INVALID_ARGUMENT || field(err) != "password" {
 		t.Fatalf("short password must fail validation on the password field: %v (%s)", err, field(err))
 	}
-	setup, err := admin.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{Name: "Ayşe Yılmaz", Email: "Ayse@Example.com",
+	// Whoever reaches a new server first cannot take it over without the
+	// code from its log; case, spaces and dashes do not matter.
+	for _, code := range []string{"", "WRONG-CODE"} {
+		if _, err := admin.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{SetupToken: code, Name: "Ayşe", Email: "ayse@example.com",
+			Password: "uzun ve güçlü parola", OrganizationName: "KentOS", OrganizationSlug: "kentos", ProjectName: "Kalem"})); reason(err) != apiv1.ErrorReason_ERROR_REASON_SETUP_TOKEN_INVALID {
+			t.Fatalf("setup code %q: %v", code, err)
+		}
+	}
+	setup, err := admin.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{SetupToken: " test setupcode ", Name: "Ayşe Yılmaz", Email: "Ayse@Example.com",
 		Password: "uzun ve güçlü parola", OrganizationName: "KentOS", OrganizationSlug: "kentos", ProjectName: "KentOS Kalem", ProjectPlatform: "dotnet"}))
 	if err != nil {
 		t.Fatalf("complete setup: %v", err)
@@ -205,7 +216,7 @@ func TestSetupLoginAndSessions(t *testing.T) {
 	if !setup.Msg.GetSession().GetUser().GetSuperadmin() || setup.Msg.GetProjectSlug() != "kentos-kalem" || !strings.HasPrefix(setup.Msg.GetApiKey(), "izk_") {
 		t.Fatalf("setup response: %v", setup.Msg)
 	}
-	if _, err := admin.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{Name: "X", Email: "x@example.com",
+	if _, err := admin.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{SetupToken: testSetupToken, Name: "X", Email: "x@example.com",
 		Password: "uzun ve güçlü parola", OrganizationName: "X", OrganizationSlug: "xx", ProjectName: "X"})); reason(err) != apiv1.ErrorReason_ERROR_REASON_SETUP_COMPLETED {
 		t.Fatalf("second setup: %v", err)
 	}
@@ -272,7 +283,7 @@ func TestInvitationsRolesAndTenancy(t *testing.T) {
 	e := newEnv(t)
 	ctx := context.Background()
 	owner := e.client(map[string]string{"Izci-Org": "kentos"})
-	if _, err := owner.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{Name: "Owner", Email: "owner@example.com",
+	if _, err := owner.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{SetupToken: testSetupToken, Name: "Owner", Email: "owner@example.com",
 		Password: "uzun ve güçlü parola", OrganizationName: "KentOS", OrganizationSlug: "kentos", ProjectName: "Kalem"})); err != nil {
 		t.Fatal(err)
 	}

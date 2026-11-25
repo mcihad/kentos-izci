@@ -47,6 +47,7 @@ Projeye özel ayarlar **Projeler › proje › Gizlilik** bölümündedir:
 
 ## Kimlik doğrulama
 
+- İlk kurulum sihirbazı, sunucunun günlüğüne yazdığı kurulum kodunu ister; internete açılan yeni bir sunucuyu ilk ulaşan kişi ele geçiremez.
 - Parolalar **argon2id** ile özetlenir; en az 10 karakter olmalıdır. Başarısız girişler hesap ve IP başına yavaşlatılır.
 - Hesaplar [iki adımlı doğrulama](iki-adimli-dogrulama.md) (TOTP) kullanabilir; organizasyonlar bunu üyeleri için zorunlu tutabilir. Doğrulama uygulamasının anahtarı şifreli, kurtarma kodları anahtarlı özet olarak saklanır; hatalı kodlar giderek uzayan bir kilide yol açar.
 - Oturum çerezi `HttpOnly`, `SameSite=Lax` ve `https` adreslerde `Secure`'dur. Veritabanında yalnız çerezin özeti tutulur; oturumlar **Hesabım › Oturumlar** bölümünden kapatılabilir.

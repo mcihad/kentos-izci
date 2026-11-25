@@ -162,6 +162,26 @@ func (b *Box) Sign(msg string, n int) string {
 	return base64.RawURLEncoding.EncodeToString(sum[:n])
 }
 
+// codeAlphabet has no look-alike characters (0/O, 1/I/L).
+const codeAlphabet = "23456789ABCDEFGHJKMNPQRSTUVWXYZ"
+
+// Code derives a code for people to type from label: n characters in
+// groups of four ("7KQ2-…"), the same for every process with the same
+// master key.
+func (b *Box) Code(label string, n int) string {
+	m := hmac.New(sha256.New, b.key)
+	m.Write([]byte("izci/code/" + label))
+	sum := m.Sum(nil)
+	var out strings.Builder
+	for i := 0; i < n && i < len(sum); i++ {
+		if i > 0 && i%4 == 0 {
+			out.WriteByte('-')
+		}
+		out.WriteByte(codeAlphabet[int(sum[i])%len(codeAlphabet)])
+	}
+	return out.String()
+}
+
 // Verify checks a signature produced by Sign in constant time.
 func (b *Box) Verify(msg, sig string, n int) bool {
 	return hmac.Equal([]byte(b.Sign(msg, n)), []byte(sig))

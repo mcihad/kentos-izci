@@ -46,7 +46,7 @@ func setupOrg(t *testing.T, e *env) (*client, string) {
 	t.Helper()
 	ctx := context.Background()
 	owner := e.client(map[string]string{"Izci-Org": "kentos"})
-	if _, err := owner.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{Name: "Owner", Email: "owner@example.com",
+	if _, err := owner.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{SetupToken: testSetupToken, Name: "Owner", Email: "owner@example.com",
 		Password: "uzun ve güçlü parola", OrganizationName: "KentOS", OrganizationSlug: "kentos", ProjectName: "Kalem"})); err != nil {
 		t.Fatal(err)
 	}

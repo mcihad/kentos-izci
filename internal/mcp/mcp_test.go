@@ -35,13 +35,16 @@ type fixture struct {
 	endpointAPI string
 }
 
+// testSetupToken is the setup code of the test server (IZCI_SETUP_TOKEN).
+const testSetupToken = "TEST-SETUP-CODE"
+
 func setup(t *testing.T) *fixture {
 	t.Helper()
 	ctx := context.Background()
 	database := testutil.NewDB(t)
 	cfg := &config.Config{
 		Env: config.EnvTest, PublicURL: "http://izci.test",
-		Auth:      config.AuthConfig{Signup: "invite", SessionTTL: time.Hour, PasswordLogin: true, InvitationTTL: time.Hour},
+		Auth:      config.AuthConfig{Signup: "invite", SessionTTL: time.Hour, PasswordLogin: true, InvitationTTL: time.Hour, SetupToken: config.Secret(testSetupToken)},
 		Retention: config.RetentionConfig{Days: 30, PremakeDays: 2},
 	}
 	box, _ := secret.NewBox(make([]byte, 32))
@@ -57,7 +60,7 @@ func setup(t *testing.T) *fixture {
 	jar, _ := cookiejar.New(nil)
 	hc := &http.Client{Jar: jar}
 	authc := apiv1connect.NewAuthServiceClient(hc, web.URL)
-	if _, err := authc.CompleteSetup(ctx, connect.NewRequest(&apiv1.CompleteSetupRequest{Name: "Owner", Email: "owner@example.com",
+	if _, err := authc.CompleteSetup(ctx, connect.NewRequest(&apiv1.CompleteSetupRequest{SetupToken: testSetupToken, Name: "Owner", Email: "owner@example.com",
 		Password: "uzun ve güçlü parola", OrganizationName: "KentOS", OrganizationSlug: "kentos", ProjectName: "Kalem",
 		ProjectPlatform: "dotnet"})); err != nil {
 		t.Fatal(err)

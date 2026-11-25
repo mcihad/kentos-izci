@@ -13,6 +13,7 @@ import (
 
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
 	"github.com/mcihad/kentos-izci/internal/auth"
+	"github.com/mcihad/kentos-izci/internal/secret"
 	"github.com/mcihad/kentos-izci/internal/slug"
 	"github.com/mcihad/kentos-izci/internal/store"
 )
@@ -35,11 +36,27 @@ func readPassword(cmd *cobra.Command, flag string) (string, error) {
 
 func newSetupCmd(a *cliApp) *cobra.Command {
 	var email, name, password, orgName, orgSlug, projectName, platform string
+	var printCode bool
 	cmd := &cobra.Command{
 		Use:   "setup",
 		Short: "Create the first administrator, organization and project (non-interactive first-run setup)",
-		Args:  cobra.NoArgs,
+		Long: `Create the first administrator, organization and project without the web
+setup screen. With --print-code, print the code the web setup screen asks
+for instead (the server also logs it while no user exists).`,
+		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
+			if printCode {
+				if a.cfg.SecretGenerated() && a.cfg.Auth.SetupToken.Value() == "" {
+					return errors.New("IZCI_SECRET_KEY is not set, so the running server derived its setup code from a temporary key; " +
+						"read the code from its log")
+				}
+				box, err := secret.NewBox(a.cfg.SecretKey)
+				if err != nil {
+					return err
+				}
+				fmt.Fprintln(cmd.OutOrStdout(), auth.NewService(nil, a.cfg, box, nil).SetupToken())
+				return nil
+			}
 			if email == "" || orgName == "" {
 				return errors.New("--email and --org-name are required")
 			}
@@ -116,6 +133,7 @@ func newSetupCmd(a *cliApp) *cobra.Command {
 	cmd.Flags().StringVar(&orgSlug, "org", "", "organization slug (default: derived from the name)")
 	cmd.Flags().StringVar(&projectName, "project", "", "first project name (optional)")
 	cmd.Flags().StringVar(&platform, "platform", "", "first project platform, e.g. dotnet")
+	cmd.Flags().BoolVar(&printCode, "print-code", false, "print the code the web setup screen asks for and exit")
 	return cmd
 }
 

@@ -17,7 +17,7 @@ func TestAlertRulesAndChannels(t *testing.T) {
 	e := newEnv(t)
 	ctx := context.Background()
 	owner := e.client(map[string]string{"Izci-Org": "kentos"})
-	_, err := owner.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{Name: "Owner", Email: "owner@example.com",
+	_, err := owner.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{SetupToken: testSetupToken, Name: "Owner", Email: "owner@example.com",
 		Password: "uzun ve güçlü parola", OrganizationName: "KentOS", OrganizationSlug: "kentos", ProjectName: "Kalem"}))
 	if err != nil {
 		t.Fatal(err)

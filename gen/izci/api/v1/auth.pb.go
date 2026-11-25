@@ -719,8 +719,12 @@ type CompleteSetupRequest struct {
 	ProjectName string `protobuf:"bytes,6,opt,name=project_name,json=projectName,proto3" json:"project_name,omitempty"`
 	// Platform of the first project, e.g. "dotnet".
 	ProjectPlatform string `protobuf:"bytes,7,opt,name=project_platform,json=projectPlatform,proto3" json:"project_platform,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Setup code from the server log ("setup_code" of the "izci is not set
+	// up yet" line) or IZCI_SETUP_TOKEN; case, spaces and dashes do not
+	// matter. It keeps whoever reaches a new server first from taking it over.
+	SetupToken    string `protobuf:"bytes,8,opt,name=setup_token,json=setupToken,proto3" json:"setup_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CompleteSetupRequest) Reset() {
@@ -798,6 +802,13 @@ func (x *CompleteSetupRequest) GetProjectName() string {
 func (x *CompleteSetupRequest) GetProjectPlatform() string {
 	if x != nil {
 		return x.ProjectPlatform
+	}
+	return ""
+}
+
+func (x *CompleteSetupRequest) GetSetupToken() string {
+	if x != nil {
+		return x.SetupToken
 	}
 	return ""
 }
@@ -1820,7 +1831,7 @@ const file_izci_api_v1_auth_proto_rawDesc = "" +
 	"\x0esetup_required\x18\x01 \x01(\bR\rsetupRequired\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\tR\aversion\x12\x1d\n" +
 	"\n" +
-	"public_url\x18\x03 \x01(\tR\tpublicUrl\"\xeb\x02\n" +
+	"public_url\x18\x03 \x01(\tR\tpublicUrl\"\x96\x03\n" +
 	"\x14CompleteSetupRequest\x12\x1e\n" +
 	"\x04name\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\xc8\x01R\x04name\x12\x1d\n" +
@@ -1831,7 +1842,9 @@ const file_izci_api_v1_auth_proto_rawDesc = "" +
 	"\x11organization_name\x18\x04 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18dR\x10organizationName\x12R\n" +
 	"\x11organization_slug\x18\x05 \x01(\tB%\xbaH\"r 2\x1e^[a-z][a-z0-9-]{0,48}[a-z0-9]$R\x10organizationSlug\x12,\n" +
 	"\fproject_name\x18\x06 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18dR\vprojectName\x122\n" +
-	"\x10project_platform\x18\a \x01(\tB\a\xbaH\x04r\x02\x18 R\x0fprojectPlatform\"\x83\x01\n" +
+	"\x10project_platform\x18\a \x01(\tB\a\xbaH\x04r\x02\x18 R\x0fprojectPlatform\x12)\n" +
+	"\vsetup_token\x18\b \x01(\tB\b\xbaH\x05r\x03\x18\x80\x01R\n" +
+	"setupToken\"\x83\x01\n" +
 	"\x15CompleteSetupResponse\x12.\n" +
 	"\asession\x18\x01 \x01(\v2\x14.izci.api.v1.SessionR\asession\x12!\n" +
 	"\fproject_slug\x18\x02 \x01(\tR\vprojectSlug\x12\x17\n" +

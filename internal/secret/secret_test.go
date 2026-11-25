@@ -77,3 +77,21 @@ func TestSign(t *testing.T) {
 		t.Fatal("signature accepted for another message")
 	}
 }
+
+func TestCode(t *testing.T) {
+	a, _ := NewBox(make([]byte, 32))
+	b, _ := NewBox(make([]byte, 32))
+	other := make([]byte, 32)
+	other[0] = 1
+	c, _ := NewBox(other)
+	code := a.Code("setup", 16)
+	if len(code) != 19 || strings.Count(code, "-") != 3 || strings.ContainsAny(code, "01ILO") {
+		t.Fatalf("format: %q", code)
+	}
+	if b.Code("setup", 16) != code {
+		t.Error("the same master key must give the same code on every instance")
+	}
+	if c.Code("setup", 16) == code || a.Code("other", 16) == code {
+		t.Error("codes must depend on the key and the label")
+	}
+}

@@ -48,7 +48,7 @@ func TestTwoFactorAuthentication(t *testing.T) {
 	ctx := context.Background()
 	const password = "uzun ve güçlü parola"
 	owner := e.client(map[string]string{"Izci-Org": "kentos"})
-	if _, err := owner.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{Name: "Ayşe", Email: "ayse@example.com",
+	if _, err := owner.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{SetupToken: testSetupToken, Name: "Ayşe", Email: "ayse@example.com",
 		Password: password, OrganizationName: "KentOS", OrganizationSlug: "kentos", ProjectName: "Kalem"})); err != nil {
 		t.Fatal(err)
 	}

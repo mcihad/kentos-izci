@@ -89,7 +89,9 @@ _Side-effect free: may be called with HTTP GET over the Connect protocol._
 
 CompleteSetup creates the first user (an instance superadmin and owner),
 the first organization and the first project, then signs the user in.
-Fails with ERROR_REASON_SETUP_COMPLETED once any user exists.
+Fails with ERROR_REASON_SETUP_COMPLETED once any user exists and with
+ERROR_REASON_SETUP_TOKEN_INVALID without the setup code, which izci
+prints in its log while no user exists (or IZCI_SETUP_TOKEN).
 
 <a id="izci-api-v1-authservice-listauthproviders"></a>
 
@@ -1985,6 +1987,7 @@ CompleteSetupRequest holds the first user, organization and project.
 | `organization_slug` | `string` | Slug of the first organization: 2–50 lowercase letters, digits or hyphens, starting with a letter, e.g. "kentos". | pattern `^[a-z][a-z0-9-]{0,48}[a-z0-9]$` |
 | `project_name` | `string` | Display name of the first project, e.g. "KentOS Kalem". | min length 1, max length 100 |
 | `project_platform` | `string` | Platform of the first project, e.g. "dotnet". | max length 32 |
+| `setup_token` | `string` | Setup code from the server log ("setup_code" of the "izci is not set up yet" line) or IZCI_SETUP_TOKEN; case, spaces and dashes do not matter. It keeps whoever reaches a new server first from taking it over. | max length 128 |
 
 <a id="izci-api-v1-completesetupresponse"></a>
 
@@ -5737,6 +5740,7 @@ reason to a localized message.
 | `ERROR_REASON_INVALID_TWO_FACTOR_CODE` | 33 | The two-factor code (from the authenticator app, or a recovery code) is wrong or was used already. |
 | `ERROR_REASON_TWO_FACTOR_EXPIRED` | 34 | The sign-in or setup waiting for a two-factor code expired; sign in or start the setup again. |
 | `ERROR_REASON_AI_SENSITIVE_CHANGES` | 35 | An AI run changes files CI, build tools or git run; metadata "files" lists them. Publish with allow_sensitive_changes after reviewing them. |
+| `ERROR_REASON_SETUP_TOKEN_INVALID` | 36 | The setup code is missing or wrong; izci prints it in its log while no user exists. |
 
 <a id="izci-api-v1-eventpick"></a>
 

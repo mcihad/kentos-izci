@@ -147,6 +147,10 @@ type AuthConfig struct {
 	PasswordLogin bool `env:"AUTH_PASSWORD_LOGIN" envDefault:"true"`
 	// InvitationTTL is how long invitation links stay valid.
 	InvitationTTL time.Duration `env:"AUTH_INVITATION_TTL" envDefault:"168h"`
+	// SetupToken is the code the first-run setup screen asks for. Empty:
+	// one is derived from IZCI_SECRET_KEY and printed in the log while no
+	// user exists.
+	SetupToken Secret `env:"IZCI_SETUP_TOKEN"`
 	// Providers lists OpenID Connect provider ids, e.g. "kimlik,google".
 	Providers []string `env:"OIDC_PROVIDERS" envSeparator:","`
 }

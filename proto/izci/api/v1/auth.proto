@@ -23,7 +23,9 @@ service AuthService {
 
   // CompleteSetup creates the first user (an instance superadmin and owner),
   // the first organization and the first project, then signs the user in.
-  // Fails with ERROR_REASON_SETUP_COMPLETED once any user exists.
+  // Fails with ERROR_REASON_SETUP_COMPLETED once any user exists and with
+  // ERROR_REASON_SETUP_TOKEN_INVALID without the setup code, which izci
+  // prints in its log while no user exists (or IZCI_SETUP_TOKEN).
   rpc CompleteSetup(CompleteSetupRequest) returns (CompleteSetupResponse);
 
   // ListAuthProviders lists the sign-in options shown on the login page.
@@ -264,6 +266,11 @@ message CompleteSetupRequest {
 
   // Platform of the first project, e.g. "dotnet".
   string project_platform = 7 [(buf.validate.field).string.max_len = 32];
+
+  // Setup code from the server log ("setup_code" of the "izci is not set
+  // up yet" line) or IZCI_SETUP_TOKEN; case, spaces and dashes do not
+  // matter. It keeps whoever reaches a new server first from taking it over.
+  string setup_token = 8 [(buf.validate.field).string.max_len = 128];
 }
 
 // CompleteSetupResponse returns the new session and the first API key.

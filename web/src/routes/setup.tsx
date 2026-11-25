@@ -9,8 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AuthService, type CompleteSetupResponse } from "@/gen/izci/api/v1/auth_pb";
+import { ErrorReason } from "@/gen/izci/api/v1/common_pb";
 import { baseTransport } from "@/lib/api";
-import { errorField, errorMessage } from "@/lib/errors";
+import { errorField, errorMessage, errorReason } from "@/lib/errors";
 import { platformOptions } from "@/lib/platforms";
 import { storeSession } from "@/lib/session";
 import { slugify } from "@/lib/slug";
@@ -43,6 +44,7 @@ function SetupPage() {
   const { queryClient } = Route.useRouteContext();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
+    setupToken: "",
     name: "",
     email: "",
     password: "",
@@ -59,7 +61,7 @@ function SetupPage() {
       setDone(res);
     },
     onError: (err) => {
-      const s = fieldStep[errorField(err)];
+      const s = errorReason(err) === ErrorReason.SETUP_TOKEN_INVALID ? 0 : fieldStep[errorField(err)];
       if (s !== undefined) setStep(s);
     },
   });
@@ -109,6 +111,7 @@ function SetupPage() {
       return;
     }
     setup.mutate({
+      setupToken: form.setupToken,
       name: form.name,
       email: form.email,
       password: form.password,
@@ -160,14 +163,36 @@ function SetupPage() {
         <form className="grid gap-4" onSubmit={next}>
           {step === 0 ? (
             <>
-              <Field label="Ad soyad" htmlFor="name" error={fieldError("name")}>
+              <Field
+                label="Kurulum kodu"
+                htmlFor="setup-token"
+                error={
+                  setup.error && errorReason(setup.error) === ErrorReason.SETUP_TOKEN_INVALID
+                    ? errorMessage(setup.error)
+                    : undefined
+                }
+                hint={
+                  <>
+                    İzci açılırken günlüğüne yazar (<code>setup_code</code>, ör.{" "}
+                    <code>docker compose logs izci</code>); <code>izci setup --print-code</code> da gösterir.
+                    Sunucuya ilk ulaşan kişinin onu ele geçirmesini önler.
+                  </>
+                }
+              >
                 <Input
-                  id="name"
+                  id="setup-token"
                   required
                   autoFocus
-                  value={form.name}
-                  onChange={(e) => set({ name: e.target.value })}
+                  autoComplete="off"
+                  spellCheck={false}
+                  className="font-mono uppercase"
+                  placeholder="XXXX-XXXX-XXXX-XXXX"
+                  value={form.setupToken}
+                  onChange={(e) => set({ setupToken: e.target.value })}
                 />
+              </Field>
+              <Field label="Ad soyad" htmlFor="name" error={fieldError("name")}>
+                <Input id="name" required value={form.name} onChange={(e) => set({ name: e.target.value })} />
               </Field>
               <Field label="E-posta" htmlFor="email" error={fieldError("email")}>
                 <Input

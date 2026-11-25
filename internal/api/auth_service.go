@@ -67,6 +67,19 @@ func (s *AuthServer) GetSetupState(ctx context.Context, _ *connect.Request[apiv1
 // CompleteSetup implements AuthService.CompleteSetup.
 func (s *AuthServer) CompleteSetup(ctx context.Context, req *connect.Request[apiv1.CompleteSetupRequest]) (*connect.Response[apiv1.CompleteSetupResponse], error) {
 	m := req.Msg
+	// Cheap checks first: password hashing is expensive and must not run
+	// for requests that cannot succeed.
+	required, err := s.auth.SetupRequired(ctx)
+	if err != nil {
+		return nil, internal(ctx, s.log, "setup state", err)
+	}
+	if !required {
+		return nil, apiError(connect.CodeFailedPrecondition, apiv1.ErrorReason_ERROR_REASON_SETUP_COMPLETED, "setup was already completed")
+	}
+	if !s.auth.SetupTokenValid(m.GetSetupToken()) {
+		return nil, apiError(connect.CodePermissionDenied, apiv1.ErrorReason_ERROR_REASON_SETUP_TOKEN_INVALID,
+			"the setup code is wrong; izci prints it in its log while no user exists")
+	}
 	if err := auth.ValidatePassword(m.GetPassword()); err != nil {
 		return nil, weakPassword()
 	}

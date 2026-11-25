@@ -71,7 +71,9 @@ type AuthServiceClient interface {
 	GetSetupState(context.Context, *connect.Request[v1.GetSetupStateRequest]) (*connect.Response[v1.GetSetupStateResponse], error)
 	// CompleteSetup creates the first user (an instance superadmin and owner),
 	// the first organization and the first project, then signs the user in.
-	// Fails with ERROR_REASON_SETUP_COMPLETED once any user exists.
+	// Fails with ERROR_REASON_SETUP_COMPLETED once any user exists and with
+	// ERROR_REASON_SETUP_TOKEN_INVALID without the setup code, which izci
+	// prints in its log while no user exists (or IZCI_SETUP_TOKEN).
 	CompleteSetup(context.Context, *connect.Request[v1.CompleteSetupRequest]) (*connect.Response[v1.CompleteSetupResponse], error)
 	// ListAuthProviders lists the sign-in options shown on the login page.
 	// Callable without authentication.
@@ -272,7 +274,9 @@ type AuthServiceHandler interface {
 	GetSetupState(context.Context, *connect.Request[v1.GetSetupStateRequest]) (*connect.Response[v1.GetSetupStateResponse], error)
 	// CompleteSetup creates the first user (an instance superadmin and owner),
 	// the first organization and the first project, then signs the user in.
-	// Fails with ERROR_REASON_SETUP_COMPLETED once any user exists.
+	// Fails with ERROR_REASON_SETUP_COMPLETED once any user exists and with
+	// ERROR_REASON_SETUP_TOKEN_INVALID without the setup code, which izci
+	// prints in its log while no user exists (or IZCI_SETUP_TOKEN).
 	CompleteSetup(context.Context, *connect.Request[v1.CompleteSetupRequest]) (*connect.Response[v1.CompleteSetupResponse], error)
 	// ListAuthProviders lists the sign-in options shown on the login page.
 	// Callable without authentication.

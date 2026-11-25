@@ -73,6 +73,14 @@ DATABASE_URL=postgres://izci:…@db:5432/izci?sslmode=require
 
 Hiç kullanıcı yokken `IZCI_PUBLIC_URL` adresi kurulum sihirbazına yönlenir. Sihirbazda yönetici, ilk organizasyon ve isteğe bağlı ilk proje oluşturulur.
 
+Sihirbaz önce bir **kurulum kodu** ister; böylece internete açılan yeni bir sunucuyu ilk ulaşan kişi ele geçiremez. İzci, kullanıcı yokken her açılışta kodu günlüğüne yazar:
+
+```text
+level=WARN msg="izci is not set up yet: open the setup page and enter the setup code" setup_url=https://izci.example.com/setup setup_code=7KQ2-…
+```
+
+Kod `IZCI_SECRET_KEY`'den türetilir, bu yüzden bütün sunucu örneklerinde aynıdır; `./bin/izci setup --print-code` de gösterir. Kendi kodunuzu `IZCI_SETUP_TOKEN` ile verebilirsiniz.
+
 Aynı işi komut satırından da yapabilirsiniz:
 
 ```bash
