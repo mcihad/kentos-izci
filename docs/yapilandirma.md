@@ -62,7 +62,8 @@ Hatalı bir değer sunucunun açılmasını engeller; hata mesajı hangi değiş
 
 | Değişken | Varsayılan | Açıklama |
 |---|---|---|
-| `AUTH_SIGNUP` | `invite` | Kim hesap açabilir: `invite` (yalnız davetle), `open` (herkes; kendi organizasyonunu oluşturur) ya da `closed`. |
+| `AUTH_SIGNUP` | `invite` | Kim hesap açabilir: `invite` (yalnız davetle), `open` (herkes; kendi organizasyonunu oluşturur) ya da `closed`. Açık kayıtta hesap, e-posta adresine gönderilen bağlantı açılınca oluşur; production'da `SMTP_HOST` gerekir, geliştirmede bağlantı sunucu günlüğüne yazılır. |
+| `AUTH_SIGNUP_ORG_LIMIT` | `3` | Açık kayıtta bir kullanıcının sahibi olabileceği en çok organizasyon sayısı (kayıtta açılan dahil). Sunucu yöneticileri sınırsızdır; `0` sınırı kaldırır. |
 | `AUTH_SESSION_TTL` | `720h` | Kullanılmayan tarayıcı oturumunun ömrü (boşta kalma süresi); her kullanım uzatır. Kısa tutmak (ör. `8h`) ortak bilgisayarlarda açık kalan oturumların riskini azaltır. |
 | `AUTH_SESSION_MAX_AGE` | `720h` | Oturumun girişten itibaren en uzun ömrü. Ne kadar kullanılırsa kullanılsın bu süre dolunca yeniden giriş istenir; çalınan bir oturum çerezi süresiz kullanılamaz. |
 | `AUTH_PASSWORD_LOGIN` | `true` | E-posta ve parolayla giriş. Kapatılırsa yalnız OpenID Connect ile girilir. |
@@ -117,7 +118,7 @@ Ayrıntılar: [Telegram bildirimleri](telegram.md).
 
 | Değişken | Varsayılan | Açıklama |
 |---|---|---|
-| `SMTP_HOST` | (boş) | E-posta kanallarının kullandığı SMTP sunucusu. Boşsa e-posta kanalı eklenemez. |
+| `SMTP_HOST` | (boş) | E-posta kanallarının ve açık kayıt bağlantılarının kullandığı SMTP sunucusu. Boşsa e-posta kanalı eklenemez ve production'da açık kayıt kullanılamaz. |
 | `SMTP_PORT` | `587` | STARTTLS için 587, doğrudan TLS için 465. |
 | `SMTP_USERNAME`, `SMTP_PASSWORD` | (boş) | Verilirse PLAIN ile kimlik doğrulanır (yalnız şifreli bağlantıda). |
 | `SMTP_FROM` | (boş) | Gönderen adres, ör. `İzci <izci@example.com>`. `SMTP_HOST` verilince zorunludur. |

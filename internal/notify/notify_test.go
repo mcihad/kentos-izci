@@ -505,3 +505,41 @@ func TestUnavailableKind(t *testing.T) {
 		t.Fatalf("last error: %q", e)
 	}
 }
+
+// TestSendMail checks account e-mails (sign-up links) through SMTP.
+func TestSendMail(t *testing.T) {
+	sink := newSMTPSink(t)
+	host, port, _ := net.SplitHostPort(sink.ln.Addr().String())
+	p, _ := strconv.Atoi(port)
+	email, err := notify.NewEmail(config.SMTPConfig{Host: host, Port: p, From: "izci@kentos.example", TLS: "none"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	link := "https://izci.example.com/verify/izv_abc"
+	if err := email.SendMail(context.Background(), "ayse@kentos.example", "İzci hesabınızı etkinleştirin",
+		"Bağlantı: "+link, `<a href="`+link+`">Hesabımı etkinleştir</a>`); err != nil {
+		t.Fatal(err)
+	}
+	msgs := sink.messages()
+	if len(msgs) != 1 || len(msgs[0].to) != 1 || msgs[0].to[0] != "ayse@kentos.example" {
+		t.Fatalf("messages: %+v", msgs)
+	}
+	m, err := mail.ReadMessage(strings.NewReader(msgs[0].data))
+	if err != nil {
+		t.Fatal(err)
+	}
+	subject, _ := new(mime.WordDecoder).DecodeHeader(m.Header.Get("Subject"))
+	from, _ := mail.ParseAddress(m.Header.Get("From"))
+	if subject != "İzci hesabınızı etkinleştirin" || from == nil || from.Name != "İzci" || m.Header.Get("Message-ID") == "" {
+		t.Fatalf("headers: %v", m.Header)
+	}
+	body, _ := io.ReadAll(m.Body)
+	if strings.Count(decodeQP(string(body)), link) != 2 {
+		t.Fatalf("body: %s", body)
+	}
+
+	sink.reject = "550 no such user"
+	if err := email.SendMail(context.Background(), "yok@kentos.example", "x", "x", "x"); err == nil {
+		t.Fatal("a rejected recipient must fail")
+	}
+}

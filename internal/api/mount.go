@@ -50,6 +50,9 @@ type Deps struct {
 	// Delivery sends queued notifications (optional in tests: then nothing
 	// is delivered right away).
 	Delivery *notify.Dispatcher
+	// Mailer sends sign-up links; nil without SMTP (development servers
+	// then write the links to the log).
+	Mailer Mailer
 	// Jira creates tickets from issues; Email is nil without SMTP.
 	Jira  *notify.Jira
 	Email *notify.Email
@@ -111,7 +114,8 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 		d.Hub = realtime.NewHub()
 	}
 	b := &base{db: d.DB, auth: d.Auth, cfg: d.Config, log: d.Log, hub: d.Hub, pipeline: d.Pipeline, keys: d.Keys, done: d.StreamsDone,
-		notifier: d.Notifier, alerts: d.Alerts, ai: d.AI, github: d.GitHub, delivery: d.Delivery, jira: d.Jira, email: d.Email}
+		notifier: d.Notifier, alerts: d.Alerts, ai: d.AI, github: d.GitHub, delivery: d.Delivery, jira: d.Jira, email: d.Email,
+		mailer: d.Mailer}
 	if b.jira == nil {
 		b.jira = notify.NewJira(d.Auth.Box(), notify.NewHTTPClient(d.Config.Notify.AllowPrivateNetworks))
 	}

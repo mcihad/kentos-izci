@@ -45,6 +45,7 @@ type base struct {
 	delivery *notify.Dispatcher
 	jira     *notify.Jira
 	email    *notify.Email
+	mailer   Mailer
 }
 
 // AuthServer implements izci.api.v1.AuthService.
@@ -298,48 +299,6 @@ func (s *AuthServer) ChangePassword(ctx context.Context, req *connect.Request[ap
 		return nil, internal(ctx, s.log, "end sessions", err)
 	}
 	return connect.NewResponse(&apiv1.ChangePasswordResponse{}), nil
-}
-
-// SignUp implements AuthService.SignUp.
-func (s *AuthServer) SignUp(ctx context.Context, req *connect.Request[apiv1.SignUpRequest]) (*connect.Response[apiv1.SignUpResponse], error) {
-	if s.cfg.Auth.Signup != "open" {
-		return nil, apiError(connect.CodePermissionDenied, apiv1.ErrorReason_ERROR_REASON_SIGNUP_DISABLED, "self sign-up is disabled")
-	}
-	if err := s.auth.ThrottlePublic(ctx, infoFrom(ctx).IP); err != nil {
-		return nil, throttled(err)
-	}
-	m := req.Msg
-	if err := auth.ValidatePassword(m.GetPassword()); err != nil {
-		return nil, weakPassword()
-	}
-	hash, err := auth.HashPassword(m.GetPassword())
-	if err != nil {
-		return nil, internal(ctx, s.log, "hash password", err)
-	}
-	var user *store.User
-	err = s.db.InSystem(ctx, func(tx pgx.Tx) error {
-		if user, err = store.CreateUser(ctx, tx, store.NewUserInput{Email: strings.ToLower(m.GetEmail()), Name: m.GetName(), PasswordHash: &hash}); err != nil {
-			return err
-		}
-		org, err := store.CreateOrganization(ctx, tx, m.GetOrganizationSlug(), m.GetOrganizationName())
-		if err != nil {
-			return err
-		}
-		return store.AddMember(ctx, tx, org.ID, user.ID, apiv1.Role_ROLE_OWNER)
-	})
-	switch {
-	case store.UniqueViolation(err, "users_email_key"):
-		return nil, apiError(connect.CodeAlreadyExists, apiv1.ErrorReason_ERROR_REASON_EMAIL_TAKEN, "email already registered")
-	case store.UniqueViolation(err, "organizations_slug_key"):
-		return nil, apiError(connect.CodeAlreadyExists, apiv1.ErrorReason_ERROR_REASON_SLUG_TAKEN, "organization slug is taken")
-	case err != nil:
-		return nil, internal(ctx, s.log, "sign up", err)
-	}
-	resp := connect.NewResponse(&apiv1.SignUpResponse{})
-	if resp.Msg.Session, err = s.startSession(ctx, resp.Header(), user); err != nil {
-		return nil, internal(ctx, s.log, "start session", err)
-	}
-	return resp, nil
 }
 
 // GetInvitation implements AuthService.GetInvitation.

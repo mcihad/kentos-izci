@@ -77,9 +77,18 @@ service AuthService {
   // sessions only.
   rpc Reauthenticate(ReauthenticateRequest) returns (ReauthenticateResponse);
 
-  // SignUp creates an account together with a new organization when self
-  // sign-up is open (AUTH_SIGNUP=open), then signs the user in.
+  // SignUp starts a self sign-up when it is open (AUTH_SIGNUP=open): it
+  // e-mails a link to the address, and VerifySignup creates the account
+  // and a new organization once the link is opened. Nobody can hold an
+  // account under an address they cannot read. Fails with
+  // ERROR_REASON_EMAIL_TAKEN when the address has an account.
   rpc SignUp(SignUpRequest) returns (SignUpResponse);
+
+  // VerifySignup finishes a self sign-up with the token of the link SignUp
+  // sent: it creates the account and its organization (with a suffixed
+  // slug when the chosen one was taken meanwhile) and signs the user in.
+  // Other sign-ups waiting for the same address are dropped.
+  rpc VerifySignup(VerifySignupRequest) returns (VerifySignupResponse);
 
   // GetInvitation describes a pending invitation by its token. Callable
   // without authentication so the invitation page can render.
@@ -439,9 +448,29 @@ message SignUpRequest {
   string organization_slug = 5 [(buf.validate.field).string.pattern = "^[a-z][a-z0-9-]{0,48}[a-z0-9]$"];
 }
 
-// SignUpResponse returns the new session.
+// SignUpResponse reports how the sign-up continues.
 message SignUpResponse {
-  // Session of the new user.
+  // Not set by servers that confirm e-mail addresses (all current ones):
+  // the session comes from VerifySignup.
+  Session session = 1;
+
+  // A link was sent to the e-mail address. It is valid for 24 hours; the
+  // account is created when it is opened (VerifySignup).
+  bool verification_sent = 2;
+}
+
+// VerifySignupRequest carries the token of a sign-up link.
+message VerifySignupRequest {
+  // Token from the link, the last path segment of /verify/<token>.
+  string token = 1 [(buf.validate.field).string = {
+    min_len: 16
+    max_len: 128
+  }];
+}
+
+// VerifySignupResponse returns the session of the new account.
+message VerifySignupResponse {
+  // Session of the new user, owner of the new organization.
   Session session = 1;
 }
 

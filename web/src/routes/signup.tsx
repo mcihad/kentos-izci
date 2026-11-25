@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@connectrpc/connect-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { MailCheckIcon } from "lucide-react";
 import { useState } from "react";
 import { AuthLayout } from "@/components/app/auth-layout";
 import { Field, FormError } from "@/components/common/field";
@@ -21,8 +22,10 @@ function SignupPage() {
   const [form, setForm] = useState({ name: "", email: "", password: "", org: "" });
   const signup = useMutation(AuthService.method.signUp, {
     onSuccess: (res) => {
+      // The account is created when the e-mailed link is opened.
+      if (res.verificationSent || !res.session) return;
       storeSession(queryClient, res.session);
-      const org = res.session?.memberships[0]?.organization?.slug;
+      const org = res.session.memberships[0]?.organization?.slug;
       void navigate({ href: org ? `/o/${org}` : "/" });
     },
   });
@@ -37,6 +40,28 @@ function SignupPage() {
           <h1 className="font-semibold text-2xl tracking-tight">Kayıt kapalı</h1>
           <p className="text-md text-muted-foreground">
             Bu sunucuya yalnızca davetle katılabilirsiniz. Organizasyonunuzun yöneticisinden davet isteyin.
+          </p>
+          <Button asChild variant="outline">
+            <Link to="/login">Giriş sayfasına git</Link>
+          </Button>
+        </div>
+      </AuthLayout>
+    );
+  }
+
+  if (signup.data?.verificationSent) {
+    return (
+      <AuthLayout>
+        <div className="space-y-4">
+          <MailCheckIcon className="size-9 text-brand-ink" strokeWidth={1.75} />
+          <h1 className="font-semibold text-2xl tracking-tight">E-postanızı kontrol edin</h1>
+          <p className="text-md text-muted-foreground leading-relaxed">
+            <span className="font-medium text-foreground">{form.email.trim()}</span> adresine bir bağlantı
+            gönderdik. Hesabınız ve organizasyonunuz bağlantıyı açtığınızda oluşturulur. Bağlantı 24 saat
+            geçerlidir.
+          </p>
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            E-posta gelmediyse istenmeyen posta klasörüne bakın ya da birkaç dakika sonra yeniden kaydolun.
           </p>
           <Button asChild variant="outline">
             <Link to="/login">Giriş sayfasına git</Link>
@@ -109,7 +134,7 @@ function SignupPage() {
             message={signup.error && !errorField(signup.error) ? errorMessage(signup.error) : undefined}
           />
           <Button type="submit" className="h-10" disabled={signup.isPending}>
-            {signup.isPending ? "Hesap açılıyor…" : "Hesap aç"}
+            {signup.isPending ? "Gönderiliyor…" : "Hesap aç"}
           </Button>
           <p className="text-md text-muted-foreground">
             Hesabınız var mı?{" "}

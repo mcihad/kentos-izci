@@ -161,3 +161,23 @@ func TestSuperadminTwoFactor(t *testing.T) {
 		t.Fatalf("unknown value must fail, got %v", err)
 	}
 }
+
+func TestOpenSignupNeedsSMTP(t *testing.T) {
+	t.Setenv("IZCI_ENV", "production")
+	t.Setenv("IZCI_SECRET_KEY", base64.StdEncoding.EncodeToString(make([]byte, 32)))
+	t.Setenv("AUTH_SIGNUP", "open")
+	t.Setenv("SMTP_HOST", "")
+	if _, err := Load(""); err == nil || !strings.Contains(err.Error(), "AUTH_SIGNUP=open needs SMTP_HOST") {
+		t.Fatalf("open sign-up without SMTP in production: %v", err)
+	}
+	t.Setenv("SMTP_HOST", "smtp.example.com")
+	t.Setenv("SMTP_FROM", "izci@example.com")
+	if _, err := Load(""); err != nil && strings.Contains(err.Error(), "AUTH_SIGNUP") {
+		t.Fatalf("open sign-up with SMTP: %v", err)
+	}
+	t.Setenv("IZCI_ENV", "development")
+	t.Setenv("SMTP_HOST", "")
+	if _, err := Load(""); err != nil && strings.Contains(err.Error(), "AUTH_SIGNUP") {
+		t.Fatalf("development logs the links instead: %v", err)
+	}
+}

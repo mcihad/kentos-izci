@@ -139,8 +139,14 @@ type IngestConfig struct {
 
 // AuthConfig configures sign-in.
 type AuthConfig struct {
-	// Signup is "invite" (default), "open" or "closed".
+	// Signup is "invite" (default), "open" or "closed". Open sign-ups
+	// confirm the e-mail address with a link (SMTP; in development the
+	// link is logged).
 	Signup string `env:"AUTH_SIGNUP" envDefault:"invite"`
+	// SignupOrgLimit is how many organizations a user may own while
+	// sign-up is open (instance administrators have no limit); 0 removes
+	// the limit.
+	SignupOrgLimit int `env:"AUTH_SIGNUP_ORG_LIMIT" envDefault:"3"`
 	// SessionTTL is how long an unused browser session stays valid; every
 	// use extends it (sliding idle timeout).
 	SessionTTL time.Duration `env:"AUTH_SESSION_TTL" envDefault:"720h"`
@@ -179,7 +185,8 @@ type TelegramConfig struct {
 // Enabled reports whether a bot token is configured.
 func (t TelegramConfig) Enabled() bool { return t.BotToken != "" }
 
-// SMTPConfig configures outgoing e-mail for e-mail notification channels.
+// SMTPConfig configures outgoing e-mail: notification channels and the
+// links that confirm self sign-ups.
 type SMTPConfig struct {
 	// Host is the SMTP server; empty disables e-mail notifications.
 	Host string `env:"SMTP_HOST"`
@@ -408,6 +415,12 @@ func (c *Config) finalize() error {
 	case "invite", "open", "closed":
 	default:
 		errs = append(errs, fmt.Errorf("AUTH_SIGNUP must be invite, open or closed (got %q)", c.Auth.Signup))
+	}
+	if c.Auth.Signup == "open" && c.IsProduction() && !c.SMTP.Enabled() {
+		errs = append(errs, errors.New("AUTH_SIGNUP=open needs SMTP_HOST in production: new accounts confirm their e-mail address with a link"))
+	}
+	if c.Auth.SignupOrgLimit < 0 {
+		errs = append(errs, fmt.Errorf("AUTH_SIGNUP_ORG_LIMIT must not be negative (got %d)", c.Auth.SignupOrgLimit))
 	}
 	switch c.Auth.RequireTwoFactorSuperadmin {
 	case "auto", "true", "false":

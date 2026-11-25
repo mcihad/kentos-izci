@@ -179,6 +179,28 @@ func (e *Email) Message(n *Notification, to []string, msgID, inReplyTo string, n
 	if err != nil {
 		return nil, err
 	}
+	var extra [][2]string
+	if n.Issue != nil {
+		extra = append(extra, [2]string{"X-Izci-Issue", n.Issue.ShortID})
+	}
+	return e.compose(to, Subject(n), msgID, inReplyTo, extra, text, htmlBody, now)
+}
+
+// SendMail sends an account message (a sign-up link) with a plain text and
+// an HTML part to one address.
+func (e *Email) SendMail(ctx context.Context, to, subject, text, htmlBody string) error {
+	msg, err := e.compose([]string{to}, subject, "<"+uuid.NewString()+"@"+e.domain+">", "", nil, text, htmlBody, time.Now())
+	if err != nil {
+		return err
+	}
+	if err := e.deliver(ctx, []string{to}, msg); err != nil {
+		return classifySMTP(err)
+	}
+	return nil
+}
+
+// compose builds a MIME message with a plain text and an HTML part.
+func (e *Email) compose(to []string, subject, msgID, inReplyTo string, extra [][2]string, text, htmlBody string, now time.Time) ([]byte, error) {
 	var buf bytes.Buffer
 	header := func(k, v string) { fmt.Fprintf(&buf, "%s: %s\r\n", k, v) }
 	from := mail.Address{Name: e.from.Name, Address: e.from.Address}
@@ -187,7 +209,7 @@ func (e *Email) Message(n *Notification, to []string, msgID, inReplyTo string, n
 	}
 	header("From", from.String())
 	header("To", strings.Join(to, ", "))
-	header("Subject", mime.QEncoding.Encode("utf-8", Subject(n)))
+	header("Subject", mime.QEncoding.Encode("utf-8", subject))
 	header("Date", now.Format(time.RFC1123Z))
 	header("Message-ID", msgID)
 	if inReplyTo != "" {
@@ -196,8 +218,8 @@ func (e *Email) Message(n *Notification, to []string, msgID, inReplyTo string, n
 	}
 	header("MIME-Version", "1.0")
 	header("Auto-Submitted", "auto-generated")
-	if n.Issue != nil {
-		header("X-Izci-Issue", n.Issue.ShortID)
+	for _, h := range extra {
+		header(h[0], h[1])
 	}
 	mw := multipart.NewWriter(&buf)
 	header("Content-Type", `multipart/alternative; boundary="`+mw.Boundary()+`"`)

@@ -50,6 +50,7 @@ var rules = map[string]rule{
 	c.AuthServiceChangePasswordProcedure:    {scope: write},
 	c.AuthServiceReauthenticateProcedure:    {scope: write}, // browser sessions only (checked in the handler)
 	c.AuthServiceSignUpProcedure:            {public: true},
+	c.AuthServiceVerifySignupProcedure:      {public: true},
 	c.AuthServiceGetInvitationProcedure:     {public: true},
 	c.AuthServiceAcceptInvitationProcedure:  {optional: true},
 

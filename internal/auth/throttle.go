@@ -21,6 +21,9 @@ const (
 	// One client calling unauthenticated endpoints that guess secrets or
 	// hash passwords.
 	publicIPLimit = 30
+	// Sign-up links sent to one e-mail address: nobody floods someone's
+	// mailbox through izci.
+	signupAddressLimit = 3
 )
 
 // addressKey groups client addresses as one party: IPv6 clients usually
@@ -86,8 +89,19 @@ func (s *Service) ThrottlePublic(ctx context.Context, ip netip.Addr) error {
 	if !ip.IsValid() {
 		return nil
 	}
-	key := "public:" + addressKey(ip)
-	wait, err := s.limited(ctx, map[string]int{key: publicIPLimit})
+	return s.throttle(ctx, "public:"+addressKey(ip), publicIPLimit)
+}
+
+// ThrottleSignup limits the sign-up links sent to one e-mail address.
+// Every call counts.
+func (s *Service) ThrottleSignup(ctx context.Context, email string) error {
+	return s.throttle(ctx, "signup:"+email, signupAddressLimit)
+}
+
+// throttle counts a call under key and fails with TooManyAttemptsError
+// once limit calls were made in the window.
+func (s *Service) throttle(ctx context.Context, key string, limit int) error {
+	wait, err := s.limited(ctx, map[string]int{key: limit})
 	if err != nil {
 		return err
 	}

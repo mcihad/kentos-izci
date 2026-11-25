@@ -291,4 +291,8 @@ enum ErrorReason {
   // The change needs a browser session that proved its user's identity in
   // the last 10 minutes: call AuthService.Reauthenticate and retry.
   ERROR_REASON_REAUTHENTICATION_REQUIRED = 37;
+  // The e-mail confirming a sign-up could not be sent; try again later.
+  ERROR_REASON_EMAIL_DELIVERY_FAILED = 38;
+  // The sign-up link is unknown, already used or expired; sign up again.
+  ERROR_REASON_VERIFICATION_LINK_INVALID = 39;
 }

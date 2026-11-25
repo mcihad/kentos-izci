@@ -59,6 +59,9 @@ const (
 	AuthServiceReauthenticateProcedure = "/izci.api.v1.AuthService/Reauthenticate"
 	// AuthServiceSignUpProcedure is the fully-qualified name of the AuthService's SignUp RPC.
 	AuthServiceSignUpProcedure = "/izci.api.v1.AuthService/SignUp"
+	// AuthServiceVerifySignupProcedure is the fully-qualified name of the AuthService's VerifySignup
+	// RPC.
+	AuthServiceVerifySignupProcedure = "/izci.api.v1.AuthService/VerifySignup"
 	// AuthServiceGetInvitationProcedure is the fully-qualified name of the AuthService's GetInvitation
 	// RPC.
 	AuthServiceGetInvitationProcedure = "/izci.api.v1.AuthService/GetInvitation"
@@ -116,9 +119,17 @@ type AuthServiceClient interface {
 	// open AuthProvider.login_url with "?reauth=1&next=<path>". Browser
 	// sessions only.
 	Reauthenticate(context.Context, *connect.Request[v1.ReauthenticateRequest]) (*connect.Response[v1.ReauthenticateResponse], error)
-	// SignUp creates an account together with a new organization when self
-	// sign-up is open (AUTH_SIGNUP=open), then signs the user in.
+	// SignUp starts a self sign-up when it is open (AUTH_SIGNUP=open): it
+	// e-mails a link to the address, and VerifySignup creates the account
+	// and a new organization once the link is opened. Nobody can hold an
+	// account under an address they cannot read. Fails with
+	// ERROR_REASON_EMAIL_TAKEN when the address has an account.
 	SignUp(context.Context, *connect.Request[v1.SignUpRequest]) (*connect.Response[v1.SignUpResponse], error)
+	// VerifySignup finishes a self sign-up with the token of the link SignUp
+	// sent: it creates the account and its organization (with a suffixed
+	// slug when the chosen one was taken meanwhile) and signs the user in.
+	// Other sign-ups waiting for the same address are dropped.
+	VerifySignup(context.Context, *connect.Request[v1.VerifySignupRequest]) (*connect.Response[v1.VerifySignupResponse], error)
 	// GetInvitation describes a pending invitation by its token. Callable
 	// without authentication so the invitation page can render.
 	GetInvitation(context.Context, *connect.Request[v1.GetInvitationRequest]) (*connect.Response[v1.GetInvitationResponse], error)
@@ -202,6 +213,12 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(authServiceMethods.ByName("SignUp")),
 			connect.WithClientOptions(opts...),
 		),
+		verifySignup: connect.NewClient[v1.VerifySignupRequest, v1.VerifySignupResponse](
+			httpClient,
+			baseURL+AuthServiceVerifySignupProcedure,
+			connect.WithSchema(authServiceMethods.ByName("VerifySignup")),
+			connect.WithClientOptions(opts...),
+		),
 		getInvitation: connect.NewClient[v1.GetInvitationRequest, v1.GetInvitationResponse](
 			httpClient,
 			baseURL+AuthServiceGetInvitationProcedure,
@@ -230,6 +247,7 @@ type authServiceClient struct {
 	changePassword    *connect.Client[v1.ChangePasswordRequest, v1.ChangePasswordResponse]
 	reauthenticate    *connect.Client[v1.ReauthenticateRequest, v1.ReauthenticateResponse]
 	signUp            *connect.Client[v1.SignUpRequest, v1.SignUpResponse]
+	verifySignup      *connect.Client[v1.VerifySignupRequest, v1.VerifySignupResponse]
 	getInvitation     *connect.Client[v1.GetInvitationRequest, v1.GetInvitationResponse]
 	acceptInvitation  *connect.Client[v1.AcceptInvitationRequest, v1.AcceptInvitationResponse]
 }
@@ -282,6 +300,11 @@ func (c *authServiceClient) Reauthenticate(ctx context.Context, req *connect.Req
 // SignUp calls izci.api.v1.AuthService.SignUp.
 func (c *authServiceClient) SignUp(ctx context.Context, req *connect.Request[v1.SignUpRequest]) (*connect.Response[v1.SignUpResponse], error) {
 	return c.signUp.CallUnary(ctx, req)
+}
+
+// VerifySignup calls izci.api.v1.AuthService.VerifySignup.
+func (c *authServiceClient) VerifySignup(ctx context.Context, req *connect.Request[v1.VerifySignupRequest]) (*connect.Response[v1.VerifySignupResponse], error) {
+	return c.verifySignup.CallUnary(ctx, req)
 }
 
 // GetInvitation calls izci.api.v1.AuthService.GetInvitation.
@@ -343,9 +366,17 @@ type AuthServiceHandler interface {
 	// open AuthProvider.login_url with "?reauth=1&next=<path>". Browser
 	// sessions only.
 	Reauthenticate(context.Context, *connect.Request[v1.ReauthenticateRequest]) (*connect.Response[v1.ReauthenticateResponse], error)
-	// SignUp creates an account together with a new organization when self
-	// sign-up is open (AUTH_SIGNUP=open), then signs the user in.
+	// SignUp starts a self sign-up when it is open (AUTH_SIGNUP=open): it
+	// e-mails a link to the address, and VerifySignup creates the account
+	// and a new organization once the link is opened. Nobody can hold an
+	// account under an address they cannot read. Fails with
+	// ERROR_REASON_EMAIL_TAKEN when the address has an account.
 	SignUp(context.Context, *connect.Request[v1.SignUpRequest]) (*connect.Response[v1.SignUpResponse], error)
+	// VerifySignup finishes a self sign-up with the token of the link SignUp
+	// sent: it creates the account and its organization (with a suffixed
+	// slug when the chosen one was taken meanwhile) and signs the user in.
+	// Other sign-ups waiting for the same address are dropped.
+	VerifySignup(context.Context, *connect.Request[v1.VerifySignupRequest]) (*connect.Response[v1.VerifySignupResponse], error)
 	// GetInvitation describes a pending invitation by its token. Callable
 	// without authentication so the invitation page can render.
 	GetInvitation(context.Context, *connect.Request[v1.GetInvitationRequest]) (*connect.Response[v1.GetInvitationResponse], error)
@@ -425,6 +456,12 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(authServiceMethods.ByName("SignUp")),
 		connect.WithHandlerOptions(opts...),
 	)
+	authServiceVerifySignupHandler := connect.NewUnaryHandler(
+		AuthServiceVerifySignupProcedure,
+		svc.VerifySignup,
+		connect.WithSchema(authServiceMethods.ByName("VerifySignup")),
+		connect.WithHandlerOptions(opts...),
+	)
 	authServiceGetInvitationHandler := connect.NewUnaryHandler(
 		AuthServiceGetInvitationProcedure,
 		svc.GetInvitation,
@@ -460,6 +497,8 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 			authServiceReauthenticateHandler.ServeHTTP(w, r)
 		case AuthServiceSignUpProcedure:
 			authServiceSignUpHandler.ServeHTTP(w, r)
+		case AuthServiceVerifySignupProcedure:
+			authServiceVerifySignupHandler.ServeHTTP(w, r)
 		case AuthServiceGetInvitationProcedure:
 			authServiceGetInvitationHandler.ServeHTTP(w, r)
 		case AuthServiceAcceptInvitationProcedure:
@@ -511,6 +550,10 @@ func (UnimplementedAuthServiceHandler) Reauthenticate(context.Context, *connect.
 
 func (UnimplementedAuthServiceHandler) SignUp(context.Context, *connect.Request[v1.SignUpRequest]) (*connect.Response[v1.SignUpResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.AuthService.SignUp is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) VerifySignup(context.Context, *connect.Request[v1.VerifySignupRequest]) (*connect.Response[v1.VerifySignupResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.AuthService.VerifySignup is not implemented"))
 }
 
 func (UnimplementedAuthServiceHandler) GetInvitation(context.Context, *connect.Request[v1.GetInvitationRequest]) (*connect.Response[v1.GetInvitationResponse], error) {

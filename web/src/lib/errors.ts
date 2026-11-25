@@ -47,6 +47,9 @@ const reasonMessages: Partial<Record<ErrorReason, string>> = {
   [ErrorReason.TWO_FACTOR_EXPIRED]: "İşlemin süresi doldu. Baştan başlayın.",
   [ErrorReason.REAUTHENTICATION_REQUIRED]:
     "Bu değişiklik için kimliğinizi yeniden doğrulamanız gerekiyor. İşlemi yeniden başlatın.",
+  [ErrorReason.EMAIL_DELIVERY_FAILED]: "Doğrulama e-postası gönderilemedi. Biraz sonra yeniden deneyin.",
+  [ErrorReason.VERIFICATION_LINK_INVALID]:
+    "Bağlantı geçersiz, daha önce kullanılmış ya da süresi dolmuş. Yeniden kaydolun.",
 };
 
 /** The ErrorDetail attached to an API error, if any. */
@@ -63,6 +66,10 @@ export function errorReason(err: unknown): ErrorReason {
 /** A user-facing Turkish message for any error thrown by an API call. */
 export function errorMessage(err: unknown): string {
   const reason = errorReason(err);
+  if (reason === ErrorReason.LIMIT_REACHED && errorDetail(err)?.metadata.resource === "organizations") {
+    const limit = errorDetail(err)?.metadata.limit;
+    return `Bu sunucuda en çok ${limit} organizasyonun sahibi olabilirsiniz.`;
+  }
   if (reason === ErrorReason.TOO_MANY_ATTEMPTS) {
     const seconds = Number(errorDetail(err)?.metadata.retry_after_seconds ?? "0");
     if (seconds > 90) {
@@ -121,6 +128,7 @@ export const oidcErrors: Record<string, string> = {
   oidc_exchange: "Kimlik sağlayıcısıyla oturum açılamadı. Yeniden deneyin.",
   oidc_internal: "Giriş sırasında beklenmeyen bir hata oluştu. Yeniden deneyin.",
   oidc_no_account: "Bu e-posta adresiyle bir İzci hesabı yok. Bir yöneticiden davet isteyin.",
+  oidc_setup_required: "Sunucu henüz kurulmadı. İlk hesap kurulum ekranından açılır.",
   oidc_state: "Giriş isteğinin süresi doldu. Yeniden deneyin.",
   oidc_token: "Kimlik sağlayıcısının yanıtı doğrulanamadı.",
   oidc_unavailable: "Kimlik sağlayıcısına şu anda ulaşılamıyor.",

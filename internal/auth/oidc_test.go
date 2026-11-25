@@ -144,7 +144,23 @@ func TestOIDCLoginFlow(t *testing.T) {
 
 	jar, _ := cookiejar.New(nil)
 	browser := &http.Client{Jar: jar}
+	// The first account comes from the setup screen, not from a provider.
 	res, err := browser.Get(izci.URL + "/auth/oidc/kimlik/start?next=/o/kentos")
+	if err != nil {
+		t.Fatal(err)
+	}
+	res.Body.Close()
+	if res.Request.URL.Query().Get("error") != "oidc_setup_required" {
+		t.Fatalf("sign-in before setup ended at %s", res.Request.URL)
+	}
+	err = database.InSystem(ctx, func(tx pgx.Tx) error {
+		_, err := store.CreateUser(ctx, tx, store.NewUserInput{Email: "admin@kentos.com.tr", Name: "Admin", Superadmin: true})
+		return err
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err = browser.Get(izci.URL + "/auth/oidc/kimlik/start?next=/o/kentos")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -172,7 +188,7 @@ func TestOIDCLoginFlow(t *testing.T) {
 	res.Body.Close()
 	var users int
 	database.Pool.QueryRow(ctx, `SELECT count(*) FROM users`).Scan(&users)
-	if users != 1 || idp.logins != 2 {
+	if users != 2 || idp.logins != 3 {
 		t.Fatalf("users=%d logins=%d", users, idp.logins)
 	}
 

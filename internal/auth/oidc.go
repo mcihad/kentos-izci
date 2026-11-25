@@ -265,6 +265,13 @@ func (s *Service) oidcCallback(w http.ResponseWriter, r *http.Request) {
 			case !p.cfg.AutoCreate:
 				return errNoAccount
 			default:
+				// The first account comes from the setup screen (with its
+				// setup code), which makes it an instance administrator.
+				if n, err := store.CountUsers(ctx, tx); err != nil {
+					return err
+				} else if n == 0 {
+					return errSetupPending
+				}
 				if user, err = store.CreateUser(ctx, tx, store.NewUserInput{Email: claims.Email, Name: claims.Name, AvatarURL: claims.Picture}); err != nil {
 					return err
 				}
@@ -290,6 +297,9 @@ func (s *Service) oidcCallback(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case errors.Is(err, errNoAccount):
 		loginRedirect(w, r, "oidc_no_account")
+		return
+	case errors.Is(err, errSetupPending):
+		loginRedirect(w, r, "oidc_setup_required")
 		return
 	case errors.Is(err, errUnverifiedEmail):
 		if claims.EmailVerified == nil {
@@ -340,6 +350,7 @@ func (s *Service) oidcCallback(w http.ResponseWriter, r *http.Request) {
 
 var (
 	errNoAccount       = errors.New("no account for this identity")
+	errSetupPending    = errors.New("the server is not set up yet")
 	errUnverifiedEmail = errors.New("email not verified by the provider")
 	errLinkRequired    = errors.New("an account with this email exists; link the identity from it")
 	errIdentityTaken   = errors.New("the identity is linked to another account")

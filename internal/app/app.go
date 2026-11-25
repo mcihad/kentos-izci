@@ -235,6 +235,11 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	if a.Bot != nil {
 		deps.Notifier = a.Bot
 	}
+	if email != nil {
+		// Not assigned unconditionally: a nil *notify.Email would make a
+		// non-nil Mailer.
+		deps.Mailer = email
+	}
 	// The API is also mounted on a private mux that MCP calls in-process.
 	apiMux := http.NewServeMux()
 	mount := func(pattern string, h http.Handler) {

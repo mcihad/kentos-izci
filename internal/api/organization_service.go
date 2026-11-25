@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -76,6 +77,23 @@ func (s *OrganizationServer) CreateOrganization(ctx context.Context, req *connec
 	}
 	if s.auth.SuperadminNeedsTwoFactor(p.User) && s.cfg.Auth.Signup != "open" {
 		return nil, errSuperadminTwoFactor()
+	}
+	// With open sign-up anyone may create organizations, up to a limit.
+	if limit := s.cfg.Auth.SignupOrgLimit; limit > 0 && (!p.User.Superadmin || s.auth.SuperadminNeedsTwoFactor(p.User)) {
+		var owned int
+		err := s.db.InSystem(ctx, func(tx pgx.Tx) error {
+			var err error
+			owned, err = store.CountOwnedOrganizations(ctx, tx, p.User.ID)
+			return err
+		})
+		if err != nil {
+			return nil, internal(ctx, s.log, "count organizations", err)
+		}
+		if owned >= limit {
+			return nil, apiError(connect.CodeResourceExhausted, apiv1.ErrorReason_ERROR_REASON_LIMIT_REACHED,
+				fmt.Sprintf("you can own at most %d organizations on this server", limit),
+				"resource", "organizations", "limit", strconv.Itoa(limit))
+		}
 	}
 	var org *store.Organization
 	err := s.db.InSystem(ctx, func(tx pgx.Tx) error {

@@ -69,6 +69,7 @@ func (d *DB) ApplyRetention(ctx context.Context, cutoff time.Time) (RetentionRes
 		"link_codes":       `DELETE FROM link_codes WHERE expires_at < now() - interval '1 day'`,
 		"login_challenges": `DELETE FROM login_challenges WHERE expires_at < now()`,
 		"auth_attempts":    `DELETE FROM auth_attempts WHERE window_start < now() - interval '1 hour'`,
+		"pending_signups":  `DELETE FROM pending_signups WHERE expires_at < now()`,
 		// Two-factor setups that were started but never confirmed.
 		"totp_pending": `UPDATE users SET totp_pending_secret = NULL, totp_pending_at = NULL
 			WHERE totp_pending_at < now() - interval '1 day'`,

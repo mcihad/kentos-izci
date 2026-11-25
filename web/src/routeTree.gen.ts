@@ -15,6 +15,7 @@ import { Route as SetupRouteImport } from "./routes/setup";
 import { Route as SignupRouteImport } from "./routes/signup";
 import { Route as InviteTokenRouteImport } from "./routes/invite.$token";
 import { Route as OOrgRouteImport } from "./routes/o.$org";
+import { Route as VerifyTokenRouteImport } from "./routes/verify.$token";
 import { Route as OOrgIndexRouteImport } from "./routes/o.$org.index";
 import { Route as OOrgAccountRouteImport } from "./routes/o.$org.account";
 import { Route as OOrgAdminRouteImport } from "./routes/o.$org.admin";
@@ -63,6 +64,11 @@ const InviteTokenRoute = InviteTokenRouteImport.update({
 const OOrgRoute = OOrgRouteImport.update({
   id: "/o/$org",
   path: "/o/$org",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const VerifyTokenRoute = VerifyTokenRouteImport.update({
+  id: "/verify/$token",
+  path: "/verify/$token",
   getParentRoute: () => rootRouteImport,
 } as any);
 const OOrgIndexRoute = OOrgIndexRouteImport.update({
@@ -168,6 +174,7 @@ export interface FileRoutesByFullPath {
   "/signup": typeof SignupRoute;
   "/invite/$token": typeof InviteTokenRoute;
   "/o/$org": typeof OOrgRouteWithChildren;
+  "/verify/$token": typeof VerifyTokenRoute;
   "/o/$org/account": typeof OOrgAccountRoute;
   "/o/$org/admin": typeof OOrgAdminRoute;
   "/o/$org/ai": typeof OOrgAiRoute;
@@ -194,6 +201,7 @@ export interface FileRoutesByTo {
   "/setup": typeof SetupRoute;
   "/signup": typeof SignupRoute;
   "/invite/$token": typeof InviteTokenRoute;
+  "/verify/$token": typeof VerifyTokenRoute;
   "/o/$org/account": typeof OOrgAccountRoute;
   "/o/$org/admin": typeof OOrgAdminRoute;
   "/o/$org/ai": typeof OOrgAiRoute;
@@ -221,6 +229,7 @@ export interface FileRoutesById {
   "/signup": typeof SignupRoute;
   "/invite/$token": typeof InviteTokenRoute;
   "/o/$org": typeof OOrgRouteWithChildren;
+  "/verify/$token": typeof VerifyTokenRoute;
   "/o/$org/account": typeof OOrgAccountRoute;
   "/o/$org/admin": typeof OOrgAdminRoute;
   "/o/$org/ai": typeof OOrgAiRoute;
@@ -250,6 +259,7 @@ export interface FileRouteTypes {
     | "/signup"
     | "/invite/$token"
     | "/o/$org"
+    | "/verify/$token"
     | "/o/$org/account"
     | "/o/$org/admin"
     | "/o/$org/ai"
@@ -276,6 +286,7 @@ export interface FileRouteTypes {
     | "/setup"
     | "/signup"
     | "/invite/$token"
+    | "/verify/$token"
     | "/o/$org/account"
     | "/o/$org/admin"
     | "/o/$org/ai"
@@ -302,6 +313,7 @@ export interface FileRouteTypes {
     | "/signup"
     | "/invite/$token"
     | "/o/$org"
+    | "/verify/$token"
     | "/o/$org/account"
     | "/o/$org/admin"
     | "/o/$org/ai"
@@ -330,6 +342,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute;
   InviteTokenRoute: typeof InviteTokenRoute;
   OOrgRoute: typeof OOrgRouteWithChildren;
+  VerifyTokenRoute: typeof VerifyTokenRoute;
 }
 
 declare module "@tanstack/react-router" {
@@ -374,6 +387,13 @@ declare module "@tanstack/react-router" {
       path: "/o/$org";
       fullPath: "/o/$org";
       preLoaderRoute: typeof OOrgRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/verify/$token": {
+      id: "/verify/$token";
+      path: "/verify/$token";
+      fullPath: "/verify/$token";
+      preLoaderRoute: typeof VerifyTokenRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/o/$org/": {
@@ -575,6 +595,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   InviteTokenRoute: InviteTokenRoute,
   OOrgRoute: OOrgRouteWithChildren,
+  VerifyTokenRoute: VerifyTokenRoute,
 };
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

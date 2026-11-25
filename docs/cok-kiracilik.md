@@ -36,7 +36,7 @@ Organizasyonun en az bir sahibi (`owner`) kalmalıdır.
 
 - **Davet:** yöneticiler **Organizasyon ayarları › Üyeler** bölümünden e-posta ve rol seçerek davet bağlantısı oluşturur. Bağlantı `AUTH_INVITATION_TTL` süresince geçerlidir.
 - **OpenID Connect:** `OIDC_<ID>_DEFAULT_ORG` ve `OIDC_<ID>_ALLOWED_DOMAINS` ile kurumsal hesaplar ilk girişte doğrudan organizasyona katılır. Bunun için sağlayıcının e-posta adresini doğrulamış olması gerekir (ya da sağlayıcıya `OIDC_<ID>_TRUST_EMAIL` ile güvenilmesi).
-- **Açık kayıt:** `AUTH_SIGNUP=open` ise herkes hesap açıp kendi organizasyonunu oluşturabilir. SaaS senaryosu içindir.
+- **Açık kayıt:** `AUTH_SIGNUP=open` ise herkes hesap açıp kendi organizasyonunu oluşturabilir. SaaS senaryosu içindir. Hesap ve organizasyon, e-posta adresine gönderilen bağlantı 24 saat içinde açılınca oluşur; böylece kimse başkasının adresiyle hesap tutamaz. Bir kullanıcı en çok `AUTH_SIGNUP_ORG_LIMIT` (varsayılan 3) organizasyonun sahibi olabilir. Kurulum tamamlanmadan kayıt alınmaz.
 - **İki adımlı doğrulama:** yöneticiler **Organizasyon ayarları › Genel** bölümünden üyeler için [iki adımlı doğrulamayı](iki-adimli-dogrulama.md#organizasyonda-zorunlu-tutma) zorunlu tutabilir. Açmamış üyeler, açana kadar organizasyona ne tarayıcıdan ne de kişisel erişim anahtarlarıyla erişebilir.
 
 ## Erişim anahtarları
