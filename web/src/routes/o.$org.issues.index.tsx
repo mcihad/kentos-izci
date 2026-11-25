@@ -117,14 +117,15 @@ function IssuesPage() {
     setFocus(i);
     virtualizer.scrollToIndex(i, { align: "auto" });
   };
+  const openFocused = () => {
+    const f = rows[focus];
+    if (f) void navigate({ to: "/o/$org/issues/$issueId", params: { org: org.slug, issueId: f.shortId } });
+  };
   useHotkeys({
     "/": () => searchRef.current?.focus(),
     j: () => moveFocus(focus + 1),
     k: () => moveFocus(focus - 1),
-    Enter: () => {
-      const f = rows[focus];
-      if (f) void navigate({ to: "/o/$org/issues/$issueId", params: { org: org.slug, issueId: f.shortId } });
-    },
+    Enter: openFocused,
     x: () => {
       const f = rows[focus];
       if (!f) return;
