@@ -283,8 +283,10 @@ func TestCronSweep(t *testing.T) {
 	if err := e.Monitors.Sweep(ctx); err != nil {
 		t.Fatal(err)
 	}
+	// The next expected run may have started a moment ago: it is still
+	// ahead as long as its check-in margin (2 minutes) has not passed.
 	s := monitorEnv(t, e, "gece-aktarim", "production")
-	if s.status != "missed" || s.failures != 1 || s.issue == nil || s.next == nil || !s.next.After(time.Now()) {
+	if s.status != "missed" || s.failures != 1 || s.issue == nil || s.next == nil || !s.next.Add(2*time.Minute).After(time.Now()) {
 		t.Fatalf("after missed run: %+v", s)
 	}
 	e.Scalar(t, &missed, `SELECT count(*) FROM monitor_checkins WHERE status = 'missed'`)
