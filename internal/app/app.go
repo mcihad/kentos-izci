@@ -11,6 +11,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -194,7 +195,8 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	a.Ingest.SetMonitors(a.Monitors)
 	// Minified scripts and native Flutter builds: stack traces are resolved
 	// with uploaded source maps and debug files before grouping.
-	a.Symbols = symbols.NewService(database, log, symbols.Options{CacheBytes: cfg.Ingest.SymbolCacheMB << 20})
+	a.Symbols = symbols.NewService(database, log, symbols.Options{CacheBytes: cfg.Ingest.SymbolCacheMB << 20,
+		MaxFileBytes: int64(cfg.Ingest.UploadMaxMB) << 20, TempDir: filepath.Join(cfg.DataDir, "tmp")})
 	a.Ingest.SetSymbolicator(a.Symbols)
 
 	a.Server = server.New(server.Options{Config: cfg, Logger: log, DB: database, UI: opts.UI})

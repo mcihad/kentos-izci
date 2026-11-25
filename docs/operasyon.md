@@ -205,7 +205,7 @@ Birden fazla örneği aynı veritabanıyla bir yük dengeleyicinin arkasında ç
 - Yapay zekâ analizleri ortak kuyruktan alınır; her örnek en çok `AI_MAX_CONCURRENT` analiz yürütür. Her örneğin kendi `IZCI_DATA_DIR` klasörü olmalıdır.
 - Bakım işleri (bölüm oluşturma, saklama, proje temizliği) her örnekte çalışır ve tekrarlanabilir işlerdir.
 - Zamanlanmış görev kontrolü her örnekte çalışır; satırlar kilitlenerek alındığı için bir çalışma yalnız bir kez kaçırılmış sayılır.
-- Her örnek, yığın izi çözmek için kaynak eşlemelerini ve sembol dosyalarını kendi belleğinde önbelleğe alır (`INGEST_SYMBOL_CACHE_MB`, varsayılan 256 MiB). Büyük Flutter uygulamalarının sembol dosyaları çözülmüş hâlde yüz megabaytı bulabilir; bellek sınırlarını buna göre verin.
+- Her örnek, yığın izi çözmek için kaynak eşlemelerini ve sembol dosyalarını kendi belleğinde önbelleğe alır (`INGEST_SYMBOL_CACHE_MB`, varsayılan 256 MiB). Büyük Flutter uygulamalarının sembol dosyaları çözülmüş hâlde yüz megabaytı bulabilir; bellek sınırlarını buna göre verin. Yüklemeler `IZCI_DATA_DIR/tmp` altında birleştirilir; aynı anda en çok iki birleştirme yapılır ve her biri yaklaşık `INGEST_UPLOAD_MAX_MB` kadar bellek kullanır.
 
 ## İzleme
 

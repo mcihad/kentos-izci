@@ -52,6 +52,7 @@ Hatalı bir değer sunucunun açılmasını engeller; hata mesajı hangi değiş
 | `INGEST_BATCH_SIZE` | `500` | Tek veritabanı işlemindeki en çok olay (1–5000). |
 | `INGEST_ATTACHMENT_MAX_BYTES` | `10485760` | Olayla gelen bir ekin (ekran görüntüsü, günlük dosyası) en büyük boyutu, bayt (en çok 40 MiB). Büyük ekler atılır. |
 | `INGEST_SYMBOL_CACHE_MB` | `256` | Yığın izlerini çözmek için bellekte tutulan [kaynak eşlemeleri ve sembol dosyalarının](kaynak-eslemeleri.md) en çok boyutu, MiB (16–16384). |
+| `INGEST_UPLOAD_MAX_MB` | `128` | Yüklenen bir kaynak eşleme paketinin ya da sembol dosyasının ve paketteki her dosyanın en çok boyutu, MiB (1–2048). sentry-cli bu sınırı sunucudan öğrenir ve büyük dosyaları göndermeden reddeder. Yüklemeler `IZCI_DATA_DIR/tmp` altında birleştirilir; aynı anda iki birleştirme yapılır ve her biri yaklaşık bu kadar bellek kullanır. |
 | `INGEST_LINGER` | `0s` | Toplu yazmadan önce daha fazla olay için bekleme. `0s` doğal toplama demektir: yazıcı meşgulken biriken olaylar bir sonraki işlemde yazılır. |
 | `INGEST_ACK` | `durable` | `durable`: olay veritabanına yazılınca yanıt verilir. `async`: kuyruğa alınınca yanıt verilir (daha hızlı, kapanışta kayıp riski). |
 | `INGEST_ACK_TIMEOUT` | `15s` | `durable` modunda yazmayı bekleme süresi. |

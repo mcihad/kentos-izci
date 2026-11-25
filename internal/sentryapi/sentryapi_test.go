@@ -249,6 +249,10 @@ func TestSourceMapsByRelease(t *testing.T) {
 	js, _ := os.ReadFile("../symbols/sourcemap/testdata/index.js")
 	sm, _ := os.ReadFile("../symbols/sourcemap/testdata/index.js.map")
 	c := &client{t: t, base: e.Server.URL, token: e.Key}
+	// sentry-cli learns the file limit (INGEST_UPLOAD_MAX_MB) from here.
+	if opts := c.json("GET", "/api/0/organizations/kentos/chunk-upload/", nil, 200); opts["maxFileSize"] != float64(128<<20) {
+		t.Fatalf("chunk upload options: %v", opts)
+	}
 	bundle := zipBundle(t, "kalem-web@5.1.0",
 		bundleFile{path: "files/_/_/index.js", typ: "minified_source", url: "~/assets/index.js", data: js},
 		bundleFile{path: "files/_/_/index.js.map", typ: "source_map", url: "~/assets/index.js.map", data: sm})

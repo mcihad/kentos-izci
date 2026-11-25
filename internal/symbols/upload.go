@@ -2,7 +2,6 @@ package symbols
 
 import (
 	"archive/zip"
-	"bytes"
 	"context"
 	"crypto/sha1"
 	"encoding/base64"
@@ -12,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"os"
 	"path"
 	"regexp"
 	"strings"
@@ -27,9 +27,13 @@ import (
 
 // Limits of uploads.
 const (
-	// MaxFileBytes bounds one assembled file (a bundle archive or a debug
-	// file) and one file inside a bundle.
-	MaxFileBytes = 512 << 20
+	// DefaultMaxFileBytes bounds one assembled file (a bundle archive or a
+	// debug file) and one file inside a bundle unless Options.MaxFileBytes
+	// says otherwise.
+	DefaultMaxFileBytes = 128 << 20
+	// minUnpackedBytes is the least a bundle may unpack to; with larger
+	// files it may unpack to twice the file limit.
+	minUnpackedBytes = 1 << 30
 	// ChunkBytes is the chunk size clients are told to use.
 	ChunkBytes = 8 << 20
 	// maxBundleFiles bounds the files of one bundle.
@@ -91,12 +95,12 @@ func (s *Service) PutChunks(ctx context.Context, orgID uuid.UUID, chunks []store
 }
 
 // fits refuses uploads that would take a project over its quota.
-func fits(ctx context.Context, tx pgx.Tx, projectID uuid.UUID, size int) error {
+func fits(ctx context.Context, tx pgx.Tx, projectID uuid.UUID, size int64) error {
 	used, err := store.ProjectSymbolBytes(ctx, tx, projectID)
 	if err != nil {
 		return err
 	}
-	if used+int64(size) > MaxProjectBytes {
+	if used+size > MaxProjectBytes {
 		return errAssembly{fmt.Errorf("the project's source maps and debug files would exceed %d GiB; delete old uploads first",
 			MaxProjectBytes>>30)}
 	}
@@ -114,26 +118,73 @@ func (s *Service) slot(ctx context.Context) (func(), error) {
 	}
 }
 
-// gather returns the assembled file, or the chunks still missing.
-func (s *Service) gather(ctx context.Context, tx pgx.Tx, orgID uuid.UUID, checksum string, chunks []string) ([]byte, []string, error) {
+// upload is an assembled upload in a temporary file.
+type upload struct {
+	*os.File
+	size int64
+}
+
+// close removes the temporary file.
+func (u *upload) close() {
+	_ = u.File.Close()
+	_ = os.Remove(u.Name())
+}
+
+// gather puts an upload together from its chunks in a temporary file, or
+// reports the chunks still missing. Sizes are checked before any data is
+// read, and chunks are copied one at a time: memory does not grow with the
+// file. The caller closes the upload.
+func (s *Service) gather(ctx context.Context, tx pgx.Tx, orgID uuid.UUID, checksum string, chunks []string) (*upload, []string, error) {
 	if len(chunks) == 0 {
-		return nil, nil, errors.New("no chunks given")
+		return nil, nil, errAssembly{errors.New("no chunks given")}
 	}
-	missing, err := store.MissingChunks(ctx, tx, orgID, chunks)
-	if err != nil || len(missing) > 0 {
-		return nil, missing, err
-	}
-	data, err := store.LoadChunks(ctx, tx, orgID, chunks)
+	sizes, err := store.ChunkSizes(ctx, tx, orgID, chunks)
 	if err != nil {
 		return nil, nil, err
 	}
-	if len(data) > MaxFileBytes {
-		return nil, nil, fmt.Errorf("the file is larger than %d MiB", MaxFileBytes>>20)
+	missing := []string{}
+	seen := map[string]bool{}
+	var total int64
+	for _, c := range chunks {
+		n, ok := sizes[c]
+		if !ok && !seen[c] {
+			missing = append(missing, c)
+		}
+		seen[c] = true
+		total += n
 	}
-	if Checksum(data) != strings.ToLower(checksum) {
-		return nil, nil, errors.New("the assembled file does not match its checksum")
+	if len(missing) > 0 {
+		return nil, missing, nil
 	}
-	return data, nil, nil
+	if total > s.maxFile {
+		return nil, nil, errAssembly{fmt.Errorf("the file is larger than %d MiB (INGEST_UPLOAD_MAX_MB)", s.maxFile>>20)}
+	}
+	if err := os.MkdirAll(s.tempDir, 0o700); err != nil {
+		return nil, nil, err
+	}
+	f, err := os.CreateTemp(s.tempDir, tempPattern)
+	if err != nil {
+		return nil, nil, err
+	}
+	u := &upload{File: f}
+	sum := sha1.New()
+	w := io.MultiWriter(f, sum)
+	for _, c := range chunks {
+		data, err := store.ChunkData(ctx, tx, orgID, c)
+		if err == nil {
+			_, err = w.Write(data)
+		}
+		if err != nil {
+			u.close()
+			return nil, nil, err
+		}
+		u.size += int64(len(data))
+	}
+	if hex.EncodeToString(sum.Sum(nil)) != strings.ToLower(checksum) {
+		u.close()
+		return nil, nil, errAssembly{errors.New("the assembled file does not match its checksum")}
+	}
+	return u, nil, nil
 }
 
 // errAssembly marks errors that are the upload's fault; they become an
@@ -166,32 +217,56 @@ func (s *Service) AssembleBundle(ctx context.Context, orgID uuid.UUID, projects 
 			metrics.SymbolUploadsDuplicate.Inc()
 			return nil
 		}
-		data, missing, err := s.gather(ctx, tx, orgID, checksum, chunks)
+		up, missing, err := s.gather(ctx, tx, orgID, checksum, chunks)
 		if err != nil {
-			return errAssembly{err}
+			return err
 		}
 		if len(missing) > 0 {
 			out.State, out.Missing = StateNotFound, missing
 			return nil
 		}
-		b, files, err := ParseBundle(data)
+		defer up.close()
+		b, err := openBundle(up, up.size)
 		if err != nil {
 			return errAssembly{err}
 		}
+		info := b.info
 		if release != "" {
-			b.Release = release
+			info.Release = release
 		}
 		if dist != "" {
-			b.Dist = dist
+			info.Dist = dist
 		}
-		b.OrgID, b.Checksum, b.SizeBytes = orgID, strings.ToLower(checksum), int64(len(data))
+		info.OrgID, info.Checksum, info.SizeBytes = orgID, strings.ToLower(checksum), up.size
+		stored := make([]*store.ArtifactBundle, 0, len(todo))
 		for _, p := range todo {
-			if err := fits(ctx, tx, p, len(data)); err != nil {
+			if err := fits(ctx, tx, p, up.size); err != nil {
 				return err
 			}
-			pb := *b
+			pb := info
 			pb.ProjectID = p
-			if _, err := store.InsertArtifactBundle(ctx, tx, &pb, files); err != nil {
+			created, err := store.CreateArtifactBundle(ctx, tx, &pb)
+			if err != nil {
+				return err
+			}
+			if created {
+				stored = append(stored, &pb)
+			}
+		}
+		// One file in memory at a time, stored for every project.
+		n, err := b.files(s.maxFile, func(f *store.ArtifactFile) error {
+			for _, pb := range stored {
+				if err := store.InsertArtifactFile(ctx, tx, pb, f); err != nil {
+					return err
+				}
+			}
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+		for _, pb := range stored {
+			if err := store.SetArtifactBundleFileCount(ctx, tx, pb.ID, n); err != nil {
 				return err
 			}
 		}
@@ -232,20 +307,27 @@ func (s *Service) AssembleDebugFile(ctx context.Context, orgID, projectID uuid.U
 		if !errors.Is(err, store.ErrNotFound) {
 			return err
 		}
-		data, missing, err := s.gather(ctx, tx, orgID, checksum, chunks)
+		up, missing, err := s.gather(ctx, tx, orgID, checksum, chunks)
 		if err != nil {
-			return errAssembly{err}
+			return err
 		}
 		if len(missing) > 0 {
 			out.State, out.Missing = StateNotFound, missing
 			return nil
 		}
+		defer up.close()
+		if err := fits(ctx, tx, projectID, up.size); err != nil {
+			return err
+		}
+		// Debug files are parsed and stored whole; their size is bounded
+		// by the file limit.
+		data := make([]byte, up.size)
+		if _, err := up.ReadAt(data, 0); err != nil {
+			return err
+		}
 		f, err := DescribeDebugFile(data, name, debugID)
 		if err != nil {
 			return errAssembly{err}
-		}
-		if err := fits(ctx, tx, projectID, len(data)); err != nil {
-			return err
 		}
 		f.OrgID, f.ProjectID, f.Checksum, f.Data = orgID, projectID, checksum, data
 		stored, _, err := store.InsertDebugFile(ctx, tx, f)
@@ -332,58 +414,80 @@ var (
 	debugIDRe    = regexp.MustCompile(`(?m)^[ \t]*//[#@][ \t]*debugId=([0-9A-Fa-f-]{32,36})[ \t]*$`)
 )
 
-// ParseBundle reads a Sentry artifact bundle: a ZIP archive with
-// manifest.json listing minified scripts, source maps and sources with
-// their URLs and headers (debug-id, sourcemap).
-func ParseBundle(data []byte) (*store.ArtifactBundle, []store.ArtifactFile, error) {
-	zr, err := zip.NewReader(bytes.NewReader(data), int64(len(data)))
+// bundle is a Sentry artifact bundle: a ZIP archive with manifest.json
+// listing minified scripts, source maps and sources with their URLs and
+// headers (debug-id, sourcemap).
+type bundle struct {
+	entries  map[string]*zip.File
+	manifest manifest
+	// info holds what the manifest says about the bundle: release, dist
+	// and bundle id.
+	info store.ArtifactBundle
+}
+
+// openBundle reads the manifest of an artifact bundle.
+func openBundle(r io.ReaderAt, size int64) (*bundle, error) {
+	zr, err := zip.NewReader(r, size)
 	if err != nil {
-		return nil, nil, fmt.Errorf("the bundle is not a ZIP archive: %w", err)
+		return nil, fmt.Errorf("the bundle is not a ZIP archive: %w", err)
 	}
-	entries := map[string]*zip.File{}
+	b := &bundle{entries: map[string]*zip.File{}}
 	for _, f := range zr.File {
-		entries[f.Name] = f
+		b.entries[f.Name] = f
 	}
-	mf, ok := entries["manifest.json"]
+	mf, ok := b.entries["manifest.json"]
 	if !ok {
-		return nil, nil, errors.New("the bundle has no manifest.json")
+		return nil, errors.New("the bundle has no manifest.json")
 	}
 	raw, err := readEntry(mf, 16<<20)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	var m manifest
-	if err := json.Unmarshal(raw, &m); err != nil {
-		return nil, nil, fmt.Errorf("manifest.json: %w", err)
+	if err := json.Unmarshal(raw, &b.manifest); err != nil {
+		return nil, fmt.Errorf("manifest.json: %w", err)
 	}
-	if len(m.Files) == 0 {
-		return nil, nil, errors.New("the bundle lists no files")
+	if len(b.manifest.Files) == 0 {
+		return nil, errors.New("the bundle lists no files")
 	}
-	if len(m.Files) > maxBundleFiles {
-		return nil, nil, fmt.Errorf("the bundle lists more than %d files", maxBundleFiles)
+	if len(b.manifest.Files) > maxBundleFiles {
+		return nil, fmt.Errorf("the bundle lists more than %d files", maxBundleFiles)
 	}
-	b := &store.ArtifactBundle{Release: strings.TrimSpace(m.Release), Dist: strings.TrimSpace(m.Dist)}
-	if id, err := uuid.Parse(m.DebugID); err == nil {
-		b.BundleID = &id
+	b.info = store.ArtifactBundle{Release: strings.TrimSpace(b.manifest.Release), Dist: strings.TrimSpace(b.manifest.Dist)}
+	if id, err := uuid.Parse(b.manifest.DebugID); err == nil {
+		b.info.BundleID = &id
 	}
-	var files []store.ArtifactFile
-	total := 0
-	for name, info := range m.Files {
+	return b, nil
+}
+
+// files reads the scripts, source maps and sources the manifest lists one
+// at a time (each at most maxFile bytes), checks them and hands them to
+// keep; only one file is in memory at once. It returns how many files it
+// kept. Problems of the bundle come back as errAssembly, those of keep as
+// they are.
+func (b *bundle) files(maxFile int64, keep func(*store.ArtifactFile) error) (int, error) {
+	limit := max(minUnpackedBytes, 2*maxFile)
+	var total int64
+	n := 0
+	emit := func(f *store.ArtifactFile) error {
+		n++
+		return keep(f)
+	}
+	for name, info := range b.manifest.Files {
 		kind := artifactKind(info.Type)
 		if kind == 0 {
 			continue
 		}
-		entry, ok := entries[name]
+		entry, ok := b.entries[name]
 		if !ok {
-			return nil, nil, fmt.Errorf("manifest.json lists %s, which the archive lacks", name)
+			return 0, errAssembly{fmt.Errorf("manifest.json lists %s, which the archive lacks", name)}
 		}
-		content, err := readEntry(entry, MaxFileBytes)
+		content, err := readEntry(entry, maxFile)
 		if err != nil {
-			return nil, nil, err
+			return 0, errAssembly{err}
 		}
-		total += len(content)
-		if total > MaxFileBytes*2 {
-			return nil, nil, errors.New("the bundle unpacks to more than 1 GiB")
+		total += int64(len(content))
+		if total > limit {
+			return 0, errAssembly{fmt.Errorf("the bundle unpacks to more than %d MiB", limit>>20)}
 		}
 		headers := map[string]string{}
 		for k, v := range info.Headers {
@@ -415,13 +519,15 @@ func ParseBundle(data []byte) (*store.ArtifactBundle, []store.ArtifactFile, erro
 			}
 			// Development builds inline the map as a data URL.
 			if inline, ok := decodeDataURL(f.SourceMap); ok {
-				files = append(files, store.ArtifactFile{URL: u + ".map", Kind: store.ArtifactSourceMap, DebugID: f.DebugID, Data: inline})
+				if err := emit(&store.ArtifactFile{URL: u + ".map", Kind: store.ArtifactSourceMap, DebugID: f.DebugID, Data: inline}); err != nil {
+					return 0, err
+				}
 				f.SourceMap = path.Base(u) + ".map"
 			}
 		case store.ArtifactSourceMap:
 			sm, err := sourcemap.Parse(content)
 			if err != nil {
-				return nil, nil, fmt.Errorf("%s: %w", u, err)
+				return 0, errAssembly{fmt.Errorf("%s: %w", u, err)}
 			}
 			if f.DebugID == nil && sm.DebugID != "" {
 				if id, err := uuid.Parse(sm.DebugID); err == nil {
@@ -429,13 +535,14 @@ func ParseBundle(data []byte) (*store.ArtifactBundle, []store.ArtifactFile, erro
 				}
 			}
 		}
-		files = append(files, f)
+		if err := emit(&f); err != nil {
+			return 0, err
+		}
 	}
-	if len(files) == 0 {
-		return nil, nil, errors.New("the bundle has no scripts or source maps")
+	if n == 0 {
+		return 0, errAssembly{errors.New("the bundle has no scripts or source maps")}
 	}
-	b.FileCount = len(files)
-	return b, files, nil
+	return n, nil
 }
 
 func artifactKind(t string) int16 {
@@ -450,7 +557,7 @@ func artifactKind(t string) int16 {
 	return 0
 }
 
-func readEntry(f *zip.File, limit int) ([]byte, error) {
+func readEntry(f *zip.File, limit int64) ([]byte, error) {
 	if f.UncompressedSize64 > uint64(limit) {
 		return nil, fmt.Errorf("%s is larger than %d MiB", f.Name, limit>>20)
 	}
@@ -459,11 +566,11 @@ func readEntry(f *zip.File, limit int) ([]byte, error) {
 		return nil, fmt.Errorf("%s: %w", f.Name, err)
 	}
 	defer rc.Close()
-	b, err := io.ReadAll(io.LimitReader(rc, int64(limit)+1))
+	b, err := io.ReadAll(io.LimitReader(rc, limit+1))
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", f.Name, err)
 	}
-	if len(b) > limit {
+	if int64(len(b)) > limit {
 		return nil, fmt.Errorf("%s is larger than %d MiB", f.Name, limit>>20)
 	}
 	return b, nil

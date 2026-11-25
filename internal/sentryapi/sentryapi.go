@@ -226,11 +226,12 @@ func (h *Handler) chunkOptions(w http.ResponseWriter, r *http.Request) {
 		"url":              "/api/0/organizations/" + c.orgSlug + "/chunk-upload/",
 		"chunkSize":        symbols.ChunkBytes,
 		"chunksPerRequest": 4,
-		"maxFileSize":      symbols.MaxFileBytes,
-		"maxRequestSize":   32 << 20,
-		"concurrency":      4,
-		"hashAlgorithm":    "sha1",
-		"compression":      []string{"gzip"},
+		// sentry-cli refuses larger files before uploading them.
+		"maxFileSize":    h.symbols.MaxFileBytes(),
+		"maxRequestSize": 32 << 20,
+		"concurrency":    4,
+		"hashAlgorithm":  "sha1",
+		"compression":    []string{"gzip"},
 		// release_files makes sentry-cli use chunked uploads when a release
 		// is given; artifact_bundles(_v2) make those uploads bundles.
 		"accept": []string{"debug_files", "release_files", "artifact_bundles", "artifact_bundles_v2", "dartsymbolmap"},

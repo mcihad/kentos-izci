@@ -135,6 +135,10 @@ type IngestConfig struct {
 	// SymbolCacheMB bounds the memory of parsed source maps and debug files
 	// kept to resolve stack traces.
 	SymbolCacheMB int `env:"INGEST_SYMBOL_CACHE_MB" envDefault:"256"`
+	// UploadMaxMB bounds one uploaded file (a source map bundle or a debug
+	// file) and each file inside a bundle; an assembly holds about this
+	// much memory.
+	UploadMaxMB int `env:"INGEST_UPLOAD_MAX_MB" envDefault:"128"`
 }
 
 // AuthConfig configures sign-in.
@@ -521,6 +525,9 @@ func (c *Config) finalize() error {
 	}
 	if c.Ingest.MaxAttachmentBytes < 1 || c.Ingest.MaxAttachmentBytes > 40<<20 {
 		errs = append(errs, fmt.Errorf("INGEST_ATTACHMENT_MAX_BYTES must be between 1 and 41943040 (got %d)", c.Ingest.MaxAttachmentBytes))
+	}
+	if c.Ingest.UploadMaxMB < 1 || c.Ingest.UploadMaxMB > 2048 {
+		errs = append(errs, fmt.Errorf("INGEST_UPLOAD_MAX_MB must be between 1 and 2048 (got %d)", c.Ingest.UploadMaxMB))
 	}
 	if c.Ingest.SymbolCacheMB < 16 || c.Ingest.SymbolCacheMB > 16384 {
 		errs = append(errs, fmt.Errorf("INGEST_SYMBOL_CACHE_MB must be between 16 and 16384 (got %d)", c.Ingest.SymbolCacheMB))

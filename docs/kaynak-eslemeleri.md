@@ -154,7 +154,7 @@ Her derlemenin sembolleri o derlemeye aittir. Yayınlanan her sürüm için yük
 
 **Projeler › proje › Kaynak eşlemeleri** sekmesi yüklenen paketleri (sürüm, dosyalar, boyut, son kullanım) ve sembol dosyalarını listeler. Yöneticiler silebilir; silme yalnız bundan sonra gelen olayları etkiler, kayıtlı olaylar değişmez.
 
-Dosyalar veritabanında saklanır ve sıkıştırılır. Bir dosya en çok 512 MiB, bir projenin toplamı en çok 10 GiB olabilir. Yığın izi çözmeyen dosyalar, yüklendikten ya da son kullanıldıktan 90 gün sonra (`RETENTION_DAYS` daha uzunsa o kadar) silinir. Aynı dosya ikinci kez yüklenirse yeniden saklanmaz.
+Dosyalar veritabanında saklanır ve sıkıştırılır. Bir yükleme (paket ya da sembol dosyası) ve paketteki her dosya en çok `INGEST_UPLOAD_MAX_MB` (varsayılan 128 MiB), bir paketin açılmış içeriği en çok 1 GiB (ya da bu sınırın iki katı, hangisi büyükse), bir projenin toplamı en çok 10 GiB olabilir. Yığın izi çözmeyen dosyalar, yüklendikten ya da son kullanıldıktan 90 gün sonra (`RETENTION_DAYS` daha uzunsa o kadar) silinir. Aynı dosya ikinci kez yüklenirse yeniden saklanmaz.
 
 ## Hata sayfasında
 

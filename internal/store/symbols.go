@@ -32,59 +32,32 @@ func PutChunks(ctx context.Context, q Querier, orgID uuid.UUID, chunks []Chunk) 
 	return q.SendBatch(ctx, b).Close()
 }
 
-// MissingChunks returns the checksums of chunks not uploaded yet, in order.
-func MissingChunks(ctx context.Context, q Querier, orgID uuid.UUID, checksums []string) ([]string, error) {
-	rows, err := q.Query(ctx, `SELECT checksum FROM upload_chunks WHERE org_id = $1 AND checksum = ANY($2)`, orgID, checksums)
-	if err != nil {
-		return nil, err
-	}
-	have, err := pgx.CollectRows(rows, pgx.RowTo[string])
-	if err != nil {
-		return nil, err
-	}
-	present := make(map[string]bool, len(have))
-	for _, c := range have {
-		present[c] = true
-	}
-	missing := []string{}
-	seen := map[string]bool{}
-	for _, c := range checksums {
-		if !present[c] && !seen[c] {
-			missing = append(missing, c)
-			seen[c] = true
-		}
-	}
-	return missing, nil
-}
-
-// LoadChunks concatenates chunks in the given order.
-func LoadChunks(ctx context.Context, q Querier, orgID uuid.UUID, checksums []string) ([]byte, error) {
-	rows, err := q.Query(ctx, `SELECT checksum, data FROM upload_chunks WHERE org_id = $1 AND checksum = ANY($2)`, orgID, checksums)
+// ChunkSizes returns the sizes of the uploaded chunks among checksums;
+// chunks not uploaded yet are absent. The data itself is not loaded.
+func ChunkSizes(ctx context.Context, q Querier, orgID uuid.UUID, checksums []string) (map[string]int64, error) {
+	rows, err := q.Query(ctx, `SELECT checksum, octet_length(data) FROM upload_chunks WHERE org_id = $1 AND checksum = ANY($2)`,
+		orgID, checksums)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	data := map[string][]byte{}
+	sizes := map[string]int64{}
 	for rows.Next() {
 		var c string
-		var b []byte
-		if err := rows.Scan(&c, &b); err != nil {
+		var n int64
+		if err := rows.Scan(&c, &n); err != nil {
 			return nil, err
 		}
-		data[c] = b
+		sizes[c] = n
 	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	var out []byte
-	for _, c := range checksums {
-		b, ok := data[c]
-		if !ok {
-			return nil, ErrNotFound
-		}
-		out = append(out, b...)
-	}
-	return out, nil
+	return sizes, rows.Err()
+}
+
+// ChunkData returns one uploaded chunk.
+func ChunkData(ctx context.Context, q Querier, orgID uuid.UUID, checksum string) ([]byte, error) {
+	var b []byte
+	err := q.QueryRow(ctx, `SELECT data FROM upload_chunks WHERE org_id = $1 AND checksum = $2`, orgID, checksum).Scan(&b)
+	return b, notFound(err)
 }
 
 // DeleteChunks removes assembled chunks.
@@ -125,6 +98,22 @@ type ArtifactFile struct {
 // InsertArtifactBundle stores a bundle with its files unless the project
 // already has the same archive; it reports whether it was stored.
 func InsertArtifactBundle(ctx context.Context, q Querier, b *ArtifactBundle, files []ArtifactFile) (bool, error) {
+	created, err := CreateArtifactBundle(ctx, q, b)
+	if err != nil || !created {
+		return false, err
+	}
+	for i := range files {
+		if err := InsertArtifactFile(ctx, q, b, &files[i]); err != nil {
+			return false, err
+		}
+	}
+	return true, nil
+}
+
+// CreateArtifactBundle stores a bundle's row unless the project already has
+// the same archive; it reports whether it was stored. Its files follow with
+// InsertArtifactFile.
+func CreateArtifactBundle(ctx context.Context, q Querier, b *ArtifactBundle) (bool, error) {
 	err := q.QueryRow(ctx, `
 		INSERT INTO artifact_bundles (org_id, project_id, checksum, bundle_id, release, dist, file_count, size_bytes)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -134,16 +123,22 @@ func InsertArtifactBundle(ctx context.Context, q Querier, b *ArtifactBundle, fil
 	if errors.Is(err, pgx.ErrNoRows) {
 		return false, nil
 	}
-	if err != nil {
-		return false, err
-	}
-	batch := &pgx.Batch{}
-	for _, f := range files {
-		batch.Queue(`INSERT INTO artifact_files (org_id, project_id, bundle_id, release, dist, url, kind, debug_id, sourcemap, size_bytes, data)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
-			b.OrgID, b.ProjectID, b.ID, b.Release, b.Dist, f.URL, f.Kind, f.DebugID, f.SourceMap, len(f.Data), f.Data)
-	}
-	return true, q.SendBatch(ctx, batch).Close()
+	return err == nil, err
+}
+
+// InsertArtifactFile stores one file of a bundle.
+func InsertArtifactFile(ctx context.Context, q Querier, b *ArtifactBundle, f *ArtifactFile) error {
+	_, err := q.Exec(ctx, `
+		INSERT INTO artifact_files (org_id, project_id, bundle_id, release, dist, url, kind, debug_id, sourcemap, size_bytes, data)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+		b.OrgID, b.ProjectID, b.ID, b.Release, b.Dist, f.URL, f.Kind, f.DebugID, f.SourceMap, len(f.Data), f.Data)
+	return err
+}
+
+// SetArtifactBundleFileCount records how many files a bundle has.
+func SetArtifactBundleFileCount(ctx context.Context, q Querier, id uuid.UUID, n int) error {
+	_, err := q.Exec(ctx, `UPDATE artifact_bundles SET file_count = $2 WHERE id = $1`, id, n)
+	return err
 }
 
 // HasArtifactBundle reports whether the project has an archive stored.

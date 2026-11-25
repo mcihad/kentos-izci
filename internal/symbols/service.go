@@ -13,6 +13,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -33,6 +35,13 @@ type Options struct {
 	// CacheBytes bounds the memory of parsed source maps, debug information
 	// indexes and obfuscation maps (default 256 MiB).
 	CacheBytes int
+	// MaxFileBytes bounds an uploaded file (a bundle archive or a debug
+	// file) and each file inside a bundle (default DefaultMaxFileBytes).
+	// An assembly holds about this much memory.
+	MaxFileBytes int64
+	// TempDir holds uploads while they are assembled (default: the
+	// system's temporary directory).
+	TempDir string
 }
 
 // Service resolves stack traces and assembles uploads.
@@ -45,9 +54,11 @@ type Service struct {
 	refs  *expirable.LRU[string, *fileRef]
 	stats *expirable.LRU[uuid.UUID, store.SymbolStats]
 	loads singleflight.Group
-	// assembling bounds concurrent assemblies, which hold whole files in
-	// memory.
+	// assembling bounds concurrent assemblies, which hold up to maxFile
+	// bytes in memory each.
 	assembling chan struct{}
+	maxFile    int64
+	tempDir    string
 
 	mu      sync.Mutex
 	touched map[uuid.UUID]time.Time
@@ -69,6 +80,18 @@ func NewService(database *db.DB, log *slog.Logger, opt Options) *Service {
 	if opt.CacheBytes <= 0 {
 		opt.CacheBytes = 256 << 20
 	}
+	if opt.MaxFileBytes <= 0 {
+		opt.MaxFileBytes = DefaultMaxFileBytes
+	}
+	if opt.TempDir == "" {
+		opt.TempDir = os.TempDir()
+	}
+	if err := os.MkdirAll(opt.TempDir, 0o700); err != nil {
+		log.Warn("upload directory not usable, using the system's temporary directory",
+			slog.String("dir", opt.TempDir), slog.Any("err", err))
+		opt.TempDir = os.TempDir()
+	}
+	removeStaleUploads(opt.TempDir, log)
 	return &Service{
 		db:         database,
 		log:        log,
@@ -76,7 +99,28 @@ func NewService(database *db.DB, log *slog.Logger, opt Options) *Service {
 		refs:       expirable.NewLRU[string, *fileRef](20000, nil, time.Minute),
 		stats:      expirable.NewLRU[uuid.UUID, store.SymbolStats](10000, nil, 30*time.Second),
 		assembling: make(chan struct{}, 2),
+		maxFile:    opt.MaxFileBytes,
+		tempDir:    opt.TempDir,
 		touched:    map[uuid.UUID]time.Time{},
+	}
+}
+
+// MaxFileBytes is the largest file the service accepts, told to clients.
+func (s *Service) MaxFileBytes() int64 { return s.maxFile }
+
+// tempPattern names the temporary files of assemblies.
+const tempPattern = "izci-upload-*"
+
+// removeStaleUploads deletes temporary files that assemblies cut short
+// (a crash) left behind; recent ones may belong to another instance.
+func removeStaleUploads(dir string, log *slog.Logger) {
+	names, _ := filepath.Glob(filepath.Join(dir, tempPattern))
+	for _, n := range names {
+		if fi, err := os.Stat(n); err == nil && time.Since(fi.ModTime()) > time.Hour {
+			if err := os.Remove(n); err != nil {
+				log.Warn("remove stale upload", slog.String("file", n), slog.Any("err", err))
+			}
+		}
 	}
 }
 
