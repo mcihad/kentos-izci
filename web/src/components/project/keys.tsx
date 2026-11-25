@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@connectrpc/connect-query";
-import { KeyRoundIcon, PlusIcon } from "lucide-react";
+import { KeyRoundIcon, PlusIcon, TriangleAlertIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { SecretValue } from "@/components/common/copy-button";
@@ -113,6 +113,23 @@ export function ProjectKeys({ project }: { project: Project }) {
                     {k.createdBy ? `, ${k.createdBy.name || k.createdBy.email}` : ""}
                   </span>
                 </p>
+                {k.scopes.includes(ApiKeyScope.RELEASES) ? (
+                  k.browserSeenAt ? (
+                    <p className="mt-2 flex gap-2 rounded-md border border-(--status-warning-border) bg-(--status-warning-bg) px-3 py-2 text-(--status-warning-fg) text-sm">
+                      <TriangleAlertIcon className="mt-0.5 size-4 shrink-0" />
+                      <span>
+                        Bu anahtar <RelativeTime value={k.browserSeenAt} /> bir tarayıcıdan kullanıldı;
+                        herkese açık sayıldığı için sürüm kaydı ve dosya yükleme izni kapatıldı. Olay
+                        göndermeye devam eder. CI için yükleme izinli ayrı bir anahtar oluşturun.
+                      </span>
+                    </p>
+                  ) : (
+                    <p className="mt-1.5 text-muted-foreground text-xs">
+                      Yükleme izinli: yalnız CI'da kullanın. Bir tarayıcıdan olay gönderilirse yükleme izni
+                      kendiliğinden kapanır.
+                    </p>
+                  )
+                ) : null}
               </div>
               {admin ? (
                 <div className="flex items-center gap-3">
@@ -275,7 +292,8 @@ function CreateKeyDialog({
               {releases ? (
                 <p className="-mt-2 text-sm text-muted-foreground">
                   Bu anahtarı yalnız CI'da kullanın. Tarayıcıya ya da mobil uygulamaya konan anahtar herkese
-                  açıktır; ona bu izni vermeyin.
+                  açıktır; ona bu izni vermeyin. Anahtar bir tarayıcıdan olay gönderirse yükleme izni
+                  kendiliğinden kapanır.
                 </p>
               ) : null}
               <Field

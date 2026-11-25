@@ -249,6 +249,15 @@ func TestAuthAndValidation(t *testing.T) {
 		t.Errorf("unknown key: %v", err)
 	}
 
+	// Releases come from CI, before a browser uses the key (which ends its
+	// upload permission, see TestUploadKeyUsedByBrowser).
+	rel := connect.NewRequest(&ingestv1.RegisterReleaseRequest{Version: "1.5.0", CommitSha: "ABCDEF0123", Environment: "Production"})
+	rel.Header().Set("Authorization", "Bearer "+f.Key)
+	rresp, err := f.connect.RegisterRelease(ctx, rel)
+	if err != nil || !rresp.Msg.GetCreated() {
+		t.Fatalf("register release: %v %v", rresp, err)
+	}
+
 	req = f.authed(&ingestv1.SendEventRequest{Event: orderEvent(1, "x")})
 	req.Header().Set("Origin", "https://evil.example.com")
 	if _, err := f.connect.SendEvent(ctx, req); connect.CodeOf(err) != connect.CodePermissionDenied {
@@ -276,13 +285,6 @@ func TestAuthAndValidation(t *testing.T) {
 	res.Body.Close()
 	if res.StatusCode != http.StatusNoContent || res.Header.Get("Access-Control-Allow-Origin") != "https://kalem.example.com" {
 		t.Errorf("preflight: %d %v", res.StatusCode, res.Header)
-	}
-
-	rel := connect.NewRequest(&ingestv1.RegisterReleaseRequest{Version: "1.5.0", CommitSha: "ABCDEF0123", Environment: "Production"})
-	rel.Header().Set("Authorization", "Bearer "+f.Key)
-	rresp, err := f.connect.RegisterRelease(ctx, rel)
-	if err != nil || !rresp.Msg.GetCreated() {
-		t.Fatalf("register release: %v %v", rresp, err)
 	}
 
 	cfgReq := connect.NewRequest(&ingestv1.GetClientConfigRequest{})

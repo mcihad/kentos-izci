@@ -107,7 +107,7 @@ func (s *AuthServer) CompleteSetup(ctx context.Context, req *connect.Request[api
 			return err
 		}
 		_, apiKey, err = store.CreateAPIKey(ctx, tx, store.NewAPIKeyInput{OrgID: org.ID, ProjectID: project.ID, Name: "default",
-			Scopes:    []apiv1.ApiKeyScope{apiv1.ApiKeyScope_API_KEY_SCOPE_INGEST, apiv1.ApiKeyScope_API_KEY_SCOPE_RELEASES},
+			Scopes:    []apiv1.ApiKeyScope{apiv1.ApiKeyScope_API_KEY_SCOPE_INGEST},
 			CreatedBy: &user.ID})
 		if err != nil {
 			return err

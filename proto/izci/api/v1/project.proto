@@ -395,8 +395,9 @@ message ApiKey {
   repeated ApiKeyScope scopes = 4;
 
   // Browser origins allowed to use the key, e.g.
-  // ["https://kalem.example.com"]. Empty allows requests without an Origin
-  // header only (server-side applications).
+  // ["https://kalem.example.com"] or ["https://*.example.com"]. Empty
+  // allows every origin, as for Sentry DSNs; requests without an Origin
+  // header (server-side applications) are never restricted.
   repeated string allowed_origins = 5;
 
   // Maximum events per minute accepted with this key (0 = project limit).
@@ -413,6 +414,11 @@ message ApiKey {
 
   // When the key was last used (updated at most once per minute).
   google.protobuf.Timestamp last_used_at = 10;
+
+  // When a browser first sent events with this key while it had the
+  // releases scope. Such a key is public, so it can no longer register
+  // releases or upload files; create a separate key for CI.
+  google.protobuf.Timestamp browser_seen_at = 11;
 }
 
 // ApiKeyScope is a permission of an API key.
@@ -424,7 +430,9 @@ enum ApiKeyScope {
   // Register releases (IngestService.RegisterRelease) and upload source
   // maps and debug files through the Sentry-compatible upload endpoints
   // (sentry-cli, bundler plugins), for CI. Keys embedded in browser or mobile
-  // apps should not have it.
+  // apps must not have it: once a browser sends events with such a key
+  // (an Origin header), the key loses this permission for good (see
+  // ApiKey.browser_seen_at). New projects get a key without it.
   API_KEY_SCOPE_RELEASES = 2;
 }
 

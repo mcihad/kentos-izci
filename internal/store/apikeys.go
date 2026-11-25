@@ -27,22 +27,31 @@ type APIKey struct {
 	CreatedAt          time.Time
 	LastUsedAt         *time.Time
 	RevokedAt          *time.Time
+	// BrowserSeenAt is when a browser first used a key with the releases
+	// scope; from then on the key counts as public (see CanUpload).
+	BrowserSeenAt *time.Time
 }
 
 // HasScope reports whether the key grants scope.
 func (k *APIKey) HasScope(scope apiv1.ApiKeyScope) bool { return slices.Contains(k.Scopes, scope) }
 
+// CanUpload reports whether the key may register releases and upload
+// files: it has the releases scope and was never used by a browser.
+func (k *APIKey) CanUpload() bool {
+	return k.HasScope(apiv1.ApiKeyScope_API_KEY_SCOPE_RELEASES) && k.BrowserSeenAt == nil
+}
+
 // Usable reports whether the key may authenticate requests.
 func (k *APIKey) Usable() bool { return k.Enabled && k.RevokedAt == nil }
 
 const apiKeyColumns = `id, org_id, project_id, name, prefix, scopes, allowed_origins,
-	rate_limit_per_minute, enabled, created_by, created_at, last_used_at, revoked_at`
+	rate_limit_per_minute, enabled, created_by, created_at, last_used_at, revoked_at, browser_seen_at`
 
 func scanAPIKey(row interface{ Scan(...any) error }) (*APIKey, error) {
 	var k APIKey
 	var scopes []int16
 	if err := row.Scan(&k.ID, &k.OrgID, &k.ProjectID, &k.Name, &k.Prefix, &scopes, &k.AllowedOrigins,
-		&k.RateLimitPerMinute, &k.Enabled, &k.CreatedBy, &k.CreatedAt, &k.LastUsedAt, &k.RevokedAt); err != nil {
+		&k.RateLimitPerMinute, &k.Enabled, &k.CreatedBy, &k.CreatedAt, &k.LastUsedAt, &k.RevokedAt, &k.BrowserSeenAt); err != nil {
 		return nil, notFound(err)
 	}
 	k.Scopes = make([]apiv1.ApiKeyScope, len(scopes))
@@ -155,7 +164,7 @@ func ResolveAPIKeyForProject(ctx context.Context, q Querier, token string, publi
 func resolveKey(ctx context.Context, q Querier, where string, args ...any) (*ResolvedKey, error) {
 	row := q.QueryRow(ctx, `
 		SELECT k.id, k.org_id, k.project_id, k.name, k.prefix, k.scopes, k.allowed_origins,
-		       k.rate_limit_per_minute, k.enabled, k.created_by, k.created_at, k.last_used_at, k.revoked_at,
+		       k.rate_limit_per_minute, k.enabled, k.created_by, k.created_at, k.last_used_at, k.revoked_at, k.browser_seen_at,
 		       p.slug, p.name, p.public_id, p.settings, o.slug, o.limits
 		FROM api_keys k
 		JOIN projects p ON p.id = k.project_id AND p.deleted_at IS NULL
@@ -166,7 +175,7 @@ func resolveKey(ctx context.Context, q Querier, where string, args ...any) (*Res
 	var scopes []int16
 	var settings, limits []byte
 	if err := row.Scan(&k.ID, &k.OrgID, &k.ProjectID, &k.Name, &k.Prefix, &scopes, &k.AllowedOrigins,
-		&k.RateLimitPerMinute, &k.Enabled, &k.CreatedBy, &k.CreatedAt, &k.LastUsedAt, &k.RevokedAt,
+		&k.RateLimitPerMinute, &k.Enabled, &k.CreatedBy, &k.CreatedAt, &k.LastUsedAt, &k.RevokedAt, &k.BrowserSeenAt,
 		&r.ProjectSlug, &r.ProjectName, &r.ProjectPublicID, &settings, &r.OrgSlug, &limits); err != nil {
 		return nil, notFound(err)
 	}
@@ -183,6 +192,13 @@ func resolveKey(ctx context.Context, q Querier, where string, args ...any) (*Res
 		return nil, fmt.Errorf("decode organization limits: %w", err)
 	}
 	return &r, nil
+}
+
+// MarkAPIKeyBrowserSeen records that a browser used the key; it reports
+// whether this was the first time.
+func MarkAPIKeyBrowserSeen(ctx context.Context, q Querier, id uuid.UUID) (bool, error) {
+	tag, err := q.Exec(ctx, `UPDATE api_keys SET browser_seen_at = now() WHERE id = $1 AND browser_seen_at IS NULL`, id)
+	return tag.RowsAffected() == 1, err
 }
 
 // TouchAPIKeys records usage of keys (batched by the caller, at most once a

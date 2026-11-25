@@ -90,7 +90,7 @@ func Seed(ctx context.Context, database *db.DB, log *slog.Logger, opts Options) 
 				p, err = store.CreateProject(ctx, tx, org.ID, spec.slug, spec.name, spec.platform)
 				if err == nil {
 					_, _, err = store.CreateAPIKey(ctx, tx, store.NewAPIKeyInput{OrgID: org.ID, ProjectID: p.ID, Name: "demo",
-						Scopes: []apiv1.ApiKeyScope{apiv1.ApiKeyScope_API_KEY_SCOPE_INGEST, apiv1.ApiKeyScope_API_KEY_SCOPE_RELEASES}})
+						Scopes: []apiv1.ApiKeyScope{apiv1.ApiKeyScope_API_KEY_SCOPE_INGEST}})
 				}
 			}
 			if err != nil {

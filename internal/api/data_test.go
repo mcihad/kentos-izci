@@ -331,8 +331,9 @@ func TestProjectsAndKeys(t *testing.T) {
 		t.Fatalf("create project: %v", err)
 	}
 	p := created.Msg.GetProject()
+	// The first key ends up in applications: it only sends events.
 	if p.GetSlug() != "sikayet-yonetimi" || p.GetPlatform() != "go" || !strings.HasPrefix(created.Msg.GetApiKeySecret(), "izk_") ||
-		len(created.Msg.GetApiKey().GetScopes()) != 2 {
+		!slices.Equal(created.Msg.GetApiKey().GetScopes(), []apiv1.ApiKeyScope{apiv1.ApiKeyScope_API_KEY_SCOPE_INGEST}) {
 		t.Fatalf("created project: %v", created.Msg)
 	}
 	if _, err := owner.project.CreateProject(ctx, req(&apiv1.CreateProjectRequest{Name: "X", Slug: "sikayet-yonetimi"})); reason(err) != apiv1.ErrorReason_ERROR_REASON_SLUG_TAKEN {

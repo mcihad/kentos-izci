@@ -53,7 +53,7 @@ Projeye özel ayarlar **Projeler › proje › Gizlilik** bölümündedir:
 - OpenID Connect akışı PKCE, `state` ve `nonce` kullanır. Sağlayıcının doğrulamadığı e-posta adresiyle hesap açılmaz ve organizasyona katılınmaz; aynı e-postalı mevcut bir hesap, sahibi oturum açmışken bağlamadıkça başka bir kimlikle girilemez (bkz. [OpenID Connect](yapilandirma.md#openid-connect)).
 - Yönetim API'si tarayıcıdan yalnızca aynı kökenden çağrılabilir: her istek `Connect-Protocol-Version` başlığını taşımak zorundadır ve CORS izni verilmez. Bu, CSRF'ye karşı korur.
 - Ingest ve kişisel erişim anahtarları veritabanında SHA-256 özeti olarak saklanır.
-- Kaynak eşlemesi ve sembol yükleme, sürüm ve dosya yükleme izni olan proje anahtarı ya da `write` kapsamlı kişisel anahtar ister; tarayıcı oturumlarıyla yapılamaz. Tarayıcıya ve mobil uygulamaya konan anahtarlara bu izni vermeyin. Bir proje en çok 10 GiB yükleme saklayabilir.
+- Kaynak eşlemesi ve sembol yükleme, sürüm ve dosya yükleme izni olan proje anahtarı ya da `write` kapsamlı kişisel anahtar ister; tarayıcı oturumlarıyla yapılamaz. Tarayıcıya ve mobil uygulamaya konan anahtarlara bu izni vermeyin: projeyle oluşan ilk anahtar yalnız olay gönderir, yükleme izinli bir anahtar bir tarayıcıdan olay gönderdiği anda bu iznini kalıcı olarak kaybeder. Bir proje en çok 10 GiB yükleme saklayabilir.
 
 ## Şifreleme
 

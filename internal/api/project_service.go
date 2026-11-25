@@ -220,7 +220,9 @@ func (s *ProjectServer) CreateProject(ctx context.Context, req *connect.Request[
 		}
 		key, secret, err := store.CreateAPIKey(ctx, tx, store.NewAPIKeyInput{
 			OrgID: t.OrgID(), ProjectID: project.ID, Name: "default", CreatedBy: &p.User.ID,
-			Scopes: []apiv1.ApiKeyScope{apiv1.ApiKeyScope_API_KEY_SCOPE_INGEST, apiv1.ApiKeyScope_API_KEY_SCOPE_RELEASES},
+			// The first key ends up in applications, often in browsers:
+			// it only sends events. Uploads need a separate CI key.
+			Scopes: []apiv1.ApiKeyScope{apiv1.ApiKeyScope_API_KEY_SCOPE_INGEST},
 		})
 		if err != nil {
 			return err
@@ -378,7 +380,7 @@ func toAPIKey(k *store.APIKey, createdBy *apiv1.UserRef) *apiv1.ApiKey {
 	return &apiv1.ApiKey{
 		Id: k.ID.String(), Name: k.Name, Prefix: k.Prefix, Scopes: k.Scopes, AllowedOrigins: k.AllowedOrigins,
 		RateLimitPerMinute: uint32(max(k.RateLimitPerMinute, 0)), Enabled: k.Usable(), CreatedBy: createdBy,
-		CreatedAt: ts(k.CreatedAt), LastUsedAt: tsp(k.LastUsedAt),
+		CreatedAt: ts(k.CreatedAt), LastUsedAt: tsp(k.LastUsedAt), BrowserSeenAt: tsp(k.BrowserSeenAt),
 	}
 }
 

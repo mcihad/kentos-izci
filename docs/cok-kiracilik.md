@@ -43,7 +43,7 @@ Organizasyonun en az bir sahibi (`owner`) kalmalıdır.
 
 | Tür | Önek | Kimin | Ne için |
 |---|---|---|---|
-| Ingest anahtarı | `izk_` | Proje | Olay göndermek; "sürüm ve dosya yükleme" izniyle ayrıca sürüm kaydetmek ve [kaynak eşlemesi, sembol](kaynak-eslemeleri.md) yüklemek. Olay gönderen anahtar uygulamaların içine konur; yükleme izinli anahtar yalnız CI'da kullanılmalıdır. |
+| Ingest anahtarı | `izk_` | Proje | Olay göndermek; "sürüm ve dosya yükleme" izniyle ayrıca sürüm kaydetmek ve [kaynak eşlemesi, sembol](kaynak-eslemeleri.md) yüklemek. Olay gönderen anahtar uygulamaların içine konur; yükleme izinli anahtar yalnız CI'da kullanılmalıdır. Projenin ilk anahtarı yalnız olay gönderir; yükleme izinli bir anahtar bir tarayıcıdan kullanılırsa bu izni kendiliğinden kaybeder. |
 | Kişisel erişim anahtarı | `izp_` | Kullanıcı | API, komut satırı ve MCP. Sahibinin rolüyle çalışır; kapsamla ve tek organizasyonla daraltılabilir. |
 
 Kişisel anahtar kapsamları: `read` (okuma), `write` (triage ve yönetim işlemleri), `ai` (yapay zekâ analizi ve çekme istekleri). Kapsam rolü genişletmez; yalnız daraltır. Anahtarlar veritabanında özet olarak saklanır, yalnız oluşturulurken bir kez gösterilir.

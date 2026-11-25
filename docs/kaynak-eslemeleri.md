@@ -30,7 +30,7 @@ Yükleme için şunlardan biri kullanılır:
 - **Sürüm ve dosya yükleme** izni olan bir proje API anahtarı (`izk_…`). **Projeler › proje › Anahtarlar › Yeni anahtar** penceresinde "CI hattından sürüm kaydına, kaynak eşlemesi ve sembol yüklemeye de izin ver" seçeneğini işaretleyin. Anahtar yalnız kendi projesine yükleyebilir.
 - `write` kapsamlı bir kişisel erişim anahtarı (`izp_…`); sahibinin organizasyonda en az üye rolü olmalıdır. Birden çok projeye yükleyen hatlar için uygundur.
 
-Bu anahtarı yalnız CI'da, gizli değişken olarak kullanın. Tarayıcıya ya da mobil uygulamaya konan anahtar herkesçe okunabilir; ona bu izni vermeyin, uygulamalar için ayrı bir anahtar oluşturun.
+Bu anahtarı yalnız CI'da, gizli değişken olarak kullanın. Tarayıcıya ya da mobil uygulamaya konan anahtar herkesçe okunabilir; ona bu izni vermeyin, uygulamalar için ayrı bir anahtar oluşturun. Projeyle birlikte oluşan ilk anahtar yalnız olay gönderir. Yükleme izinli bir anahtarla bir tarayıcıdan olay gelirse (`Origin` başlıklı istek), olaylar kabul edilmeye devam eder ama anahtarın sürüm kaydı ve dosya yükleme izni kalıcı olarak kapanır; **Anahtarlar** sayfası bunu gösterir.
 
 `sentry-cli` İzci anahtarları için "Unrecognized auth token format" uyarısı yazar; zararsızdır.
 

@@ -95,7 +95,7 @@ func newSetupCmd(a *cliApp) *cobra.Command {
 					return err
 				}
 				_, token, err = store.CreateAPIKey(ctx, tx, store.NewAPIKeyInput{OrgID: org.ID, ProjectID: p.ID, Name: "default",
-					Scopes: []apiv1.ApiKeyScope{apiv1.ApiKeyScope_API_KEY_SCOPE_INGEST, apiv1.ApiKeyScope_API_KEY_SCOPE_RELEASES}, CreatedBy: &u.ID})
+					Scopes: []apiv1.ApiKeyScope{apiv1.ApiKeyScope_API_KEY_SCOPE_INGEST}, CreatedBy: &u.ID})
 				return err
 			})
 			if err != nil {

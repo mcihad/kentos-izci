@@ -32,6 +32,8 @@ type KeyResolver struct {
 
 	mu      sync.Mutex
 	touched map[uuid.UUID]time.Time
+	// exposed remembers keys already marked as used by a browser.
+	exposed sync.Map
 }
 
 // NewKeyResolver creates a resolver. Revocations propagate within ttl (or
@@ -109,6 +111,37 @@ func (r *KeyResolver) resolve(ctx context.Context, token string, publicID int64)
 	}
 	r.touch(rk.Key.ID)
 	return rk, nil
+}
+
+// ResolveFresh is Resolve without the cache, for decisions that must see
+// a change made by another instance (upload permission).
+func (r *KeyResolver) ResolveFresh(ctx context.Context, token string) (*store.ResolvedKey, error) {
+	r.positive.Remove(hex.EncodeToString(secret.Hash(token)))
+	return r.resolve(ctx, token, 0)
+}
+
+// MarkBrowserSeen records that a browser used a key that can upload: the
+// key is public from now on and loses that permission. It reports whether
+// this request was the first to notice.
+func (r *KeyResolver) MarkBrowserSeen(ctx context.Context, token string, rk *store.ResolvedKey) (bool, error) {
+	if !rk.Key.CanUpload() {
+		return false, nil
+	}
+	if _, done := r.exposed.LoadOrStore(rk.Key.ID, struct{}{}); done {
+		return false, nil
+	}
+	var first bool
+	err := r.db.InOrg(ctx, rk.Key.OrgID, func(tx pgx.Tx) error {
+		var err error
+		first, err = store.MarkAPIKeyBrowserSeen(ctx, tx, rk.Key.ID)
+		return err
+	})
+	if err != nil {
+		r.exposed.Delete(rk.Key.ID)
+		return false, err
+	}
+	r.positive.Remove(hex.EncodeToString(secret.Hash(token)))
+	return first, nil
 }
 
 // InvalidateAll drops every cached key (after revocations or settings

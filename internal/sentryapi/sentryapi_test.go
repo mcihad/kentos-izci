@@ -432,11 +432,22 @@ func gunzip(t *testing.T, path string) []byte {
 func TestAuthorization(t *testing.T) {
 	e := newEnv(t)
 	ctx := context.Background()
-	var ingestOnly string
+	var ingestOnly, exposed string
 	err := e.DB.InSystem(ctx, func(tx pgx.Tx) error {
 		_, secret, err := store.CreateAPIKey(ctx, tx, store.NewAPIKeyInput{OrgID: e.Org.ID, ProjectID: e.Project.ID, Name: "browser",
 			Scopes: []apiv1.ApiKeyScope{apiv1.ApiKeyScope_API_KEY_SCOPE_INGEST}})
+		if err != nil {
+			return err
+		}
 		ingestOnly = secret
+		// A CI key that a browser application also used.
+		k, secret, err := store.CreateAPIKey(ctx, tx, store.NewAPIKeyInput{OrgID: e.Org.ID, ProjectID: e.Project.ID, Name: "leaked",
+			Scopes: []apiv1.ApiKeyScope{apiv1.ApiKeyScope_API_KEY_SCOPE_INGEST, apiv1.ApiKeyScope_API_KEY_SCOPE_RELEASES}})
+		if err != nil {
+			return err
+		}
+		exposed = secret
+		_, err = store.MarkAPIKeyBrowserSeen(ctx, tx, k.ID)
 		return err
 	})
 	if err != nil {
@@ -449,6 +460,7 @@ func TestAuthorization(t *testing.T) {
 		{"", "/api/0/organizations/kentos/chunk-upload/", 401},
 		{"izk_nope", "/api/0/organizations/kentos/chunk-upload/", 401},
 		{ingestOnly, "/api/0/organizations/kentos/chunk-upload/", 403},
+		{exposed, "/api/0/organizations/kentos/chunk-upload/", 403},
 		{e.Key, "/api/0/organizations/other/chunk-upload/", 404},
 		{e.Key, "/api/0/organizations/kentos/chunk-upload/", 200},
 		{e.Key, "/api/0/", 200},

@@ -126,7 +126,7 @@ func newProjectCmd(a *cliApp) *cobra.Command {
 				}
 				_, token, err = store.CreateAPIKey(ctx, tx, store.NewAPIKeyInput{
 					OrgID: org.ID, ProjectID: project.ID, Name: "default",
-					Scopes: []apiv1.ApiKeyScope{apiv1.ApiKeyScope_API_KEY_SCOPE_INGEST, apiv1.ApiKeyScope_API_KEY_SCOPE_RELEASES},
+					Scopes: []apiv1.ApiKeyScope{apiv1.ApiKeyScope_API_KEY_SCOPE_INGEST},
 				})
 				return err
 			})

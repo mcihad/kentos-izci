@@ -98,16 +98,26 @@ type Caller struct {
 
 // Authenticate resolves and checks the key of a request.
 func (s *Service) Authenticate(ctx context.Context, token string, scope apiv1.ApiKeyScope, header http.Header, peer string) (*Caller, error) {
-	return s.authenticate(ctx, func() (*store.ResolvedKey, error) { return s.keys.Resolve(ctx, token) }, scope, header, peer)
+	resolve := func() (*store.ResolvedKey, error) { return s.keys.Resolve(ctx, token) }
+	if scope == apiv1.ApiKeyScope_API_KEY_SCOPE_RELEASES {
+		// Another instance may have just found the key in a browser.
+		resolve = func() (*store.ResolvedKey, error) { return s.keys.ResolveFresh(ctx, token) }
+	}
+	return s.authenticate(ctx, token, resolve, scope, header, peer)
 }
 
 // AuthenticateForProject is Authenticate restricted to a Sentry public id.
 func (s *Service) AuthenticateForProject(ctx context.Context, token string, publicID int64, header http.Header, peer string) (*Caller, error) {
-	return s.authenticate(ctx, func() (*store.ResolvedKey, error) { return s.keys.ResolveForProject(ctx, token, publicID) },
+	return s.authenticate(ctx, token, func() (*store.ResolvedKey, error) { return s.keys.ResolveForProject(ctx, token, publicID) },
 		apiv1.ApiKeyScope_API_KEY_SCOPE_INGEST, header, peer)
 }
 
-func (s *Service) authenticate(ctx context.Context, resolve func() (*store.ResolvedKey, error), scope apiv1.ApiKeyScope, header http.Header, peer string) (*Caller, error) {
+// ErrKeyExposed is the message for upload attempts with a key a browser
+// has used.
+const ErrKeyExposed = "this API key was used by a browser application, so it can no longer register releases or upload files; " +
+	"create a separate key for CI"
+
+func (s *Service) authenticate(ctx context.Context, token string, resolve func() (*store.ResolvedKey, error), scope apiv1.ApiKeyScope, header http.Header, peer string) (*Caller, error) {
 	rk, err := resolve()
 	if err != nil {
 		if errors.Is(err, ErrUnknownKey) {
@@ -120,8 +130,27 @@ func (s *Service) authenticate(ctx context.Context, resolve func() (*store.Resol
 		return nil, connect.NewError(connect.CodePermissionDenied, fmt.Errorf("API key lacks the %s scope", strings.TrimPrefix(scope.String(), "API_KEY_SCOPE_")))
 	}
 	origin := header.Get("Origin")
+	if scope == apiv1.ApiKeyScope_API_KEY_SCOPE_RELEASES {
+		switch {
+		case origin != "":
+			return nil, connect.NewError(connect.CodePermissionDenied, errors.New("releases cannot be registered from a browser"))
+		case !rk.Key.CanUpload():
+			return nil, connect.NewError(connect.CodePermissionDenied, errors.New(ErrKeyExposed))
+		}
+	}
 	if !originAllowed(rk.Key.AllowedOrigins, origin) {
 		return nil, connect.NewError(connect.CodePermissionDenied, fmt.Errorf("origin %q is not allowed for this API key", origin))
+	}
+	// A key that can upload is meant for CI; once a browser sends events
+	// with it, it is public and loses that permission.
+	if origin != "" && rk.Key.CanUpload() {
+		first, err := s.keys.MarkBrowserSeen(ctx, token, rk)
+		if err != nil {
+			s.log.Warn("mark api key as used by a browser", slog.Any("err", err))
+		} else if first {
+			s.log.Warn("API key that can upload files was used by a browser; its upload permission is now off",
+				slog.String("key", rk.Key.Prefix), slog.String("project", rk.ProjectSlug))
+		}
 	}
 	ip := clientip.Resolve(peer, header, s.cfg.TrustedProxies)
 	c := &Caller{Key: rk, Origin: origin}

@@ -283,7 +283,9 @@ const (
 	// Register releases (IngestService.RegisterRelease) and upload source
 	// maps and debug files through the Sentry-compatible upload endpoints
 	// (sentry-cli, bundler plugins), for CI. Keys embedded in browser or mobile
-	// apps should not have it.
+	// apps must not have it: once a browser sends events with such a key
+	// (an Origin header), the key loses this permission for good (see
+	// ApiKey.browser_seen_at). New projects get a key without it.
 	ApiKeyScope_API_KEY_SCOPE_RELEASES ApiKeyScope = 2
 )
 
@@ -1158,8 +1160,9 @@ type ApiKey struct {
 	// What the key may do.
 	Scopes []ApiKeyScope `protobuf:"varint,4,rep,packed,name=scopes,proto3,enum=izci.api.v1.ApiKeyScope" json:"scopes,omitempty"`
 	// Browser origins allowed to use the key, e.g.
-	// ["https://kalem.example.com"]. Empty allows requests without an Origin
-	// header only (server-side applications).
+	// ["https://kalem.example.com"] or ["https://*.example.com"]. Empty
+	// allows every origin, as for Sentry DSNs; requests without an Origin
+	// header (server-side applications) are never restricted.
 	AllowedOrigins []string `protobuf:"bytes,5,rep,name=allowed_origins,json=allowedOrigins,proto3" json:"allowed_origins,omitempty"`
 	// Maximum events per minute accepted with this key (0 = project limit).
 	RateLimitPerMinute uint32 `protobuf:"varint,6,opt,name=rate_limit_per_minute,json=rateLimitPerMinute,proto3" json:"rate_limit_per_minute,omitempty"`
@@ -1170,7 +1173,11 @@ type ApiKey struct {
 	// When the key was created.
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// When the key was last used (updated at most once per minute).
-	LastUsedAt    *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=last_used_at,json=lastUsedAt,proto3" json:"last_used_at,omitempty"`
+	LastUsedAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=last_used_at,json=lastUsedAt,proto3" json:"last_used_at,omitempty"`
+	// When a browser first sent events with this key while it had the
+	// releases scope. Such a key is public, so it can no longer register
+	// releases or upload files; create a separate key for CI.
+	BrowserSeenAt *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=browser_seen_at,json=browserSeenAt,proto3" json:"browser_seen_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1271,6 +1278,13 @@ func (x *ApiKey) GetCreatedAt() *timestamppb.Timestamp {
 func (x *ApiKey) GetLastUsedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.LastUsedAt
+	}
+	return nil
+}
+
+func (x *ApiKey) GetBrowserSeenAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.BrowserSeenAt
 	}
 	return nil
 }
@@ -3615,7 +3629,7 @@ const file_izci_api_v1_project_proto_rawDesc = "" +
 	"\vfrom_prefix\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\x80\x04R\n" +
 	"fromPrefix\x12%\n" +
-	"\tto_prefix\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x04R\btoPrefix\"\x9a\x03\n" +
+	"\tto_prefix\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x04R\btoPrefix\"\xde\x03\n" +
 	"\x06ApiKey\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
@@ -3630,7 +3644,8 @@ const file_izci_api_v1_project_proto_rawDesc = "" +
 	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12<\n" +
 	"\flast_used_at\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"lastUsedAt\"\x95\x01\n" +
+	"lastUsedAt\x12B\n" +
+	"\x0fbrowser_seen_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\rbrowserSeenAt\"\x95\x01\n" +
 	"\vEnvironment\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x129\n" +
 	"\n" +
@@ -3926,68 +3941,69 @@ var file_izci_api_v1_project_proto_depIdxs = []int32{
 	56, // 17: izci.api.v1.ApiKey.created_by:type_name -> izci.api.v1.UserRef
 	53, // 18: izci.api.v1.ApiKey.created_at:type_name -> google.protobuf.Timestamp
 	53, // 19: izci.api.v1.ApiKey.last_used_at:type_name -> google.protobuf.Timestamp
-	53, // 20: izci.api.v1.Environment.first_seen:type_name -> google.protobuf.Timestamp
-	53, // 21: izci.api.v1.Environment.last_seen:type_name -> google.protobuf.Timestamp
-	53, // 22: izci.api.v1.Release.first_seen:type_name -> google.protobuf.Timestamp
-	53, // 23: izci.api.v1.Release.last_seen:type_name -> google.protobuf.Timestamp
-	18, // 24: izci.api.v1.Release.deploys:type_name -> izci.api.v1.Deploy
-	17, // 25: izci.api.v1.Release.health:type_name -> izci.api.v1.ReleaseHealth
-	53, // 26: izci.api.v1.Deploy.deployed_at:type_name -> google.protobuf.Timestamp
-	5,  // 27: izci.api.v1.ListProjectsResponse.projects:type_name -> izci.api.v1.Project
-	5,  // 28: izci.api.v1.GetProjectResponse.project:type_name -> izci.api.v1.Project
-	5,  // 29: izci.api.v1.CreateProjectResponse.project:type_name -> izci.api.v1.Project
-	14, // 30: izci.api.v1.CreateProjectResponse.api_key:type_name -> izci.api.v1.ApiKey
-	7,  // 31: izci.api.v1.UpdateProjectRequest.settings:type_name -> izci.api.v1.ProjectSettings
-	5,  // 32: izci.api.v1.UpdateProjectResponse.project:type_name -> izci.api.v1.Project
-	14, // 33: izci.api.v1.ListApiKeysResponse.keys:type_name -> izci.api.v1.ApiKey
-	4,  // 34: izci.api.v1.CreateApiKeyRequest.scopes:type_name -> izci.api.v1.ApiKeyScope
-	14, // 35: izci.api.v1.CreateApiKeyResponse.key:type_name -> izci.api.v1.ApiKey
-	14, // 36: izci.api.v1.UpdateApiKeyResponse.key:type_name -> izci.api.v1.ApiKey
-	15, // 37: izci.api.v1.ListEnvironmentsResponse.environments:type_name -> izci.api.v1.Environment
-	57, // 38: izci.api.v1.ListReleasesRequest.health_period:type_name -> izci.api.v1.StatsPeriod
-	16, // 39: izci.api.v1.ListReleasesResponse.releases:type_name -> izci.api.v1.Release
-	13, // 40: izci.api.v1.LinkRepositoryRequest.path_mappings:type_name -> izci.api.v1.PathMapping
-	12, // 41: izci.api.v1.LinkRepositoryResponse.repository:type_name -> izci.api.v1.ProjectRepository
-	51, // 42: izci.api.v1.GetFilterStatsResponse.reasons:type_name -> izci.api.v1.FilterStat
-	52, // 43: izci.api.v1.GetFilterStatsResponse.days:type_name -> izci.api.v1.FilterDay
-	0,  // 44: izci.api.v1.FilterStat.reason:type_name -> izci.api.v1.FilterReason
-	19, // 45: izci.api.v1.ProjectService.ListProjects:input_type -> izci.api.v1.ListProjectsRequest
-	21, // 46: izci.api.v1.ProjectService.GetProject:input_type -> izci.api.v1.GetProjectRequest
-	23, // 47: izci.api.v1.ProjectService.CreateProject:input_type -> izci.api.v1.CreateProjectRequest
-	25, // 48: izci.api.v1.ProjectService.UpdateProject:input_type -> izci.api.v1.UpdateProjectRequest
-	27, // 49: izci.api.v1.ProjectService.DeleteProject:input_type -> izci.api.v1.DeleteProjectRequest
-	29, // 50: izci.api.v1.ProjectService.ListApiKeys:input_type -> izci.api.v1.ListApiKeysRequest
-	31, // 51: izci.api.v1.ProjectService.CreateApiKey:input_type -> izci.api.v1.CreateApiKeyRequest
-	33, // 52: izci.api.v1.ProjectService.UpdateApiKey:input_type -> izci.api.v1.UpdateApiKeyRequest
-	35, // 53: izci.api.v1.ProjectService.RevokeApiKey:input_type -> izci.api.v1.RevokeApiKeyRequest
-	37, // 54: izci.api.v1.ProjectService.GetIngestEndpoints:input_type -> izci.api.v1.GetIngestEndpointsRequest
-	49, // 55: izci.api.v1.ProjectService.GetFilterStats:input_type -> izci.api.v1.GetFilterStatsRequest
-	39, // 56: izci.api.v1.ProjectService.SendTestEvent:input_type -> izci.api.v1.SendTestEventRequest
-	41, // 57: izci.api.v1.ProjectService.ListEnvironments:input_type -> izci.api.v1.ListEnvironmentsRequest
-	43, // 58: izci.api.v1.ProjectService.ListReleases:input_type -> izci.api.v1.ListReleasesRequest
-	45, // 59: izci.api.v1.ProjectService.LinkRepository:input_type -> izci.api.v1.LinkRepositoryRequest
-	47, // 60: izci.api.v1.ProjectService.UnlinkRepository:input_type -> izci.api.v1.UnlinkRepositoryRequest
-	20, // 61: izci.api.v1.ProjectService.ListProjects:output_type -> izci.api.v1.ListProjectsResponse
-	22, // 62: izci.api.v1.ProjectService.GetProject:output_type -> izci.api.v1.GetProjectResponse
-	24, // 63: izci.api.v1.ProjectService.CreateProject:output_type -> izci.api.v1.CreateProjectResponse
-	26, // 64: izci.api.v1.ProjectService.UpdateProject:output_type -> izci.api.v1.UpdateProjectResponse
-	28, // 65: izci.api.v1.ProjectService.DeleteProject:output_type -> izci.api.v1.DeleteProjectResponse
-	30, // 66: izci.api.v1.ProjectService.ListApiKeys:output_type -> izci.api.v1.ListApiKeysResponse
-	32, // 67: izci.api.v1.ProjectService.CreateApiKey:output_type -> izci.api.v1.CreateApiKeyResponse
-	34, // 68: izci.api.v1.ProjectService.UpdateApiKey:output_type -> izci.api.v1.UpdateApiKeyResponse
-	36, // 69: izci.api.v1.ProjectService.RevokeApiKey:output_type -> izci.api.v1.RevokeApiKeyResponse
-	38, // 70: izci.api.v1.ProjectService.GetIngestEndpoints:output_type -> izci.api.v1.GetIngestEndpointsResponse
-	50, // 71: izci.api.v1.ProjectService.GetFilterStats:output_type -> izci.api.v1.GetFilterStatsResponse
-	40, // 72: izci.api.v1.ProjectService.SendTestEvent:output_type -> izci.api.v1.SendTestEventResponse
-	42, // 73: izci.api.v1.ProjectService.ListEnvironments:output_type -> izci.api.v1.ListEnvironmentsResponse
-	44, // 74: izci.api.v1.ProjectService.ListReleases:output_type -> izci.api.v1.ListReleasesResponse
-	46, // 75: izci.api.v1.ProjectService.LinkRepository:output_type -> izci.api.v1.LinkRepositoryResponse
-	48, // 76: izci.api.v1.ProjectService.UnlinkRepository:output_type -> izci.api.v1.UnlinkRepositoryResponse
-	61, // [61:77] is the sub-list for method output_type
-	45, // [45:61] is the sub-list for method input_type
-	45, // [45:45] is the sub-list for extension type_name
-	45, // [45:45] is the sub-list for extension extendee
-	0,  // [0:45] is the sub-list for field type_name
+	53, // 20: izci.api.v1.ApiKey.browser_seen_at:type_name -> google.protobuf.Timestamp
+	53, // 21: izci.api.v1.Environment.first_seen:type_name -> google.protobuf.Timestamp
+	53, // 22: izci.api.v1.Environment.last_seen:type_name -> google.protobuf.Timestamp
+	53, // 23: izci.api.v1.Release.first_seen:type_name -> google.protobuf.Timestamp
+	53, // 24: izci.api.v1.Release.last_seen:type_name -> google.protobuf.Timestamp
+	18, // 25: izci.api.v1.Release.deploys:type_name -> izci.api.v1.Deploy
+	17, // 26: izci.api.v1.Release.health:type_name -> izci.api.v1.ReleaseHealth
+	53, // 27: izci.api.v1.Deploy.deployed_at:type_name -> google.protobuf.Timestamp
+	5,  // 28: izci.api.v1.ListProjectsResponse.projects:type_name -> izci.api.v1.Project
+	5,  // 29: izci.api.v1.GetProjectResponse.project:type_name -> izci.api.v1.Project
+	5,  // 30: izci.api.v1.CreateProjectResponse.project:type_name -> izci.api.v1.Project
+	14, // 31: izci.api.v1.CreateProjectResponse.api_key:type_name -> izci.api.v1.ApiKey
+	7,  // 32: izci.api.v1.UpdateProjectRequest.settings:type_name -> izci.api.v1.ProjectSettings
+	5,  // 33: izci.api.v1.UpdateProjectResponse.project:type_name -> izci.api.v1.Project
+	14, // 34: izci.api.v1.ListApiKeysResponse.keys:type_name -> izci.api.v1.ApiKey
+	4,  // 35: izci.api.v1.CreateApiKeyRequest.scopes:type_name -> izci.api.v1.ApiKeyScope
+	14, // 36: izci.api.v1.CreateApiKeyResponse.key:type_name -> izci.api.v1.ApiKey
+	14, // 37: izci.api.v1.UpdateApiKeyResponse.key:type_name -> izci.api.v1.ApiKey
+	15, // 38: izci.api.v1.ListEnvironmentsResponse.environments:type_name -> izci.api.v1.Environment
+	57, // 39: izci.api.v1.ListReleasesRequest.health_period:type_name -> izci.api.v1.StatsPeriod
+	16, // 40: izci.api.v1.ListReleasesResponse.releases:type_name -> izci.api.v1.Release
+	13, // 41: izci.api.v1.LinkRepositoryRequest.path_mappings:type_name -> izci.api.v1.PathMapping
+	12, // 42: izci.api.v1.LinkRepositoryResponse.repository:type_name -> izci.api.v1.ProjectRepository
+	51, // 43: izci.api.v1.GetFilterStatsResponse.reasons:type_name -> izci.api.v1.FilterStat
+	52, // 44: izci.api.v1.GetFilterStatsResponse.days:type_name -> izci.api.v1.FilterDay
+	0,  // 45: izci.api.v1.FilterStat.reason:type_name -> izci.api.v1.FilterReason
+	19, // 46: izci.api.v1.ProjectService.ListProjects:input_type -> izci.api.v1.ListProjectsRequest
+	21, // 47: izci.api.v1.ProjectService.GetProject:input_type -> izci.api.v1.GetProjectRequest
+	23, // 48: izci.api.v1.ProjectService.CreateProject:input_type -> izci.api.v1.CreateProjectRequest
+	25, // 49: izci.api.v1.ProjectService.UpdateProject:input_type -> izci.api.v1.UpdateProjectRequest
+	27, // 50: izci.api.v1.ProjectService.DeleteProject:input_type -> izci.api.v1.DeleteProjectRequest
+	29, // 51: izci.api.v1.ProjectService.ListApiKeys:input_type -> izci.api.v1.ListApiKeysRequest
+	31, // 52: izci.api.v1.ProjectService.CreateApiKey:input_type -> izci.api.v1.CreateApiKeyRequest
+	33, // 53: izci.api.v1.ProjectService.UpdateApiKey:input_type -> izci.api.v1.UpdateApiKeyRequest
+	35, // 54: izci.api.v1.ProjectService.RevokeApiKey:input_type -> izci.api.v1.RevokeApiKeyRequest
+	37, // 55: izci.api.v1.ProjectService.GetIngestEndpoints:input_type -> izci.api.v1.GetIngestEndpointsRequest
+	49, // 56: izci.api.v1.ProjectService.GetFilterStats:input_type -> izci.api.v1.GetFilterStatsRequest
+	39, // 57: izci.api.v1.ProjectService.SendTestEvent:input_type -> izci.api.v1.SendTestEventRequest
+	41, // 58: izci.api.v1.ProjectService.ListEnvironments:input_type -> izci.api.v1.ListEnvironmentsRequest
+	43, // 59: izci.api.v1.ProjectService.ListReleases:input_type -> izci.api.v1.ListReleasesRequest
+	45, // 60: izci.api.v1.ProjectService.LinkRepository:input_type -> izci.api.v1.LinkRepositoryRequest
+	47, // 61: izci.api.v1.ProjectService.UnlinkRepository:input_type -> izci.api.v1.UnlinkRepositoryRequest
+	20, // 62: izci.api.v1.ProjectService.ListProjects:output_type -> izci.api.v1.ListProjectsResponse
+	22, // 63: izci.api.v1.ProjectService.GetProject:output_type -> izci.api.v1.GetProjectResponse
+	24, // 64: izci.api.v1.ProjectService.CreateProject:output_type -> izci.api.v1.CreateProjectResponse
+	26, // 65: izci.api.v1.ProjectService.UpdateProject:output_type -> izci.api.v1.UpdateProjectResponse
+	28, // 66: izci.api.v1.ProjectService.DeleteProject:output_type -> izci.api.v1.DeleteProjectResponse
+	30, // 67: izci.api.v1.ProjectService.ListApiKeys:output_type -> izci.api.v1.ListApiKeysResponse
+	32, // 68: izci.api.v1.ProjectService.CreateApiKey:output_type -> izci.api.v1.CreateApiKeyResponse
+	34, // 69: izci.api.v1.ProjectService.UpdateApiKey:output_type -> izci.api.v1.UpdateApiKeyResponse
+	36, // 70: izci.api.v1.ProjectService.RevokeApiKey:output_type -> izci.api.v1.RevokeApiKeyResponse
+	38, // 71: izci.api.v1.ProjectService.GetIngestEndpoints:output_type -> izci.api.v1.GetIngestEndpointsResponse
+	50, // 72: izci.api.v1.ProjectService.GetFilterStats:output_type -> izci.api.v1.GetFilterStatsResponse
+	40, // 73: izci.api.v1.ProjectService.SendTestEvent:output_type -> izci.api.v1.SendTestEventResponse
+	42, // 74: izci.api.v1.ProjectService.ListEnvironments:output_type -> izci.api.v1.ListEnvironmentsResponse
+	44, // 75: izci.api.v1.ProjectService.ListReleases:output_type -> izci.api.v1.ListReleasesResponse
+	46, // 76: izci.api.v1.ProjectService.LinkRepository:output_type -> izci.api.v1.LinkRepositoryResponse
+	48, // 77: izci.api.v1.ProjectService.UnlinkRepository:output_type -> izci.api.v1.UnlinkRepositoryResponse
+	62, // [62:78] is the sub-list for method output_type
+	46, // [46:62] is the sub-list for method input_type
+	46, // [46:46] is the sub-list for extension type_name
+	46, // [46:46] is the sub-list for extension extendee
+	0,  // [0:46] is the sub-list for field type_name
 }
 
 func init() { file_izci_api_v1_project_proto_init() }

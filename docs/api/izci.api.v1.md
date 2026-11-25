@@ -1761,12 +1761,13 @@ ApiKey is an ingest API key of a project.
 | `name` | `string` | Descriptive name, e.g. "production backend". |
 | `prefix` | `string` | First characters of the key for identification, e.g. "izk_4f9c2a". |
 | `scopes` | repeated [ApiKeyScope](#izci-api-v1-apikeyscope) | What the key may do. |
-| `allowed_origins` | repeated `string` | Browser origins allowed to use the key, e.g. ["https://kalem.example.com"]. Empty allows requests without an Origin header only (server-side applications). |
+| `allowed_origins` | repeated `string` | Browser origins allowed to use the key, e.g. ["https://kalem.example.com"] or ["https://*.example.com"]. Empty allows every origin, as for Sentry DSNs; requests without an Origin header (server-side applications) are never restricted. |
 | `rate_limit_per_minute` | `uint32` | Maximum events per minute accepted with this key (0 = project limit). |
 | `enabled` | `bool` | Disabled keys are rejected but can be re-enabled. |
 | `created_by` | [UserRef](#izci-api-v1-userref) | Who created the key. |
 | `created_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the key was created. |
 | `last_used_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the key was last used (updated at most once per minute). |
+| `browser_seen_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When a browser first sent events with this key while it had the releases scope. Such a key is public, so it can no longer register releases or upload files; create a separate key for CI. |
 
 <a id="izci-api-v1-artifactbundle"></a>
 
@@ -5574,7 +5575,7 @@ ApiKeyScope is a permission of an API key.
 |---|---|---|
 | `API_KEY_SCOPE_UNSPECIFIED` | 0 | Not set. |
 | `API_KEY_SCOPE_INGEST` | 1 | Send events (IngestService.SendEvent, SendEvents, Sentry endpoints). |
-| `API_KEY_SCOPE_RELEASES` | 2 | Register releases (IngestService.RegisterRelease) and upload source maps and debug files through the Sentry-compatible upload endpoints (sentry-cli, bundler plugins), for CI. Keys embedded in browser or mobile apps should not have it. |
+| `API_KEY_SCOPE_RELEASES` | 2 | Register releases (IngestService.RegisterRelease) and upload source maps and debug files through the Sentry-compatible upload endpoints (sentry-cli, bundler plugins), for CI. Keys embedded in browser or mobile apps must not have it: once a browser sends events with such a key (an Origin header), the key loses this permission for good (see ApiKey.browser_seen_at). New projects get a key without it. |
 
 <a id="izci-api-v1-artifactfilekind"></a>
 

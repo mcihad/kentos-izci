@@ -120,12 +120,16 @@ func (h *Handler) authenticate(r *http.Request, orgSlug string) (*caller, *apiEr
 	unauthorized := &apiError{http.StatusUnauthorized, "Invalid token: use a project API key with the releases scope or a personal access token"}
 	switch {
 	case secret.HasPrefix(token, secret.PrefixAPIKey):
-		rk, err := h.keys.Resolve(ctx, token)
+		// Fresh: another instance may have just found the key in a browser.
+		rk, err := h.keys.ResolveFresh(ctx, token)
 		if err != nil {
 			return nil, unauthorized
 		}
 		if !rk.Key.HasScope(apiv1.ApiKeyScope_API_KEY_SCOPE_RELEASES) {
 			return nil, &apiError{http.StatusForbidden, "this API key lacks the releases scope"}
+		}
+		if !rk.Key.CanUpload() {
+			return nil, &apiError{http.StatusForbidden, ingest.ErrKeyExposed}
 		}
 		if orgSlug != "" && orgSlug != rk.OrgSlug {
 			return nil, &apiError{http.StatusNotFound, "organization not found"}
