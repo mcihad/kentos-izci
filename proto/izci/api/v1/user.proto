@@ -203,6 +203,10 @@ message NotificationSettings {
 
   // Comments on followed issues.
   NotificationChannels commented = 4;
+
+  // How often a summary of the member's organizations comes by e-mail:
+  // new, regressed and fastest growing issues. Unset means never.
+  DigestFrequency digest = 5;
 }
 
 // GetNotificationSettingsRequest has no fields.
@@ -478,3 +482,13 @@ message DeleteAccountRequest {
 
 // DeleteAccountResponse has no fields.
 message DeleteAccountResponse {}
+
+// DigestFrequency is how often the summary e-mail comes.
+enum DigestFrequency {
+  // Never.
+  DIGEST_FREQUENCY_UNSPECIFIED = 0;
+  // Every morning, covering the last 24 hours.
+  DIGEST_FREQUENCY_DAILY = 1;
+  // Monday mornings, covering the last 7 days.
+  DIGEST_FREQUENCY_WEEKLY = 2;
+}

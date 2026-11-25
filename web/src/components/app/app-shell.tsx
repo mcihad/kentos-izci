@@ -53,14 +53,14 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-dvh bg-background">
       <aside
         className={cn(
-          "on-dark sticky top-0 hidden h-dvh shrink-0 border-(--sidebar-border) border-r bg-(--sidebar-bg) text-(--sidebar-fg) transition-[width] duration-(--duration-panel) ease-(--ease-entrance) md:block",
+          "on-dark sticky top-0 hidden h-dvh shrink-0 border-(--sidebar-border) border-r bg-(--sidebar-bg) text-(--sidebar-fg) transition-[width] duration-(--duration-panel) ease-(--ease-entrance) md:block print:hidden",
           collapsed ? "w-(--sidebar-w-collapsed)" : "w-(--sidebar-w)",
         )}
       >
         <SidebarContent collapsed={collapsed} />
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-(--topbar-h) shrink-0 items-center gap-1.5 border-(--topbar-border) border-b bg-(--topbar-bg) px-2 md:gap-3 md:px-4">
+        <header className="sticky top-0 z-30 flex h-(--topbar-h) shrink-0 items-center gap-1.5 border-(--topbar-border) border-b bg-(--topbar-bg) px-2 md:gap-3 md:px-4 print:hidden">
           <Button
             variant="ghost"
             size="icon"

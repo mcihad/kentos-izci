@@ -3,10 +3,13 @@ import { useMutation, useQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Field } from "@/components/common/field";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import {
+  DigestFrequency,
   type NotificationChannels,
   NotificationChannelsSchema,
   type NotificationSettings,
@@ -131,6 +134,30 @@ function PreferencesForm({
           </tbody>
         </table>
       </div>
+      <Field
+        label="Özet e-postası"
+        htmlFor="digest"
+        hint="Üyesi olduğunuz organizasyonların olay sayılarını, yeni, geri dönen ve en çok artan hatalarını özetler. Günlük özet her sabah 08.00'de son 24 saati, haftalık özet pazartesi sabahı geçen haftayı kapsar."
+      >
+        <Select
+          value={String(settings.digest)}
+          disabled={!emailAvailable}
+          onValueChange={(v) => {
+            const next = clone(NotificationSettingsSchema, settings);
+            next.digest = Number(v) as DigestFrequency;
+            setSettings(next);
+          }}
+        >
+          <SelectTrigger id="digest" className="w-full sm:w-64">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={String(DigestFrequency.UNSPECIFIED)}>Gönderilmesin</SelectItem>
+            <SelectItem value={String(DigestFrequency.DAILY)}>Her gün</SelectItem>
+            <SelectItem value={String(DigestFrequency.WEEKLY)}>Her hafta</SelectItem>
+          </SelectContent>
+        </Select>
+      </Field>
       {!emailAvailable || !telegramAvailable ? (
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground text-sm marker:text-muted-foreground">
           {!emailAvailable ? (

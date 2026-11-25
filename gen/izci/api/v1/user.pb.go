@@ -143,6 +143,59 @@ func (TokenScope) EnumDescriptor() ([]byte, []int) {
 	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{1}
 }
 
+// DigestFrequency is how often the summary e-mail comes.
+type DigestFrequency int32
+
+const (
+	// Never.
+	DigestFrequency_DIGEST_FREQUENCY_UNSPECIFIED DigestFrequency = 0
+	// Every morning, covering the last 24 hours.
+	DigestFrequency_DIGEST_FREQUENCY_DAILY DigestFrequency = 1
+	// Monday mornings, covering the last 7 days.
+	DigestFrequency_DIGEST_FREQUENCY_WEEKLY DigestFrequency = 2
+)
+
+// Enum value maps for DigestFrequency.
+var (
+	DigestFrequency_name = map[int32]string{
+		0: "DIGEST_FREQUENCY_UNSPECIFIED",
+		1: "DIGEST_FREQUENCY_DAILY",
+		2: "DIGEST_FREQUENCY_WEEKLY",
+	}
+	DigestFrequency_value = map[string]int32{
+		"DIGEST_FREQUENCY_UNSPECIFIED": 0,
+		"DIGEST_FREQUENCY_DAILY":       1,
+		"DIGEST_FREQUENCY_WEEKLY":      2,
+	}
+)
+
+func (x DigestFrequency) Enum() *DigestFrequency {
+	p := new(DigestFrequency)
+	*p = x
+	return p
+}
+
+func (x DigestFrequency) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DigestFrequency) Descriptor() protoreflect.EnumDescriptor {
+	return file_izci_api_v1_user_proto_enumTypes[2].Descriptor()
+}
+
+func (DigestFrequency) Type() protoreflect.EnumType {
+	return &file_izci_api_v1_user_proto_enumTypes[2]
+}
+
+func (x DigestFrequency) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DigestFrequency.Descriptor instead.
+func (DigestFrequency) EnumDescriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{2}
+}
+
 // UserNotification is an entry of a member's notification inbox.
 type UserNotification struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -550,7 +603,10 @@ type NotificationSettings struct {
 	// Followed issues that came back.
 	Regressed *NotificationChannels `protobuf:"bytes,3,opt,name=regressed,proto3" json:"regressed,omitempty"`
 	// Comments on followed issues.
-	Commented     *NotificationChannels `protobuf:"bytes,4,opt,name=commented,proto3" json:"commented,omitempty"`
+	Commented *NotificationChannels `protobuf:"bytes,4,opt,name=commented,proto3" json:"commented,omitempty"`
+	// How often a summary of the member's organizations comes by e-mail:
+	// new, regressed and fastest growing issues. Unset means never.
+	Digest        DigestFrequency `protobuf:"varint,5,opt,name=digest,proto3,enum=izci.api.v1.DigestFrequency" json:"digest,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -611,6 +667,13 @@ func (x *NotificationSettings) GetCommented() *NotificationChannels {
 		return x.Commented
 	}
 	return nil
+}
+
+func (x *NotificationSettings) GetDigest() DigestFrequency {
+	if x != nil {
+		return x.Digest
+	}
+	return DigestFrequency_DIGEST_FREQUENCY_UNSPECIFIED
 }
 
 // GetNotificationSettingsRequest has no fields.
@@ -2259,12 +2322,13 @@ const file_izci_api_v1_user_proto_rawDesc = "" +
 	"\funread_count\x18\x01 \x01(\rR\vunreadCount\"H\n" +
 	"\x14NotificationChannels\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\bR\x05email\x12\x1a\n" +
-	"\btelegram\x18\x02 \x01(\bR\btelegram\"\x98\x02\n" +
+	"\btelegram\x18\x02 \x01(\bR\btelegram\"\xce\x02\n" +
 	"\x14NotificationSettings\x12=\n" +
 	"\bassigned\x18\x01 \x01(\v2!.izci.api.v1.NotificationChannelsR\bassigned\x12?\n" +
 	"\tmentioned\x18\x02 \x01(\v2!.izci.api.v1.NotificationChannelsR\tmentioned\x12?\n" +
 	"\tregressed\x18\x03 \x01(\v2!.izci.api.v1.NotificationChannelsR\tregressed\x12?\n" +
-	"\tcommented\x18\x04 \x01(\v2!.izci.api.v1.NotificationChannelsR\tcommented\" \n" +
+	"\tcommented\x18\x04 \x01(\v2!.izci.api.v1.NotificationChannelsR\tcommented\x124\n" +
+	"\x06digest\x18\x05 \x01(\x0e2\x1c.izci.api.v1.DigestFrequencyR\x06digest\" \n" +
 	"\x1eGetNotificationSettingsRequest\"\xb8\x01\n" +
 	"\x1fGetNotificationSettingsResponse\x12=\n" +
 	"\bsettings\x18\x01 \x01(\v2!.izci.api.v1.NotificationSettingsR\bsettings\x12'\n" +
@@ -2368,7 +2432,11 @@ const file_izci_api_v1_user_proto_rawDesc = "" +
 	"\x17TOKEN_SCOPE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10TOKEN_SCOPE_READ\x10\x01\x12\x15\n" +
 	"\x11TOKEN_SCOPE_WRITE\x10\x02\x12\x12\n" +
-	"\x0eTOKEN_SCOPE_AI\x10\x032\x88\x0e\n" +
+	"\x0eTOKEN_SCOPE_AI\x10\x03*l\n" +
+	"\x0fDigestFrequency\x12 \n" +
+	"\x1cDIGEST_FREQUENCY_UNSPECIFIED\x10\x00\x12\x1a\n" +
+	"\x16DIGEST_FREQUENCY_DAILY\x10\x01\x12\x1b\n" +
+	"\x17DIGEST_FREQUENCY_WEEKLY\x10\x022\x88\x0e\n" +
 	"\vUserService\x12V\n" +
 	"\rUpdateProfile\x12!.izci.api.v1.UpdateProfileRequest\x1a\".izci.api.v1.UpdateProfileResponse\x12d\n" +
 	"\x10ListAccessTokens\x12$.izci.api.v1.ListAccessTokensRequest\x1a%.izci.api.v1.ListAccessTokensResponse\"\x03\x90\x02\x01\x12b\n" +
@@ -2401,125 +2469,127 @@ func file_izci_api_v1_user_proto_rawDescGZIP() []byte {
 	return file_izci_api_v1_user_proto_rawDescData
 }
 
-var file_izci_api_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_izci_api_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_izci_api_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 39)
 var file_izci_api_v1_user_proto_goTypes = []any{
 	(UserNotificationKind)(0),                     // 0: izci.api.v1.UserNotificationKind
 	(TokenScope)(0),                               // 1: izci.api.v1.TokenScope
-	(*UserNotification)(nil),                      // 2: izci.api.v1.UserNotification
-	(*ListNotificationsRequest)(nil),              // 3: izci.api.v1.ListNotificationsRequest
-	(*ListNotificationsResponse)(nil),             // 4: izci.api.v1.ListNotificationsResponse
-	(*MarkNotificationsReadRequest)(nil),          // 5: izci.api.v1.MarkNotificationsReadRequest
-	(*MarkNotificationsReadResponse)(nil),         // 6: izci.api.v1.MarkNotificationsReadResponse
-	(*NotificationChannels)(nil),                  // 7: izci.api.v1.NotificationChannels
-	(*NotificationSettings)(nil),                  // 8: izci.api.v1.NotificationSettings
-	(*GetNotificationSettingsRequest)(nil),        // 9: izci.api.v1.GetNotificationSettingsRequest
-	(*GetNotificationSettingsResponse)(nil),       // 10: izci.api.v1.GetNotificationSettingsResponse
-	(*UpdateNotificationSettingsRequest)(nil),     // 11: izci.api.v1.UpdateNotificationSettingsRequest
-	(*UpdateNotificationSettingsResponse)(nil),    // 12: izci.api.v1.UpdateNotificationSettingsResponse
-	(*AccessToken)(nil),                           // 13: izci.api.v1.AccessToken
-	(*SessionInfo)(nil),                           // 14: izci.api.v1.SessionInfo
-	(*UpdateProfileRequest)(nil),                  // 15: izci.api.v1.UpdateProfileRequest
-	(*UpdateProfileResponse)(nil),                 // 16: izci.api.v1.UpdateProfileResponse
-	(*ListAccessTokensRequest)(nil),               // 17: izci.api.v1.ListAccessTokensRequest
-	(*ListAccessTokensResponse)(nil),              // 18: izci.api.v1.ListAccessTokensResponse
-	(*CreateAccessTokenRequest)(nil),              // 19: izci.api.v1.CreateAccessTokenRequest
-	(*CreateAccessTokenResponse)(nil),             // 20: izci.api.v1.CreateAccessTokenResponse
-	(*RevokeAccessTokenRequest)(nil),              // 21: izci.api.v1.RevokeAccessTokenRequest
-	(*RevokeAccessTokenResponse)(nil),             // 22: izci.api.v1.RevokeAccessTokenResponse
-	(*ListSessionsRequest)(nil),                   // 23: izci.api.v1.ListSessionsRequest
-	(*ListSessionsResponse)(nil),                  // 24: izci.api.v1.ListSessionsResponse
-	(*RevokeSessionRequest)(nil),                  // 25: izci.api.v1.RevokeSessionRequest
-	(*RevokeSessionResponse)(nil),                 // 26: izci.api.v1.RevokeSessionResponse
-	(*CreateTelegramAccountLinkCodeRequest)(nil),  // 27: izci.api.v1.CreateTelegramAccountLinkCodeRequest
-	(*CreateTelegramAccountLinkCodeResponse)(nil), // 28: izci.api.v1.CreateTelegramAccountLinkCodeResponse
-	(*UnlinkTelegramAccountRequest)(nil),          // 29: izci.api.v1.UnlinkTelegramAccountRequest
-	(*UnlinkTelegramAccountResponse)(nil),         // 30: izci.api.v1.UnlinkTelegramAccountResponse
-	(*BeginTwoFactorSetupRequest)(nil),            // 31: izci.api.v1.BeginTwoFactorSetupRequest
-	(*BeginTwoFactorSetupResponse)(nil),           // 32: izci.api.v1.BeginTwoFactorSetupResponse
-	(*EnableTwoFactorRequest)(nil),                // 33: izci.api.v1.EnableTwoFactorRequest
-	(*EnableTwoFactorResponse)(nil),               // 34: izci.api.v1.EnableTwoFactorResponse
-	(*DisableTwoFactorRequest)(nil),               // 35: izci.api.v1.DisableTwoFactorRequest
-	(*DisableTwoFactorResponse)(nil),              // 36: izci.api.v1.DisableTwoFactorResponse
-	(*RegenerateRecoveryCodesRequest)(nil),        // 37: izci.api.v1.RegenerateRecoveryCodesRequest
-	(*RegenerateRecoveryCodesResponse)(nil),       // 38: izci.api.v1.RegenerateRecoveryCodesResponse
-	(*DeleteAccountRequest)(nil),                  // 39: izci.api.v1.DeleteAccountRequest
-	(*DeleteAccountResponse)(nil),                 // 40: izci.api.v1.DeleteAccountResponse
-	(*OrganizationRef)(nil),                       // 41: izci.api.v1.OrganizationRef
-	(*IssueRef)(nil),                              // 42: izci.api.v1.IssueRef
-	(*UserRef)(nil),                               // 43: izci.api.v1.UserRef
-	(*timestamppb.Timestamp)(nil),                 // 44: google.protobuf.Timestamp
-	(*User)(nil),                                  // 45: izci.api.v1.User
-	(*durationpb.Duration)(nil),                   // 46: google.protobuf.Duration
+	(DigestFrequency)(0),                          // 2: izci.api.v1.DigestFrequency
+	(*UserNotification)(nil),                      // 3: izci.api.v1.UserNotification
+	(*ListNotificationsRequest)(nil),              // 4: izci.api.v1.ListNotificationsRequest
+	(*ListNotificationsResponse)(nil),             // 5: izci.api.v1.ListNotificationsResponse
+	(*MarkNotificationsReadRequest)(nil),          // 6: izci.api.v1.MarkNotificationsReadRequest
+	(*MarkNotificationsReadResponse)(nil),         // 7: izci.api.v1.MarkNotificationsReadResponse
+	(*NotificationChannels)(nil),                  // 8: izci.api.v1.NotificationChannels
+	(*NotificationSettings)(nil),                  // 9: izci.api.v1.NotificationSettings
+	(*GetNotificationSettingsRequest)(nil),        // 10: izci.api.v1.GetNotificationSettingsRequest
+	(*GetNotificationSettingsResponse)(nil),       // 11: izci.api.v1.GetNotificationSettingsResponse
+	(*UpdateNotificationSettingsRequest)(nil),     // 12: izci.api.v1.UpdateNotificationSettingsRequest
+	(*UpdateNotificationSettingsResponse)(nil),    // 13: izci.api.v1.UpdateNotificationSettingsResponse
+	(*AccessToken)(nil),                           // 14: izci.api.v1.AccessToken
+	(*SessionInfo)(nil),                           // 15: izci.api.v1.SessionInfo
+	(*UpdateProfileRequest)(nil),                  // 16: izci.api.v1.UpdateProfileRequest
+	(*UpdateProfileResponse)(nil),                 // 17: izci.api.v1.UpdateProfileResponse
+	(*ListAccessTokensRequest)(nil),               // 18: izci.api.v1.ListAccessTokensRequest
+	(*ListAccessTokensResponse)(nil),              // 19: izci.api.v1.ListAccessTokensResponse
+	(*CreateAccessTokenRequest)(nil),              // 20: izci.api.v1.CreateAccessTokenRequest
+	(*CreateAccessTokenResponse)(nil),             // 21: izci.api.v1.CreateAccessTokenResponse
+	(*RevokeAccessTokenRequest)(nil),              // 22: izci.api.v1.RevokeAccessTokenRequest
+	(*RevokeAccessTokenResponse)(nil),             // 23: izci.api.v1.RevokeAccessTokenResponse
+	(*ListSessionsRequest)(nil),                   // 24: izci.api.v1.ListSessionsRequest
+	(*ListSessionsResponse)(nil),                  // 25: izci.api.v1.ListSessionsResponse
+	(*RevokeSessionRequest)(nil),                  // 26: izci.api.v1.RevokeSessionRequest
+	(*RevokeSessionResponse)(nil),                 // 27: izci.api.v1.RevokeSessionResponse
+	(*CreateTelegramAccountLinkCodeRequest)(nil),  // 28: izci.api.v1.CreateTelegramAccountLinkCodeRequest
+	(*CreateTelegramAccountLinkCodeResponse)(nil), // 29: izci.api.v1.CreateTelegramAccountLinkCodeResponse
+	(*UnlinkTelegramAccountRequest)(nil),          // 30: izci.api.v1.UnlinkTelegramAccountRequest
+	(*UnlinkTelegramAccountResponse)(nil),         // 31: izci.api.v1.UnlinkTelegramAccountResponse
+	(*BeginTwoFactorSetupRequest)(nil),            // 32: izci.api.v1.BeginTwoFactorSetupRequest
+	(*BeginTwoFactorSetupResponse)(nil),           // 33: izci.api.v1.BeginTwoFactorSetupResponse
+	(*EnableTwoFactorRequest)(nil),                // 34: izci.api.v1.EnableTwoFactorRequest
+	(*EnableTwoFactorResponse)(nil),               // 35: izci.api.v1.EnableTwoFactorResponse
+	(*DisableTwoFactorRequest)(nil),               // 36: izci.api.v1.DisableTwoFactorRequest
+	(*DisableTwoFactorResponse)(nil),              // 37: izci.api.v1.DisableTwoFactorResponse
+	(*RegenerateRecoveryCodesRequest)(nil),        // 38: izci.api.v1.RegenerateRecoveryCodesRequest
+	(*RegenerateRecoveryCodesResponse)(nil),       // 39: izci.api.v1.RegenerateRecoveryCodesResponse
+	(*DeleteAccountRequest)(nil),                  // 40: izci.api.v1.DeleteAccountRequest
+	(*DeleteAccountResponse)(nil),                 // 41: izci.api.v1.DeleteAccountResponse
+	(*OrganizationRef)(nil),                       // 42: izci.api.v1.OrganizationRef
+	(*IssueRef)(nil),                              // 43: izci.api.v1.IssueRef
+	(*UserRef)(nil),                               // 44: izci.api.v1.UserRef
+	(*timestamppb.Timestamp)(nil),                 // 45: google.protobuf.Timestamp
+	(*User)(nil),                                  // 46: izci.api.v1.User
+	(*durationpb.Duration)(nil),                   // 47: google.protobuf.Duration
 }
 var file_izci_api_v1_user_proto_depIdxs = []int32{
 	0,  // 0: izci.api.v1.UserNotification.kind:type_name -> izci.api.v1.UserNotificationKind
-	41, // 1: izci.api.v1.UserNotification.organization:type_name -> izci.api.v1.OrganizationRef
-	42, // 2: izci.api.v1.UserNotification.issue:type_name -> izci.api.v1.IssueRef
-	43, // 3: izci.api.v1.UserNotification.actor:type_name -> izci.api.v1.UserRef
-	44, // 4: izci.api.v1.UserNotification.created_at:type_name -> google.protobuf.Timestamp
-	2,  // 5: izci.api.v1.ListNotificationsResponse.notifications:type_name -> izci.api.v1.UserNotification
-	7,  // 6: izci.api.v1.NotificationSettings.assigned:type_name -> izci.api.v1.NotificationChannels
-	7,  // 7: izci.api.v1.NotificationSettings.mentioned:type_name -> izci.api.v1.NotificationChannels
-	7,  // 8: izci.api.v1.NotificationSettings.regressed:type_name -> izci.api.v1.NotificationChannels
-	7,  // 9: izci.api.v1.NotificationSettings.commented:type_name -> izci.api.v1.NotificationChannels
-	8,  // 10: izci.api.v1.GetNotificationSettingsResponse.settings:type_name -> izci.api.v1.NotificationSettings
-	8,  // 11: izci.api.v1.UpdateNotificationSettingsRequest.settings:type_name -> izci.api.v1.NotificationSettings
-	8,  // 12: izci.api.v1.UpdateNotificationSettingsResponse.settings:type_name -> izci.api.v1.NotificationSettings
-	41, // 13: izci.api.v1.AccessToken.organization:type_name -> izci.api.v1.OrganizationRef
-	1,  // 14: izci.api.v1.AccessToken.scopes:type_name -> izci.api.v1.TokenScope
-	44, // 15: izci.api.v1.AccessToken.created_at:type_name -> google.protobuf.Timestamp
-	44, // 16: izci.api.v1.AccessToken.last_used_at:type_name -> google.protobuf.Timestamp
-	44, // 17: izci.api.v1.AccessToken.expires_at:type_name -> google.protobuf.Timestamp
-	44, // 18: izci.api.v1.SessionInfo.created_at:type_name -> google.protobuf.Timestamp
-	44, // 19: izci.api.v1.SessionInfo.last_seen_at:type_name -> google.protobuf.Timestamp
-	44, // 20: izci.api.v1.SessionInfo.expires_at:type_name -> google.protobuf.Timestamp
-	45, // 21: izci.api.v1.UpdateProfileResponse.user:type_name -> izci.api.v1.User
-	13, // 22: izci.api.v1.ListAccessTokensResponse.tokens:type_name -> izci.api.v1.AccessToken
-	1,  // 23: izci.api.v1.CreateAccessTokenRequest.scopes:type_name -> izci.api.v1.TokenScope
-	46, // 24: izci.api.v1.CreateAccessTokenRequest.expires_in:type_name -> google.protobuf.Duration
-	13, // 25: izci.api.v1.CreateAccessTokenResponse.token:type_name -> izci.api.v1.AccessToken
-	14, // 26: izci.api.v1.ListSessionsResponse.sessions:type_name -> izci.api.v1.SessionInfo
-	44, // 27: izci.api.v1.CreateTelegramAccountLinkCodeResponse.expires_at:type_name -> google.protobuf.Timestamp
-	15, // 28: izci.api.v1.UserService.UpdateProfile:input_type -> izci.api.v1.UpdateProfileRequest
-	17, // 29: izci.api.v1.UserService.ListAccessTokens:input_type -> izci.api.v1.ListAccessTokensRequest
-	19, // 30: izci.api.v1.UserService.CreateAccessToken:input_type -> izci.api.v1.CreateAccessTokenRequest
-	21, // 31: izci.api.v1.UserService.RevokeAccessToken:input_type -> izci.api.v1.RevokeAccessTokenRequest
-	23, // 32: izci.api.v1.UserService.ListSessions:input_type -> izci.api.v1.ListSessionsRequest
-	25, // 33: izci.api.v1.UserService.RevokeSession:input_type -> izci.api.v1.RevokeSessionRequest
-	27, // 34: izci.api.v1.UserService.CreateTelegramAccountLinkCode:input_type -> izci.api.v1.CreateTelegramAccountLinkCodeRequest
-	29, // 35: izci.api.v1.UserService.UnlinkTelegramAccount:input_type -> izci.api.v1.UnlinkTelegramAccountRequest
-	31, // 36: izci.api.v1.UserService.BeginTwoFactorSetup:input_type -> izci.api.v1.BeginTwoFactorSetupRequest
-	33, // 37: izci.api.v1.UserService.EnableTwoFactor:input_type -> izci.api.v1.EnableTwoFactorRequest
-	35, // 38: izci.api.v1.UserService.DisableTwoFactor:input_type -> izci.api.v1.DisableTwoFactorRequest
-	37, // 39: izci.api.v1.UserService.RegenerateRecoveryCodes:input_type -> izci.api.v1.RegenerateRecoveryCodesRequest
-	3,  // 40: izci.api.v1.UserService.ListNotifications:input_type -> izci.api.v1.ListNotificationsRequest
-	5,  // 41: izci.api.v1.UserService.MarkNotificationsRead:input_type -> izci.api.v1.MarkNotificationsReadRequest
-	9,  // 42: izci.api.v1.UserService.GetNotificationSettings:input_type -> izci.api.v1.GetNotificationSettingsRequest
-	11, // 43: izci.api.v1.UserService.UpdateNotificationSettings:input_type -> izci.api.v1.UpdateNotificationSettingsRequest
-	39, // 44: izci.api.v1.UserService.DeleteAccount:input_type -> izci.api.v1.DeleteAccountRequest
-	16, // 45: izci.api.v1.UserService.UpdateProfile:output_type -> izci.api.v1.UpdateProfileResponse
-	18, // 46: izci.api.v1.UserService.ListAccessTokens:output_type -> izci.api.v1.ListAccessTokensResponse
-	20, // 47: izci.api.v1.UserService.CreateAccessToken:output_type -> izci.api.v1.CreateAccessTokenResponse
-	22, // 48: izci.api.v1.UserService.RevokeAccessToken:output_type -> izci.api.v1.RevokeAccessTokenResponse
-	24, // 49: izci.api.v1.UserService.ListSessions:output_type -> izci.api.v1.ListSessionsResponse
-	26, // 50: izci.api.v1.UserService.RevokeSession:output_type -> izci.api.v1.RevokeSessionResponse
-	28, // 51: izci.api.v1.UserService.CreateTelegramAccountLinkCode:output_type -> izci.api.v1.CreateTelegramAccountLinkCodeResponse
-	30, // 52: izci.api.v1.UserService.UnlinkTelegramAccount:output_type -> izci.api.v1.UnlinkTelegramAccountResponse
-	32, // 53: izci.api.v1.UserService.BeginTwoFactorSetup:output_type -> izci.api.v1.BeginTwoFactorSetupResponse
-	34, // 54: izci.api.v1.UserService.EnableTwoFactor:output_type -> izci.api.v1.EnableTwoFactorResponse
-	36, // 55: izci.api.v1.UserService.DisableTwoFactor:output_type -> izci.api.v1.DisableTwoFactorResponse
-	38, // 56: izci.api.v1.UserService.RegenerateRecoveryCodes:output_type -> izci.api.v1.RegenerateRecoveryCodesResponse
-	4,  // 57: izci.api.v1.UserService.ListNotifications:output_type -> izci.api.v1.ListNotificationsResponse
-	6,  // 58: izci.api.v1.UserService.MarkNotificationsRead:output_type -> izci.api.v1.MarkNotificationsReadResponse
-	10, // 59: izci.api.v1.UserService.GetNotificationSettings:output_type -> izci.api.v1.GetNotificationSettingsResponse
-	12, // 60: izci.api.v1.UserService.UpdateNotificationSettings:output_type -> izci.api.v1.UpdateNotificationSettingsResponse
-	40, // 61: izci.api.v1.UserService.DeleteAccount:output_type -> izci.api.v1.DeleteAccountResponse
-	45, // [45:62] is the sub-list for method output_type
-	28, // [28:45] is the sub-list for method input_type
-	28, // [28:28] is the sub-list for extension type_name
-	28, // [28:28] is the sub-list for extension extendee
-	0,  // [0:28] is the sub-list for field type_name
+	42, // 1: izci.api.v1.UserNotification.organization:type_name -> izci.api.v1.OrganizationRef
+	43, // 2: izci.api.v1.UserNotification.issue:type_name -> izci.api.v1.IssueRef
+	44, // 3: izci.api.v1.UserNotification.actor:type_name -> izci.api.v1.UserRef
+	45, // 4: izci.api.v1.UserNotification.created_at:type_name -> google.protobuf.Timestamp
+	3,  // 5: izci.api.v1.ListNotificationsResponse.notifications:type_name -> izci.api.v1.UserNotification
+	8,  // 6: izci.api.v1.NotificationSettings.assigned:type_name -> izci.api.v1.NotificationChannels
+	8,  // 7: izci.api.v1.NotificationSettings.mentioned:type_name -> izci.api.v1.NotificationChannels
+	8,  // 8: izci.api.v1.NotificationSettings.regressed:type_name -> izci.api.v1.NotificationChannels
+	8,  // 9: izci.api.v1.NotificationSettings.commented:type_name -> izci.api.v1.NotificationChannels
+	2,  // 10: izci.api.v1.NotificationSettings.digest:type_name -> izci.api.v1.DigestFrequency
+	9,  // 11: izci.api.v1.GetNotificationSettingsResponse.settings:type_name -> izci.api.v1.NotificationSettings
+	9,  // 12: izci.api.v1.UpdateNotificationSettingsRequest.settings:type_name -> izci.api.v1.NotificationSettings
+	9,  // 13: izci.api.v1.UpdateNotificationSettingsResponse.settings:type_name -> izci.api.v1.NotificationSettings
+	42, // 14: izci.api.v1.AccessToken.organization:type_name -> izci.api.v1.OrganizationRef
+	1,  // 15: izci.api.v1.AccessToken.scopes:type_name -> izci.api.v1.TokenScope
+	45, // 16: izci.api.v1.AccessToken.created_at:type_name -> google.protobuf.Timestamp
+	45, // 17: izci.api.v1.AccessToken.last_used_at:type_name -> google.protobuf.Timestamp
+	45, // 18: izci.api.v1.AccessToken.expires_at:type_name -> google.protobuf.Timestamp
+	45, // 19: izci.api.v1.SessionInfo.created_at:type_name -> google.protobuf.Timestamp
+	45, // 20: izci.api.v1.SessionInfo.last_seen_at:type_name -> google.protobuf.Timestamp
+	45, // 21: izci.api.v1.SessionInfo.expires_at:type_name -> google.protobuf.Timestamp
+	46, // 22: izci.api.v1.UpdateProfileResponse.user:type_name -> izci.api.v1.User
+	14, // 23: izci.api.v1.ListAccessTokensResponse.tokens:type_name -> izci.api.v1.AccessToken
+	1,  // 24: izci.api.v1.CreateAccessTokenRequest.scopes:type_name -> izci.api.v1.TokenScope
+	47, // 25: izci.api.v1.CreateAccessTokenRequest.expires_in:type_name -> google.protobuf.Duration
+	14, // 26: izci.api.v1.CreateAccessTokenResponse.token:type_name -> izci.api.v1.AccessToken
+	15, // 27: izci.api.v1.ListSessionsResponse.sessions:type_name -> izci.api.v1.SessionInfo
+	45, // 28: izci.api.v1.CreateTelegramAccountLinkCodeResponse.expires_at:type_name -> google.protobuf.Timestamp
+	16, // 29: izci.api.v1.UserService.UpdateProfile:input_type -> izci.api.v1.UpdateProfileRequest
+	18, // 30: izci.api.v1.UserService.ListAccessTokens:input_type -> izci.api.v1.ListAccessTokensRequest
+	20, // 31: izci.api.v1.UserService.CreateAccessToken:input_type -> izci.api.v1.CreateAccessTokenRequest
+	22, // 32: izci.api.v1.UserService.RevokeAccessToken:input_type -> izci.api.v1.RevokeAccessTokenRequest
+	24, // 33: izci.api.v1.UserService.ListSessions:input_type -> izci.api.v1.ListSessionsRequest
+	26, // 34: izci.api.v1.UserService.RevokeSession:input_type -> izci.api.v1.RevokeSessionRequest
+	28, // 35: izci.api.v1.UserService.CreateTelegramAccountLinkCode:input_type -> izci.api.v1.CreateTelegramAccountLinkCodeRequest
+	30, // 36: izci.api.v1.UserService.UnlinkTelegramAccount:input_type -> izci.api.v1.UnlinkTelegramAccountRequest
+	32, // 37: izci.api.v1.UserService.BeginTwoFactorSetup:input_type -> izci.api.v1.BeginTwoFactorSetupRequest
+	34, // 38: izci.api.v1.UserService.EnableTwoFactor:input_type -> izci.api.v1.EnableTwoFactorRequest
+	36, // 39: izci.api.v1.UserService.DisableTwoFactor:input_type -> izci.api.v1.DisableTwoFactorRequest
+	38, // 40: izci.api.v1.UserService.RegenerateRecoveryCodes:input_type -> izci.api.v1.RegenerateRecoveryCodesRequest
+	4,  // 41: izci.api.v1.UserService.ListNotifications:input_type -> izci.api.v1.ListNotificationsRequest
+	6,  // 42: izci.api.v1.UserService.MarkNotificationsRead:input_type -> izci.api.v1.MarkNotificationsReadRequest
+	10, // 43: izci.api.v1.UserService.GetNotificationSettings:input_type -> izci.api.v1.GetNotificationSettingsRequest
+	12, // 44: izci.api.v1.UserService.UpdateNotificationSettings:input_type -> izci.api.v1.UpdateNotificationSettingsRequest
+	40, // 45: izci.api.v1.UserService.DeleteAccount:input_type -> izci.api.v1.DeleteAccountRequest
+	17, // 46: izci.api.v1.UserService.UpdateProfile:output_type -> izci.api.v1.UpdateProfileResponse
+	19, // 47: izci.api.v1.UserService.ListAccessTokens:output_type -> izci.api.v1.ListAccessTokensResponse
+	21, // 48: izci.api.v1.UserService.CreateAccessToken:output_type -> izci.api.v1.CreateAccessTokenResponse
+	23, // 49: izci.api.v1.UserService.RevokeAccessToken:output_type -> izci.api.v1.RevokeAccessTokenResponse
+	25, // 50: izci.api.v1.UserService.ListSessions:output_type -> izci.api.v1.ListSessionsResponse
+	27, // 51: izci.api.v1.UserService.RevokeSession:output_type -> izci.api.v1.RevokeSessionResponse
+	29, // 52: izci.api.v1.UserService.CreateTelegramAccountLinkCode:output_type -> izci.api.v1.CreateTelegramAccountLinkCodeResponse
+	31, // 53: izci.api.v1.UserService.UnlinkTelegramAccount:output_type -> izci.api.v1.UnlinkTelegramAccountResponse
+	33, // 54: izci.api.v1.UserService.BeginTwoFactorSetup:output_type -> izci.api.v1.BeginTwoFactorSetupResponse
+	35, // 55: izci.api.v1.UserService.EnableTwoFactor:output_type -> izci.api.v1.EnableTwoFactorResponse
+	37, // 56: izci.api.v1.UserService.DisableTwoFactor:output_type -> izci.api.v1.DisableTwoFactorResponse
+	39, // 57: izci.api.v1.UserService.RegenerateRecoveryCodes:output_type -> izci.api.v1.RegenerateRecoveryCodesResponse
+	5,  // 58: izci.api.v1.UserService.ListNotifications:output_type -> izci.api.v1.ListNotificationsResponse
+	7,  // 59: izci.api.v1.UserService.MarkNotificationsRead:output_type -> izci.api.v1.MarkNotificationsReadResponse
+	11, // 60: izci.api.v1.UserService.GetNotificationSettings:output_type -> izci.api.v1.GetNotificationSettingsResponse
+	13, // 61: izci.api.v1.UserService.UpdateNotificationSettings:output_type -> izci.api.v1.UpdateNotificationSettingsResponse
+	41, // 62: izci.api.v1.UserService.DeleteAccount:output_type -> izci.api.v1.DeleteAccountResponse
+	46, // [46:63] is the sub-list for method output_type
+	29, // [29:46] is the sub-list for method input_type
+	29, // [29:29] is the sub-list for extension type_name
+	29, // [29:29] is the sub-list for extension extendee
+	0,  // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_izci_api_v1_user_proto_init() }
@@ -2534,7 +2604,7 @@ func file_izci_api_v1_user_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_api_v1_user_proto_rawDesc), len(file_izci_api_v1_user_proto_rawDesc)),
-			NumEnums:      2,
+			NumEnums:      3,
 			NumMessages:   39,
 			NumExtensions: 0,
 			NumServices:   1,

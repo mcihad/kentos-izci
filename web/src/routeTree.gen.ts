@@ -28,6 +28,7 @@ import { Route as OOrgDocsRouteImport } from "./routes/o.$org.docs";
 import { Route as OOrgFeedbackRouteImport } from "./routes/o.$org.feedback";
 import { Route as OOrgLiveRouteImport } from "./routes/o.$org.live";
 import { Route as OOrgSettingsRouteImport } from "./routes/o.$org.settings";
+import { Route as OOrgCustomerReportKeyRouteImport } from "./routes/o.$org.customer-report.$key";
 import { Route as OOrgCustomersIndexRouteImport } from "./routes/o.$org.customers.index";
 import { Route as OOrgCustomersKeyRouteImport } from "./routes/o.$org.customers.$key";
 import { Route as OOrgDocsIndexRouteImport } from "./routes/o.$org.docs.index";
@@ -134,6 +135,11 @@ const OOrgSettingsRoute = OOrgSettingsRouteImport.update({
   path: "/settings",
   getParentRoute: () => OOrgRoute,
 } as any);
+const OOrgCustomerReportKeyRoute = OOrgCustomerReportKeyRouteImport.update({
+  id: "/customer-report/$key",
+  path: "/customer-report/$key",
+  getParentRoute: () => OOrgRoute,
+} as any);
 const OOrgCustomersIndexRoute = OOrgCustomersIndexRouteImport.update({
   id: "/customers/",
   path: "/customers/",
@@ -205,6 +211,7 @@ export interface FileRoutesByFullPath {
   "/o/$org/live": typeof OOrgLiveRoute;
   "/o/$org/settings": typeof OOrgSettingsRoute;
   "/o/$org/": typeof OOrgIndexRoute;
+  "/o/$org/customer-report/$key": typeof OOrgCustomerReportKeyRoute;
   "/o/$org/customers/$key": typeof OOrgCustomersKeyRoute;
   "/o/$org/docs/$": typeof OOrgDocsSplatRoute;
   "/o/$org/issues/$issueId": typeof OOrgIssuesIssueIdRoute;
@@ -234,6 +241,7 @@ export interface FileRoutesByTo {
   "/o/$org/live": typeof OOrgLiveRoute;
   "/o/$org/settings": typeof OOrgSettingsRoute;
   "/o/$org": typeof OOrgIndexRoute;
+  "/o/$org/customer-report/$key": typeof OOrgCustomerReportKeyRoute;
   "/o/$org/customers/$key": typeof OOrgCustomersKeyRoute;
   "/o/$org/docs/$": typeof OOrgDocsSplatRoute;
   "/o/$org/issues/$issueId": typeof OOrgIssuesIssueIdRoute;
@@ -266,6 +274,7 @@ export interface FileRoutesById {
   "/o/$org/live": typeof OOrgLiveRoute;
   "/o/$org/settings": typeof OOrgSettingsRoute;
   "/o/$org/": typeof OOrgIndexRoute;
+  "/o/$org/customer-report/$key": typeof OOrgCustomerReportKeyRoute;
   "/o/$org/customers/$key": typeof OOrgCustomersKeyRoute;
   "/o/$org/docs/$": typeof OOrgDocsSplatRoute;
   "/o/$org/issues/$issueId": typeof OOrgIssuesIssueIdRoute;
@@ -299,6 +308,7 @@ export interface FileRouteTypes {
     | "/o/$org/live"
     | "/o/$org/settings"
     | "/o/$org/"
+    | "/o/$org/customer-report/$key"
     | "/o/$org/customers/$key"
     | "/o/$org/docs/$"
     | "/o/$org/issues/$issueId"
@@ -328,6 +338,7 @@ export interface FileRouteTypes {
     | "/o/$org/live"
     | "/o/$org/settings"
     | "/o/$org"
+    | "/o/$org/customer-report/$key"
     | "/o/$org/customers/$key"
     | "/o/$org/docs/$"
     | "/o/$org/issues/$issueId"
@@ -359,6 +370,7 @@ export interface FileRouteTypes {
     | "/o/$org/live"
     | "/o/$org/settings"
     | "/o/$org/"
+    | "/o/$org/customer-report/$key"
     | "/o/$org/customers/$key"
     | "/o/$org/docs/$"
     | "/o/$org/issues/$issueId"
@@ -519,6 +531,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof OOrgSettingsRouteImport;
       parentRoute: typeof OOrgRoute;
     };
+    "/o/$org/customer-report/$key": {
+      id: "/o/$org/customer-report/$key";
+      path: "/customer-report/$key";
+      fullPath: "/o/$org/customer-report/$key";
+      preLoaderRoute: typeof OOrgCustomerReportKeyRouteImport;
+      parentRoute: typeof OOrgRoute;
+    };
     "/o/$org/customers/": {
       id: "/o/$org/customers/";
       path: "/customers";
@@ -616,6 +635,7 @@ interface OOrgRouteChildren {
   OOrgLiveRoute: typeof OOrgLiveRoute;
   OOrgSettingsRoute: typeof OOrgSettingsRoute;
   OOrgIndexRoute: typeof OOrgIndexRoute;
+  OOrgCustomerReportKeyRoute: typeof OOrgCustomerReportKeyRoute;
   OOrgCustomersKeyRoute: typeof OOrgCustomersKeyRoute;
   OOrgIssuesIssueIdRoute: typeof OOrgIssuesIssueIdRoute;
   OOrgMonitorsMonitorIdRoute: typeof OOrgMonitorsMonitorIdRoute;
@@ -636,6 +656,7 @@ const OOrgRouteChildren: OOrgRouteChildren = {
   OOrgLiveRoute: OOrgLiveRoute,
   OOrgSettingsRoute: OOrgSettingsRoute,
   OOrgIndexRoute: OOrgIndexRoute,
+  OOrgCustomerReportKeyRoute: OOrgCustomerReportKeyRoute,
   OOrgCustomersKeyRoute: OOrgCustomersKeyRoute,
   OOrgIssuesIssueIdRoute: OOrgIssuesIssueIdRoute,
   OOrgMonitorsMonitorIdRoute: OOrgMonitorsMonitorIdRoute,

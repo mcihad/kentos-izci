@@ -170,6 +170,19 @@ Kanallar ekibin ortak bildirimleridir. Bunların yanında her üye, kendisini il
 
 API: `UserService.ListNotifications`, `MarkNotificationsRead`, `GetNotificationSettings`, `UpdateNotificationSettings` ve `IssueService.FollowIssue`. Bir organizasyona bağlı erişim anahtarı yalnız o organizasyonun bildirimlerini görür.
 
+## Özet e-postaları
+
+**Hesabım › Bildirimler › Özet e-postası** ile üye, organizasyonlarının özetini e-postayla alır:
+
+- **Her gün:** sabah 08.00'de (Türkiye saati) son 24 saat,
+- **Her hafta:** pazartesi sabahı 08.00'de geçen yedi gün.
+
+Özette her organizasyon için dönemin olay sayısı, **yeni hatalar** (sayısı ve en çok olayı olan beşi), **geri dönen hatalar** (çözülmüşken yeniden görülenler) ve **en çok artan hatalar** (dönemde en az 10 olayı olup önceki döneme göre en az iki katına çıkanlar, en çok artan beşi) yer alır; her satır hatanın sayfasına bağlanır. Dönemde hiçbir şey olmayan organizasyonlar atlanır, hepsi sessizse e-posta gönderilmez. Özet için sunucuda SMTP gerekir; varsayılan olarak kapalıdır. Sunucu kapalıyken kaçan bir özet, açılınca gönderilir; aynı dönem iki kez gönderilmez.
+
+## Müşteri sağlık raporu
+
+Müşteri sayfasındaki **Sağlık raporu**, bir müşterinin (ör. bir belediyenin) seçilen dönemdeki durumunu yazdırılabilir tek bir sayfada toplar: sağlık durumu, olay, yeni ve açık hata sayıları, etkilenen projeler, olayların dağılımı ve müşteriyi en çok etkileyen açık hatalar. **Yazdır ya da PDF** sayfayı menüsüz yazdırır (tarayıcının "PDF olarak kaydet" seçeneğiyle müşteriye gönderilebilir); **CSV** hata tablosunu Excel'in Türkçe ayarlarıyla açılan noktalı virgüllü bir dosyaya indirir.
+
 ## Gönderim ve hatalar
 
 - Geçici hatalarda en çok 8 kez, artan aralıklarla yeniden denenir; hız sınırı yanıtlarındaki bekleme süresine uyulur.

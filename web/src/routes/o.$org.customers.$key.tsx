@@ -133,6 +133,15 @@ function CustomerPage() {
                   Hatalarını gör
                 </Link>
               </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link
+                  to="/o/$org/customer-report/$key"
+                  params={{ org: org.slug, key: c.key }}
+                  search={{ period: search.period ?? "30d" }}
+                >
+                  Sağlık raporu
+                </Link>
+              </Button>
             </div>
           </div>
         </div>

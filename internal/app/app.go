@@ -30,6 +30,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/auth"
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
+	"github.com/mcihad/kentos-izci/internal/digest"
 	"github.com/mcihad/kentos-izci/internal/github"
 	"github.com/mcihad/kentos-izci/internal/inbox"
 	"github.com/mcihad/kentos-izci/internal/ingest"
@@ -130,9 +131,11 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	// Personal notifications go by e-mail and Telegram when the server
 	// has them (interfaces stay nil otherwise).
 	var mailer inbox.Mailer
+	var digestMailer digest.Mailer
 	if email != nil {
-		mailer = email
+		mailer, digestMailer = email, email
 	}
+	digests := digest.New(database, digestMailer, cfg.PublicURL, log)
 	var direct inbox.Telegram
 	if a.Bot != nil {
 		direct = a.Bot
@@ -335,6 +338,7 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 			return err
 		}},
 		jobs.Task{Name: "audit-forward", Interval: 15 * time.Second, Run: auditforward.New(database, cfg.Audit, log).Run},
+		jobs.Task{Name: "digest", Interval: 10 * time.Minute, Run: digests.Run},
 		jobs.Task{Name: "issue-purge", Interval: time.Minute, Run: func(ctx context.Context) error {
 			// Events of merged and unmerged issues move first, so that a
 			// deletion right after a merge finds them.
