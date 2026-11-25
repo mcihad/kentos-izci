@@ -62,6 +62,167 @@ service UserService {
   // RegenerateRecoveryCodes replaces the recovery codes, given a current
   // code; the old codes stop working. Browser sessions only.
   rpc RegenerateRecoveryCodes(RegenerateRecoveryCodesRequest) returns (RegenerateRecoveryCodesResponse);
+
+  // ListNotifications lists the caller's personal notifications (issues
+  // assigned to them, mentions, news about issues they follow) in the
+  // organizations they belong to, newest first.
+  rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // MarkNotificationsRead marks the given notifications, or all of the
+  // caller's, read.
+  rpc MarkNotificationsRead(MarkNotificationsReadRequest) returns (MarkNotificationsReadResponse);
+
+  // GetNotificationSettings returns where the caller's personal
+  // notifications go besides the inbox.
+  rpc GetNotificationSettings(GetNotificationSettingsRequest) returns (GetNotificationSettingsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // UpdateNotificationSettings changes where the caller's personal
+  // notifications go.
+  rpc UpdateNotificationSettings(UpdateNotificationSettingsRequest) returns (UpdateNotificationSettingsResponse);
+}
+
+// UserNotificationKind is why a member is notified personally.
+enum UserNotificationKind {
+  // Not set.
+  USER_NOTIFICATION_KIND_UNSPECIFIED = 0;
+  // An issue was assigned to the member, by someone or by an ownership
+  // rule.
+  USER_NOTIFICATION_KIND_ASSIGNED = 1;
+  // A comment named the member with "@".
+  USER_NOTIFICATION_KIND_MENTIONED = 2;
+  // An issue the member follows came back after it was resolved.
+  USER_NOTIFICATION_KIND_REGRESSED = 3;
+  // Someone commented on an issue the member follows.
+  USER_NOTIFICATION_KIND_COMMENTED = 4;
+}
+
+// UserNotification is an entry of a member's notification inbox.
+message UserNotification {
+  // Notification id (UUID).
+  string id = 1;
+
+  // Why the member is notified.
+  UserNotificationKind kind = 2;
+
+  // Organization of the issue.
+  OrganizationRef organization = 3;
+
+  // The issue.
+  IssueRef issue = 4;
+
+  // Who caused the notification; unset when izci did (ownership rules,
+  // regressions).
+  UserRef actor = 5;
+
+  // The comment (shortened) for mentions and comments; the reason of an
+  // automatic assignment.
+  string text = 6;
+
+  // When it happened.
+  google.protobuf.Timestamp created_at = 7;
+
+  // The member has seen it.
+  bool read = 8;
+}
+
+// ListNotificationsRequest pages through the caller's notifications.
+message ListNotificationsRequest {
+  // Page size, 1 to 100 (default 30).
+  uint32 page_size = 1 [(buf.validate.field).uint32.lte = 100];
+
+  // Token from the previous page.
+  string page_token = 2 [(buf.validate.field).string.max_len = 200];
+
+  // Only notifications not read yet.
+  bool unread_only = 3;
+}
+
+// ListNotificationsResponse is a page of notifications.
+message ListNotificationsResponse {
+  // Notifications, newest first.
+  repeated UserNotification notifications = 1;
+
+  // Token of the next page; empty on the last one.
+  string next_page_token = 2;
+
+  // Unread notifications in total.
+  uint32 unread_count = 3;
+}
+
+// MarkNotificationsReadRequest names notifications to mark read.
+message MarkNotificationsReadRequest {
+  // Notification ids; ignored when all is set.
+  repeated string ids = 1 [(buf.validate.field).repeated = {
+    max_items: 100
+    items: {string: {uuid: true}}
+  }];
+
+  // Mark every notification of the caller read.
+  bool all = 2;
+}
+
+// MarkNotificationsReadResponse reports what is left unread.
+message MarkNotificationsReadResponse {
+  // Unread notifications in total.
+  uint32 unread_count = 1;
+}
+
+// NotificationChannels are where a kind of personal notification goes
+// besides the inbox, which gets them all.
+message NotificationChannels {
+  // An e-mail to the account's address (needs SMTP on the server).
+  bool email = 1;
+
+  // A Telegram message from the bot (needs a linked Telegram account).
+  bool telegram = 2;
+}
+
+// NotificationSettings choose the channels of each kind of personal
+// notification.
+message NotificationSettings {
+  // Issues assigned to the member.
+  NotificationChannels assigned = 1;
+
+  // Mentions in comments.
+  NotificationChannels mentioned = 2;
+
+  // Followed issues that came back.
+  NotificationChannels regressed = 3;
+
+  // Comments on followed issues.
+  NotificationChannels commented = 4;
+}
+
+// GetNotificationSettingsRequest has no fields.
+message GetNotificationSettingsRequest {}
+
+// GetNotificationSettingsResponse returns the settings and what the
+// server offers.
+message GetNotificationSettingsResponse {
+  // The settings; defaults for members who never changed them.
+  NotificationSettings settings = 1;
+
+  // The server sends e-mail (SMTP is configured).
+  bool email_available = 2;
+
+  // The server has a Telegram bot and the account is linked to it.
+  bool telegram_available = 3;
+}
+
+// UpdateNotificationSettingsRequest replaces the settings.
+message UpdateNotificationSettingsRequest {
+  // The new settings.
+  NotificationSettings settings = 1 [(buf.validate.field).required = true];
+}
+
+// UpdateNotificationSettingsResponse returns the stored settings.
+message UpdateNotificationSettingsResponse {
+  // The settings.
+  NotificationSettings settings = 1;
 }
 
 // AccessToken is a personal access token.

@@ -38,6 +38,8 @@ func (d *DB) ApplyRetention(ctx context.Context, cutoff time.Time) (RetentionRes
 		{"notification_outbox", `DELETE FROM notification_outbox WHERE created_at < $1 AND (sent_at IS NOT NULL OR next_attempt_at = 'infinity')`},
 		{"event_attachments", `DELETE FROM event_attachments WHERE created_at < $1`},
 		{"user_feedback", `DELETE FROM user_feedback WHERE created_at < $1`},
+		// Inbox entries live at most 90 days.
+		{"user_notifications", `DELETE FROM user_notifications WHERE created_at < greatest($1, now() - interval '90 days')`},
 		{"release_sessions", `DELETE FROM release_sessions WHERE hour < $1`},
 		{"monitor_checkins", `DELETE FROM monitor_checkins WHERE created_at < $1 AND status <> 'in_progress'`},
 		// Source maps and debug files stay while they resolve frames, and

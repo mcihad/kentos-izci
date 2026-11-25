@@ -20,6 +20,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
 	"github.com/mcihad/kentos-izci/internal/github"
+	"github.com/mcihad/kentos-izci/internal/inbox"
 	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/notify"
 	"github.com/mcihad/kentos-izci/internal/realtime"
@@ -46,6 +47,7 @@ type base struct {
 	jira     *notify.Jira
 	email    *notify.Email
 	mailer   Mailer
+	inbox    *inbox.Service
 }
 
 // AuthServer implements izci.api.v1.AuthService.

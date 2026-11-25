@@ -114,6 +114,7 @@ var rules = map[string]rule{
 	c.IssueServiceGetIssueTagFacetsProcedure: orgRule(viewer, read),
 	c.IssueServiceListIssueActivityProcedure: orgRule(viewer, read),
 	c.IssueServiceAddIssueCommentProcedure:   orgRule(member, write),
+	c.IssueServiceFollowIssueProcedure:       orgRule(viewer, read),
 	c.IssueServiceCreateTicketProcedure:      orgRule(member, write),
 	c.IssueServiceSuggestSearchProcedure:     orgRule(viewer, read),
 
@@ -174,10 +175,14 @@ var rules = map[string]rule{
 	c.UserServiceCreateTelegramAccountLinkCodeProcedure: {scope: write},
 	c.UserServiceUnlinkTelegramAccountProcedure:         {scope: write},
 	// Browser sessions only (checked in the handlers).
-	c.UserServiceBeginTwoFactorSetupProcedure:     {scope: write},
-	c.UserServiceEnableTwoFactorProcedure:         {scope: write},
-	c.UserServiceDisableTwoFactorProcedure:        {scope: write},
-	c.UserServiceRegenerateRecoveryCodesProcedure: {scope: write},
+	c.UserServiceBeginTwoFactorSetupProcedure:        {scope: write},
+	c.UserServiceEnableTwoFactorProcedure:            {scope: write},
+	c.UserServiceDisableTwoFactorProcedure:           {scope: write},
+	c.UserServiceRegenerateRecoveryCodesProcedure:    {scope: write},
+	c.UserServiceListNotificationsProcedure:          {scope: read},
+	c.UserServiceMarkNotificationsReadProcedure:      {scope: read},
+	c.UserServiceGetNotificationSettingsProcedure:    {scope: read},
+	c.UserServiceUpdateNotificationSettingsProcedure: {scope: write},
 
 	// AdminService
 	c.AdminServiceGetInstanceInfoProcedure:        {superadmin: true, scope: read},

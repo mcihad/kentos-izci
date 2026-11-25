@@ -16,6 +16,7 @@ import (
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
 	"github.com/mcihad/kentos-izci/gen/izci/api/v1/apiv1connect"
 	"github.com/mcihad/kentos-izci/internal/auth"
+	"github.com/mcihad/kentos-izci/internal/inbox"
 	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/realtime"
 	"github.com/mcihad/kentos-izci/internal/search"
@@ -265,6 +266,9 @@ func (s *IssueServer) GetIssue(ctx context.Context, req *connect.Request[apiv1.G
 			return err
 		}
 		issue.ResolvedAt = tsp(resolvedAt)
+		if issue.Following, err = store.Following(ctx, tx, id, auth.PrincipalFrom(ctx).User.ID); err != nil {
+			return err
+		}
 		if resolvedBy != nil {
 			var u apiv1.UserRef
 			if tx.QueryRow(ctx, `SELECT id::text, name, email, avatar_url FROM users WHERE id = $1`, *resolvedBy).Scan(&u.Id, &u.Name, &u.Email, &u.AvatarUrl) == nil {
@@ -345,6 +349,7 @@ func (s *IssueServer) UpdateIssues(ctx context.Context, req *connect.Request[api
 	slices.SortFunc(ids, func(a, b uuid.UUID) int { return strings.Compare(a.String(), b.String()) })
 	w := periodWindow(apiv1.StatsPeriod_STATS_PERIOD_LAST_24_HOURS, time.Now(), orgLocation(t.Org))
 	var out apiv1.UpdateIssuesResponse
+	notified := false
 	err := s.db.InOrg(ctx, t.OrgID(), func(tx pgx.Tx) error {
 		type change struct {
 			kind int16
@@ -400,6 +405,24 @@ func (s *IssueServer) UpdateIssues(ctx context.Context, req *connect.Request[api
 				return err
 			}
 			changes = append(changes, change{store.ActivityAssigned, map[string]string{"assignee": name}})
+			// The assignee follows the issues and, unless they assigned
+			// themselves, is told.
+			if assignee != nil {
+				if err := store.FollowIssues(ctx, tx, t.OrgID(), ids, *assignee); err != nil {
+					return err
+				}
+				if *assignee != p.User.ID {
+					var ns []store.PersonalNotification
+					for _, id := range ids {
+						ns = append(ns, store.PersonalNotification{OrgID: t.OrgID(), UserID: *assignee, IssueID: id,
+							Kind: store.NotifyAssigned, ActorID: &p.User.ID})
+					}
+					if err := store.AddPersonalNotifications(ctx, tx, ns); err != nil {
+						return err
+					}
+					notified = true
+				}
+			}
 		}
 		if m.Priority != nil {
 			if _, err := tx.Exec(ctx, `UPDATE issues SET priority = $2, updated_at = now() WHERE id = ANY($1) AND org_id = $3`, ids, int16(m.GetPriority()), t.OrgID()); err != nil {
@@ -418,6 +441,9 @@ func (s *IssueServer) UpdateIssues(ctx context.Context, req *connect.Request[api
 	})
 	if err != nil {
 		return nil, internal(ctx, s.log, "update issues", err)
+	}
+	if notified {
+		s.inbox.Wake()
 	}
 	now := time.Now()
 	for _, is := range out.Issues {
@@ -692,25 +718,103 @@ func (s *IssueServer) AddIssueComment(ctx context.Context, req *connect.Request[
 	t := auth.TenantFrom(ctx)
 	p := auth.PrincipalFrom(ctx)
 	issueID, _ := uuid.Parse(req.Msg.GetIssueId())
+	text := strings.TrimSpace(req.Msg.GetText())
 	var out apiv1.AddIssueCommentResponse
+	notified := false
 	err := s.db.InOrg(ctx, t.OrgID(), func(tx pgx.Tx) error {
 		var id uuid.UUID
 		var created time.Time
 		err := tx.QueryRow(ctx, `
 			INSERT INTO issue_activity (org_id, issue_id, kind, actor_id, text)
 			SELECT org_id, id, 2, $2, $3 FROM issues WHERE id = $1
-			RETURNING id, created_at`, issueID, p.User.ID, strings.TrimSpace(req.Msg.GetText())).Scan(&id, &created)
+			RETURNING id, created_at`, issueID, p.User.ID, text).Scan(&id, &created)
 		if errors.Is(err, pgx.ErrNoRows) {
 			return errNotFound("issue")
 		}
+		if err != nil {
+			return err
+		}
 		out.Activity = &apiv1.IssueActivity{Id: id.String(), Kind: apiv1.ActivityKind_ACTIVITY_KIND_COMMENT, Actor: toUserRef(p.User),
-			Text: strings.TrimSpace(req.Msg.GetText()), CreatedAt: ts(created)}
+			Text: text, CreatedAt: ts(created)}
+		n, err := commentNotifications(ctx, tx, t.OrgID(), issueID, p.User.ID, text)
+		notified = n > 0
 		return err
 	})
 	if err != nil {
 		return nil, internal(ctx, s.log, "add comment", err)
 	}
+	if notified {
+		s.inbox.Wake()
+	}
 	return connect.NewResponse(&out), nil
+}
+
+// commentNotifications makes the author of a comment and the members it
+// names follow the issue, and notifies the named members and the other
+// followers. It returns how many notifications it stored.
+func commentNotifications(ctx context.Context, tx pgx.Tx, orgID, issueID, author uuid.UUID, text string) (int, error) {
+	issue := []uuid.UUID{issueID}
+	followers, err := store.IssueFollowers(ctx, tx, issue)
+	if err != nil {
+		return 0, err
+	}
+	rows, err := tx.Query(ctx, `SELECT u.id, u.email FROM org_members m JOIN users u ON u.id = m.user_id
+		WHERE m.org_id = $1 AND NOT u.disabled`, orgID)
+	if err != nil {
+		return 0, err
+	}
+	members, err := pgx.CollectRows(rows, pgx.RowToStructByPos[inbox.Member])
+	if err != nil {
+		return 0, err
+	}
+	data := map[string]string{"text": inbox.Excerpt(text)}
+	told := map[uuid.UUID]bool{author: true}
+	var ns []store.PersonalNotification
+	for _, u := range inbox.Mentions(text, members) {
+		if err := store.FollowIssues(ctx, tx, orgID, issue, u); err != nil {
+			return 0, err
+		}
+		if !told[u] {
+			told[u] = true
+			ns = append(ns, store.PersonalNotification{OrgID: orgID, UserID: u, IssueID: issueID, Kind: store.NotifyMentioned,
+				ActorID: &author, Data: data})
+		}
+	}
+	for _, u := range followers[issueID] {
+		if !told[u] {
+			told[u] = true
+			ns = append(ns, store.PersonalNotification{OrgID: orgID, UserID: u, IssueID: issueID, Kind: store.NotifyCommented,
+				ActorID: &author, Data: data})
+		}
+	}
+	if err := store.FollowIssues(ctx, tx, orgID, issue, author); err != nil {
+		return 0, err
+	}
+	return len(ns), store.AddPersonalNotifications(ctx, tx, ns)
+}
+
+// FollowIssue implements IssueService.FollowIssue.
+func (s *IssueServer) FollowIssue(ctx context.Context, req *connect.Request[apiv1.FollowIssueRequest]) (*connect.Response[apiv1.FollowIssueResponse], error) {
+	t := auth.TenantFrom(ctx)
+	user := auth.PrincipalFrom(ctx).User.ID
+	issueID, _ := uuid.Parse(req.Msg.GetIssueId())
+	err := s.db.InOrg(ctx, t.OrgID(), func(tx pgx.Tx) error {
+		var exists bool
+		if err := tx.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM issues WHERE id = $1 AND org_id = $2)`, issueID, t.OrgID()).Scan(&exists); err != nil {
+			return err
+		}
+		if !exists {
+			return errNotFound("issue")
+		}
+		if req.Msg.GetFollow() {
+			return store.FollowIssues(ctx, tx, t.OrgID(), []uuid.UUID{issueID}, user)
+		}
+		return store.UnfollowIssue(ctx, tx, issueID, user)
+	})
+	if err != nil {
+		return nil, internal(ctx, s.log, "follow issue", err)
+	}
+	return connect.NewResponse(&apiv1.FollowIssueResponse{Following: req.Msg.GetFollow()}), nil
 }
 
 // searchKeys are the keys offered by autocompletion.

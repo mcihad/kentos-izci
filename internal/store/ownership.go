@@ -223,7 +223,8 @@ func SaveSuspectCommit(ctx context.Context, q Querier, c *SuspectCommit) error {
 }
 
 // AssignIssue assigns an unassigned issue and records who and why in its
-// activity; it reports whether the issue was unassigned.
+// activity; the assignee follows the issue and is notified. It reports
+// whether the issue was unassigned.
 func AssignIssue(ctx context.Context, q Querier, orgID, issueID uuid.UUID, user *User, data map[string]string) (bool, error) {
 	tag, err := q.Exec(ctx, `UPDATE issues SET assignee_id = $3, updated_at = now() WHERE id = $1 AND org_id = $2 AND assignee_id IS NULL`,
 		issueID, orgID, user.ID)
@@ -234,5 +235,12 @@ func AssignIssue(ctx context.Context, q Querier, orgID, issueID uuid.UUID, user 
 		data = map[string]string{}
 	}
 	data["assignee"] = user.Email
-	return true, AddIssueActivity(ctx, q, orgID, []uuid.UUID{issueID}, ActivityAssigned, nil, data)
+	if err := AddIssueActivity(ctx, q, orgID, []uuid.UUID{issueID}, ActivityAssigned, nil, data); err != nil {
+		return true, err
+	}
+	if err := FollowIssues(ctx, q, orgID, []uuid.UUID{issueID}, user.ID); err != nil {
+		return true, err
+	}
+	return true, AddPersonalNotifications(ctx, q, []PersonalNotification{{OrgID: orgID, UserID: user.ID, IssueID: issueID,
+		Kind: NotifyAssigned, Data: data}})
 }

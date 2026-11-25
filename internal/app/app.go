@@ -30,6 +30,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
 	"github.com/mcihad/kentos-izci/internal/github"
+	"github.com/mcihad/kentos-izci/internal/inbox"
 	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/ingest/sentry"
 	"github.com/mcihad/kentos-izci/internal/jobs"
@@ -68,6 +69,9 @@ type App struct {
 	Bot *telegram.Bot
 	// Notify delivers queued notifications to every kind of channel.
 	Notify *notify.Dispatcher
+	// Inbox delivers members' personal notifications by e-mail and
+	// Telegram.
+	Inbox *inbox.Service
 	// GitHub gives access to repositories through integrations.
 	GitHub *github.Access
 	// AI runs AI analyses; it idles unless AI_ENABLED is set.
@@ -122,6 +126,17 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 		a.Bot.OnRulesChanged = a.Alerts.Invalidate
 		a.Notify.Register(store.ChannelTelegram, a.Bot)
 	}
+	// Personal notifications go by e-mail and Telegram when the server
+	// has them (interfaces stay nil otherwise).
+	var mailer inbox.Mailer
+	if email != nil {
+		mailer = email
+	}
+	var direct inbox.Telegram
+	if a.Bot != nil {
+		direct = a.Bot
+	}
+	a.Inbox = inbox.New(database, log, mailer, direct, cfg.PublicURL)
 	if a.GitHub, err = NewGitHubAccess(cfg, box); err != nil {
 		return nil, err
 	}
@@ -151,6 +166,18 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 					return err
 				}
 			}
+			// Followers of issues that came back hear about it; like
+			// alerting, in a savepoint.
+			if personal, err := tx.Begin(ctx); err != nil {
+				return err
+			} else if n, err := inbox.Regressions(ctx, personal, b); err != nil {
+				_ = personal.Rollback(ctx)
+				log.Error("personal notifications failed; batch stored without them", slog.Any("err", err))
+			} else if err := personal.Commit(ctx); err != nil {
+				return err
+			} else if n > 0 {
+				b.PersonalNotifications += n
+			}
 			// Alerting runs in a savepoint: if it fails, the events are
 			// still stored, only without notifications.
 			sp, err := tx.Begin(ctx)
@@ -172,6 +199,9 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 			}
 			if b.Notifications > 0 {
 				a.Notify.Wake()
+			}
+			if b.PersonalNotifications > 0 {
+				a.Inbox.Wake()
 			}
 			a.AI.NewIssues(b)
 		},
@@ -232,7 +262,7 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 	deps := api.Deps{
 		DB: database, Auth: a.Auth, Config: cfg, Log: log,
 		Hub: a.Hub, Pipeline: a.Pipeline, Keys: a.keys, StreamsDone: a.Server.StreamsDone(), Alerts: a.Alerts,
-		AI: a.AI, GitHub: a.GitHub, Symbols: a.Symbols, Delivery: a.Notify, Jira: jira, Email: email, Ownership: a.Ownership,
+		AI: a.AI, GitHub: a.GitHub, Symbols: a.Symbols, Delivery: a.Notify, Jira: jira, Email: email, Ownership: a.Ownership, Inbox: a.Inbox,
 	}
 	if a.Bot != nil {
 		deps.Notifier = a.Bot
@@ -415,6 +445,7 @@ func (a *App) Run(ctx context.Context) error {
 	}
 	// Every instance delivers; outbox rows are claimed with SKIP LOCKED.
 	bot.Go(func() { a.Notify.Run(jobCtx) })
+	bot.Go(func() { _ = a.Inbox.Run(jobCtx) })
 	bot.Go(func() { a.Ownership.Run(jobCtx) })
 	bot.Go(func() {
 		if err := a.AI.Run(jobCtx); err != nil {

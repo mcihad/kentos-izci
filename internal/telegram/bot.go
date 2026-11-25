@@ -87,6 +87,13 @@ func New(cfg config.TelegramConfig, publicURL string, database *db.DB, box *secr
 	}
 }
 
+// SendDirect sends a message (HTML) to the private chat of a member who
+// linked their Telegram account: personal notifications.
+func (b *Bot) SendDirect(ctx context.Context, userID int64, html string) error {
+	_, err := b.client.SendMessage(ctx, OutgoingMessage{ChatID: userID, Text: html})
+	return err
+}
+
 // Username is the bot's @username (empty until identified).
 func (b *Bot) Username() string {
 	if u := b.me.Load(); u != nil {

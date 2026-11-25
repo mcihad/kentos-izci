@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { NotificationPreferences } from "@/components/account/notifications";
 import { Profile } from "@/components/account/profile";
 import { Sessions } from "@/components/account/sessions";
 import { Telegram } from "@/components/account/telegram";
@@ -10,6 +11,7 @@ import { useSession } from "@/lib/session";
 
 const tabs = [
   { id: "profile", label: "Profil" },
+  { id: "notifications", label: "Bildirimler" },
   { id: "two-factor", label: "İki adımlı doğrulama" },
   { id: "sessions", label: "Oturumlar" },
   { id: "tokens", label: "Erişim anahtarları" },
@@ -46,6 +48,7 @@ function AccountPage() {
           }
         >
           {tab === "profile" ? <Profile /> : null}
+          {tab === "notifications" ? <NotificationPreferences /> : null}
           {tab === "two-factor" ? <TwoFactor /> : null}
           {tab === "sessions" ? <Sessions /> : null}
           {tab === "tokens" ? <Tokens /> : null}

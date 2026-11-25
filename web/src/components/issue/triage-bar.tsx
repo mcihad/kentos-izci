@@ -3,6 +3,7 @@ import { DurationSchema } from "@bufbuild/protobuf/wkt";
 import { useQuery } from "@connectrpc/connect-query";
 import { CheckIcon, ChevronDownIcon, EyeOffIcon, RotateCcwIcon, UserRoundIcon } from "lucide-react";
 import { UserAvatar } from "@/components/common/user-avatar";
+import { FollowButton } from "@/components/issue/follow-button";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -182,6 +183,8 @@ export function TriageBar({ issue, writable }: { issue: Issue; writable: boolean
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      {/* Viewers may follow too. */}
+      <FollowButton issue={issue} />
     </div>
   );
 }

@@ -69,6 +69,18 @@ const (
 	// UserServiceRegenerateRecoveryCodesProcedure is the fully-qualified name of the UserService's
 	// RegenerateRecoveryCodes RPC.
 	UserServiceRegenerateRecoveryCodesProcedure = "/izci.api.v1.UserService/RegenerateRecoveryCodes"
+	// UserServiceListNotificationsProcedure is the fully-qualified name of the UserService's
+	// ListNotifications RPC.
+	UserServiceListNotificationsProcedure = "/izci.api.v1.UserService/ListNotifications"
+	// UserServiceMarkNotificationsReadProcedure is the fully-qualified name of the UserService's
+	// MarkNotificationsRead RPC.
+	UserServiceMarkNotificationsReadProcedure = "/izci.api.v1.UserService/MarkNotificationsRead"
+	// UserServiceGetNotificationSettingsProcedure is the fully-qualified name of the UserService's
+	// GetNotificationSettings RPC.
+	UserServiceGetNotificationSettingsProcedure = "/izci.api.v1.UserService/GetNotificationSettings"
+	// UserServiceUpdateNotificationSettingsProcedure is the fully-qualified name of the UserService's
+	// UpdateNotificationSettings RPC.
+	UserServiceUpdateNotificationSettingsProcedure = "/izci.api.v1.UserService/UpdateNotificationSettings"
 )
 
 // UserServiceClient is a client for the izci.api.v1.UserService service.
@@ -108,6 +120,19 @@ type UserServiceClient interface {
 	// RegenerateRecoveryCodes replaces the recovery codes, given a current
 	// code; the old codes stop working. Browser sessions only.
 	RegenerateRecoveryCodes(context.Context, *connect.Request[v1.RegenerateRecoveryCodesRequest]) (*connect.Response[v1.RegenerateRecoveryCodesResponse], error)
+	// ListNotifications lists the caller's personal notifications (issues
+	// assigned to them, mentions, news about issues they follow) in the
+	// organizations they belong to, newest first.
+	ListNotifications(context.Context, *connect.Request[v1.ListNotificationsRequest]) (*connect.Response[v1.ListNotificationsResponse], error)
+	// MarkNotificationsRead marks the given notifications, or all of the
+	// caller's, read.
+	MarkNotificationsRead(context.Context, *connect.Request[v1.MarkNotificationsReadRequest]) (*connect.Response[v1.MarkNotificationsReadResponse], error)
+	// GetNotificationSettings returns where the caller's personal
+	// notifications go besides the inbox.
+	GetNotificationSettings(context.Context, *connect.Request[v1.GetNotificationSettingsRequest]) (*connect.Response[v1.GetNotificationSettingsResponse], error)
+	// UpdateNotificationSettings changes where the caller's personal
+	// notifications go.
+	UpdateNotificationSettings(context.Context, *connect.Request[v1.UpdateNotificationSettingsRequest]) (*connect.Response[v1.UpdateNotificationSettingsResponse], error)
 }
 
 // NewUserServiceClient constructs a client for the izci.api.v1.UserService service. By default, it
@@ -195,6 +220,32 @@ func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(userServiceMethods.ByName("RegenerateRecoveryCodes")),
 			connect.WithClientOptions(opts...),
 		),
+		listNotifications: connect.NewClient[v1.ListNotificationsRequest, v1.ListNotificationsResponse](
+			httpClient,
+			baseURL+UserServiceListNotificationsProcedure,
+			connect.WithSchema(userServiceMethods.ByName("ListNotifications")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		markNotificationsRead: connect.NewClient[v1.MarkNotificationsReadRequest, v1.MarkNotificationsReadResponse](
+			httpClient,
+			baseURL+UserServiceMarkNotificationsReadProcedure,
+			connect.WithSchema(userServiceMethods.ByName("MarkNotificationsRead")),
+			connect.WithClientOptions(opts...),
+		),
+		getNotificationSettings: connect.NewClient[v1.GetNotificationSettingsRequest, v1.GetNotificationSettingsResponse](
+			httpClient,
+			baseURL+UserServiceGetNotificationSettingsProcedure,
+			connect.WithSchema(userServiceMethods.ByName("GetNotificationSettings")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		updateNotificationSettings: connect.NewClient[v1.UpdateNotificationSettingsRequest, v1.UpdateNotificationSettingsResponse](
+			httpClient,
+			baseURL+UserServiceUpdateNotificationSettingsProcedure,
+			connect.WithSchema(userServiceMethods.ByName("UpdateNotificationSettings")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -212,6 +263,10 @@ type userServiceClient struct {
 	enableTwoFactor               *connect.Client[v1.EnableTwoFactorRequest, v1.EnableTwoFactorResponse]
 	disableTwoFactor              *connect.Client[v1.DisableTwoFactorRequest, v1.DisableTwoFactorResponse]
 	regenerateRecoveryCodes       *connect.Client[v1.RegenerateRecoveryCodesRequest, v1.RegenerateRecoveryCodesResponse]
+	listNotifications             *connect.Client[v1.ListNotificationsRequest, v1.ListNotificationsResponse]
+	markNotificationsRead         *connect.Client[v1.MarkNotificationsReadRequest, v1.MarkNotificationsReadResponse]
+	getNotificationSettings       *connect.Client[v1.GetNotificationSettingsRequest, v1.GetNotificationSettingsResponse]
+	updateNotificationSettings    *connect.Client[v1.UpdateNotificationSettingsRequest, v1.UpdateNotificationSettingsResponse]
 }
 
 // UpdateProfile calls izci.api.v1.UserService.UpdateProfile.
@@ -274,6 +329,26 @@ func (c *userServiceClient) RegenerateRecoveryCodes(ctx context.Context, req *co
 	return c.regenerateRecoveryCodes.CallUnary(ctx, req)
 }
 
+// ListNotifications calls izci.api.v1.UserService.ListNotifications.
+func (c *userServiceClient) ListNotifications(ctx context.Context, req *connect.Request[v1.ListNotificationsRequest]) (*connect.Response[v1.ListNotificationsResponse], error) {
+	return c.listNotifications.CallUnary(ctx, req)
+}
+
+// MarkNotificationsRead calls izci.api.v1.UserService.MarkNotificationsRead.
+func (c *userServiceClient) MarkNotificationsRead(ctx context.Context, req *connect.Request[v1.MarkNotificationsReadRequest]) (*connect.Response[v1.MarkNotificationsReadResponse], error) {
+	return c.markNotificationsRead.CallUnary(ctx, req)
+}
+
+// GetNotificationSettings calls izci.api.v1.UserService.GetNotificationSettings.
+func (c *userServiceClient) GetNotificationSettings(ctx context.Context, req *connect.Request[v1.GetNotificationSettingsRequest]) (*connect.Response[v1.GetNotificationSettingsResponse], error) {
+	return c.getNotificationSettings.CallUnary(ctx, req)
+}
+
+// UpdateNotificationSettings calls izci.api.v1.UserService.UpdateNotificationSettings.
+func (c *userServiceClient) UpdateNotificationSettings(ctx context.Context, req *connect.Request[v1.UpdateNotificationSettingsRequest]) (*connect.Response[v1.UpdateNotificationSettingsResponse], error) {
+	return c.updateNotificationSettings.CallUnary(ctx, req)
+}
+
 // UserServiceHandler is an implementation of the izci.api.v1.UserService service.
 type UserServiceHandler interface {
 	// UpdateProfile changes the display name.
@@ -311,6 +386,19 @@ type UserServiceHandler interface {
 	// RegenerateRecoveryCodes replaces the recovery codes, given a current
 	// code; the old codes stop working. Browser sessions only.
 	RegenerateRecoveryCodes(context.Context, *connect.Request[v1.RegenerateRecoveryCodesRequest]) (*connect.Response[v1.RegenerateRecoveryCodesResponse], error)
+	// ListNotifications lists the caller's personal notifications (issues
+	// assigned to them, mentions, news about issues they follow) in the
+	// organizations they belong to, newest first.
+	ListNotifications(context.Context, *connect.Request[v1.ListNotificationsRequest]) (*connect.Response[v1.ListNotificationsResponse], error)
+	// MarkNotificationsRead marks the given notifications, or all of the
+	// caller's, read.
+	MarkNotificationsRead(context.Context, *connect.Request[v1.MarkNotificationsReadRequest]) (*connect.Response[v1.MarkNotificationsReadResponse], error)
+	// GetNotificationSettings returns where the caller's personal
+	// notifications go besides the inbox.
+	GetNotificationSettings(context.Context, *connect.Request[v1.GetNotificationSettingsRequest]) (*connect.Response[v1.GetNotificationSettingsResponse], error)
+	// UpdateNotificationSettings changes where the caller's personal
+	// notifications go.
+	UpdateNotificationSettings(context.Context, *connect.Request[v1.UpdateNotificationSettingsRequest]) (*connect.Response[v1.UpdateNotificationSettingsResponse], error)
 }
 
 // NewUserServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -394,6 +482,32 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(userServiceMethods.ByName("RegenerateRecoveryCodes")),
 		connect.WithHandlerOptions(opts...),
 	)
+	userServiceListNotificationsHandler := connect.NewUnaryHandler(
+		UserServiceListNotificationsProcedure,
+		svc.ListNotifications,
+		connect.WithSchema(userServiceMethods.ByName("ListNotifications")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	userServiceMarkNotificationsReadHandler := connect.NewUnaryHandler(
+		UserServiceMarkNotificationsReadProcedure,
+		svc.MarkNotificationsRead,
+		connect.WithSchema(userServiceMethods.ByName("MarkNotificationsRead")),
+		connect.WithHandlerOptions(opts...),
+	)
+	userServiceGetNotificationSettingsHandler := connect.NewUnaryHandler(
+		UserServiceGetNotificationSettingsProcedure,
+		svc.GetNotificationSettings,
+		connect.WithSchema(userServiceMethods.ByName("GetNotificationSettings")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	userServiceUpdateNotificationSettingsHandler := connect.NewUnaryHandler(
+		UserServiceUpdateNotificationSettingsProcedure,
+		svc.UpdateNotificationSettings,
+		connect.WithSchema(userServiceMethods.ByName("UpdateNotificationSettings")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/izci.api.v1.UserService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case UserServiceUpdateProfileProcedure:
@@ -420,6 +534,14 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 			userServiceDisableTwoFactorHandler.ServeHTTP(w, r)
 		case UserServiceRegenerateRecoveryCodesProcedure:
 			userServiceRegenerateRecoveryCodesHandler.ServeHTTP(w, r)
+		case UserServiceListNotificationsProcedure:
+			userServiceListNotificationsHandler.ServeHTTP(w, r)
+		case UserServiceMarkNotificationsReadProcedure:
+			userServiceMarkNotificationsReadHandler.ServeHTTP(w, r)
+		case UserServiceGetNotificationSettingsProcedure:
+			userServiceGetNotificationSettingsHandler.ServeHTTP(w, r)
+		case UserServiceUpdateNotificationSettingsProcedure:
+			userServiceUpdateNotificationSettingsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -475,4 +597,20 @@ func (UnimplementedUserServiceHandler) DisableTwoFactor(context.Context, *connec
 
 func (UnimplementedUserServiceHandler) RegenerateRecoveryCodes(context.Context, *connect.Request[v1.RegenerateRecoveryCodesRequest]) (*connect.Response[v1.RegenerateRecoveryCodesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.UserService.RegenerateRecoveryCodes is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) ListNotifications(context.Context, *connect.Request[v1.ListNotificationsRequest]) (*connect.Response[v1.ListNotificationsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.UserService.ListNotifications is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) MarkNotificationsRead(context.Context, *connect.Request[v1.MarkNotificationsReadRequest]) (*connect.Response[v1.MarkNotificationsReadResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.UserService.MarkNotificationsRead is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) GetNotificationSettings(context.Context, *connect.Request[v1.GetNotificationSettingsRequest]) (*connect.Response[v1.GetNotificationSettingsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.UserService.GetNotificationSettings is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) UpdateNotificationSettings(context.Context, *connect.Request[v1.UpdateNotificationSettingsRequest]) (*connect.Response[v1.UpdateNotificationSettingsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.UserService.UpdateNotificationSettings is not implemented"))
 }

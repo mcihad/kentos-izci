@@ -66,8 +66,16 @@ service IssueService {
   }
 
   // AddIssueComment adds a Markdown comment to an issue. Requires
-  // ROLE_MEMBER.
+  // ROLE_MEMBER. The author starts following the issue; members named with
+  // "@" (their e-mail address, or its part before "@") are notified and
+  // follow it too, other followers hear about the comment.
   rpc AddIssueComment(AddIssueCommentRequest) returns (AddIssueCommentResponse);
+
+  // FollowIssue starts or stops following an issue. Followers are notified
+  // personally when it comes back after being resolved and when someone
+  // comments on it. Assignees, commenters and mentioned members follow
+  // automatically. Requires ROLE_VIEWER.
+  rpc FollowIssue(FollowIssueRequest) returns (FollowIssueResponse);
 
   // CreateTicket opens a ticket for an issue in the Jira project of a
   // channel; an issue gets one ticket per channel, so a second call returns
@@ -211,6 +219,9 @@ message Issue {
 
   // Tickets created for this issue in external trackers.
   repeated TicketRef tickets = 12;
+
+  // The caller follows the issue (set by GetIssue).
+  bool following = 13;
 }
 
 // TicketRef is a ticket in an external tracker (Jira).
@@ -650,6 +661,21 @@ message AddIssueCommentRequest {
 message AddIssueCommentResponse {
   // The created comment.
   IssueActivity activity = 1;
+}
+
+// FollowIssueRequest starts or stops following an issue.
+message FollowIssueRequest {
+  // Issue id (UUID).
+  string issue_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // True to follow, false to stop following.
+  bool follow = 2;
+}
+
+// FollowIssueResponse reports whether the caller follows the issue now.
+message FollowIssueResponse {
+  // The caller follows the issue.
+  bool following = 1;
 }
 
 // CreateTicketRequest names the issue and the Jira channel.

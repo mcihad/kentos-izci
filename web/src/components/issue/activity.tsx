@@ -1,12 +1,13 @@
-import { createConnectQueryKey, useInfiniteQuery, useMutation } from "@connectrpc/connect-query";
+import { createConnectQueryKey, useInfiniteQuery, useMutation, useQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { RelativeTime } from "@/components/common/relative-time";
 import { UserAvatar } from "@/components/common/user-avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ActivityKind, type IssueActivity, IssueService } from "@/gen/izci/api/v1/issue_pb";
+import { type Member, OrganizationService } from "@/gen/izci/api/v1/organization_pb";
 import { errorMessage } from "@/lib/errors";
 import { useOrg } from "@/lib/org";
 import { cn } from "@/lib/utils";
@@ -74,11 +75,53 @@ function describe(a: IssueActivity): string {
   }
 }
 
+/** How a member is named in a comment: the part of their address before
+ * "@", or the whole address when another member shares it. */
+function handles(members: Member[]): { handle: string; name: string; email: string }[] {
+  const locals = new Map<string, number>();
+  for (const m of members) {
+    const local = (m.user?.email ?? "").split("@")[0]?.toLowerCase() ?? "";
+    locals.set(local, (locals.get(local) ?? 0) + 1);
+  }
+  return members.map((m) => {
+    const email = m.user?.email ?? "";
+    const local = email.split("@")[0]?.toLowerCase() ?? "";
+    return { handle: locals.get(local) === 1 ? local : email.toLowerCase(), name: m.user?.name ?? "", email };
+  });
+}
+
 /** The issue's history and comments, newest first. */
 export function Activity({ issueId, writable }: { issueId: string; writable: boolean }) {
   const org = useOrg();
   const qc = useQueryClient();
   const [text, setText] = useState("");
+  const [caret, setCaret] = useState(0);
+  const input = useRef<HTMLTextAreaElement>(null);
+  const members = useQuery(
+    OrganizationService.method.listMembers,
+    {},
+    { enabled: writable, staleTime: 5 * 60_000 },
+  );
+  // Suggest members while an "@name" is typed right before the caret.
+  const typed = /(^|[\s(])@([\p{L}\p{N}._%+-]*)$/u.exec(text.slice(0, caret));
+  const query = typed?.[2]?.toLowerCase();
+  const suggestions =
+    query === undefined
+      ? []
+      : handles(members.data?.members ?? [])
+          .filter((h) => h.handle.startsWith(query) || h.name.toLowerCase().includes(query))
+          .slice(0, 5);
+  const mention = (handle: string) => {
+    const start = caret - (query?.length ?? 0) - 1;
+    const next = `${text.slice(0, start)}@${handle} ${text.slice(caret)}`;
+    const at = start + handle.length + 2;
+    setText(next);
+    setCaret(at);
+    requestAnimationFrame(() => {
+      input.current?.focus();
+      input.current?.setSelectionRange(at, at);
+    });
+  };
   const list = useInfiniteQuery(
     IssueService.method.listIssueActivity,
     { issueId, pageSize: 30, pageToken: "" },
@@ -110,8 +153,13 @@ export function Activity({ issueId, writable }: { issueId: string; writable: boo
           }}
         >
           <Textarea
+            ref={input}
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value);
+              setCaret(e.target.selectionStart);
+            }}
+            onSelect={(e) => setCaret(e.currentTarget.selectionStart)}
             placeholder="Ekibe not bırakın: nasıl yeniden üretildiği, kimin baktığı, geçici çözüm…"
             className="min-h-20 text-sm"
             onKeyDown={(e) => {
@@ -119,7 +167,28 @@ export function Activity({ issueId, writable }: { issueId: string; writable: boo
                 comment.mutate({ issueId, text });
             }}
           />
-          <div className="flex justify-end">
+          {suggestions.length > 0 ? (
+            <fieldset className="flex flex-wrap gap-1.5">
+              <legend className="sr-only">Anılacak üye</legend>
+              {suggestions.map((s) => (
+                <Button
+                  key={s.handle}
+                  type="button"
+                  size="xs"
+                  variant="outline"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => mention(s.handle)}
+                >
+                  @{s.handle}
+                  {s.name ? <span className="text-muted-foreground">{s.name}</span> : null}
+                </Button>
+              ))}
+            </fieldset>
+          ) : null}
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-muted-foreground text-xs">
+              Bir üyeyi anmak için @ yazın; anılan üye bildirim alır ve hatayı takip eder.
+            </p>
             <Button type="submit" size="sm" disabled={!text.trim() || comment.isPending}>
               Yorum ekle
             </Button>

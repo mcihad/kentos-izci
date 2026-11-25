@@ -10,6 +10,7 @@ import { appearanceFlag, paletteFlag, shortcutHelpFlag, useFlag, useHotkeys } fr
 import { cn } from "@/lib/utils";
 import { AppearanceSheet } from "./appearance-sheet";
 import { CommandPalette } from "./command-palette";
+import { NotificationsMenu } from "./notifications-menu";
 import { ShortcutHelp } from "./shortcut-help";
 import { SidebarContent } from "./sidebar";
 
@@ -99,6 +100,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <SearchIcon className="size-5" />
             </Button>
+            <NotificationsMenu />
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button

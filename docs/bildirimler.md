@@ -152,6 +152,24 @@ Hesabın projede iş kaydı oluşturma ve yorum yapma izni olmalıdır. **Kayıt
 
 **Elle:** Hata sayfasının yan panelindeki **Jira'da kayıt aç** düğmesi (üye rolü) hatayı seçilen Jira kanalının projesine gönderir. Bir hata için her kanalda tek kayıt açılır; açılan kayıtlar aynı panelde **İş kayıtları** başlığı altında ve hatanın etkinlik akışında görünür.
 
+## Kişisel bildirimler
+
+Kanallar ekibin ortak bildirimleridir. Bunların yanında her üye, kendisini ilgilendiren gelişmeleri kişisel olarak alır:
+
+| Ne zaman | Kim |
+|---|---|
+| Bir hata birine atandığında (elle ya da [sahiplik kuralıyla](sahiplik.md)) | Atanan üye (kendini atadıysa bildirim gitmez) |
+| Bir yorumda `@` ile anıldığında | Anılan üye |
+| Takip edilen bir hata çözüldükten sonra yeniden görüldüğünde | Hatayı takip edenler |
+| Takip edilen bir hataya yorum yazıldığında | Hatayı takip edenler (yazan hariç) |
+
+- **Anma:** yorumda `@` ve üyenin e-posta adresinin `@` öncesi yazılır (ör. `@ayse`); aynı öncekiyle iki üye varsa adresin tamamı (`@ayse@kentos.com.tr`). Yorum kutusu `@` yazınca üyeleri önerir.
+- **Takip:** atanan, yorum yazan ve anılan üyeler hatayı kendiliğinden takip eder. Hata sayfasındaki **Takip et** düğmesiyle istenen hata takip edilir ya da takip bırakılır; izleyici rolündekiler de takip edebilir.
+- **Bildirim kutusu:** üst çubuktaki zil, üyenin bütün organizasyonlarındaki bildirimleri gösterir; okunmamışların sayısı zilde görünür. Kayıtlar 90 gün (saklama süresi daha kısaysa o kadar) tutulur.
+- **E-posta ve Telegram:** **Hesabım › Bildirimler** sayfasında her bildirim türü için e-posta ve Telegram ayrı ayrı açılıp kapatılır. Varsayılan olarak atama, anma ve geri dönme e-postayla ve Telegram'la gelir, takip edilen hatalara yazılan yorumlar yalnız bildirim kutusuna düşer. E-posta için sunucuda SMTP, Telegram için **Hesabım › Telegram**'dan bağlanmış bir hesap gerekir. Aynı anda biriken bildirimler tek e-postada ve tek Telegram mesajında toplanır; gönderilemeyenler artan aralıklarla bir gün boyunca yeniden denenir.
+
+API: `UserService.ListNotifications`, `MarkNotificationsRead`, `GetNotificationSettings`, `UpdateNotificationSettings` ve `IssueService.FollowIssue`. Bir organizasyona bağlı erişim anahtarı yalnız o organizasyonun bildirimlerini görür.
+
 ## Gönderim ve hatalar
 
 - Geçici hatalarda en çok 8 kez, artan aralıklarla yeniden denenir; hız sınırı yanıtlarındaki bekleme süresine uyulur.

@@ -13,6 +13,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
 	"github.com/mcihad/kentos-izci/internal/github"
+	"github.com/mcihad/kentos-izci/internal/inbox"
 	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/notify"
 	"github.com/mcihad/kentos-izci/internal/ownership"
@@ -53,6 +54,9 @@ type Deps struct {
 	// Mailer sends sign-up links; nil without SMTP (development servers
 	// then write the links to the log).
 	Mailer Mailer
+	// Inbox delivers personal notifications by e-mail and Telegram; nil
+	// leaves them in the inbox alone.
+	Inbox *inbox.Service
 	// Jira creates tickets from issues; Email is nil without SMTP.
 	Jira  *notify.Jira
 	Email *notify.Email
@@ -115,7 +119,7 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 	}
 	b := &base{db: d.DB, auth: d.Auth, cfg: d.Config, log: d.Log, hub: d.Hub, pipeline: d.Pipeline, keys: d.Keys, done: d.StreamsDone,
 		notifier: d.Notifier, alerts: d.Alerts, ai: d.AI, github: d.GitHub, delivery: d.Delivery, jira: d.Jira, email: d.Email,
-		mailer: d.Mailer}
+		mailer: d.Mailer, inbox: d.Inbox}
 	if b.jira == nil {
 		b.jira = notify.NewJira(d.Auth.Box(), notify.NewHTTPClient(d.Config.Notify.AllowPrivateNetworks))
 	}

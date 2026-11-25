@@ -24,6 +24,68 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// UserNotificationKind is why a member is notified personally.
+type UserNotificationKind int32
+
+const (
+	// Not set.
+	UserNotificationKind_USER_NOTIFICATION_KIND_UNSPECIFIED UserNotificationKind = 0
+	// An issue was assigned to the member, by someone or by an ownership
+	// rule.
+	UserNotificationKind_USER_NOTIFICATION_KIND_ASSIGNED UserNotificationKind = 1
+	// A comment named the member with "@".
+	UserNotificationKind_USER_NOTIFICATION_KIND_MENTIONED UserNotificationKind = 2
+	// An issue the member follows came back after it was resolved.
+	UserNotificationKind_USER_NOTIFICATION_KIND_REGRESSED UserNotificationKind = 3
+	// Someone commented on an issue the member follows.
+	UserNotificationKind_USER_NOTIFICATION_KIND_COMMENTED UserNotificationKind = 4
+)
+
+// Enum value maps for UserNotificationKind.
+var (
+	UserNotificationKind_name = map[int32]string{
+		0: "USER_NOTIFICATION_KIND_UNSPECIFIED",
+		1: "USER_NOTIFICATION_KIND_ASSIGNED",
+		2: "USER_NOTIFICATION_KIND_MENTIONED",
+		3: "USER_NOTIFICATION_KIND_REGRESSED",
+		4: "USER_NOTIFICATION_KIND_COMMENTED",
+	}
+	UserNotificationKind_value = map[string]int32{
+		"USER_NOTIFICATION_KIND_UNSPECIFIED": 0,
+		"USER_NOTIFICATION_KIND_ASSIGNED":    1,
+		"USER_NOTIFICATION_KIND_MENTIONED":   2,
+		"USER_NOTIFICATION_KIND_REGRESSED":   3,
+		"USER_NOTIFICATION_KIND_COMMENTED":   4,
+	}
+)
+
+func (x UserNotificationKind) Enum() *UserNotificationKind {
+	p := new(UserNotificationKind)
+	*p = x
+	return p
+}
+
+func (x UserNotificationKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (UserNotificationKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_izci_api_v1_user_proto_enumTypes[0].Descriptor()
+}
+
+func (UserNotificationKind) Type() protoreflect.EnumType {
+	return &file_izci_api_v1_user_proto_enumTypes[0]
+}
+
+func (x UserNotificationKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use UserNotificationKind.Descriptor instead.
+func (UserNotificationKind) EnumDescriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{0}
+}
+
 // TokenScope is a permission of a personal access token.
 type TokenScope int32
 
@@ -65,11 +127,11 @@ func (x TokenScope) String() string {
 }
 
 func (TokenScope) Descriptor() protoreflect.EnumDescriptor {
-	return file_izci_api_v1_user_proto_enumTypes[0].Descriptor()
+	return file_izci_api_v1_user_proto_enumTypes[1].Descriptor()
 }
 
 func (TokenScope) Type() protoreflect.EnumType {
-	return &file_izci_api_v1_user_proto_enumTypes[0]
+	return &file_izci_api_v1_user_proto_enumTypes[1]
 }
 
 func (x TokenScope) Number() protoreflect.EnumNumber {
@@ -78,7 +140,671 @@ func (x TokenScope) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use TokenScope.Descriptor instead.
 func (TokenScope) EnumDescriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{1}
+}
+
+// UserNotification is an entry of a member's notification inbox.
+type UserNotification struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Notification id (UUID).
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Why the member is notified.
+	Kind UserNotificationKind `protobuf:"varint,2,opt,name=kind,proto3,enum=izci.api.v1.UserNotificationKind" json:"kind,omitempty"`
+	// Organization of the issue.
+	Organization *OrganizationRef `protobuf:"bytes,3,opt,name=organization,proto3" json:"organization,omitempty"`
+	// The issue.
+	Issue *IssueRef `protobuf:"bytes,4,opt,name=issue,proto3" json:"issue,omitempty"`
+	// Who caused the notification; unset when izci did (ownership rules,
+	// regressions).
+	Actor *UserRef `protobuf:"bytes,5,opt,name=actor,proto3" json:"actor,omitempty"`
+	// The comment (shortened) for mentions and comments; the reason of an
+	// automatic assignment.
+	Text string `protobuf:"bytes,6,opt,name=text,proto3" json:"text,omitempty"`
+	// When it happened.
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// The member has seen it.
+	Read          bool `protobuf:"varint,8,opt,name=read,proto3" json:"read,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserNotification) Reset() {
+	*x = UserNotification{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserNotification) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserNotification) ProtoMessage() {}
+
+func (x *UserNotification) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserNotification.ProtoReflect.Descriptor instead.
+func (*UserNotification) Descriptor() ([]byte, []int) {
 	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *UserNotification) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UserNotification) GetKind() UserNotificationKind {
+	if x != nil {
+		return x.Kind
+	}
+	return UserNotificationKind_USER_NOTIFICATION_KIND_UNSPECIFIED
+}
+
+func (x *UserNotification) GetOrganization() *OrganizationRef {
+	if x != nil {
+		return x.Organization
+	}
+	return nil
+}
+
+func (x *UserNotification) GetIssue() *IssueRef {
+	if x != nil {
+		return x.Issue
+	}
+	return nil
+}
+
+func (x *UserNotification) GetActor() *UserRef {
+	if x != nil {
+		return x.Actor
+	}
+	return nil
+}
+
+func (x *UserNotification) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+func (x *UserNotification) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *UserNotification) GetRead() bool {
+	if x != nil {
+		return x.Read
+	}
+	return false
+}
+
+// ListNotificationsRequest pages through the caller's notifications.
+type ListNotificationsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Page size, 1 to 100 (default 30).
+	PageSize uint32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Token from the previous page.
+	PageToken string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// Only notifications not read yet.
+	UnreadOnly    bool `protobuf:"varint,3,opt,name=unread_only,json=unreadOnly,proto3" json:"unread_only,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListNotificationsRequest) Reset() {
+	*x = ListNotificationsRequest{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListNotificationsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListNotificationsRequest) ProtoMessage() {}
+
+func (x *ListNotificationsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListNotificationsRequest.ProtoReflect.Descriptor instead.
+func (*ListNotificationsRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ListNotificationsRequest) GetPageSize() uint32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *ListNotificationsRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+func (x *ListNotificationsRequest) GetUnreadOnly() bool {
+	if x != nil {
+		return x.UnreadOnly
+	}
+	return false
+}
+
+// ListNotificationsResponse is a page of notifications.
+type ListNotificationsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Notifications, newest first.
+	Notifications []*UserNotification `protobuf:"bytes,1,rep,name=notifications,proto3" json:"notifications,omitempty"`
+	// Token of the next page; empty on the last one.
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	// Unread notifications in total.
+	UnreadCount   uint32 `protobuf:"varint,3,opt,name=unread_count,json=unreadCount,proto3" json:"unread_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListNotificationsResponse) Reset() {
+	*x = ListNotificationsResponse{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListNotificationsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListNotificationsResponse) ProtoMessage() {}
+
+func (x *ListNotificationsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListNotificationsResponse.ProtoReflect.Descriptor instead.
+func (*ListNotificationsResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ListNotificationsResponse) GetNotifications() []*UserNotification {
+	if x != nil {
+		return x.Notifications
+	}
+	return nil
+}
+
+func (x *ListNotificationsResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
+func (x *ListNotificationsResponse) GetUnreadCount() uint32 {
+	if x != nil {
+		return x.UnreadCount
+	}
+	return 0
+}
+
+// MarkNotificationsReadRequest names notifications to mark read.
+type MarkNotificationsReadRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Notification ids; ignored when all is set.
+	Ids []string `protobuf:"bytes,1,rep,name=ids,proto3" json:"ids,omitempty"`
+	// Mark every notification of the caller read.
+	All           bool `protobuf:"varint,2,opt,name=all,proto3" json:"all,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MarkNotificationsReadRequest) Reset() {
+	*x = MarkNotificationsReadRequest{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MarkNotificationsReadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MarkNotificationsReadRequest) ProtoMessage() {}
+
+func (x *MarkNotificationsReadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MarkNotificationsReadRequest.ProtoReflect.Descriptor instead.
+func (*MarkNotificationsReadRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *MarkNotificationsReadRequest) GetIds() []string {
+	if x != nil {
+		return x.Ids
+	}
+	return nil
+}
+
+func (x *MarkNotificationsReadRequest) GetAll() bool {
+	if x != nil {
+		return x.All
+	}
+	return false
+}
+
+// MarkNotificationsReadResponse reports what is left unread.
+type MarkNotificationsReadResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Unread notifications in total.
+	UnreadCount   uint32 `protobuf:"varint,1,opt,name=unread_count,json=unreadCount,proto3" json:"unread_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MarkNotificationsReadResponse) Reset() {
+	*x = MarkNotificationsReadResponse{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MarkNotificationsReadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MarkNotificationsReadResponse) ProtoMessage() {}
+
+func (x *MarkNotificationsReadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MarkNotificationsReadResponse.ProtoReflect.Descriptor instead.
+func (*MarkNotificationsReadResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *MarkNotificationsReadResponse) GetUnreadCount() uint32 {
+	if x != nil {
+		return x.UnreadCount
+	}
+	return 0
+}
+
+// NotificationChannels are where a kind of personal notification goes
+// besides the inbox, which gets them all.
+type NotificationChannels struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// An e-mail to the account's address (needs SMTP on the server).
+	Email bool `protobuf:"varint,1,opt,name=email,proto3" json:"email,omitempty"`
+	// A Telegram message from the bot (needs a linked Telegram account).
+	Telegram      bool `protobuf:"varint,2,opt,name=telegram,proto3" json:"telegram,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NotificationChannels) Reset() {
+	*x = NotificationChannels{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotificationChannels) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotificationChannels) ProtoMessage() {}
+
+func (x *NotificationChannels) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotificationChannels.ProtoReflect.Descriptor instead.
+func (*NotificationChannels) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *NotificationChannels) GetEmail() bool {
+	if x != nil {
+		return x.Email
+	}
+	return false
+}
+
+func (x *NotificationChannels) GetTelegram() bool {
+	if x != nil {
+		return x.Telegram
+	}
+	return false
+}
+
+// NotificationSettings choose the channels of each kind of personal
+// notification.
+type NotificationSettings struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Issues assigned to the member.
+	Assigned *NotificationChannels `protobuf:"bytes,1,opt,name=assigned,proto3" json:"assigned,omitempty"`
+	// Mentions in comments.
+	Mentioned *NotificationChannels `protobuf:"bytes,2,opt,name=mentioned,proto3" json:"mentioned,omitempty"`
+	// Followed issues that came back.
+	Regressed *NotificationChannels `protobuf:"bytes,3,opt,name=regressed,proto3" json:"regressed,omitempty"`
+	// Comments on followed issues.
+	Commented     *NotificationChannels `protobuf:"bytes,4,opt,name=commented,proto3" json:"commented,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NotificationSettings) Reset() {
+	*x = NotificationSettings{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotificationSettings) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotificationSettings) ProtoMessage() {}
+
+func (x *NotificationSettings) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotificationSettings.ProtoReflect.Descriptor instead.
+func (*NotificationSettings) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *NotificationSettings) GetAssigned() *NotificationChannels {
+	if x != nil {
+		return x.Assigned
+	}
+	return nil
+}
+
+func (x *NotificationSettings) GetMentioned() *NotificationChannels {
+	if x != nil {
+		return x.Mentioned
+	}
+	return nil
+}
+
+func (x *NotificationSettings) GetRegressed() *NotificationChannels {
+	if x != nil {
+		return x.Regressed
+	}
+	return nil
+}
+
+func (x *NotificationSettings) GetCommented() *NotificationChannels {
+	if x != nil {
+		return x.Commented
+	}
+	return nil
+}
+
+// GetNotificationSettingsRequest has no fields.
+type GetNotificationSettingsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetNotificationSettingsRequest) Reset() {
+	*x = GetNotificationSettingsRequest{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetNotificationSettingsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetNotificationSettingsRequest) ProtoMessage() {}
+
+func (x *GetNotificationSettingsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetNotificationSettingsRequest.ProtoReflect.Descriptor instead.
+func (*GetNotificationSettingsRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{7}
+}
+
+// GetNotificationSettingsResponse returns the settings and what the
+// server offers.
+type GetNotificationSettingsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The settings; defaults for members who never changed them.
+	Settings *NotificationSettings `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"`
+	// The server sends e-mail (SMTP is configured).
+	EmailAvailable bool `protobuf:"varint,2,opt,name=email_available,json=emailAvailable,proto3" json:"email_available,omitempty"`
+	// The server has a Telegram bot and the account is linked to it.
+	TelegramAvailable bool `protobuf:"varint,3,opt,name=telegram_available,json=telegramAvailable,proto3" json:"telegram_available,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *GetNotificationSettingsResponse) Reset() {
+	*x = GetNotificationSettingsResponse{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetNotificationSettingsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetNotificationSettingsResponse) ProtoMessage() {}
+
+func (x *GetNotificationSettingsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetNotificationSettingsResponse.ProtoReflect.Descriptor instead.
+func (*GetNotificationSettingsResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetNotificationSettingsResponse) GetSettings() *NotificationSettings {
+	if x != nil {
+		return x.Settings
+	}
+	return nil
+}
+
+func (x *GetNotificationSettingsResponse) GetEmailAvailable() bool {
+	if x != nil {
+		return x.EmailAvailable
+	}
+	return false
+}
+
+func (x *GetNotificationSettingsResponse) GetTelegramAvailable() bool {
+	if x != nil {
+		return x.TelegramAvailable
+	}
+	return false
+}
+
+// UpdateNotificationSettingsRequest replaces the settings.
+type UpdateNotificationSettingsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The new settings.
+	Settings      *NotificationSettings `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateNotificationSettingsRequest) Reset() {
+	*x = UpdateNotificationSettingsRequest{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateNotificationSettingsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateNotificationSettingsRequest) ProtoMessage() {}
+
+func (x *UpdateNotificationSettingsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateNotificationSettingsRequest.ProtoReflect.Descriptor instead.
+func (*UpdateNotificationSettingsRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *UpdateNotificationSettingsRequest) GetSettings() *NotificationSettings {
+	if x != nil {
+		return x.Settings
+	}
+	return nil
+}
+
+// UpdateNotificationSettingsResponse returns the stored settings.
+type UpdateNotificationSettingsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The settings.
+	Settings      *NotificationSettings `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateNotificationSettingsResponse) Reset() {
+	*x = UpdateNotificationSettingsResponse{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateNotificationSettingsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateNotificationSettingsResponse) ProtoMessage() {}
+
+func (x *UpdateNotificationSettingsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateNotificationSettingsResponse.ProtoReflect.Descriptor instead.
+func (*UpdateNotificationSettingsResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *UpdateNotificationSettingsResponse) GetSettings() *NotificationSettings {
+	if x != nil {
+		return x.Settings
+	}
+	return nil
 }
 
 // AccessToken is a personal access token.
@@ -110,7 +836,7 @@ type AccessToken struct {
 
 func (x *AccessToken) Reset() {
 	*x = AccessToken{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[0]
+	mi := &file_izci_api_v1_user_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -122,7 +848,7 @@ func (x *AccessToken) String() string {
 func (*AccessToken) ProtoMessage() {}
 
 func (x *AccessToken) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[0]
+	mi := &file_izci_api_v1_user_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -135,7 +861,7 @@ func (x *AccessToken) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AccessToken.ProtoReflect.Descriptor instead.
 func (*AccessToken) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{0}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *AccessToken) GetId() string {
@@ -224,7 +950,7 @@ type SessionInfo struct {
 
 func (x *SessionInfo) Reset() {
 	*x = SessionInfo{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[1]
+	mi := &file_izci_api_v1_user_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -236,7 +962,7 @@ func (x *SessionInfo) String() string {
 func (*SessionInfo) ProtoMessage() {}
 
 func (x *SessionInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[1]
+	mi := &file_izci_api_v1_user_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -249,7 +975,7 @@ func (x *SessionInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SessionInfo.ProtoReflect.Descriptor instead.
 func (*SessionInfo) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{1}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *SessionInfo) GetId() string {
@@ -312,7 +1038,7 @@ type UpdateProfileRequest struct {
 
 func (x *UpdateProfileRequest) Reset() {
 	*x = UpdateProfileRequest{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[2]
+	mi := &file_izci_api_v1_user_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -324,7 +1050,7 @@ func (x *UpdateProfileRequest) String() string {
 func (*UpdateProfileRequest) ProtoMessage() {}
 
 func (x *UpdateProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[2]
+	mi := &file_izci_api_v1_user_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -337,7 +1063,7 @@ func (x *UpdateProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProfileRequest.ProtoReflect.Descriptor instead.
 func (*UpdateProfileRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{2}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *UpdateProfileRequest) GetName() string {
@@ -358,7 +1084,7 @@ type UpdateProfileResponse struct {
 
 func (x *UpdateProfileResponse) Reset() {
 	*x = UpdateProfileResponse{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[3]
+	mi := &file_izci_api_v1_user_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -370,7 +1096,7 @@ func (x *UpdateProfileResponse) String() string {
 func (*UpdateProfileResponse) ProtoMessage() {}
 
 func (x *UpdateProfileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[3]
+	mi := &file_izci_api_v1_user_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -383,7 +1109,7 @@ func (x *UpdateProfileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProfileResponse.ProtoReflect.Descriptor instead.
 func (*UpdateProfileResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{3}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *UpdateProfileResponse) GetUser() *User {
@@ -402,7 +1128,7 @@ type ListAccessTokensRequest struct {
 
 func (x *ListAccessTokensRequest) Reset() {
 	*x = ListAccessTokensRequest{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[4]
+	mi := &file_izci_api_v1_user_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -414,7 +1140,7 @@ func (x *ListAccessTokensRequest) String() string {
 func (*ListAccessTokensRequest) ProtoMessage() {}
 
 func (x *ListAccessTokensRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[4]
+	mi := &file_izci_api_v1_user_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -427,7 +1153,7 @@ func (x *ListAccessTokensRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAccessTokensRequest.ProtoReflect.Descriptor instead.
 func (*ListAccessTokensRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{4}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{15}
 }
 
 // ListAccessTokensResponse lists tokens.
@@ -441,7 +1167,7 @@ type ListAccessTokensResponse struct {
 
 func (x *ListAccessTokensResponse) Reset() {
 	*x = ListAccessTokensResponse{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[5]
+	mi := &file_izci_api_v1_user_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -453,7 +1179,7 @@ func (x *ListAccessTokensResponse) String() string {
 func (*ListAccessTokensResponse) ProtoMessage() {}
 
 func (x *ListAccessTokensResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[5]
+	mi := &file_izci_api_v1_user_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -466,7 +1192,7 @@ func (x *ListAccessTokensResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAccessTokensResponse.ProtoReflect.Descriptor instead.
 func (*ListAccessTokensResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{5}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ListAccessTokensResponse) GetTokens() []*AccessToken {
@@ -493,7 +1219,7 @@ type CreateAccessTokenRequest struct {
 
 func (x *CreateAccessTokenRequest) Reset() {
 	*x = CreateAccessTokenRequest{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[6]
+	mi := &file_izci_api_v1_user_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -505,7 +1231,7 @@ func (x *CreateAccessTokenRequest) String() string {
 func (*CreateAccessTokenRequest) ProtoMessage() {}
 
 func (x *CreateAccessTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[6]
+	mi := &file_izci_api_v1_user_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -518,7 +1244,7 @@ func (x *CreateAccessTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAccessTokenRequest.ProtoReflect.Descriptor instead.
 func (*CreateAccessTokenRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{6}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *CreateAccessTokenRequest) GetName() string {
@@ -562,7 +1288,7 @@ type CreateAccessTokenResponse struct {
 
 func (x *CreateAccessTokenResponse) Reset() {
 	*x = CreateAccessTokenResponse{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[7]
+	mi := &file_izci_api_v1_user_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -574,7 +1300,7 @@ func (x *CreateAccessTokenResponse) String() string {
 func (*CreateAccessTokenResponse) ProtoMessage() {}
 
 func (x *CreateAccessTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[7]
+	mi := &file_izci_api_v1_user_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -587,7 +1313,7 @@ func (x *CreateAccessTokenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAccessTokenResponse.ProtoReflect.Descriptor instead.
 func (*CreateAccessTokenResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{7}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *CreateAccessTokenResponse) GetToken() *AccessToken {
@@ -615,7 +1341,7 @@ type RevokeAccessTokenRequest struct {
 
 func (x *RevokeAccessTokenRequest) Reset() {
 	*x = RevokeAccessTokenRequest{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[8]
+	mi := &file_izci_api_v1_user_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -627,7 +1353,7 @@ func (x *RevokeAccessTokenRequest) String() string {
 func (*RevokeAccessTokenRequest) ProtoMessage() {}
 
 func (x *RevokeAccessTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[8]
+	mi := &file_izci_api_v1_user_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -640,7 +1366,7 @@ func (x *RevokeAccessTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeAccessTokenRequest.ProtoReflect.Descriptor instead.
 func (*RevokeAccessTokenRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{8}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *RevokeAccessTokenRequest) GetId() string {
@@ -659,7 +1385,7 @@ type RevokeAccessTokenResponse struct {
 
 func (x *RevokeAccessTokenResponse) Reset() {
 	*x = RevokeAccessTokenResponse{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[9]
+	mi := &file_izci_api_v1_user_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -671,7 +1397,7 @@ func (x *RevokeAccessTokenResponse) String() string {
 func (*RevokeAccessTokenResponse) ProtoMessage() {}
 
 func (x *RevokeAccessTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[9]
+	mi := &file_izci_api_v1_user_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -684,7 +1410,7 @@ func (x *RevokeAccessTokenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeAccessTokenResponse.ProtoReflect.Descriptor instead.
 func (*RevokeAccessTokenResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{9}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{20}
 }
 
 // ListSessionsRequest has no fields.
@@ -696,7 +1422,7 @@ type ListSessionsRequest struct {
 
 func (x *ListSessionsRequest) Reset() {
 	*x = ListSessionsRequest{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[10]
+	mi := &file_izci_api_v1_user_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -708,7 +1434,7 @@ func (x *ListSessionsRequest) String() string {
 func (*ListSessionsRequest) ProtoMessage() {}
 
 func (x *ListSessionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[10]
+	mi := &file_izci_api_v1_user_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -721,7 +1447,7 @@ func (x *ListSessionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSessionsRequest.ProtoReflect.Descriptor instead.
 func (*ListSessionsRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{10}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{21}
 }
 
 // ListSessionsResponse lists sessions.
@@ -735,7 +1461,7 @@ type ListSessionsResponse struct {
 
 func (x *ListSessionsResponse) Reset() {
 	*x = ListSessionsResponse{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[11]
+	mi := &file_izci_api_v1_user_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -747,7 +1473,7 @@ func (x *ListSessionsResponse) String() string {
 func (*ListSessionsResponse) ProtoMessage() {}
 
 func (x *ListSessionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[11]
+	mi := &file_izci_api_v1_user_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -760,7 +1486,7 @@ func (x *ListSessionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSessionsResponse.ProtoReflect.Descriptor instead.
 func (*ListSessionsResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{11}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ListSessionsResponse) GetSessions() []*SessionInfo {
@@ -784,7 +1510,7 @@ type RevokeSessionRequest struct {
 
 func (x *RevokeSessionRequest) Reset() {
 	*x = RevokeSessionRequest{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[12]
+	mi := &file_izci_api_v1_user_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -796,7 +1522,7 @@ func (x *RevokeSessionRequest) String() string {
 func (*RevokeSessionRequest) ProtoMessage() {}
 
 func (x *RevokeSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[12]
+	mi := &file_izci_api_v1_user_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -809,7 +1535,7 @@ func (x *RevokeSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeSessionRequest.ProtoReflect.Descriptor instead.
 func (*RevokeSessionRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{12}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *RevokeSessionRequest) GetId() string {
@@ -837,7 +1563,7 @@ type RevokeSessionResponse struct {
 
 func (x *RevokeSessionResponse) Reset() {
 	*x = RevokeSessionResponse{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[13]
+	mi := &file_izci_api_v1_user_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -849,7 +1575,7 @@ func (x *RevokeSessionResponse) String() string {
 func (*RevokeSessionResponse) ProtoMessage() {}
 
 func (x *RevokeSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[13]
+	mi := &file_izci_api_v1_user_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -862,7 +1588,7 @@ func (x *RevokeSessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeSessionResponse.ProtoReflect.Descriptor instead.
 func (*RevokeSessionResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{13}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *RevokeSessionResponse) GetRevoked() uint32 {
@@ -881,7 +1607,7 @@ type CreateTelegramAccountLinkCodeRequest struct {
 
 func (x *CreateTelegramAccountLinkCodeRequest) Reset() {
 	*x = CreateTelegramAccountLinkCodeRequest{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[14]
+	mi := &file_izci_api_v1_user_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -893,7 +1619,7 @@ func (x *CreateTelegramAccountLinkCodeRequest) String() string {
 func (*CreateTelegramAccountLinkCodeRequest) ProtoMessage() {}
 
 func (x *CreateTelegramAccountLinkCodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[14]
+	mi := &file_izci_api_v1_user_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -906,7 +1632,7 @@ func (x *CreateTelegramAccountLinkCodeRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use CreateTelegramAccountLinkCodeRequest.ProtoReflect.Descriptor instead.
 func (*CreateTelegramAccountLinkCodeRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{14}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{25}
 }
 
 // CreateTelegramAccountLinkCodeResponse returns the code.
@@ -926,7 +1652,7 @@ type CreateTelegramAccountLinkCodeResponse struct {
 
 func (x *CreateTelegramAccountLinkCodeResponse) Reset() {
 	*x = CreateTelegramAccountLinkCodeResponse{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[15]
+	mi := &file_izci_api_v1_user_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -938,7 +1664,7 @@ func (x *CreateTelegramAccountLinkCodeResponse) String() string {
 func (*CreateTelegramAccountLinkCodeResponse) ProtoMessage() {}
 
 func (x *CreateTelegramAccountLinkCodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[15]
+	mi := &file_izci_api_v1_user_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -951,7 +1677,7 @@ func (x *CreateTelegramAccountLinkCodeResponse) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use CreateTelegramAccountLinkCodeResponse.ProtoReflect.Descriptor instead.
 func (*CreateTelegramAccountLinkCodeResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{15}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *CreateTelegramAccountLinkCodeResponse) GetCode() string {
@@ -991,7 +1717,7 @@ type UnlinkTelegramAccountRequest struct {
 
 func (x *UnlinkTelegramAccountRequest) Reset() {
 	*x = UnlinkTelegramAccountRequest{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[16]
+	mi := &file_izci_api_v1_user_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1003,7 +1729,7 @@ func (x *UnlinkTelegramAccountRequest) String() string {
 func (*UnlinkTelegramAccountRequest) ProtoMessage() {}
 
 func (x *UnlinkTelegramAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[16]
+	mi := &file_izci_api_v1_user_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1016,7 +1742,7 @@ func (x *UnlinkTelegramAccountRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnlinkTelegramAccountRequest.ProtoReflect.Descriptor instead.
 func (*UnlinkTelegramAccountRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{16}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{27}
 }
 
 // UnlinkTelegramAccountResponse has no fields.
@@ -1028,7 +1754,7 @@ type UnlinkTelegramAccountResponse struct {
 
 func (x *UnlinkTelegramAccountResponse) Reset() {
 	*x = UnlinkTelegramAccountResponse{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[17]
+	mi := &file_izci_api_v1_user_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1040,7 +1766,7 @@ func (x *UnlinkTelegramAccountResponse) String() string {
 func (*UnlinkTelegramAccountResponse) ProtoMessage() {}
 
 func (x *UnlinkTelegramAccountResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[17]
+	mi := &file_izci_api_v1_user_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1053,7 +1779,7 @@ func (x *UnlinkTelegramAccountResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnlinkTelegramAccountResponse.ProtoReflect.Descriptor instead.
 func (*UnlinkTelegramAccountResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{17}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{28}
 }
 
 // BeginTwoFactorSetupRequest has no fields.
@@ -1065,7 +1791,7 @@ type BeginTwoFactorSetupRequest struct {
 
 func (x *BeginTwoFactorSetupRequest) Reset() {
 	*x = BeginTwoFactorSetupRequest{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[18]
+	mi := &file_izci_api_v1_user_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1077,7 +1803,7 @@ func (x *BeginTwoFactorSetupRequest) String() string {
 func (*BeginTwoFactorSetupRequest) ProtoMessage() {}
 
 func (x *BeginTwoFactorSetupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[18]
+	mi := &file_izci_api_v1_user_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1090,7 +1816,7 @@ func (x *BeginTwoFactorSetupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BeginTwoFactorSetupRequest.ProtoReflect.Descriptor instead.
 func (*BeginTwoFactorSetupRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{18}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{29}
 }
 
 // BeginTwoFactorSetupResponse carries the secret for the authenticator app.
@@ -1107,7 +1833,7 @@ type BeginTwoFactorSetupResponse struct {
 
 func (x *BeginTwoFactorSetupResponse) Reset() {
 	*x = BeginTwoFactorSetupResponse{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[19]
+	mi := &file_izci_api_v1_user_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1119,7 +1845,7 @@ func (x *BeginTwoFactorSetupResponse) String() string {
 func (*BeginTwoFactorSetupResponse) ProtoMessage() {}
 
 func (x *BeginTwoFactorSetupResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[19]
+	mi := &file_izci_api_v1_user_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1132,7 +1858,7 @@ func (x *BeginTwoFactorSetupResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BeginTwoFactorSetupResponse.ProtoReflect.Descriptor instead.
 func (*BeginTwoFactorSetupResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{19}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *BeginTwoFactorSetupResponse) GetSecret() string {
@@ -1160,7 +1886,7 @@ type EnableTwoFactorRequest struct {
 
 func (x *EnableTwoFactorRequest) Reset() {
 	*x = EnableTwoFactorRequest{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[20]
+	mi := &file_izci_api_v1_user_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1172,7 +1898,7 @@ func (x *EnableTwoFactorRequest) String() string {
 func (*EnableTwoFactorRequest) ProtoMessage() {}
 
 func (x *EnableTwoFactorRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[20]
+	mi := &file_izci_api_v1_user_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1185,7 +1911,7 @@ func (x *EnableTwoFactorRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnableTwoFactorRequest.ProtoReflect.Descriptor instead.
 func (*EnableTwoFactorRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{20}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *EnableTwoFactorRequest) GetCode() string {
@@ -1207,7 +1933,7 @@ type EnableTwoFactorResponse struct {
 
 func (x *EnableTwoFactorResponse) Reset() {
 	*x = EnableTwoFactorResponse{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[21]
+	mi := &file_izci_api_v1_user_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1219,7 +1945,7 @@ func (x *EnableTwoFactorResponse) String() string {
 func (*EnableTwoFactorResponse) ProtoMessage() {}
 
 func (x *EnableTwoFactorResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[21]
+	mi := &file_izci_api_v1_user_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1232,7 +1958,7 @@ func (x *EnableTwoFactorResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnableTwoFactorResponse.ProtoReflect.Descriptor instead.
 func (*EnableTwoFactorResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{21}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *EnableTwoFactorResponse) GetRecoveryCodes() []string {
@@ -1253,7 +1979,7 @@ type DisableTwoFactorRequest struct {
 
 func (x *DisableTwoFactorRequest) Reset() {
 	*x = DisableTwoFactorRequest{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[22]
+	mi := &file_izci_api_v1_user_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1265,7 +1991,7 @@ func (x *DisableTwoFactorRequest) String() string {
 func (*DisableTwoFactorRequest) ProtoMessage() {}
 
 func (x *DisableTwoFactorRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[22]
+	mi := &file_izci_api_v1_user_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1278,7 +2004,7 @@ func (x *DisableTwoFactorRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DisableTwoFactorRequest.ProtoReflect.Descriptor instead.
 func (*DisableTwoFactorRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{22}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *DisableTwoFactorRequest) GetCode() string {
@@ -1297,7 +2023,7 @@ type DisableTwoFactorResponse struct {
 
 func (x *DisableTwoFactorResponse) Reset() {
 	*x = DisableTwoFactorResponse{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[23]
+	mi := &file_izci_api_v1_user_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1309,7 +2035,7 @@ func (x *DisableTwoFactorResponse) String() string {
 func (*DisableTwoFactorResponse) ProtoMessage() {}
 
 func (x *DisableTwoFactorResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[23]
+	mi := &file_izci_api_v1_user_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1322,7 +2048,7 @@ func (x *DisableTwoFactorResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DisableTwoFactorResponse.ProtoReflect.Descriptor instead.
 func (*DisableTwoFactorResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{23}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{34}
 }
 
 // RegenerateRecoveryCodesRequest proves the second factor.
@@ -1336,7 +2062,7 @@ type RegenerateRecoveryCodesRequest struct {
 
 func (x *RegenerateRecoveryCodesRequest) Reset() {
 	*x = RegenerateRecoveryCodesRequest{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[24]
+	mi := &file_izci_api_v1_user_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1348,7 +2074,7 @@ func (x *RegenerateRecoveryCodesRequest) String() string {
 func (*RegenerateRecoveryCodesRequest) ProtoMessage() {}
 
 func (x *RegenerateRecoveryCodesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[24]
+	mi := &file_izci_api_v1_user_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1361,7 +2087,7 @@ func (x *RegenerateRecoveryCodesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegenerateRecoveryCodesRequest.ProtoReflect.Descriptor instead.
 func (*RegenerateRecoveryCodesRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{24}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *RegenerateRecoveryCodesRequest) GetCode() string {
@@ -1382,7 +2108,7 @@ type RegenerateRecoveryCodesResponse struct {
 
 func (x *RegenerateRecoveryCodesResponse) Reset() {
 	*x = RegenerateRecoveryCodesResponse{}
-	mi := &file_izci_api_v1_user_proto_msgTypes[25]
+	mi := &file_izci_api_v1_user_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1394,7 +2120,7 @@ func (x *RegenerateRecoveryCodesResponse) String() string {
 func (*RegenerateRecoveryCodesResponse) ProtoMessage() {}
 
 func (x *RegenerateRecoveryCodesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_user_proto_msgTypes[25]
+	mi := &file_izci_api_v1_user_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1407,7 +2133,7 @@ func (x *RegenerateRecoveryCodesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegenerateRecoveryCodesResponse.ProtoReflect.Descriptor instead.
 func (*RegenerateRecoveryCodesResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{25}
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *RegenerateRecoveryCodesResponse) GetRecoveryCodes() []string {
@@ -1421,7 +2147,49 @@ var File_izci_api_v1_user_proto protoreflect.FileDescriptor
 
 const file_izci_api_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x16izci/api/v1/user.proto\x12\vizci.api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16izci/api/v1/auth.proto\x1a\x18izci/api/v1/common.proto\"\x92\x03\n" +
+	"\x16izci/api/v1/user.proto\x12\vizci.api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16izci/api/v1/auth.proto\x1a\x18izci/api/v1/common.proto\"\xd7\x02\n" +
+	"\x10UserNotification\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x125\n" +
+	"\x04kind\x18\x02 \x01(\x0e2!.izci.api.v1.UserNotificationKindR\x04kind\x12@\n" +
+	"\forganization\x18\x03 \x01(\v2\x1c.izci.api.v1.OrganizationRefR\forganization\x12+\n" +
+	"\x05issue\x18\x04 \x01(\v2\x15.izci.api.v1.IssueRefR\x05issue\x12*\n" +
+	"\x05actor\x18\x05 \x01(\v2\x14.izci.api.v1.UserRefR\x05actor\x12\x12\n" +
+	"\x04text\x18\x06 \x01(\tR\x04text\x129\n" +
+	"\n" +
+	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x12\n" +
+	"\x04read\x18\b \x01(\bR\x04read\"\x8a\x01\n" +
+	"\x18ListNotificationsRequest\x12$\n" +
+	"\tpage_size\x18\x01 \x01(\rB\a\xbaH\x04*\x02\x18dR\bpageSize\x12'\n" +
+	"\n" +
+	"page_token\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x18\xc8\x01R\tpageToken\x12\x1f\n" +
+	"\vunread_only\x18\x03 \x01(\bR\n" +
+	"unreadOnly\"\xab\x01\n" +
+	"\x19ListNotificationsResponse\x12C\n" +
+	"\rnotifications\x18\x01 \x03(\v2\x1d.izci.api.v1.UserNotificationR\rnotifications\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12!\n" +
+	"\funread_count\x18\x03 \x01(\rR\vunreadCount\"S\n" +
+	"\x1cMarkNotificationsReadRequest\x12!\n" +
+	"\x03ids\x18\x01 \x03(\tB\x0f\xbaH\f\x92\x01\t\x10d\"\x05r\x03\xb0\x01\x01R\x03ids\x12\x10\n" +
+	"\x03all\x18\x02 \x01(\bR\x03all\"B\n" +
+	"\x1dMarkNotificationsReadResponse\x12!\n" +
+	"\funread_count\x18\x01 \x01(\rR\vunreadCount\"H\n" +
+	"\x14NotificationChannels\x12\x14\n" +
+	"\x05email\x18\x01 \x01(\bR\x05email\x12\x1a\n" +
+	"\btelegram\x18\x02 \x01(\bR\btelegram\"\x98\x02\n" +
+	"\x14NotificationSettings\x12=\n" +
+	"\bassigned\x18\x01 \x01(\v2!.izci.api.v1.NotificationChannelsR\bassigned\x12?\n" +
+	"\tmentioned\x18\x02 \x01(\v2!.izci.api.v1.NotificationChannelsR\tmentioned\x12?\n" +
+	"\tregressed\x18\x03 \x01(\v2!.izci.api.v1.NotificationChannelsR\tregressed\x12?\n" +
+	"\tcommented\x18\x04 \x01(\v2!.izci.api.v1.NotificationChannelsR\tcommented\" \n" +
+	"\x1eGetNotificationSettingsRequest\"\xb8\x01\n" +
+	"\x1fGetNotificationSettingsResponse\x12=\n" +
+	"\bsettings\x18\x01 \x01(\v2!.izci.api.v1.NotificationSettingsR\bsettings\x12'\n" +
+	"\x0femail_available\x18\x02 \x01(\bR\x0eemailAvailable\x12-\n" +
+	"\x12telegram_available\x18\x03 \x01(\bR\x11telegramAvailable\"j\n" +
+	"!UpdateNotificationSettingsRequest\x12E\n" +
+	"\bsettings\x18\x01 \x01(\v2!.izci.api.v1.NotificationSettingsB\x06\xbaH\x03\xc8\x01\x01R\bsettings\"c\n" +
+	"\"UpdateNotificationSettingsResponse\x12=\n" +
+	"\bsettings\x18\x01 \x01(\v2!.izci.api.v1.NotificationSettingsR\bsettings\"\x92\x03\n" +
 	"\vAccessToken\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
@@ -1501,13 +2269,19 @@ const file_izci_api_v1_user_proto_rawDesc = "" +
 	"\x1eRegenerateRecoveryCodesRequest\x12\x1d\n" +
 	"\x04code\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x06\x18 R\x04code\"H\n" +
 	"\x1fRegenerateRecoveryCodesResponse\x12%\n" +
-	"\x0erecovery_codes\x18\x01 \x03(\tR\rrecoveryCodes*j\n" +
+	"\x0erecovery_codes\x18\x01 \x03(\tR\rrecoveryCodes*\xd5\x01\n" +
+	"\x14UserNotificationKind\x12&\n" +
+	"\"USER_NOTIFICATION_KIND_UNSPECIFIED\x10\x00\x12#\n" +
+	"\x1fUSER_NOTIFICATION_KIND_ASSIGNED\x10\x01\x12$\n" +
+	" USER_NOTIFICATION_KIND_MENTIONED\x10\x02\x12$\n" +
+	" USER_NOTIFICATION_KIND_REGRESSED\x10\x03\x12$\n" +
+	" USER_NOTIFICATION_KIND_COMMENTED\x10\x04*j\n" +
 	"\n" +
 	"TokenScope\x12\x1b\n" +
 	"\x17TOKEN_SCOPE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10TOKEN_SCOPE_READ\x10\x01\x12\x15\n" +
 	"\x11TOKEN_SCOPE_WRITE\x10\x02\x12\x12\n" +
-	"\x0eTOKEN_SCOPE_AI\x10\x032\xdd\t\n" +
+	"\x0eTOKEN_SCOPE_AI\x10\x032\xb0\r\n" +
 	"\vUserService\x12V\n" +
 	"\rUpdateProfile\x12!.izci.api.v1.UpdateProfileRequest\x1a\".izci.api.v1.UpdateProfileResponse\x12d\n" +
 	"\x10ListAccessTokens\x12$.izci.api.v1.ListAccessTokensRequest\x1a%.izci.api.v1.ListAccessTokensResponse\"\x03\x90\x02\x01\x12b\n" +
@@ -1520,7 +2294,11 @@ const file_izci_api_v1_user_proto_rawDesc = "" +
 	"\x13BeginTwoFactorSetup\x12'.izci.api.v1.BeginTwoFactorSetupRequest\x1a(.izci.api.v1.BeginTwoFactorSetupResponse\x12\\\n" +
 	"\x0fEnableTwoFactor\x12#.izci.api.v1.EnableTwoFactorRequest\x1a$.izci.api.v1.EnableTwoFactorResponse\x12_\n" +
 	"\x10DisableTwoFactor\x12$.izci.api.v1.DisableTwoFactorRequest\x1a%.izci.api.v1.DisableTwoFactorResponse\x12t\n" +
-	"\x17RegenerateRecoveryCodes\x12+.izci.api.v1.RegenerateRecoveryCodesRequest\x1a,.izci.api.v1.RegenerateRecoveryCodesResponseB\x9f\x01\n" +
+	"\x17RegenerateRecoveryCodes\x12+.izci.api.v1.RegenerateRecoveryCodesRequest\x1a,.izci.api.v1.RegenerateRecoveryCodesResponse\x12g\n" +
+	"\x11ListNotifications\x12%.izci.api.v1.ListNotificationsRequest\x1a&.izci.api.v1.ListNotificationsResponse\"\x03\x90\x02\x01\x12n\n" +
+	"\x15MarkNotificationsRead\x12).izci.api.v1.MarkNotificationsReadRequest\x1a*.izci.api.v1.MarkNotificationsReadResponse\x12y\n" +
+	"\x17GetNotificationSettings\x12+.izci.api.v1.GetNotificationSettingsRequest\x1a,.izci.api.v1.GetNotificationSettingsResponse\"\x03\x90\x02\x01\x12}\n" +
+	"\x1aUpdateNotificationSettings\x12..izci.api.v1.UpdateNotificationSettingsRequest\x1a/.izci.api.v1.UpdateNotificationSettingsResponseB\x9f\x01\n" +
 	"\x0fcom.izci.api.v1B\tUserProtoP\x01Z3github.com/mcihad/kentos-izci/gen/izci/api/v1;apiv1\xa2\x02\x03IAX\xaa\x02\vIzci.Api.V1\xca\x02\vIzci\\Api\\V1\xe2\x02\x17Izci\\Api\\V1\\GPBMetadata\xea\x02\rIzci::Api::V1b\x06proto3"
 
 var (
@@ -1535,86 +2313,121 @@ func file_izci_api_v1_user_proto_rawDescGZIP() []byte {
 	return file_izci_api_v1_user_proto_rawDescData
 }
 
-var file_izci_api_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_izci_api_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
+var file_izci_api_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_izci_api_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 37)
 var file_izci_api_v1_user_proto_goTypes = []any{
-	(TokenScope)(0),                               // 0: izci.api.v1.TokenScope
-	(*AccessToken)(nil),                           // 1: izci.api.v1.AccessToken
-	(*SessionInfo)(nil),                           // 2: izci.api.v1.SessionInfo
-	(*UpdateProfileRequest)(nil),                  // 3: izci.api.v1.UpdateProfileRequest
-	(*UpdateProfileResponse)(nil),                 // 4: izci.api.v1.UpdateProfileResponse
-	(*ListAccessTokensRequest)(nil),               // 5: izci.api.v1.ListAccessTokensRequest
-	(*ListAccessTokensResponse)(nil),              // 6: izci.api.v1.ListAccessTokensResponse
-	(*CreateAccessTokenRequest)(nil),              // 7: izci.api.v1.CreateAccessTokenRequest
-	(*CreateAccessTokenResponse)(nil),             // 8: izci.api.v1.CreateAccessTokenResponse
-	(*RevokeAccessTokenRequest)(nil),              // 9: izci.api.v1.RevokeAccessTokenRequest
-	(*RevokeAccessTokenResponse)(nil),             // 10: izci.api.v1.RevokeAccessTokenResponse
-	(*ListSessionsRequest)(nil),                   // 11: izci.api.v1.ListSessionsRequest
-	(*ListSessionsResponse)(nil),                  // 12: izci.api.v1.ListSessionsResponse
-	(*RevokeSessionRequest)(nil),                  // 13: izci.api.v1.RevokeSessionRequest
-	(*RevokeSessionResponse)(nil),                 // 14: izci.api.v1.RevokeSessionResponse
-	(*CreateTelegramAccountLinkCodeRequest)(nil),  // 15: izci.api.v1.CreateTelegramAccountLinkCodeRequest
-	(*CreateTelegramAccountLinkCodeResponse)(nil), // 16: izci.api.v1.CreateTelegramAccountLinkCodeResponse
-	(*UnlinkTelegramAccountRequest)(nil),          // 17: izci.api.v1.UnlinkTelegramAccountRequest
-	(*UnlinkTelegramAccountResponse)(nil),         // 18: izci.api.v1.UnlinkTelegramAccountResponse
-	(*BeginTwoFactorSetupRequest)(nil),            // 19: izci.api.v1.BeginTwoFactorSetupRequest
-	(*BeginTwoFactorSetupResponse)(nil),           // 20: izci.api.v1.BeginTwoFactorSetupResponse
-	(*EnableTwoFactorRequest)(nil),                // 21: izci.api.v1.EnableTwoFactorRequest
-	(*EnableTwoFactorResponse)(nil),               // 22: izci.api.v1.EnableTwoFactorResponse
-	(*DisableTwoFactorRequest)(nil),               // 23: izci.api.v1.DisableTwoFactorRequest
-	(*DisableTwoFactorResponse)(nil),              // 24: izci.api.v1.DisableTwoFactorResponse
-	(*RegenerateRecoveryCodesRequest)(nil),        // 25: izci.api.v1.RegenerateRecoveryCodesRequest
-	(*RegenerateRecoveryCodesResponse)(nil),       // 26: izci.api.v1.RegenerateRecoveryCodesResponse
-	(*OrganizationRef)(nil),                       // 27: izci.api.v1.OrganizationRef
-	(*timestamppb.Timestamp)(nil),                 // 28: google.protobuf.Timestamp
-	(*User)(nil),                                  // 29: izci.api.v1.User
-	(*durationpb.Duration)(nil),                   // 30: google.protobuf.Duration
+	(UserNotificationKind)(0),                     // 0: izci.api.v1.UserNotificationKind
+	(TokenScope)(0),                               // 1: izci.api.v1.TokenScope
+	(*UserNotification)(nil),                      // 2: izci.api.v1.UserNotification
+	(*ListNotificationsRequest)(nil),              // 3: izci.api.v1.ListNotificationsRequest
+	(*ListNotificationsResponse)(nil),             // 4: izci.api.v1.ListNotificationsResponse
+	(*MarkNotificationsReadRequest)(nil),          // 5: izci.api.v1.MarkNotificationsReadRequest
+	(*MarkNotificationsReadResponse)(nil),         // 6: izci.api.v1.MarkNotificationsReadResponse
+	(*NotificationChannels)(nil),                  // 7: izci.api.v1.NotificationChannels
+	(*NotificationSettings)(nil),                  // 8: izci.api.v1.NotificationSettings
+	(*GetNotificationSettingsRequest)(nil),        // 9: izci.api.v1.GetNotificationSettingsRequest
+	(*GetNotificationSettingsResponse)(nil),       // 10: izci.api.v1.GetNotificationSettingsResponse
+	(*UpdateNotificationSettingsRequest)(nil),     // 11: izci.api.v1.UpdateNotificationSettingsRequest
+	(*UpdateNotificationSettingsResponse)(nil),    // 12: izci.api.v1.UpdateNotificationSettingsResponse
+	(*AccessToken)(nil),                           // 13: izci.api.v1.AccessToken
+	(*SessionInfo)(nil),                           // 14: izci.api.v1.SessionInfo
+	(*UpdateProfileRequest)(nil),                  // 15: izci.api.v1.UpdateProfileRequest
+	(*UpdateProfileResponse)(nil),                 // 16: izci.api.v1.UpdateProfileResponse
+	(*ListAccessTokensRequest)(nil),               // 17: izci.api.v1.ListAccessTokensRequest
+	(*ListAccessTokensResponse)(nil),              // 18: izci.api.v1.ListAccessTokensResponse
+	(*CreateAccessTokenRequest)(nil),              // 19: izci.api.v1.CreateAccessTokenRequest
+	(*CreateAccessTokenResponse)(nil),             // 20: izci.api.v1.CreateAccessTokenResponse
+	(*RevokeAccessTokenRequest)(nil),              // 21: izci.api.v1.RevokeAccessTokenRequest
+	(*RevokeAccessTokenResponse)(nil),             // 22: izci.api.v1.RevokeAccessTokenResponse
+	(*ListSessionsRequest)(nil),                   // 23: izci.api.v1.ListSessionsRequest
+	(*ListSessionsResponse)(nil),                  // 24: izci.api.v1.ListSessionsResponse
+	(*RevokeSessionRequest)(nil),                  // 25: izci.api.v1.RevokeSessionRequest
+	(*RevokeSessionResponse)(nil),                 // 26: izci.api.v1.RevokeSessionResponse
+	(*CreateTelegramAccountLinkCodeRequest)(nil),  // 27: izci.api.v1.CreateTelegramAccountLinkCodeRequest
+	(*CreateTelegramAccountLinkCodeResponse)(nil), // 28: izci.api.v1.CreateTelegramAccountLinkCodeResponse
+	(*UnlinkTelegramAccountRequest)(nil),          // 29: izci.api.v1.UnlinkTelegramAccountRequest
+	(*UnlinkTelegramAccountResponse)(nil),         // 30: izci.api.v1.UnlinkTelegramAccountResponse
+	(*BeginTwoFactorSetupRequest)(nil),            // 31: izci.api.v1.BeginTwoFactorSetupRequest
+	(*BeginTwoFactorSetupResponse)(nil),           // 32: izci.api.v1.BeginTwoFactorSetupResponse
+	(*EnableTwoFactorRequest)(nil),                // 33: izci.api.v1.EnableTwoFactorRequest
+	(*EnableTwoFactorResponse)(nil),               // 34: izci.api.v1.EnableTwoFactorResponse
+	(*DisableTwoFactorRequest)(nil),               // 35: izci.api.v1.DisableTwoFactorRequest
+	(*DisableTwoFactorResponse)(nil),              // 36: izci.api.v1.DisableTwoFactorResponse
+	(*RegenerateRecoveryCodesRequest)(nil),        // 37: izci.api.v1.RegenerateRecoveryCodesRequest
+	(*RegenerateRecoveryCodesResponse)(nil),       // 38: izci.api.v1.RegenerateRecoveryCodesResponse
+	(*OrganizationRef)(nil),                       // 39: izci.api.v1.OrganizationRef
+	(*IssueRef)(nil),                              // 40: izci.api.v1.IssueRef
+	(*UserRef)(nil),                               // 41: izci.api.v1.UserRef
+	(*timestamppb.Timestamp)(nil),                 // 42: google.protobuf.Timestamp
+	(*User)(nil),                                  // 43: izci.api.v1.User
+	(*durationpb.Duration)(nil),                   // 44: google.protobuf.Duration
 }
 var file_izci_api_v1_user_proto_depIdxs = []int32{
-	27, // 0: izci.api.v1.AccessToken.organization:type_name -> izci.api.v1.OrganizationRef
-	0,  // 1: izci.api.v1.AccessToken.scopes:type_name -> izci.api.v1.TokenScope
-	28, // 2: izci.api.v1.AccessToken.created_at:type_name -> google.protobuf.Timestamp
-	28, // 3: izci.api.v1.AccessToken.last_used_at:type_name -> google.protobuf.Timestamp
-	28, // 4: izci.api.v1.AccessToken.expires_at:type_name -> google.protobuf.Timestamp
-	28, // 5: izci.api.v1.SessionInfo.created_at:type_name -> google.protobuf.Timestamp
-	28, // 6: izci.api.v1.SessionInfo.last_seen_at:type_name -> google.protobuf.Timestamp
-	28, // 7: izci.api.v1.SessionInfo.expires_at:type_name -> google.protobuf.Timestamp
-	29, // 8: izci.api.v1.UpdateProfileResponse.user:type_name -> izci.api.v1.User
-	1,  // 9: izci.api.v1.ListAccessTokensResponse.tokens:type_name -> izci.api.v1.AccessToken
-	0,  // 10: izci.api.v1.CreateAccessTokenRequest.scopes:type_name -> izci.api.v1.TokenScope
-	30, // 11: izci.api.v1.CreateAccessTokenRequest.expires_in:type_name -> google.protobuf.Duration
-	1,  // 12: izci.api.v1.CreateAccessTokenResponse.token:type_name -> izci.api.v1.AccessToken
-	2,  // 13: izci.api.v1.ListSessionsResponse.sessions:type_name -> izci.api.v1.SessionInfo
-	28, // 14: izci.api.v1.CreateTelegramAccountLinkCodeResponse.expires_at:type_name -> google.protobuf.Timestamp
-	3,  // 15: izci.api.v1.UserService.UpdateProfile:input_type -> izci.api.v1.UpdateProfileRequest
-	5,  // 16: izci.api.v1.UserService.ListAccessTokens:input_type -> izci.api.v1.ListAccessTokensRequest
-	7,  // 17: izci.api.v1.UserService.CreateAccessToken:input_type -> izci.api.v1.CreateAccessTokenRequest
-	9,  // 18: izci.api.v1.UserService.RevokeAccessToken:input_type -> izci.api.v1.RevokeAccessTokenRequest
-	11, // 19: izci.api.v1.UserService.ListSessions:input_type -> izci.api.v1.ListSessionsRequest
-	13, // 20: izci.api.v1.UserService.RevokeSession:input_type -> izci.api.v1.RevokeSessionRequest
-	15, // 21: izci.api.v1.UserService.CreateTelegramAccountLinkCode:input_type -> izci.api.v1.CreateTelegramAccountLinkCodeRequest
-	17, // 22: izci.api.v1.UserService.UnlinkTelegramAccount:input_type -> izci.api.v1.UnlinkTelegramAccountRequest
-	19, // 23: izci.api.v1.UserService.BeginTwoFactorSetup:input_type -> izci.api.v1.BeginTwoFactorSetupRequest
-	21, // 24: izci.api.v1.UserService.EnableTwoFactor:input_type -> izci.api.v1.EnableTwoFactorRequest
-	23, // 25: izci.api.v1.UserService.DisableTwoFactor:input_type -> izci.api.v1.DisableTwoFactorRequest
-	25, // 26: izci.api.v1.UserService.RegenerateRecoveryCodes:input_type -> izci.api.v1.RegenerateRecoveryCodesRequest
-	4,  // 27: izci.api.v1.UserService.UpdateProfile:output_type -> izci.api.v1.UpdateProfileResponse
-	6,  // 28: izci.api.v1.UserService.ListAccessTokens:output_type -> izci.api.v1.ListAccessTokensResponse
-	8,  // 29: izci.api.v1.UserService.CreateAccessToken:output_type -> izci.api.v1.CreateAccessTokenResponse
-	10, // 30: izci.api.v1.UserService.RevokeAccessToken:output_type -> izci.api.v1.RevokeAccessTokenResponse
-	12, // 31: izci.api.v1.UserService.ListSessions:output_type -> izci.api.v1.ListSessionsResponse
-	14, // 32: izci.api.v1.UserService.RevokeSession:output_type -> izci.api.v1.RevokeSessionResponse
-	16, // 33: izci.api.v1.UserService.CreateTelegramAccountLinkCode:output_type -> izci.api.v1.CreateTelegramAccountLinkCodeResponse
-	18, // 34: izci.api.v1.UserService.UnlinkTelegramAccount:output_type -> izci.api.v1.UnlinkTelegramAccountResponse
-	20, // 35: izci.api.v1.UserService.BeginTwoFactorSetup:output_type -> izci.api.v1.BeginTwoFactorSetupResponse
-	22, // 36: izci.api.v1.UserService.EnableTwoFactor:output_type -> izci.api.v1.EnableTwoFactorResponse
-	24, // 37: izci.api.v1.UserService.DisableTwoFactor:output_type -> izci.api.v1.DisableTwoFactorResponse
-	26, // 38: izci.api.v1.UserService.RegenerateRecoveryCodes:output_type -> izci.api.v1.RegenerateRecoveryCodesResponse
-	27, // [27:39] is the sub-list for method output_type
-	15, // [15:27] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	0,  // 0: izci.api.v1.UserNotification.kind:type_name -> izci.api.v1.UserNotificationKind
+	39, // 1: izci.api.v1.UserNotification.organization:type_name -> izci.api.v1.OrganizationRef
+	40, // 2: izci.api.v1.UserNotification.issue:type_name -> izci.api.v1.IssueRef
+	41, // 3: izci.api.v1.UserNotification.actor:type_name -> izci.api.v1.UserRef
+	42, // 4: izci.api.v1.UserNotification.created_at:type_name -> google.protobuf.Timestamp
+	2,  // 5: izci.api.v1.ListNotificationsResponse.notifications:type_name -> izci.api.v1.UserNotification
+	7,  // 6: izci.api.v1.NotificationSettings.assigned:type_name -> izci.api.v1.NotificationChannels
+	7,  // 7: izci.api.v1.NotificationSettings.mentioned:type_name -> izci.api.v1.NotificationChannels
+	7,  // 8: izci.api.v1.NotificationSettings.regressed:type_name -> izci.api.v1.NotificationChannels
+	7,  // 9: izci.api.v1.NotificationSettings.commented:type_name -> izci.api.v1.NotificationChannels
+	8,  // 10: izci.api.v1.GetNotificationSettingsResponse.settings:type_name -> izci.api.v1.NotificationSettings
+	8,  // 11: izci.api.v1.UpdateNotificationSettingsRequest.settings:type_name -> izci.api.v1.NotificationSettings
+	8,  // 12: izci.api.v1.UpdateNotificationSettingsResponse.settings:type_name -> izci.api.v1.NotificationSettings
+	39, // 13: izci.api.v1.AccessToken.organization:type_name -> izci.api.v1.OrganizationRef
+	1,  // 14: izci.api.v1.AccessToken.scopes:type_name -> izci.api.v1.TokenScope
+	42, // 15: izci.api.v1.AccessToken.created_at:type_name -> google.protobuf.Timestamp
+	42, // 16: izci.api.v1.AccessToken.last_used_at:type_name -> google.protobuf.Timestamp
+	42, // 17: izci.api.v1.AccessToken.expires_at:type_name -> google.protobuf.Timestamp
+	42, // 18: izci.api.v1.SessionInfo.created_at:type_name -> google.protobuf.Timestamp
+	42, // 19: izci.api.v1.SessionInfo.last_seen_at:type_name -> google.protobuf.Timestamp
+	42, // 20: izci.api.v1.SessionInfo.expires_at:type_name -> google.protobuf.Timestamp
+	43, // 21: izci.api.v1.UpdateProfileResponse.user:type_name -> izci.api.v1.User
+	13, // 22: izci.api.v1.ListAccessTokensResponse.tokens:type_name -> izci.api.v1.AccessToken
+	1,  // 23: izci.api.v1.CreateAccessTokenRequest.scopes:type_name -> izci.api.v1.TokenScope
+	44, // 24: izci.api.v1.CreateAccessTokenRequest.expires_in:type_name -> google.protobuf.Duration
+	13, // 25: izci.api.v1.CreateAccessTokenResponse.token:type_name -> izci.api.v1.AccessToken
+	14, // 26: izci.api.v1.ListSessionsResponse.sessions:type_name -> izci.api.v1.SessionInfo
+	42, // 27: izci.api.v1.CreateTelegramAccountLinkCodeResponse.expires_at:type_name -> google.protobuf.Timestamp
+	15, // 28: izci.api.v1.UserService.UpdateProfile:input_type -> izci.api.v1.UpdateProfileRequest
+	17, // 29: izci.api.v1.UserService.ListAccessTokens:input_type -> izci.api.v1.ListAccessTokensRequest
+	19, // 30: izci.api.v1.UserService.CreateAccessToken:input_type -> izci.api.v1.CreateAccessTokenRequest
+	21, // 31: izci.api.v1.UserService.RevokeAccessToken:input_type -> izci.api.v1.RevokeAccessTokenRequest
+	23, // 32: izci.api.v1.UserService.ListSessions:input_type -> izci.api.v1.ListSessionsRequest
+	25, // 33: izci.api.v1.UserService.RevokeSession:input_type -> izci.api.v1.RevokeSessionRequest
+	27, // 34: izci.api.v1.UserService.CreateTelegramAccountLinkCode:input_type -> izci.api.v1.CreateTelegramAccountLinkCodeRequest
+	29, // 35: izci.api.v1.UserService.UnlinkTelegramAccount:input_type -> izci.api.v1.UnlinkTelegramAccountRequest
+	31, // 36: izci.api.v1.UserService.BeginTwoFactorSetup:input_type -> izci.api.v1.BeginTwoFactorSetupRequest
+	33, // 37: izci.api.v1.UserService.EnableTwoFactor:input_type -> izci.api.v1.EnableTwoFactorRequest
+	35, // 38: izci.api.v1.UserService.DisableTwoFactor:input_type -> izci.api.v1.DisableTwoFactorRequest
+	37, // 39: izci.api.v1.UserService.RegenerateRecoveryCodes:input_type -> izci.api.v1.RegenerateRecoveryCodesRequest
+	3,  // 40: izci.api.v1.UserService.ListNotifications:input_type -> izci.api.v1.ListNotificationsRequest
+	5,  // 41: izci.api.v1.UserService.MarkNotificationsRead:input_type -> izci.api.v1.MarkNotificationsReadRequest
+	9,  // 42: izci.api.v1.UserService.GetNotificationSettings:input_type -> izci.api.v1.GetNotificationSettingsRequest
+	11, // 43: izci.api.v1.UserService.UpdateNotificationSettings:input_type -> izci.api.v1.UpdateNotificationSettingsRequest
+	16, // 44: izci.api.v1.UserService.UpdateProfile:output_type -> izci.api.v1.UpdateProfileResponse
+	18, // 45: izci.api.v1.UserService.ListAccessTokens:output_type -> izci.api.v1.ListAccessTokensResponse
+	20, // 46: izci.api.v1.UserService.CreateAccessToken:output_type -> izci.api.v1.CreateAccessTokenResponse
+	22, // 47: izci.api.v1.UserService.RevokeAccessToken:output_type -> izci.api.v1.RevokeAccessTokenResponse
+	24, // 48: izci.api.v1.UserService.ListSessions:output_type -> izci.api.v1.ListSessionsResponse
+	26, // 49: izci.api.v1.UserService.RevokeSession:output_type -> izci.api.v1.RevokeSessionResponse
+	28, // 50: izci.api.v1.UserService.CreateTelegramAccountLinkCode:output_type -> izci.api.v1.CreateTelegramAccountLinkCodeResponse
+	30, // 51: izci.api.v1.UserService.UnlinkTelegramAccount:output_type -> izci.api.v1.UnlinkTelegramAccountResponse
+	32, // 52: izci.api.v1.UserService.BeginTwoFactorSetup:output_type -> izci.api.v1.BeginTwoFactorSetupResponse
+	34, // 53: izci.api.v1.UserService.EnableTwoFactor:output_type -> izci.api.v1.EnableTwoFactorResponse
+	36, // 54: izci.api.v1.UserService.DisableTwoFactor:output_type -> izci.api.v1.DisableTwoFactorResponse
+	38, // 55: izci.api.v1.UserService.RegenerateRecoveryCodes:output_type -> izci.api.v1.RegenerateRecoveryCodesResponse
+	4,  // 56: izci.api.v1.UserService.ListNotifications:output_type -> izci.api.v1.ListNotificationsResponse
+	6,  // 57: izci.api.v1.UserService.MarkNotificationsRead:output_type -> izci.api.v1.MarkNotificationsReadResponse
+	10, // 58: izci.api.v1.UserService.GetNotificationSettings:output_type -> izci.api.v1.GetNotificationSettingsResponse
+	12, // 59: izci.api.v1.UserService.UpdateNotificationSettings:output_type -> izci.api.v1.UpdateNotificationSettingsResponse
+	44, // [44:60] is the sub-list for method output_type
+	28, // [28:44] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_izci_api_v1_user_proto_init() }
@@ -1629,8 +2442,8 @@ func file_izci_api_v1_user_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_api_v1_user_proto_rawDesc), len(file_izci_api_v1_user_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   26,
+			NumEnums:      2,
+			NumMessages:   37,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

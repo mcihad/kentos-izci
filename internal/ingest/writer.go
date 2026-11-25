@@ -68,6 +68,9 @@ type Batch struct {
 	// Notifications is set by hooks to the number of notifications the
 	// batch queued, so that delivery can start right after the commit.
 	Notifications int
+	// PersonalNotifications is the same for members' personal
+	// notifications (followers of issues that came back).
+	PersonalNotifications int
 }
 
 // writeBatch persists one batch in a single system-scoped transaction.

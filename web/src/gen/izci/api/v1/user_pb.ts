@@ -9,7 +9,7 @@ import type { Duration, Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_duration, file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { User } from "./auth_pb";
 import { file_izci_api_v1_auth } from "./auth_pb";
-import type { OrganizationRef } from "./common_pb";
+import type { IssueRef, OrganizationRef, UserRef } from "./common_pb";
 import { file_izci_api_v1_common } from "./common_pb";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -17,7 +17,363 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file izci/api/v1/user.proto.
  */
 export const file_izci_api_v1_user: GenFile = /*@__PURE__*/
-  fileDesc("ChZpemNpL2FwaS92MS91c2VyLnByb3RvEgtpemNpLmFwaS52MSK8AgoLQWNjZXNzVG9rZW4SCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIOCgZwcmVmaXgYAyABKAkSMgoMb3JnYW5pemF0aW9uGAQgASgLMhwuaXpjaS5hcGkudjEuT3JnYW5pemF0aW9uUmVmEicKBnNjb3BlcxgFIAMoDjIXLml6Y2kuYXBpLnYxLlRva2VuU2NvcGUSLgoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMbGFzdF91c2VkX2F0GAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpleHBpcmVzX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIUCgxsYXN0X3VzZWRfaXAYCSABKAki4AEKC1Nlc3Npb25JbmZvEgoKAmlkGAEgASgJEg8KB2N1cnJlbnQYAiABKAgSEgoKaXBfYWRkcmVzcxgDIAEoCRIOCgZjbGllbnQYBCABKAkSLgoKY3JlYXRlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMbGFzdF9zZWVuX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpleHBpcmVzX2F0GAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCIwChRVcGRhdGVQcm9maWxlUmVxdWVzdBIYCgRuYW1lGAEgASgJQgq6SAdyBRABGMgBIjgKFVVwZGF0ZVByb2ZpbGVSZXNwb25zZRIfCgR1c2VyGAEgASgLMhEuaXpjaS5hcGkudjEuVXNlciIZChdMaXN0QWNjZXNzVG9rZW5zUmVxdWVzdCJEChhMaXN0QWNjZXNzVG9rZW5zUmVzcG9uc2USKAoGdG9rZW5zGAEgAygLMhguaXpjaS5hcGkudjEuQWNjZXNzVG9rZW4itgEKGENyZWF0ZUFjY2Vzc1Rva2VuUmVxdWVzdBIXCgRuYW1lGAEgASgJQgm6SAZyBBABGGQSHQoMb3JnYW5pemF0aW9uGAIgASgJQge6SARyAhgyEjMKBnNjb3BlcxgDIAMoDjIXLml6Y2kuYXBpLnYxLlRva2VuU2NvcGVCCrpIB5IBBAgBEAMSLQoKZXhwaXJlc19pbhgEIAEoCzIZLmdvb2dsZS5wcm90b2J1Zi5EdXJhdGlvbiJUChlDcmVhdGVBY2Nlc3NUb2tlblJlc3BvbnNlEicKBXRva2VuGAEgASgLMhguaXpjaS5hcGkudjEuQWNjZXNzVG9rZW4SDgoGc2VjcmV0GAIgASgJIjAKGFJldm9rZUFjY2Vzc1Rva2VuUmVxdWVzdBIUCgJpZBgBIAEoCUIIukgFcgOwAQEiGwoZUmV2b2tlQWNjZXNzVG9rZW5SZXNwb25zZSIVChNMaXN0U2Vzc2lvbnNSZXF1ZXN0IkIKFExpc3RTZXNzaW9uc1Jlc3BvbnNlEioKCHNlc3Npb25zGAEgAygLMhguaXpjaS5hcGkudjEuU2Vzc2lvbkluZm8iNgoUUmV2b2tlU2Vzc2lvblJlcXVlc3QSCgoCaWQYASABKAkSEgoKYWxsX290aGVycxgCIAEoCCIoChVSZXZva2VTZXNzaW9uUmVzcG9uc2USDwoHcmV2b2tlZBgBIAEoDSImCiRDcmVhdGVUZWxlZ3JhbUFjY291bnRMaW5rQ29kZVJlcXVlc3QiiQEKJUNyZWF0ZVRlbGVncmFtQWNjb3VudExpbmtDb2RlUmVzcG9uc2USDAoEY29kZRgBIAEoCRIUCgxib3RfdXNlcm5hbWUYAiABKAkSDAoEbGluaxgDIAEoCRIuCgpleHBpcmVzX2F0GAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCIeChxVbmxpbmtUZWxlZ3JhbUFjY291bnRSZXF1ZXN0Ih8KHVVubGlua1RlbGVncmFtQWNjb3VudFJlc3BvbnNlIhwKGkJlZ2luVHdvRmFjdG9yU2V0dXBSZXF1ZXN0IjoKG0JlZ2luVHdvRmFjdG9yU2V0dXBSZXNwb25zZRIOCgZzZWNyZXQYASABKAkSCwoDdXJpGAIgASgJIjEKFkVuYWJsZVR3b0ZhY3RvclJlcXVlc3QSFwoEY29kZRgBIAEoCUIJukgGcgQQBhgQIjEKF0VuYWJsZVR3b0ZhY3RvclJlc3BvbnNlEhYKDnJlY292ZXJ5X2NvZGVzGAEgAygJIjIKF0Rpc2FibGVUd29GYWN0b3JSZXF1ZXN0EhcKBGNvZGUYASABKAlCCbpIBnIEEAYYICIaChhEaXNhYmxlVHdvRmFjdG9yUmVzcG9uc2UiOQoeUmVnZW5lcmF0ZVJlY292ZXJ5Q29kZXNSZXF1ZXN0EhcKBGNvZGUYASABKAlCCbpIBnIEEAYYICI5Ch9SZWdlbmVyYXRlUmVjb3ZlcnlDb2Rlc1Jlc3BvbnNlEhYKDnJlY292ZXJ5X2NvZGVzGAEgAygJKmoKClRva2VuU2NvcGUSGwoXVE9LRU5fU0NPUEVfVU5TUEVDSUZJRUQQABIUChBUT0tFTl9TQ09QRV9SRUFEEAESFQoRVE9LRU5fU0NPUEVfV1JJVEUQAhISCg5UT0tFTl9TQ09QRV9BSRADMt0JCgtVc2VyU2VydmljZRJWCg1VcGRhdGVQcm9maWxlEiEuaXpjaS5hcGkudjEuVXBkYXRlUHJvZmlsZVJlcXVlc3QaIi5pemNpLmFwaS52MS5VcGRhdGVQcm9maWxlUmVzcG9uc2USZAoQTGlzdEFjY2Vzc1Rva2VucxIkLml6Y2kuYXBpLnYxLkxpc3RBY2Nlc3NUb2tlbnNSZXF1ZXN0GiUuaXpjaS5hcGkudjEuTGlzdEFjY2Vzc1Rva2Vuc1Jlc3BvbnNlIgOQAgESYgoRQ3JlYXRlQWNjZXNzVG9rZW4SJS5pemNpLmFwaS52MS5DcmVhdGVBY2Nlc3NUb2tlblJlcXVlc3QaJi5pemNpLmFwaS52MS5DcmVhdGVBY2Nlc3NUb2tlblJlc3BvbnNlEmIKEVJldm9rZUFjY2Vzc1Rva2VuEiUuaXpjaS5hcGkudjEuUmV2b2tlQWNjZXNzVG9rZW5SZXF1ZXN0GiYuaXpjaS5hcGkudjEuUmV2b2tlQWNjZXNzVG9rZW5SZXNwb25zZRJYCgxMaXN0U2Vzc2lvbnMSIC5pemNpLmFwaS52MS5MaXN0U2Vzc2lvbnNSZXF1ZXN0GiEuaXpjaS5hcGkudjEuTGlzdFNlc3Npb25zUmVzcG9uc2UiA5ACARJWCg1SZXZva2VTZXNzaW9uEiEuaXpjaS5hcGkudjEuUmV2b2tlU2Vzc2lvblJlcXVlc3QaIi5pemNpLmFwaS52MS5SZXZva2VTZXNzaW9uUmVzcG9uc2UShgEKHUNyZWF0ZVRlbGVncmFtQWNjb3VudExpbmtDb2RlEjEuaXpjaS5hcGkudjEuQ3JlYXRlVGVsZWdyYW1BY2NvdW50TGlua0NvZGVSZXF1ZXN0GjIuaXpjaS5hcGkudjEuQ3JlYXRlVGVsZWdyYW1BY2NvdW50TGlua0NvZGVSZXNwb25zZRJuChVVbmxpbmtUZWxlZ3JhbUFjY291bnQSKS5pemNpLmFwaS52MS5VbmxpbmtUZWxlZ3JhbUFjY291bnRSZXF1ZXN0GiouaXpjaS5hcGkudjEuVW5saW5rVGVsZWdyYW1BY2NvdW50UmVzcG9uc2USaAoTQmVnaW5Ud29GYWN0b3JTZXR1cBInLml6Y2kuYXBpLnYxLkJlZ2luVHdvRmFjdG9yU2V0dXBSZXF1ZXN0GiguaXpjaS5hcGkudjEuQmVnaW5Ud29GYWN0b3JTZXR1cFJlc3BvbnNlElwKD0VuYWJsZVR3b0ZhY3RvchIjLml6Y2kuYXBpLnYxLkVuYWJsZVR3b0ZhY3RvclJlcXVlc3QaJC5pemNpLmFwaS52MS5FbmFibGVUd29GYWN0b3JSZXNwb25zZRJfChBEaXNhYmxlVHdvRmFjdG9yEiQuaXpjaS5hcGkudjEuRGlzYWJsZVR3b0ZhY3RvclJlcXVlc3QaJS5pemNpLmFwaS52MS5EaXNhYmxlVHdvRmFjdG9yUmVzcG9uc2USdAoXUmVnZW5lcmF0ZVJlY292ZXJ5Q29kZXMSKy5pemNpLmFwaS52MS5SZWdlbmVyYXRlUmVjb3ZlcnlDb2Rlc1JlcXVlc3QaLC5pemNpLmFwaS52MS5SZWdlbmVyYXRlUmVjb3ZlcnlDb2Rlc1Jlc3BvbnNlQp8BCg9jb20uaXpjaS5hcGkudjFCCVVzZXJQcm90b1ABWjNnaXRodWIuY29tL21jaWhhZC9rZW50b3MtaXpjaS9nZW4vaXpjaS9hcGkvdjE7YXBpdjGiAgNJQViqAgtJemNpLkFwaS5WMcoCC0l6Y2lcQXBpXFYx4gIXSXpjaVxBcGlcVjFcR1BCTWV0YWRhdGHqAg1JemNpOjpBcGk6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_duration, file_google_protobuf_timestamp, file_izci_api_v1_auth, file_izci_api_v1_common]);
+  fileDesc("ChZpemNpL2FwaS92MS91c2VyLnByb3RvEgtpemNpLmFwaS52MSKaAgoQVXNlck5vdGlmaWNhdGlvbhIKCgJpZBgBIAEoCRIvCgRraW5kGAIgASgOMiEuaXpjaS5hcGkudjEuVXNlck5vdGlmaWNhdGlvbktpbmQSMgoMb3JnYW5pemF0aW9uGAMgASgLMhwuaXpjaS5hcGkudjEuT3JnYW5pemF0aW9uUmVmEiQKBWlzc3VlGAQgASgLMhUuaXpjaS5hcGkudjEuSXNzdWVSZWYSIwoFYWN0b3IYBSABKAsyFC5pemNpLmFwaS52MS5Vc2VyUmVmEgwKBHRleHQYBiABKAkSLgoKY3JlYXRlZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDAoEcmVhZBgIIAEoCCJpChhMaXN0Tm90aWZpY2F0aW9uc1JlcXVlc3QSGgoJcGFnZV9zaXplGAEgASgNQge6SAQqAhhkEhwKCnBhZ2VfdG9rZW4YAiABKAlCCLpIBXIDGMgBEhMKC3VucmVhZF9vbmx5GAMgASgIIoABChlMaXN0Tm90aWZpY2F0aW9uc1Jlc3BvbnNlEjQKDW5vdGlmaWNhdGlvbnMYASADKAsyHS5pemNpLmFwaS52MS5Vc2VyTm90aWZpY2F0aW9uEhcKD25leHRfcGFnZV90b2tlbhgCIAEoCRIUCgx1bnJlYWRfY291bnQYAyABKA0iSQocTWFya05vdGlmaWNhdGlvbnNSZWFkUmVxdWVzdBIcCgNpZHMYASADKAlCD7pIDJIBCRBkIgVyA7ABARILCgNhbGwYAiABKAgiNQodTWFya05vdGlmaWNhdGlvbnNSZWFkUmVzcG9uc2USFAoMdW5yZWFkX2NvdW50GAEgASgNIjcKFE5vdGlmaWNhdGlvbkNoYW5uZWxzEg0KBWVtYWlsGAEgASgIEhAKCHRlbGVncmFtGAIgASgIIu0BChROb3RpZmljYXRpb25TZXR0aW5ncxIzCghhc3NpZ25lZBgBIAEoCzIhLml6Y2kuYXBpLnYxLk5vdGlmaWNhdGlvbkNoYW5uZWxzEjQKCW1lbnRpb25lZBgCIAEoCzIhLml6Y2kuYXBpLnYxLk5vdGlmaWNhdGlvbkNoYW5uZWxzEjQKCXJlZ3Jlc3NlZBgDIAEoCzIhLml6Y2kuYXBpLnYxLk5vdGlmaWNhdGlvbkNoYW5uZWxzEjQKCWNvbW1lbnRlZBgEIAEoCzIhLml6Y2kuYXBpLnYxLk5vdGlmaWNhdGlvbkNoYW5uZWxzIiAKHkdldE5vdGlmaWNhdGlvblNldHRpbmdzUmVxdWVzdCKLAQofR2V0Tm90aWZpY2F0aW9uU2V0dGluZ3NSZXNwb25zZRIzCghzZXR0aW5ncxgBIAEoCzIhLml6Y2kuYXBpLnYxLk5vdGlmaWNhdGlvblNldHRpbmdzEhcKD2VtYWlsX2F2YWlsYWJsZRgCIAEoCBIaChJ0ZWxlZ3JhbV9hdmFpbGFibGUYAyABKAgiYAohVXBkYXRlTm90aWZpY2F0aW9uU2V0dGluZ3NSZXF1ZXN0EjsKCHNldHRpbmdzGAEgASgLMiEuaXpjaS5hcGkudjEuTm90aWZpY2F0aW9uU2V0dGluZ3NCBrpIA8gBASJZCiJVcGRhdGVOb3RpZmljYXRpb25TZXR0aW5nc1Jlc3BvbnNlEjMKCHNldHRpbmdzGAEgASgLMiEuaXpjaS5hcGkudjEuTm90aWZpY2F0aW9uU2V0dGluZ3MivAIKC0FjY2Vzc1Rva2VuEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDgoGcHJlZml4GAMgASgJEjIKDG9yZ2FuaXphdGlvbhgEIAEoCzIcLml6Y2kuYXBpLnYxLk9yZ2FuaXphdGlvblJlZhInCgZzY29wZXMYBSADKA4yFy5pemNpLmFwaS52MS5Ub2tlblNjb3BlEi4KCmNyZWF0ZWRfYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGxhc3RfdXNlZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKZXhwaXJlc19hdBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFAoMbGFzdF91c2VkX2lwGAkgASgJIuABCgtTZXNzaW9uSW5mbxIKCgJpZBgBIAEoCRIPCgdjdXJyZW50GAIgASgIEhIKCmlwX2FkZHJlc3MYAyABKAkSDgoGY2xpZW50GAQgASgJEi4KCmNyZWF0ZWRfYXQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGxhc3Rfc2Vlbl9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKZXhwaXJlc19hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiMAoUVXBkYXRlUHJvZmlsZVJlcXVlc3QSGAoEbmFtZRgBIAEoCUIKukgHcgUQARjIASI4ChVVcGRhdGVQcm9maWxlUmVzcG9uc2USHwoEdXNlchgBIAEoCzIRLml6Y2kuYXBpLnYxLlVzZXIiGQoXTGlzdEFjY2Vzc1Rva2Vuc1JlcXVlc3QiRAoYTGlzdEFjY2Vzc1Rva2Vuc1Jlc3BvbnNlEigKBnRva2VucxgBIAMoCzIYLml6Y2kuYXBpLnYxLkFjY2Vzc1Rva2VuIrYBChhDcmVhdGVBY2Nlc3NUb2tlblJlcXVlc3QSFwoEbmFtZRgBIAEoCUIJukgGcgQQARhkEh0KDG9yZ2FuaXphdGlvbhgCIAEoCUIHukgEcgIYMhIzCgZzY29wZXMYAyADKA4yFy5pemNpLmFwaS52MS5Ub2tlblNjb3BlQgq6SAeSAQQIARADEi0KCmV4cGlyZXNfaW4YBCABKAsyGS5nb29nbGUucHJvdG9idWYuRHVyYXRpb24iVAoZQ3JlYXRlQWNjZXNzVG9rZW5SZXNwb25zZRInCgV0b2tlbhgBIAEoCzIYLml6Y2kuYXBpLnYxLkFjY2Vzc1Rva2VuEg4KBnNlY3JldBgCIAEoCSIwChhSZXZva2VBY2Nlc3NUb2tlblJlcXVlc3QSFAoCaWQYASABKAlCCLpIBXIDsAEBIhsKGVJldm9rZUFjY2Vzc1Rva2VuUmVzcG9uc2UiFQoTTGlzdFNlc3Npb25zUmVxdWVzdCJCChRMaXN0U2Vzc2lvbnNSZXNwb25zZRIqCghzZXNzaW9ucxgBIAMoCzIYLml6Y2kuYXBpLnYxLlNlc3Npb25JbmZvIjYKFFJldm9rZVNlc3Npb25SZXF1ZXN0EgoKAmlkGAEgASgJEhIKCmFsbF9vdGhlcnMYAiABKAgiKAoVUmV2b2tlU2Vzc2lvblJlc3BvbnNlEg8KB3Jldm9rZWQYASABKA0iJgokQ3JlYXRlVGVsZWdyYW1BY2NvdW50TGlua0NvZGVSZXF1ZXN0IokBCiVDcmVhdGVUZWxlZ3JhbUFjY291bnRMaW5rQ29kZVJlc3BvbnNlEgwKBGNvZGUYASABKAkSFAoMYm90X3VzZXJuYW1lGAIgASgJEgwKBGxpbmsYAyABKAkSLgoKZXhwaXJlc19hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiHgocVW5saW5rVGVsZWdyYW1BY2NvdW50UmVxdWVzdCIfCh1VbmxpbmtUZWxlZ3JhbUFjY291bnRSZXNwb25zZSIcChpCZWdpblR3b0ZhY3RvclNldHVwUmVxdWVzdCI6ChtCZWdpblR3b0ZhY3RvclNldHVwUmVzcG9uc2USDgoGc2VjcmV0GAEgASgJEgsKA3VyaRgCIAEoCSIxChZFbmFibGVUd29GYWN0b3JSZXF1ZXN0EhcKBGNvZGUYASABKAlCCbpIBnIEEAYYECIxChdFbmFibGVUd29GYWN0b3JSZXNwb25zZRIWCg5yZWNvdmVyeV9jb2RlcxgBIAMoCSIyChdEaXNhYmxlVHdvRmFjdG9yUmVxdWVzdBIXCgRjb2RlGAEgASgJQgm6SAZyBBAGGCAiGgoYRGlzYWJsZVR3b0ZhY3RvclJlc3BvbnNlIjkKHlJlZ2VuZXJhdGVSZWNvdmVyeUNvZGVzUmVxdWVzdBIXCgRjb2RlGAEgASgJQgm6SAZyBBAGGCAiOQofUmVnZW5lcmF0ZVJlY292ZXJ5Q29kZXNSZXNwb25zZRIWCg5yZWNvdmVyeV9jb2RlcxgBIAMoCSrVAQoUVXNlck5vdGlmaWNhdGlvbktpbmQSJgoiVVNFUl9OT1RJRklDQVRJT05fS0lORF9VTlNQRUNJRklFRBAAEiMKH1VTRVJfTk9USUZJQ0FUSU9OX0tJTkRfQVNTSUdORUQQARIkCiBVU0VSX05PVElGSUNBVElPTl9LSU5EX01FTlRJT05FRBACEiQKIFVTRVJfTk9USUZJQ0FUSU9OX0tJTkRfUkVHUkVTU0VEEAMSJAogVVNFUl9OT1RJRklDQVRJT05fS0lORF9DT01NRU5URUQQBCpqCgpUb2tlblNjb3BlEhsKF1RPS0VOX1NDT1BFX1VOU1BFQ0lGSUVEEAASFAoQVE9LRU5fU0NPUEVfUkVBRBABEhUKEVRPS0VOX1NDT1BFX1dSSVRFEAISEgoOVE9LRU5fU0NPUEVfQUkQAzKwDQoLVXNlclNlcnZpY2USVgoNVXBkYXRlUHJvZmlsZRIhLml6Y2kuYXBpLnYxLlVwZGF0ZVByb2ZpbGVSZXF1ZXN0GiIuaXpjaS5hcGkudjEuVXBkYXRlUHJvZmlsZVJlc3BvbnNlEmQKEExpc3RBY2Nlc3NUb2tlbnMSJC5pemNpLmFwaS52MS5MaXN0QWNjZXNzVG9rZW5zUmVxdWVzdBolLml6Y2kuYXBpLnYxLkxpc3RBY2Nlc3NUb2tlbnNSZXNwb25zZSIDkAIBEmIKEUNyZWF0ZUFjY2Vzc1Rva2VuEiUuaXpjaS5hcGkudjEuQ3JlYXRlQWNjZXNzVG9rZW5SZXF1ZXN0GiYuaXpjaS5hcGkudjEuQ3JlYXRlQWNjZXNzVG9rZW5SZXNwb25zZRJiChFSZXZva2VBY2Nlc3NUb2tlbhIlLml6Y2kuYXBpLnYxLlJldm9rZUFjY2Vzc1Rva2VuUmVxdWVzdBomLml6Y2kuYXBpLnYxLlJldm9rZUFjY2Vzc1Rva2VuUmVzcG9uc2USWAoMTGlzdFNlc3Npb25zEiAuaXpjaS5hcGkudjEuTGlzdFNlc3Npb25zUmVxdWVzdBohLml6Y2kuYXBpLnYxLkxpc3RTZXNzaW9uc1Jlc3BvbnNlIgOQAgESVgoNUmV2b2tlU2Vzc2lvbhIhLml6Y2kuYXBpLnYxLlJldm9rZVNlc3Npb25SZXF1ZXN0GiIuaXpjaS5hcGkudjEuUmV2b2tlU2Vzc2lvblJlc3BvbnNlEoYBCh1DcmVhdGVUZWxlZ3JhbUFjY291bnRMaW5rQ29kZRIxLml6Y2kuYXBpLnYxLkNyZWF0ZVRlbGVncmFtQWNjb3VudExpbmtDb2RlUmVxdWVzdBoyLml6Y2kuYXBpLnYxLkNyZWF0ZVRlbGVncmFtQWNjb3VudExpbmtDb2RlUmVzcG9uc2USbgoVVW5saW5rVGVsZWdyYW1BY2NvdW50EikuaXpjaS5hcGkudjEuVW5saW5rVGVsZWdyYW1BY2NvdW50UmVxdWVzdBoqLml6Y2kuYXBpLnYxLlVubGlua1RlbGVncmFtQWNjb3VudFJlc3BvbnNlEmgKE0JlZ2luVHdvRmFjdG9yU2V0dXASJy5pemNpLmFwaS52MS5CZWdpblR3b0ZhY3RvclNldHVwUmVxdWVzdBooLml6Y2kuYXBpLnYxLkJlZ2luVHdvRmFjdG9yU2V0dXBSZXNwb25zZRJcCg9FbmFibGVUd29GYWN0b3ISIy5pemNpLmFwaS52MS5FbmFibGVUd29GYWN0b3JSZXF1ZXN0GiQuaXpjaS5hcGkudjEuRW5hYmxlVHdvRmFjdG9yUmVzcG9uc2USXwoQRGlzYWJsZVR3b0ZhY3RvchIkLml6Y2kuYXBpLnYxLkRpc2FibGVUd29GYWN0b3JSZXF1ZXN0GiUuaXpjaS5hcGkudjEuRGlzYWJsZVR3b0ZhY3RvclJlc3BvbnNlEnQKF1JlZ2VuZXJhdGVSZWNvdmVyeUNvZGVzEisuaXpjaS5hcGkudjEuUmVnZW5lcmF0ZVJlY292ZXJ5Q29kZXNSZXF1ZXN0GiwuaXpjaS5hcGkudjEuUmVnZW5lcmF0ZVJlY292ZXJ5Q29kZXNSZXNwb25zZRJnChFMaXN0Tm90aWZpY2F0aW9ucxIlLml6Y2kuYXBpLnYxLkxpc3ROb3RpZmljYXRpb25zUmVxdWVzdBomLml6Y2kuYXBpLnYxLkxpc3ROb3RpZmljYXRpb25zUmVzcG9uc2UiA5ACARJuChVNYXJrTm90aWZpY2F0aW9uc1JlYWQSKS5pemNpLmFwaS52MS5NYXJrTm90aWZpY2F0aW9uc1JlYWRSZXF1ZXN0GiouaXpjaS5hcGkudjEuTWFya05vdGlmaWNhdGlvbnNSZWFkUmVzcG9uc2USeQoXR2V0Tm90aWZpY2F0aW9uU2V0dGluZ3MSKy5pemNpLmFwaS52MS5HZXROb3RpZmljYXRpb25TZXR0aW5nc1JlcXVlc3QaLC5pemNpLmFwaS52MS5HZXROb3RpZmljYXRpb25TZXR0aW5nc1Jlc3BvbnNlIgOQAgESfQoaVXBkYXRlTm90aWZpY2F0aW9uU2V0dGluZ3MSLi5pemNpLmFwaS52MS5VcGRhdGVOb3RpZmljYXRpb25TZXR0aW5nc1JlcXVlc3QaLy5pemNpLmFwaS52MS5VcGRhdGVOb3RpZmljYXRpb25TZXR0aW5nc1Jlc3BvbnNlQp8BCg9jb20uaXpjaS5hcGkudjFCCVVzZXJQcm90b1ABWjNnaXRodWIuY29tL21jaWhhZC9rZW50b3MtaXpjaS9nZW4vaXpjaS9hcGkvdjE7YXBpdjGiAgNJQViqAgtJemNpLkFwaS5WMcoCC0l6Y2lcQXBpXFYx4gIXSXpjaVxBcGlcVjFcR1BCTWV0YWRhdGHqAg1JemNpOjpBcGk6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_duration, file_google_protobuf_timestamp, file_izci_api_v1_auth, file_izci_api_v1_common]);
+
+/**
+ * UserNotification is an entry of a member's notification inbox.
+ *
+ * @generated from message izci.api.v1.UserNotification
+ */
+export type UserNotification = Message<"izci.api.v1.UserNotification"> & {
+  /**
+   * Notification id (UUID).
+   *
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * Why the member is notified.
+   *
+   * @generated from field: izci.api.v1.UserNotificationKind kind = 2;
+   */
+  kind: UserNotificationKind;
+
+  /**
+   * Organization of the issue.
+   *
+   * @generated from field: izci.api.v1.OrganizationRef organization = 3;
+   */
+  organization?: OrganizationRef | undefined;
+
+  /**
+   * The issue.
+   *
+   * @generated from field: izci.api.v1.IssueRef issue = 4;
+   */
+  issue?: IssueRef | undefined;
+
+  /**
+   * Who caused the notification; unset when izci did (ownership rules,
+   * regressions).
+   *
+   * @generated from field: izci.api.v1.UserRef actor = 5;
+   */
+  actor?: UserRef | undefined;
+
+  /**
+   * The comment (shortened) for mentions and comments; the reason of an
+   * automatic assignment.
+   *
+   * @generated from field: string text = 6;
+   */
+  text: string;
+
+  /**
+   * When it happened.
+   *
+   * @generated from field: google.protobuf.Timestamp created_at = 7;
+   */
+  createdAt?: Timestamp | undefined;
+
+  /**
+   * The member has seen it.
+   *
+   * @generated from field: bool read = 8;
+   */
+  read: boolean;
+};
+
+/**
+ * Describes the message izci.api.v1.UserNotification.
+ * Use `create(UserNotificationSchema)` to create a new message.
+ */
+export const UserNotificationSchema: GenMessage<UserNotification> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 0);
+
+/**
+ * ListNotificationsRequest pages through the caller's notifications.
+ *
+ * @generated from message izci.api.v1.ListNotificationsRequest
+ */
+export type ListNotificationsRequest = Message<"izci.api.v1.ListNotificationsRequest"> & {
+  /**
+   * Page size, 1 to 100 (default 30).
+   *
+   * @generated from field: uint32 page_size = 1;
+   */
+  pageSize: number;
+
+  /**
+   * Token from the previous page.
+   *
+   * @generated from field: string page_token = 2;
+   */
+  pageToken: string;
+
+  /**
+   * Only notifications not read yet.
+   *
+   * @generated from field: bool unread_only = 3;
+   */
+  unreadOnly: boolean;
+};
+
+/**
+ * Describes the message izci.api.v1.ListNotificationsRequest.
+ * Use `create(ListNotificationsRequestSchema)` to create a new message.
+ */
+export const ListNotificationsRequestSchema: GenMessage<ListNotificationsRequest> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 1);
+
+/**
+ * ListNotificationsResponse is a page of notifications.
+ *
+ * @generated from message izci.api.v1.ListNotificationsResponse
+ */
+export type ListNotificationsResponse = Message<"izci.api.v1.ListNotificationsResponse"> & {
+  /**
+   * Notifications, newest first.
+   *
+   * @generated from field: repeated izci.api.v1.UserNotification notifications = 1;
+   */
+  notifications: UserNotification[];
+
+  /**
+   * Token of the next page; empty on the last one.
+   *
+   * @generated from field: string next_page_token = 2;
+   */
+  nextPageToken: string;
+
+  /**
+   * Unread notifications in total.
+   *
+   * @generated from field: uint32 unread_count = 3;
+   */
+  unreadCount: number;
+};
+
+/**
+ * Describes the message izci.api.v1.ListNotificationsResponse.
+ * Use `create(ListNotificationsResponseSchema)` to create a new message.
+ */
+export const ListNotificationsResponseSchema: GenMessage<ListNotificationsResponse> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 2);
+
+/**
+ * MarkNotificationsReadRequest names notifications to mark read.
+ *
+ * @generated from message izci.api.v1.MarkNotificationsReadRequest
+ */
+export type MarkNotificationsReadRequest = Message<"izci.api.v1.MarkNotificationsReadRequest"> & {
+  /**
+   * Notification ids; ignored when all is set.
+   *
+   * @generated from field: repeated string ids = 1;
+   */
+  ids: string[];
+
+  /**
+   * Mark every notification of the caller read.
+   *
+   * @generated from field: bool all = 2;
+   */
+  all: boolean;
+};
+
+/**
+ * Describes the message izci.api.v1.MarkNotificationsReadRequest.
+ * Use `create(MarkNotificationsReadRequestSchema)` to create a new message.
+ */
+export const MarkNotificationsReadRequestSchema: GenMessage<MarkNotificationsReadRequest> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 3);
+
+/**
+ * MarkNotificationsReadResponse reports what is left unread.
+ *
+ * @generated from message izci.api.v1.MarkNotificationsReadResponse
+ */
+export type MarkNotificationsReadResponse = Message<"izci.api.v1.MarkNotificationsReadResponse"> & {
+  /**
+   * Unread notifications in total.
+   *
+   * @generated from field: uint32 unread_count = 1;
+   */
+  unreadCount: number;
+};
+
+/**
+ * Describes the message izci.api.v1.MarkNotificationsReadResponse.
+ * Use `create(MarkNotificationsReadResponseSchema)` to create a new message.
+ */
+export const MarkNotificationsReadResponseSchema: GenMessage<MarkNotificationsReadResponse> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 4);
+
+/**
+ * NotificationChannels are where a kind of personal notification goes
+ * besides the inbox, which gets them all.
+ *
+ * @generated from message izci.api.v1.NotificationChannels
+ */
+export type NotificationChannels = Message<"izci.api.v1.NotificationChannels"> & {
+  /**
+   * An e-mail to the account's address (needs SMTP on the server).
+   *
+   * @generated from field: bool email = 1;
+   */
+  email: boolean;
+
+  /**
+   * A Telegram message from the bot (needs a linked Telegram account).
+   *
+   * @generated from field: bool telegram = 2;
+   */
+  telegram: boolean;
+};
+
+/**
+ * Describes the message izci.api.v1.NotificationChannels.
+ * Use `create(NotificationChannelsSchema)` to create a new message.
+ */
+export const NotificationChannelsSchema: GenMessage<NotificationChannels> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 5);
+
+/**
+ * NotificationSettings choose the channels of each kind of personal
+ * notification.
+ *
+ * @generated from message izci.api.v1.NotificationSettings
+ */
+export type NotificationSettings = Message<"izci.api.v1.NotificationSettings"> & {
+  /**
+   * Issues assigned to the member.
+   *
+   * @generated from field: izci.api.v1.NotificationChannels assigned = 1;
+   */
+  assigned?: NotificationChannels | undefined;
+
+  /**
+   * Mentions in comments.
+   *
+   * @generated from field: izci.api.v1.NotificationChannels mentioned = 2;
+   */
+  mentioned?: NotificationChannels | undefined;
+
+  /**
+   * Followed issues that came back.
+   *
+   * @generated from field: izci.api.v1.NotificationChannels regressed = 3;
+   */
+  regressed?: NotificationChannels | undefined;
+
+  /**
+   * Comments on followed issues.
+   *
+   * @generated from field: izci.api.v1.NotificationChannels commented = 4;
+   */
+  commented?: NotificationChannels | undefined;
+};
+
+/**
+ * Describes the message izci.api.v1.NotificationSettings.
+ * Use `create(NotificationSettingsSchema)` to create a new message.
+ */
+export const NotificationSettingsSchema: GenMessage<NotificationSettings> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 6);
+
+/**
+ * GetNotificationSettingsRequest has no fields.
+ *
+ * @generated from message izci.api.v1.GetNotificationSettingsRequest
+ */
+export type GetNotificationSettingsRequest = Message<"izci.api.v1.GetNotificationSettingsRequest"> & {
+};
+
+/**
+ * Describes the message izci.api.v1.GetNotificationSettingsRequest.
+ * Use `create(GetNotificationSettingsRequestSchema)` to create a new message.
+ */
+export const GetNotificationSettingsRequestSchema: GenMessage<GetNotificationSettingsRequest> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 7);
+
+/**
+ * GetNotificationSettingsResponse returns the settings and what the
+ * server offers.
+ *
+ * @generated from message izci.api.v1.GetNotificationSettingsResponse
+ */
+export type GetNotificationSettingsResponse = Message<"izci.api.v1.GetNotificationSettingsResponse"> & {
+  /**
+   * The settings; defaults for members who never changed them.
+   *
+   * @generated from field: izci.api.v1.NotificationSettings settings = 1;
+   */
+  settings?: NotificationSettings | undefined;
+
+  /**
+   * The server sends e-mail (SMTP is configured).
+   *
+   * @generated from field: bool email_available = 2;
+   */
+  emailAvailable: boolean;
+
+  /**
+   * The server has a Telegram bot and the account is linked to it.
+   *
+   * @generated from field: bool telegram_available = 3;
+   */
+  telegramAvailable: boolean;
+};
+
+/**
+ * Describes the message izci.api.v1.GetNotificationSettingsResponse.
+ * Use `create(GetNotificationSettingsResponseSchema)` to create a new message.
+ */
+export const GetNotificationSettingsResponseSchema: GenMessage<GetNotificationSettingsResponse> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 8);
+
+/**
+ * UpdateNotificationSettingsRequest replaces the settings.
+ *
+ * @generated from message izci.api.v1.UpdateNotificationSettingsRequest
+ */
+export type UpdateNotificationSettingsRequest = Message<"izci.api.v1.UpdateNotificationSettingsRequest"> & {
+  /**
+   * The new settings.
+   *
+   * @generated from field: izci.api.v1.NotificationSettings settings = 1;
+   */
+  settings?: NotificationSettings | undefined;
+};
+
+/**
+ * Describes the message izci.api.v1.UpdateNotificationSettingsRequest.
+ * Use `create(UpdateNotificationSettingsRequestSchema)` to create a new message.
+ */
+export const UpdateNotificationSettingsRequestSchema: GenMessage<UpdateNotificationSettingsRequest> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 9);
+
+/**
+ * UpdateNotificationSettingsResponse returns the stored settings.
+ *
+ * @generated from message izci.api.v1.UpdateNotificationSettingsResponse
+ */
+export type UpdateNotificationSettingsResponse = Message<"izci.api.v1.UpdateNotificationSettingsResponse"> & {
+  /**
+   * The settings.
+   *
+   * @generated from field: izci.api.v1.NotificationSettings settings = 1;
+   */
+  settings?: NotificationSettings | undefined;
+};
+
+/**
+ * Describes the message izci.api.v1.UpdateNotificationSettingsResponse.
+ * Use `create(UpdateNotificationSettingsResponseSchema)` to create a new message.
+ */
+export const UpdateNotificationSettingsResponseSchema: GenMessage<UpdateNotificationSettingsResponse> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_user, 10);
 
 /**
  * AccessToken is a personal access token.
@@ -96,7 +452,7 @@ export type AccessToken = Message<"izci.api.v1.AccessToken"> & {
  * Use `create(AccessTokenSchema)` to create a new message.
  */
 export const AccessTokenSchema: GenMessage<AccessToken> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 0);
+  messageDesc(file_izci_api_v1_user, 11);
 
 /**
  * SessionInfo describes a browser session.
@@ -159,7 +515,7 @@ export type SessionInfo = Message<"izci.api.v1.SessionInfo"> & {
  * Use `create(SessionInfoSchema)` to create a new message.
  */
 export const SessionInfoSchema: GenMessage<SessionInfo> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 1);
+  messageDesc(file_izci_api_v1_user, 12);
 
 /**
  * UpdateProfileRequest changes the profile.
@@ -180,7 +536,7 @@ export type UpdateProfileRequest = Message<"izci.api.v1.UpdateProfileRequest"> &
  * Use `create(UpdateProfileRequestSchema)` to create a new message.
  */
 export const UpdateProfileRequestSchema: GenMessage<UpdateProfileRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 2);
+  messageDesc(file_izci_api_v1_user, 13);
 
 /**
  * UpdateProfileResponse returns the user.
@@ -201,7 +557,7 @@ export type UpdateProfileResponse = Message<"izci.api.v1.UpdateProfileResponse">
  * Use `create(UpdateProfileResponseSchema)` to create a new message.
  */
 export const UpdateProfileResponseSchema: GenMessage<UpdateProfileResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 3);
+  messageDesc(file_izci_api_v1_user, 14);
 
 /**
  * ListAccessTokensRequest has no fields.
@@ -216,7 +572,7 @@ export type ListAccessTokensRequest = Message<"izci.api.v1.ListAccessTokensReque
  * Use `create(ListAccessTokensRequestSchema)` to create a new message.
  */
 export const ListAccessTokensRequestSchema: GenMessage<ListAccessTokensRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 4);
+  messageDesc(file_izci_api_v1_user, 15);
 
 /**
  * ListAccessTokensResponse lists tokens.
@@ -237,7 +593,7 @@ export type ListAccessTokensResponse = Message<"izci.api.v1.ListAccessTokensResp
  * Use `create(ListAccessTokensResponseSchema)` to create a new message.
  */
 export const ListAccessTokensResponseSchema: GenMessage<ListAccessTokensResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 5);
+  messageDesc(file_izci_api_v1_user, 16);
 
 /**
  * CreateAccessTokenRequest describes the token.
@@ -279,7 +635,7 @@ export type CreateAccessTokenRequest = Message<"izci.api.v1.CreateAccessTokenReq
  * Use `create(CreateAccessTokenRequestSchema)` to create a new message.
  */
 export const CreateAccessTokenRequestSchema: GenMessage<CreateAccessTokenRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 6);
+  messageDesc(file_izci_api_v1_user, 17);
 
 /**
  * CreateAccessTokenResponse returns the token and its secret.
@@ -307,7 +663,7 @@ export type CreateAccessTokenResponse = Message<"izci.api.v1.CreateAccessTokenRe
  * Use `create(CreateAccessTokenResponseSchema)` to create a new message.
  */
 export const CreateAccessTokenResponseSchema: GenMessage<CreateAccessTokenResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 7);
+  messageDesc(file_izci_api_v1_user, 18);
 
 /**
  * RevokeAccessTokenRequest identifies a token.
@@ -328,7 +684,7 @@ export type RevokeAccessTokenRequest = Message<"izci.api.v1.RevokeAccessTokenReq
  * Use `create(RevokeAccessTokenRequestSchema)` to create a new message.
  */
 export const RevokeAccessTokenRequestSchema: GenMessage<RevokeAccessTokenRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 8);
+  messageDesc(file_izci_api_v1_user, 19);
 
 /**
  * RevokeAccessTokenResponse has no fields.
@@ -343,7 +699,7 @@ export type RevokeAccessTokenResponse = Message<"izci.api.v1.RevokeAccessTokenRe
  * Use `create(RevokeAccessTokenResponseSchema)` to create a new message.
  */
 export const RevokeAccessTokenResponseSchema: GenMessage<RevokeAccessTokenResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 9);
+  messageDesc(file_izci_api_v1_user, 20);
 
 /**
  * ListSessionsRequest has no fields.
@@ -358,7 +714,7 @@ export type ListSessionsRequest = Message<"izci.api.v1.ListSessionsRequest"> & {
  * Use `create(ListSessionsRequestSchema)` to create a new message.
  */
 export const ListSessionsRequestSchema: GenMessage<ListSessionsRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 10);
+  messageDesc(file_izci_api_v1_user, 21);
 
 /**
  * ListSessionsResponse lists sessions.
@@ -379,7 +735,7 @@ export type ListSessionsResponse = Message<"izci.api.v1.ListSessionsResponse"> &
  * Use `create(ListSessionsResponseSchema)` to create a new message.
  */
 export const ListSessionsResponseSchema: GenMessage<ListSessionsResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 11);
+  messageDesc(file_izci_api_v1_user, 22);
 
 /**
  * RevokeSessionRequest identifies the sessions to end.
@@ -408,7 +764,7 @@ export type RevokeSessionRequest = Message<"izci.api.v1.RevokeSessionRequest"> &
  * Use `create(RevokeSessionRequestSchema)` to create a new message.
  */
 export const RevokeSessionRequestSchema: GenMessage<RevokeSessionRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 12);
+  messageDesc(file_izci_api_v1_user, 23);
 
 /**
  * RevokeSessionResponse reports how many sessions ended.
@@ -429,7 +785,7 @@ export type RevokeSessionResponse = Message<"izci.api.v1.RevokeSessionResponse">
  * Use `create(RevokeSessionResponseSchema)` to create a new message.
  */
 export const RevokeSessionResponseSchema: GenMessage<RevokeSessionResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 13);
+  messageDesc(file_izci_api_v1_user, 24);
 
 /**
  * CreateTelegramAccountLinkCodeRequest has no fields.
@@ -444,7 +800,7 @@ export type CreateTelegramAccountLinkCodeRequest = Message<"izci.api.v1.CreateTe
  * Use `create(CreateTelegramAccountLinkCodeRequestSchema)` to create a new message.
  */
 export const CreateTelegramAccountLinkCodeRequestSchema: GenMessage<CreateTelegramAccountLinkCodeRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 14);
+  messageDesc(file_izci_api_v1_user, 25);
 
 /**
  * CreateTelegramAccountLinkCodeResponse returns the code.
@@ -486,7 +842,7 @@ export type CreateTelegramAccountLinkCodeResponse = Message<"izci.api.v1.CreateT
  * Use `create(CreateTelegramAccountLinkCodeResponseSchema)` to create a new message.
  */
 export const CreateTelegramAccountLinkCodeResponseSchema: GenMessage<CreateTelegramAccountLinkCodeResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 15);
+  messageDesc(file_izci_api_v1_user, 26);
 
 /**
  * UnlinkTelegramAccountRequest has no fields.
@@ -501,7 +857,7 @@ export type UnlinkTelegramAccountRequest = Message<"izci.api.v1.UnlinkTelegramAc
  * Use `create(UnlinkTelegramAccountRequestSchema)` to create a new message.
  */
 export const UnlinkTelegramAccountRequestSchema: GenMessage<UnlinkTelegramAccountRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 16);
+  messageDesc(file_izci_api_v1_user, 27);
 
 /**
  * UnlinkTelegramAccountResponse has no fields.
@@ -516,7 +872,7 @@ export type UnlinkTelegramAccountResponse = Message<"izci.api.v1.UnlinkTelegramA
  * Use `create(UnlinkTelegramAccountResponseSchema)` to create a new message.
  */
 export const UnlinkTelegramAccountResponseSchema: GenMessage<UnlinkTelegramAccountResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 17);
+  messageDesc(file_izci_api_v1_user, 28);
 
 /**
  * BeginTwoFactorSetupRequest has no fields.
@@ -531,7 +887,7 @@ export type BeginTwoFactorSetupRequest = Message<"izci.api.v1.BeginTwoFactorSetu
  * Use `create(BeginTwoFactorSetupRequestSchema)` to create a new message.
  */
 export const BeginTwoFactorSetupRequestSchema: GenMessage<BeginTwoFactorSetupRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 18);
+  messageDesc(file_izci_api_v1_user, 29);
 
 /**
  * BeginTwoFactorSetupResponse carries the secret for the authenticator app.
@@ -560,7 +916,7 @@ export type BeginTwoFactorSetupResponse = Message<"izci.api.v1.BeginTwoFactorSet
  * Use `create(BeginTwoFactorSetupResponseSchema)` to create a new message.
  */
 export const BeginTwoFactorSetupResponseSchema: GenMessage<BeginTwoFactorSetupResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 19);
+  messageDesc(file_izci_api_v1_user, 30);
 
 /**
  * EnableTwoFactorRequest confirms the setup.
@@ -581,7 +937,7 @@ export type EnableTwoFactorRequest = Message<"izci.api.v1.EnableTwoFactorRequest
  * Use `create(EnableTwoFactorRequestSchema)` to create a new message.
  */
 export const EnableTwoFactorRequestSchema: GenMessage<EnableTwoFactorRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 20);
+  messageDesc(file_izci_api_v1_user, 31);
 
 /**
  * EnableTwoFactorResponse returns the recovery codes.
@@ -603,7 +959,7 @@ export type EnableTwoFactorResponse = Message<"izci.api.v1.EnableTwoFactorRespon
  * Use `create(EnableTwoFactorResponseSchema)` to create a new message.
  */
 export const EnableTwoFactorResponseSchema: GenMessage<EnableTwoFactorResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 21);
+  messageDesc(file_izci_api_v1_user, 32);
 
 /**
  * DisableTwoFactorRequest proves the second factor.
@@ -624,7 +980,7 @@ export type DisableTwoFactorRequest = Message<"izci.api.v1.DisableTwoFactorReque
  * Use `create(DisableTwoFactorRequestSchema)` to create a new message.
  */
 export const DisableTwoFactorRequestSchema: GenMessage<DisableTwoFactorRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 22);
+  messageDesc(file_izci_api_v1_user, 33);
 
 /**
  * DisableTwoFactorResponse has no fields.
@@ -639,7 +995,7 @@ export type DisableTwoFactorResponse = Message<"izci.api.v1.DisableTwoFactorResp
  * Use `create(DisableTwoFactorResponseSchema)` to create a new message.
  */
 export const DisableTwoFactorResponseSchema: GenMessage<DisableTwoFactorResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 23);
+  messageDesc(file_izci_api_v1_user, 34);
 
 /**
  * RegenerateRecoveryCodesRequest proves the second factor.
@@ -660,7 +1016,7 @@ export type RegenerateRecoveryCodesRequest = Message<"izci.api.v1.RegenerateReco
  * Use `create(RegenerateRecoveryCodesRequestSchema)` to create a new message.
  */
 export const RegenerateRecoveryCodesRequestSchema: GenMessage<RegenerateRecoveryCodesRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 24);
+  messageDesc(file_izci_api_v1_user, 35);
 
 /**
  * RegenerateRecoveryCodesResponse returns the new recovery codes.
@@ -681,7 +1037,56 @@ export type RegenerateRecoveryCodesResponse = Message<"izci.api.v1.RegenerateRec
  * Use `create(RegenerateRecoveryCodesResponseSchema)` to create a new message.
  */
 export const RegenerateRecoveryCodesResponseSchema: GenMessage<RegenerateRecoveryCodesResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_user, 25);
+  messageDesc(file_izci_api_v1_user, 36);
+
+/**
+ * UserNotificationKind is why a member is notified personally.
+ *
+ * @generated from enum izci.api.v1.UserNotificationKind
+ */
+export enum UserNotificationKind {
+  /**
+   * Not set.
+   *
+   * @generated from enum value: USER_NOTIFICATION_KIND_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * An issue was assigned to the member, by someone or by an ownership
+   * rule.
+   *
+   * @generated from enum value: USER_NOTIFICATION_KIND_ASSIGNED = 1;
+   */
+  ASSIGNED = 1,
+
+  /**
+   * A comment named the member with "@".
+   *
+   * @generated from enum value: USER_NOTIFICATION_KIND_MENTIONED = 2;
+   */
+  MENTIONED = 2,
+
+  /**
+   * An issue the member follows came back after it was resolved.
+   *
+   * @generated from enum value: USER_NOTIFICATION_KIND_REGRESSED = 3;
+   */
+  REGRESSED = 3,
+
+  /**
+   * Someone commented on an issue the member follows.
+   *
+   * @generated from enum value: USER_NOTIFICATION_KIND_COMMENTED = 4;
+   */
+  COMMENTED = 4,
+}
+
+/**
+ * Describes the enum izci.api.v1.UserNotificationKind.
+ */
+export const UserNotificationKindSchema: GenEnum<UserNotificationKind> = /*@__PURE__*/
+  enumDesc(file_izci_api_v1_user, 0);
 
 /**
  * TokenScope is a permission of a personal access token.
@@ -722,7 +1127,7 @@ export enum TokenScope {
  * Describes the enum izci.api.v1.TokenScope.
  */
 export const TokenScopeSchema: GenEnum<TokenScope> = /*@__PURE__*/
-  enumDesc(file_izci_api_v1_user, 0);
+  enumDesc(file_izci_api_v1_user, 1);
 
 /**
  * UserService manages the signed-in user's own account: profile, personal
@@ -862,6 +1267,51 @@ export const UserService: GenService<{
     methodKind: "unary";
     input: typeof RegenerateRecoveryCodesRequestSchema;
     output: typeof RegenerateRecoveryCodesResponseSchema;
+  },
+  /**
+   * ListNotifications lists the caller's personal notifications (issues
+   * assigned to them, mentions, news about issues they follow) in the
+   * organizations they belong to, newest first.
+   *
+   * @generated from rpc izci.api.v1.UserService.ListNotifications
+   */
+  listNotifications: {
+    methodKind: "unary";
+    input: typeof ListNotificationsRequestSchema;
+    output: typeof ListNotificationsResponseSchema;
+  },
+  /**
+   * MarkNotificationsRead marks the given notifications, or all of the
+   * caller's, read.
+   *
+   * @generated from rpc izci.api.v1.UserService.MarkNotificationsRead
+   */
+  markNotificationsRead: {
+    methodKind: "unary";
+    input: typeof MarkNotificationsReadRequestSchema;
+    output: typeof MarkNotificationsReadResponseSchema;
+  },
+  /**
+   * GetNotificationSettings returns where the caller's personal
+   * notifications go besides the inbox.
+   *
+   * @generated from rpc izci.api.v1.UserService.GetNotificationSettings
+   */
+  getNotificationSettings: {
+    methodKind: "unary";
+    input: typeof GetNotificationSettingsRequestSchema;
+    output: typeof GetNotificationSettingsResponseSchema;
+  },
+  /**
+   * UpdateNotificationSettings changes where the caller's personal
+   * notifications go.
+   *
+   * @generated from rpc izci.api.v1.UserService.UpdateNotificationSettings
+   */
+  updateNotificationSettings: {
+    methodKind: "unary";
+    input: typeof UpdateNotificationSettingsRequestSchema;
+    output: typeof UpdateNotificationSettingsResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_izci_api_v1_user, 0);
