@@ -225,6 +225,9 @@ func (s *AuthServer) session(ctx context.Context, u *store.User, sess *store.Ses
 		return nil, err
 	}
 	out := &apiv1.Session{User: toUser(u, providers)}
+	if sess != nil {
+		out.ReauthenticatedAt = ts(sess.ReauthenticatedAt)
+	}
 	if u.TwoFactor() {
 		left, err := store.RecoveryCodesLeft(ctx, s.db.Pool, u.ID)
 		if err != nil {
@@ -265,11 +268,17 @@ func (s *AuthServer) GetSession(ctx context.Context, _ *connect.Request[apiv1.Ge
 // ChangePassword implements AuthService.ChangePassword.
 func (s *AuthServer) ChangePassword(ctx context.Context, req *connect.Request[apiv1.ChangePasswordRequest]) (*connect.Response[apiv1.ChangePasswordResponse], error) {
 	p := auth.PrincipalFrom(ctx)
+	if p.Session == nil {
+		return nil, errPermission("passwords are changed in a browser session")
+	}
 	if p.User.PasswordHash != nil {
 		ok, err := auth.VerifyPassword(*p.User.PasswordHash, req.Msg.GetCurrentPassword())
 		if err != nil || !ok {
 			return nil, apiError(connect.CodeInvalidArgument, apiv1.ErrorReason_ERROR_REASON_INVALID_CREDENTIALS, "current password is wrong")
 		}
+	} else if err := requireRecentAuth(ctx); err != nil {
+		// A first password adds a way to sign in.
+		return nil, err
 	}
 	if err := auth.ValidatePassword(req.Msg.GetNewPassword()); err != nil {
 		return nil, weakPassword()

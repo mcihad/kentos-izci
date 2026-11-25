@@ -1,5 +1,5 @@
 import { create } from "@bufbuild/protobuf";
-import { createConnectQueryKey, useInfiniteQuery, useMutation, useQuery } from "@connectrpc/connect-query";
+import { createConnectQueryKey, useInfiniteQuery, useQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
@@ -26,6 +26,7 @@ import { errorMessage } from "@/lib/errors";
 import { formatCompact, formatNumber } from "@/lib/format";
 import { roleLabels } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
+import { useSensitiveMutation } from "@/lib/reauth";
 import { sessionQuery, useSession } from "@/lib/session";
 
 const timezones = (() => {
@@ -84,7 +85,7 @@ function GeneralForm({
   const [domains, setDomains] = useState(initial.domains);
   const [role, setRole] = useState(initial.role);
   const [requireTwoFactor, setRequireTwoFactor] = useState(initial.requireTwoFactor);
-  const update = useMutation(OrganizationService.method.updateOrganization, {
+  const update = useSensitiveMutation(OrganizationService.method.updateOrganization, {
     onSuccess: () => {
       toast.success("Organizasyon ayarları kaydedildi");
       onSaved();

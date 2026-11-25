@@ -45,6 +45,8 @@ const reasonMessages: Partial<Record<ErrorReason, string>> = {
   [ErrorReason.INVALID_TWO_FACTOR_CODE]:
     "Kod hatalı ya da daha önce kullanılmış. Uygulamadaki güncel kodu girin.",
   [ErrorReason.TWO_FACTOR_EXPIRED]: "İşlemin süresi doldu. Baştan başlayın.",
+  [ErrorReason.REAUTHENTICATION_REQUIRED]:
+    "Bu değişiklik için kimliğinizi yeniden doğrulamanız gerekiyor. İşlemi yeniden başlatın.",
 };
 
 /** The ErrorDetail attached to an API error, if any. */
@@ -111,7 +113,11 @@ export const oidcErrors: Record<string, string> = {
   oidc_link_required:
     "Bu e-posta adresiyle açılmış bir İzci hesabı var. Önce o hesapla giriş yapın, sonra Hesabım › Profil bölümünden kimlik sağlayıcısını bağlayın.",
   oidc_identity_taken: "Bu kimlik sağlayıcısı hesabı başka bir İzci hesabına bağlı.",
-  oidc_link_session: "Bağlama tamamlanmadan oturumunuz değişti. Yeniden giriş yapıp tekrar deneyin.",
+  oidc_link_session: "İşlem tamamlanmadan oturumunuz değişti. Yeniden giriş yapıp tekrar deneyin.",
+  oidc_reauth_required:
+    "Kimlik sağlayıcısı bağlamadan önce kimliğinizi yeniden doğrulamanız gerekiyor. Yeniden deneyin.",
+  oidc_reauth_mismatch:
+    "Kimlik sağlayıcısında bu hesaba bağlı olmayan bir hesapla giriş yapıldı. Bağlı hesabınızla yeniden deneyin.",
   oidc_exchange: "Kimlik sağlayıcısıyla oturum açılamadı. Yeniden deneyin.",
   oidc_internal: "Giriş sırasında beklenmeyen bir hata oluştu. Yeniden deneyin.",
   oidc_no_account: "Bu e-posta adresiyle bir İzci hesabı yok. Bir yöneticiden davet isteyin.",

@@ -54,6 +54,9 @@ const (
 	// AuthServiceChangePasswordProcedure is the fully-qualified name of the AuthService's
 	// ChangePassword RPC.
 	AuthServiceChangePasswordProcedure = "/izci.api.v1.AuthService/ChangePassword"
+	// AuthServiceReauthenticateProcedure is the fully-qualified name of the AuthService's
+	// Reauthenticate RPC.
+	AuthServiceReauthenticateProcedure = "/izci.api.v1.AuthService/Reauthenticate"
 	// AuthServiceSignUpProcedure is the fully-qualified name of the AuthService's SignUp RPC.
 	AuthServiceSignUpProcedure = "/izci.api.v1.AuthService/SignUp"
 	// AuthServiceGetInvitationProcedure is the fully-qualified name of the AuthService's GetInvitation
@@ -100,7 +103,19 @@ type AuthServiceClient interface {
 	GetSession(context.Context, *connect.Request[v1.GetSessionRequest]) (*connect.Response[v1.GetSessionResponse], error)
 	// ChangePassword changes (or, for accounts created through OpenID Connect,
 	// sets) the password of the signed-in user and ends their other sessions.
+	// Browser sessions only. Setting a first password needs a recent
+	// re-authentication (ERROR_REASON_REAUTHENTICATION_REQUIRED).
 	ChangePassword(context.Context, *connect.Request[v1.ChangePasswordRequest]) (*connect.Response[v1.ChangePasswordResponse], error)
+	// Reauthenticate proves the signed-in user's identity again, with their
+	// password or a two-factor code (a recovery code included). Sensitive
+	// changes (setting a password, creating access tokens, turning on
+	// two-factor authentication, linking sign-in methods, lifting an
+	// organization's two-factor requirement) need one within 10 minutes;
+	// they fail with ERROR_REASON_REAUTHENTICATION_REQUIRED otherwise.
+	// Accounts with neither re-authenticate through their identity provider:
+	// open AuthProvider.login_url with "?reauth=1&next=<path>". Browser
+	// sessions only.
+	Reauthenticate(context.Context, *connect.Request[v1.ReauthenticateRequest]) (*connect.Response[v1.ReauthenticateResponse], error)
 	// SignUp creates an account together with a new organization when self
 	// sign-up is open (AUTH_SIGNUP=open), then signs the user in.
 	SignUp(context.Context, *connect.Request[v1.SignUpRequest]) (*connect.Response[v1.SignUpResponse], error)
@@ -175,6 +190,12 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(authServiceMethods.ByName("ChangePassword")),
 			connect.WithClientOptions(opts...),
 		),
+		reauthenticate: connect.NewClient[v1.ReauthenticateRequest, v1.ReauthenticateResponse](
+			httpClient,
+			baseURL+AuthServiceReauthenticateProcedure,
+			connect.WithSchema(authServiceMethods.ByName("Reauthenticate")),
+			connect.WithClientOptions(opts...),
+		),
 		signUp: connect.NewClient[v1.SignUpRequest, v1.SignUpResponse](
 			httpClient,
 			baseURL+AuthServiceSignUpProcedure,
@@ -207,6 +228,7 @@ type authServiceClient struct {
 	logout            *connect.Client[v1.LogoutRequest, v1.LogoutResponse]
 	getSession        *connect.Client[v1.GetSessionRequest, v1.GetSessionResponse]
 	changePassword    *connect.Client[v1.ChangePasswordRequest, v1.ChangePasswordResponse]
+	reauthenticate    *connect.Client[v1.ReauthenticateRequest, v1.ReauthenticateResponse]
 	signUp            *connect.Client[v1.SignUpRequest, v1.SignUpResponse]
 	getInvitation     *connect.Client[v1.GetInvitationRequest, v1.GetInvitationResponse]
 	acceptInvitation  *connect.Client[v1.AcceptInvitationRequest, v1.AcceptInvitationResponse]
@@ -250,6 +272,11 @@ func (c *authServiceClient) GetSession(ctx context.Context, req *connect.Request
 // ChangePassword calls izci.api.v1.AuthService.ChangePassword.
 func (c *authServiceClient) ChangePassword(ctx context.Context, req *connect.Request[v1.ChangePasswordRequest]) (*connect.Response[v1.ChangePasswordResponse], error) {
 	return c.changePassword.CallUnary(ctx, req)
+}
+
+// Reauthenticate calls izci.api.v1.AuthService.Reauthenticate.
+func (c *authServiceClient) Reauthenticate(ctx context.Context, req *connect.Request[v1.ReauthenticateRequest]) (*connect.Response[v1.ReauthenticateResponse], error) {
+	return c.reauthenticate.CallUnary(ctx, req)
 }
 
 // SignUp calls izci.api.v1.AuthService.SignUp.
@@ -303,7 +330,19 @@ type AuthServiceHandler interface {
 	GetSession(context.Context, *connect.Request[v1.GetSessionRequest]) (*connect.Response[v1.GetSessionResponse], error)
 	// ChangePassword changes (or, for accounts created through OpenID Connect,
 	// sets) the password of the signed-in user and ends their other sessions.
+	// Browser sessions only. Setting a first password needs a recent
+	// re-authentication (ERROR_REASON_REAUTHENTICATION_REQUIRED).
 	ChangePassword(context.Context, *connect.Request[v1.ChangePasswordRequest]) (*connect.Response[v1.ChangePasswordResponse], error)
+	// Reauthenticate proves the signed-in user's identity again, with their
+	// password or a two-factor code (a recovery code included). Sensitive
+	// changes (setting a password, creating access tokens, turning on
+	// two-factor authentication, linking sign-in methods, lifting an
+	// organization's two-factor requirement) need one within 10 minutes;
+	// they fail with ERROR_REASON_REAUTHENTICATION_REQUIRED otherwise.
+	// Accounts with neither re-authenticate through their identity provider:
+	// open AuthProvider.login_url with "?reauth=1&next=<path>". Browser
+	// sessions only.
+	Reauthenticate(context.Context, *connect.Request[v1.ReauthenticateRequest]) (*connect.Response[v1.ReauthenticateResponse], error)
 	// SignUp creates an account together with a new organization when self
 	// sign-up is open (AUTH_SIGNUP=open), then signs the user in.
 	SignUp(context.Context, *connect.Request[v1.SignUpRequest]) (*connect.Response[v1.SignUpResponse], error)
@@ -374,6 +413,12 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(authServiceMethods.ByName("ChangePassword")),
 		connect.WithHandlerOptions(opts...),
 	)
+	authServiceReauthenticateHandler := connect.NewUnaryHandler(
+		AuthServiceReauthenticateProcedure,
+		svc.Reauthenticate,
+		connect.WithSchema(authServiceMethods.ByName("Reauthenticate")),
+		connect.WithHandlerOptions(opts...),
+	)
 	authServiceSignUpHandler := connect.NewUnaryHandler(
 		AuthServiceSignUpProcedure,
 		svc.SignUp,
@@ -411,6 +456,8 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 			authServiceGetSessionHandler.ServeHTTP(w, r)
 		case AuthServiceChangePasswordProcedure:
 			authServiceChangePasswordHandler.ServeHTTP(w, r)
+		case AuthServiceReauthenticateProcedure:
+			authServiceReauthenticateHandler.ServeHTTP(w, r)
 		case AuthServiceSignUpProcedure:
 			authServiceSignUpHandler.ServeHTTP(w, r)
 		case AuthServiceGetInvitationProcedure:
@@ -456,6 +503,10 @@ func (UnimplementedAuthServiceHandler) GetSession(context.Context, *connect.Requ
 
 func (UnimplementedAuthServiceHandler) ChangePassword(context.Context, *connect.Request[v1.ChangePasswordRequest]) (*connect.Response[v1.ChangePasswordResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.AuthService.ChangePassword is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) Reauthenticate(context.Context, *connect.Request[v1.ReauthenticateRequest]) (*connect.Response[v1.ReauthenticateResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.AuthService.Reauthenticate is not implemented"))
 }
 
 func (UnimplementedAuthServiceHandler) SignUp(context.Context, *connect.Request[v1.SignUpRequest]) (*connect.Response[v1.SignUpResponse], error) {

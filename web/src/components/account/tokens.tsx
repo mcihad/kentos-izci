@@ -28,6 +28,7 @@ import { type CreateAccessTokenResponse, TokenScope, UserService } from "@/gen/i
 import { baseTransport } from "@/lib/api";
 import { errorMessage } from "@/lib/errors";
 import { useOrg } from "@/lib/org";
+import { useSensitiveMutation } from "@/lib/reauth";
 import { useSession } from "@/lib/session";
 
 const scopeLabels: Record<TokenScope, string> = {
@@ -133,7 +134,7 @@ function CreateTokenDialog({ open, onOpenChange }: { open: boolean; onOpenChange
   const [ai, setAi] = useState(false);
   const [expiry, setExpiry] = useState("90");
   const [created, setCreated] = useState<CreateAccessTokenResponse>();
-  const createToken = useMutation(UserService.method.createAccessToken, {
+  const createToken = useSensitiveMutation(UserService.method.createAccessToken, {
     transport: baseTransport,
     onSuccess: (res) => {
       setCreated(res);

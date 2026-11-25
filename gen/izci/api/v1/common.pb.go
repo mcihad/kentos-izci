@@ -454,6 +454,9 @@ const (
 	// The setup code is missing or wrong; izci prints it in its log while no
 	// user exists.
 	ErrorReason_ERROR_REASON_SETUP_TOKEN_INVALID ErrorReason = 36
+	// The change needs a browser session that proved its user's identity in
+	// the last 10 minutes: call AuthService.Reauthenticate and retry.
+	ErrorReason_ERROR_REASON_REAUTHENTICATION_REQUIRED ErrorReason = 37
 )
 
 // Enum value maps for ErrorReason.
@@ -496,6 +499,7 @@ var (
 		34: "ERROR_REASON_TWO_FACTOR_EXPIRED",
 		35: "ERROR_REASON_AI_SENSITIVE_CHANGES",
 		36: "ERROR_REASON_SETUP_TOKEN_INVALID",
+		37: "ERROR_REASON_REAUTHENTICATION_REQUIRED",
 	}
 	ErrorReason_value = map[string]int32{
 		"ERROR_REASON_UNSPECIFIED":               0,
@@ -535,6 +539,7 @@ var (
 		"ERROR_REASON_TWO_FACTOR_EXPIRED":        34,
 		"ERROR_REASON_AI_SENSITIVE_CHANGES":      35,
 		"ERROR_REASON_SETUP_TOKEN_INVALID":       36,
+		"ERROR_REASON_REAUTHENTICATION_REQUIRED": 37,
 	}
 )
 
@@ -1098,7 +1103,7 @@ const file_izci_api_v1_common_proto_rawDesc = "" +
 	"\x18STATS_PERIOD_LAST_7_DAYS\x10\x03\x12\x1d\n" +
 	"\x19STATS_PERIOD_LAST_14_DAYS\x10\x04\x12\x1d\n" +
 	"\x19STATS_PERIOD_LAST_30_DAYS\x10\x05\x12\x1d\n" +
-	"\x19STATS_PERIOD_LAST_90_DAYS\x10\x06*\x96\n" +
+	"\x19STATS_PERIOD_LAST_90_DAYS\x10\x06*\xc2\n" +
 	"\n" +
 	"\vErrorReason\x12\x1c\n" +
 	"\x18ERROR_REASON_UNSPECIFIED\x10\x00\x12 \n" +
@@ -1138,7 +1143,8 @@ const file_izci_api_v1_common_proto_rawDesc = "" +
 	"$ERROR_REASON_INVALID_TWO_FACTOR_CODE\x10!\x12#\n" +
 	"\x1fERROR_REASON_TWO_FACTOR_EXPIRED\x10\"\x12%\n" +
 	"!ERROR_REASON_AI_SENSITIVE_CHANGES\x10#\x12$\n" +
-	" ERROR_REASON_SETUP_TOKEN_INVALID\x10$B\xa1\x01\n" +
+	" ERROR_REASON_SETUP_TOKEN_INVALID\x10$\x12*\n" +
+	"&ERROR_REASON_REAUTHENTICATION_REQUIRED\x10%B\xa1\x01\n" +
 	"\x0fcom.izci.api.v1B\vCommonProtoP\x01Z3github.com/mcihad/kentos-izci/gen/izci/api/v1;apiv1\xa2\x02\x03IAX\xaa\x02\vIzci.Api.V1\xca\x02\vIzci\\Api\\V1\xe2\x02\x17Izci\\Api\\V1\\GPBMetadata\xea\x02\rIzci::Api::V1b\x06proto3"
 
 var (

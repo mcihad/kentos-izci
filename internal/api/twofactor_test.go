@@ -212,10 +212,31 @@ func TestTwoFactorAuthentication(t *testing.T) {
 		t.Fatalf("member after turning 2FA off: %v", err)
 	}
 
-	// Wrong codes lock the second step: the old recovery code above was
-	// the first failure since the last correct code, four more lock it.
+	// Lifting the requirement weakens every member's account: an old
+	// session confirms its user's identity first, here with a recovery code.
+	if _, err := e.db.Pool.Exec(ctx, `UPDATE sessions SET reauthenticated_at = now() - interval '1 hour'`); err != nil {
+		t.Fatal(err)
+	}
+	if err := require(owner, false); reason(err) != apiv1.ErrorReason_ERROR_REASON_REAUTHENTICATION_REQUIRED {
+		t.Fatalf("lifting the requirement from an old session: %v", err)
+	}
+	if _, err := owner.auth.Reauthenticate(ctx, req(&apiv1.ReauthenticateRequest{Code: app.wrong()})); reason(err) != apiv1.ErrorReason_ERROR_REASON_INVALID_TWO_FACTOR_CODE {
+		t.Fatalf("reauthenticate with a wrong code: %v", err)
+	}
+	if _, err := owner.auth.Reauthenticate(ctx, req(&apiv1.ReauthenticateRequest{Code: fresh.Msg.GetRecoveryCodes()[0]})); err != nil {
+		t.Fatalf("reauthenticate with a recovery code: %v", err)
+	}
+	if err := require(owner, false); err != nil {
+		t.Fatalf("lifting the requirement: %v", err)
+	}
+	if err := require(owner, true); err != nil {
+		t.Fatalf("requiring again: %v", err)
+	}
+
+	// Wrong codes lock the second step: five in a row after the last
+	// correct code.
 	browser = login()
-	for range 4 {
+	for range 5 {
 		if _, err := verify(browser, app.wrong()); reason(err) != apiv1.ErrorReason_ERROR_REASON_INVALID_TWO_FACTOR_CODE {
 			t.Fatalf("wrong code: %v", err)
 		}

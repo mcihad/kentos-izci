@@ -83,6 +83,9 @@ func (s *UserServer) BeginTwoFactorSetup(ctx context.Context, _ *connect.Request
 	if err := sessionOnly(p); err != nil {
 		return nil, err
 	}
+	if err := requireRecentAuth(ctx); err != nil {
+		return nil, err
+	}
 	setup, err := s.auth.BeginTOTP(ctx, p.User)
 	if err != nil {
 		return nil, secondFactorError(ctx, s.log, "begin two-factor setup", err)
@@ -149,4 +152,33 @@ func (s *UserServer) userAudit(ctx context.Context, u *store.User, action string
 	if err != nil {
 		s.log.WarnContext(ctx, "audit two-factor change", slog.String("action", action), slog.Any("err", err))
 	}
+}
+
+// requireRecentAuth guards sensitive changes: a browser session that
+// proved its user's identity within auth.ReauthWindow.
+func requireRecentAuth(ctx context.Context) error {
+	p := auth.PrincipalFrom(ctx)
+	if p == nil || p.Session == nil {
+		return errPermission("this change needs a browser session")
+	}
+	if !auth.RecentlyAuthenticated(p) {
+		return apiError(connect.CodeFailedPrecondition, apiv1.ErrorReason_ERROR_REASON_REAUTHENTICATION_REQUIRED,
+			"confirm your identity again (AuthService.Reauthenticate) and retry")
+	}
+	return nil
+}
+
+// Reauthenticate implements AuthService.Reauthenticate.
+func (s *AuthServer) Reauthenticate(ctx context.Context, req *connect.Request[apiv1.ReauthenticateRequest]) (*connect.Response[apiv1.ReauthenticateResponse], error) {
+	at, err := s.auth.Reauthenticate(ctx, auth.PrincipalFrom(ctx), req.Msg.GetPassword(), req.Msg.GetCode())
+	switch {
+	case errors.Is(err, auth.ErrSessionRequired):
+		return nil, errPermission(err.Error())
+	case errors.Is(err, auth.ErrInvalidCredentials):
+		// Not UNAUTHENTICATED: the session itself is fine.
+		return nil, apiError(connect.CodeInvalidArgument, apiv1.ErrorReason_ERROR_REASON_INVALID_CREDENTIALS, "the password or code is wrong")
+	case err != nil:
+		return nil, secondFactorError(ctx, s.log, "reauthenticate", err)
+	}
+	return connect.NewResponse(&apiv1.ReauthenticateResponse{ReauthenticatedAt: ts(at)}), nil
 }

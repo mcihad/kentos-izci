@@ -120,6 +120,12 @@ func (s *OrganizationServer) UpdateOrganization(ctx context.Context, req *connec
 			return apiError(connect.CodeFailedPrecondition, apiv1.ErrorReason_ERROR_REASON_TWO_FACTOR_REQUIRED,
 				"turn on two-factor authentication for your own account first")
 		}
+		if before && !after {
+			// Lifting the requirement weakens every member's account.
+			if err := requireRecentAuth(ctx); err != nil {
+				return err
+			}
+		}
 		org, err := store.UpdateOrganization(ctx, tx, t.OrgID(), name, settings)
 		if err != nil {
 			return err

@@ -62,7 +62,20 @@ service AuthService {
 
   // ChangePassword changes (or, for accounts created through OpenID Connect,
   // sets) the password of the signed-in user and ends their other sessions.
+  // Browser sessions only. Setting a first password needs a recent
+  // re-authentication (ERROR_REASON_REAUTHENTICATION_REQUIRED).
   rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+
+  // Reauthenticate proves the signed-in user's identity again, with their
+  // password or a two-factor code (a recovery code included). Sensitive
+  // changes (setting a password, creating access tokens, turning on
+  // two-factor authentication, linking sign-in methods, lifting an
+  // organization's two-factor requirement) need one within 10 minutes;
+  // they fail with ERROR_REASON_REAUTHENTICATION_REQUIRED otherwise.
+  // Accounts with neither re-authenticate through their identity provider:
+  // open AuthProvider.login_url with "?reauth=1&next=<path>". Browser
+  // sessions only.
+  rpc Reauthenticate(ReauthenticateRequest) returns (ReauthenticateResponse);
 
   // SignUp creates an account together with a new organization when self
   // sign-up is open (AUTH_SIGNUP=open), then signs the user in.
@@ -169,6 +182,11 @@ message Session {
 
   // When the session expires unless it is used again (sliding expiration).
   google.protobuf.Timestamp expires_at = 3;
+
+  // When the session last proved its user's identity (sign-in or
+  // Reauthenticate); unset for access tokens. Sensitive changes need it
+  // within 10 minutes.
+  google.protobuf.Timestamp reauthenticated_at = 4;
 }
 
 // AuthProvider is an OpenID Connect identity provider.
@@ -354,6 +372,21 @@ message GetSessionRequest {}
 message GetSessionResponse {
   // Current session.
   Session session = 1;
+}
+
+// ReauthenticateRequest carries one proof of identity.
+message ReauthenticateRequest {
+  // The account's password.
+  string password = 1 [(buf.validate.field).string.max_len = 200];
+
+  // A two-factor code from the authenticator app, or a recovery code.
+  string code = 2 [(buf.validate.field).string.max_len = 32];
+}
+
+// ReauthenticateResponse confirms the re-authentication.
+message ReauthenticateResponse {
+  // When the session proved its user's identity.
+  google.protobuf.Timestamp reauthenticated_at = 1;
 }
 
 // ChangePasswordRequest holds the old and new password.

@@ -103,6 +103,9 @@ type oidcState struct {
 	// their account: the session that started the flow, which must still
 	// be the caller's when it returns.
 	LinkSession string `json:"l,omitempty"`
+	// ReauthSession is set when a signed-in user proves their identity
+	// again for a sensitive change, as for LinkSession.
+	ReauthSession string `json:"r,omitempty"`
 }
 
 func (s *Service) oidcStart(w http.ResponseWriter, r *http.Request) {
@@ -117,15 +120,24 @@ func (s *Service) oidcStart(w http.ResponseWriter, r *http.Request) {
 		Provider: id, State: secret.Random(32), Nonce: secret.Random(32), Verifier: oauth2.GenerateVerifier(),
 		Next: safeNext(r.URL.Query().Get("next")), Expires: time.Now().Add(stateTTL).Unix(),
 	}
-	// ?link=1 links the identity to the signed-in account instead of
-	// signing in.
-	if r.URL.Query().Get("link") == "1" {
+	// ?link=1 links the identity to the signed-in account and ?reauth=1
+	// re-authenticates its session, instead of signing in.
+	if link, reauth := r.URL.Query().Get("link") == "1", r.URL.Query().Get("reauth") == "1"; link || reauth {
 		pr, err := s.Authenticate(r.Context(), r.Header)
 		if err != nil || pr == nil || pr.Session == nil {
 			http.Redirect(w, r, "/login?redirect="+url.QueryEscape(st.Next), http.StatusFound)
 			return
 		}
-		st.LinkSession = pr.Session.ID.String()
+		switch {
+		case reauth:
+			st.ReauthSession = pr.Session.ID.String()
+		case !RecentlyAuthenticated(pr):
+			// A new sign-in method is a sensitive change.
+			http.Redirect(w, r, withQuery(st.Next, "oidc_error", "oidc_reauth_required"), http.StatusFound)
+			return
+		default:
+			st.LinkSession = pr.Session.ID.String()
+		}
 	}
 	payload, _ := json.Marshal(st)
 	value := base64.RawURLEncoding.EncodeToString(payload)
@@ -207,6 +219,10 @@ func (s *Service) oidcCallback(w http.ResponseWriter, r *http.Request) {
 	claims.Email = strings.ToLower(strings.TrimSpace(claims.Email))
 	if st.LinkSession != "" {
 		s.linkIdentity(w, r, st, id, claims.Subject, claims.Email)
+		return
+	}
+	if st.ReauthSession != "" {
+		s.reauthIdentity(w, r, st, id, claims.Subject)
 		return
 	}
 	// The address decides account creation, linking and organization
@@ -367,6 +383,28 @@ func (s *Service) linkIdentity(w http.ResponseWriter, r *http.Request, st *oidcS
 	default:
 		http.Redirect(w, r, withQuery(st.Next, "oidc_linked", provider), http.StatusFound)
 	}
+}
+
+// reauthIdentity finishes re-authentication through the provider: the
+// identity must belong to the session's user.
+func (s *Service) reauthIdentity(w http.ResponseWriter, r *http.Request, st *oidcState, provider, subject string) {
+	ctx := r.Context()
+	pr, err := s.Authenticate(ctx, r.Header)
+	if err != nil || pr == nil || pr.Session == nil || pr.Session.ID.String() != st.ReauthSession {
+		http.Redirect(w, r, withQuery(st.Next, "oidc_error", "oidc_link_session"), http.StatusFound)
+		return
+	}
+	u, err := store.UserByIdentity(ctx, s.db.Pool, provider, subject)
+	if err != nil || u.ID != pr.User.ID {
+		http.Redirect(w, r, withQuery(st.Next, "oidc_error", "oidc_reauth_mismatch"), http.StatusFound)
+		return
+	}
+	if _, err := store.MarkSessionReauthenticated(ctx, s.db.Pool, pr.Session.ID); err != nil {
+		s.log.Error("oidc re-authentication failed", slog.String("provider", provider), slog.Any("err", err))
+		http.Redirect(w, r, withQuery(st.Next, "oidc_error", "oidc_internal"), http.StatusFound)
+		return
+	}
+	http.Redirect(w, r, withQuery(st.Next, "oidc_reauth", "1"), http.StatusFound)
 }
 
 // withQuery adds a query parameter to a same-site path.

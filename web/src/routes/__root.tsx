@@ -1,5 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, Link, Outlet } from "@tanstack/react-router";
+import { ReauthHost } from "@/components/app/reauth-host";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
@@ -14,6 +15,7 @@ function Root() {
   return (
     <TooltipProvider delayDuration={300}>
       <Outlet />
+      <ReauthHost />
       <Toaster position="bottom-right" />
     </TooltipProvider>
   );

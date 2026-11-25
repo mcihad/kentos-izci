@@ -71,13 +71,16 @@ type Session struct {
 	CreatedAt  time.Time
 	LastSeenAt time.Time
 	ExpiresAt  time.Time
+	// ReauthenticatedAt is when the session last proved who its user is.
+	ReauthenticatedAt time.Time
 }
 
-const sessionColumns = `id, user_id, ip_address, user_agent, created_at, last_seen_at, expires_at`
+const sessionColumns = `id, user_id, ip_address, user_agent, created_at, last_seen_at, expires_at, reauthenticated_at`
 
 func scanSession(row interface{ Scan(...any) error }) (*Session, error) {
 	var s Session
-	if err := row.Scan(&s.ID, &s.UserID, &s.IPAddress, &s.UserAgent, &s.CreatedAt, &s.LastSeenAt, &s.ExpiresAt); err != nil {
+	if err := row.Scan(&s.ID, &s.UserID, &s.IPAddress, &s.UserAgent, &s.CreatedAt, &s.LastSeenAt, &s.ExpiresAt,
+		&s.ReauthenticatedAt); err != nil {
 		return nil, notFound(err)
 	}
 	return &s, nil
@@ -113,11 +116,19 @@ func LookupSession(ctx context.Context, q Querier, token string) (*SessionWithUs
 		SELECT `+prefixed("u.", userColumns)+`, `+prefixed("s.", sessionColumns)+`
 		FROM sessions s JOIN users u ON u.id = s.user_id
 		WHERE s.token_hash = $1 AND s.expires_at > now()`, secret.Hash(token)),
-		[]any{&s.ID, &s.UserID, &s.IPAddress, &s.UserAgent, &s.CreatedAt, &s.LastSeenAt, &s.ExpiresAt}})
+		[]any{&s.ID, &s.UserID, &s.IPAddress, &s.UserAgent, &s.CreatedAt, &s.LastSeenAt, &s.ExpiresAt, &s.ReauthenticatedAt}})
 	if err != nil {
 		return nil, err
 	}
 	return &SessionWithUser{Session: &s, User: u}, nil
+}
+
+// MarkSessionReauthenticated records that the session's user just proved
+// their identity again.
+func MarkSessionReauthenticated(ctx context.Context, q Querier, id uuid.UUID) (time.Time, error) {
+	var at time.Time
+	err := q.QueryRow(ctx, `UPDATE sessions SET reauthenticated_at = now() WHERE id = $1 RETURNING reauthenticated_at`, id).Scan(&at)
+	return at, notFound(err)
 }
 
 // TouchSession extends a session (sliding expiration).

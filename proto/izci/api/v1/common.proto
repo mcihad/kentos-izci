@@ -288,4 +288,7 @@ enum ErrorReason {
   // The setup code is missing or wrong; izci prints it in its log while no
   // user exists.
   ERROR_REASON_SETUP_TOKEN_INVALID = 36;
+  // The change needs a browser session that proved its user's identity in
+  // the last 10 minutes: call AuthService.Reauthenticate and retry.
+  ERROR_REASON_REAUTHENTICATION_REQUIRED = 37;
 }

@@ -20,6 +20,7 @@ import { ErrorReason } from "@/gen/izci/api/v1/common_pb";
 import { UserService } from "@/gen/izci/api/v1/user_pb";
 import { baseTransport } from "@/lib/api";
 import { errorMessage, errorReason } from "@/lib/errors";
+import { useSensitiveMutation } from "@/lib/reauth";
 import { sessionQuery, useSession } from "@/lib/session";
 
 /**
@@ -107,7 +108,7 @@ function QrCode({ value }: { value: string }) {
  */
 export function TwoFactorSetup({ onEnabled }: { onEnabled: (codes: string[]) => void }) {
   const [code, setCode] = useState("");
-  const begin = useMutation(UserService.method.beginTwoFactorSetup, {
+  const begin = useSensitiveMutation(UserService.method.beginTwoFactorSetup, {
     transport: baseTransport,
     onError: (err) => toast.error(errorMessage(err)),
   });

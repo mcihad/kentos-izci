@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file izci/api/v1/auth.proto.
  */
 export const file_izci_api_v1_auth: GenFile = /*@__PURE__*/
-  fileDesc("ChZpemNpL2FwaS92MS9hdXRoLnByb3RvEgtpemNpLmFwaS52MSKgAgoEVXNlchIKCgJpZBgBIAEoCRINCgVlbWFpbBgCIAEoCRIMCgRuYW1lGAMgASgJEhIKCmF2YXRhcl91cmwYBCABKAkSEgoKc3VwZXJhZG1pbhgFIAEoCBIUCgxoYXNfcGFzc3dvcmQYBiABKAgSGAoQbGlua2VkX3Byb3ZpZGVycxgHIAMoCRIuCgh0ZWxlZ3JhbRgIIAEoCzIcLml6Y2kuYXBpLnYxLlRlbGVncmFtQWNjb3VudBIuCgpjcmVhdGVkX2F0GAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJ0d29fZmFjdG9yX2VuYWJsZWQYCiABKAgSGwoTcmVjb3ZlcnlfY29kZXNfbGVmdBgLIAEoDSJjCg9UZWxlZ3JhbUFjY291bnQSDwoHdXNlcl9pZBgBIAEoAxIQCgh1c2VybmFtZRgCIAEoCRItCglsaW5rZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIn4KCk1lbWJlcnNoaXASMgoMb3JnYW5pemF0aW9uGAEgASgLMhwuaXpjaS5hcGkudjEuT3JnYW5pemF0aW9uUmVmEh8KBHJvbGUYAiABKA4yES5pemNpLmFwaS52MS5Sb2xlEhsKE3JlcXVpcmVzX3R3b19mYWN0b3IYAyABKAgiiAEKB1Nlc3Npb24SHwoEdXNlchgBIAEoCzIRLml6Y2kuYXBpLnYxLlVzZXISLAoLbWVtYmVyc2hpcHMYAiADKAsyFy5pemNpLmFwaS52MS5NZW1iZXJzaGlwEi4KCmV4cGlyZXNfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIlEKDEF1dGhQcm92aWRlchIKCgJpZBgBIAEoCRIUCgxkaXNwbGF5X25hbWUYAiABKAkSDAoEaWNvbhgDIAEoCRIRCglsb2dpbl91cmwYBCABKAkikwIKCkludml0YXRpb24SCgoCaWQYASABKAkSMgoMb3JnYW5pemF0aW9uGAIgASgLMhwuaXpjaS5hcGkudjEuT3JnYW5pemF0aW9uUmVmEg0KBWVtYWlsGAMgASgJEh8KBHJvbGUYBCABKA4yES5pemNpLmFwaS52MS5Sb2xlEigKCmludml0ZWRfYnkYBSABKAsyFC5pemNpLmFwaS52MS5Vc2VyUmVmEi4KCmNyZWF0ZWRfYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmV4cGlyZXNfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEgsKA3VybBgIIAEoCSIWChRHZXRTZXR1cFN0YXRlUmVxdWVzdCJUChVHZXRTZXR1cFN0YXRlUmVzcG9uc2USFgoOc2V0dXBfcmVxdWlyZWQYASABKAgSDwoHdmVyc2lvbhgCIAEoCRISCgpwdWJsaWNfdXJsGAMgASgJIrECChRDb21wbGV0ZVNldHVwUmVxdWVzdBIYCgRuYW1lGAEgASgJQgq6SAdyBRABGMgBEhYKBWVtYWlsGAIgASgJQge6SARyAmABEhwKCHBhc3N3b3JkGAMgASgJQgq6SAdyBRAKGMgBEiQKEW9yZ2FuaXphdGlvbl9uYW1lGAQgASgJQgm6SAZyBBABGGQSQAoRb3JnYW5pemF0aW9uX3NsdWcYBSABKAlCJbpIInIgMh5eW2Etel1bYS16MC05LV17MCw0OH1bYS16MC05XSQSHwoMcHJvamVjdF9uYW1lGAYgASgJQgm6SAZyBBABGGQSIQoQcHJvamVjdF9wbGF0Zm9ybRgHIAEoCUIHukgEcgIYIBIdCgtzZXR1cF90b2tlbhgIIAEoCUIIukgFcgMYgAEiZQoVQ29tcGxldGVTZXR1cFJlc3BvbnNlEiUKB3Nlc3Npb24YASABKAsyFC5pemNpLmFwaS52MS5TZXNzaW9uEhQKDHByb2plY3Rfc2x1ZxgCIAEoCRIPCgdhcGlfa2V5GAMgASgJIhoKGExpc3RBdXRoUHJvdmlkZXJzUmVxdWVzdCKXAQoZTGlzdEF1dGhQcm92aWRlcnNSZXNwb25zZRIsCglwcm92aWRlcnMYASADKAsyGS5pemNpLmFwaS52MS5BdXRoUHJvdmlkZXISHgoWcGFzc3dvcmRfbG9naW5fZW5hYmxlZBgCIAEoCBIsCgtzaWdudXBfbW9kZRgDIAEoDjIXLml6Y2kuYXBpLnYxLlNpZ251cE1vZGUiRwoMTG9naW5SZXF1ZXN0EhkKBWVtYWlsGAEgASgJQgq6SAdyBRADGMACEhwKCHBhc3N3b3JkGAIgASgJQgq6SAdyBRABGMgBIlMKDUxvZ2luUmVzcG9uc2USJQoHc2Vzc2lvbhgBIAEoCzIULml6Y2kuYXBpLnYxLlNlc3Npb24SGwoTdHdvX2ZhY3Rvcl9yZXF1aXJlZBgCIAEoCCIxChZWZXJpZnlUd29GYWN0b3JSZXF1ZXN0EhcKBGNvZGUYASABKAlCCbpIBnIEEAYYICJAChdWZXJpZnlUd29GYWN0b3JSZXNwb25zZRIlCgdzZXNzaW9uGAEgASgLMhQuaXpjaS5hcGkudjEuU2Vzc2lvbiIPCg1Mb2dvdXRSZXF1ZXN0IhAKDkxvZ291dFJlc3BvbnNlIhMKEUdldFNlc3Npb25SZXF1ZXN0IjsKEkdldFNlc3Npb25SZXNwb25zZRIlCgdzZXNzaW9uGAEgASgLMhQuaXpjaS5hcGkudjEuU2Vzc2lvbiJdChVDaGFuZ2VQYXNzd29yZFJlcXVlc3QSIgoQY3VycmVudF9wYXNzd29yZBgBIAEoCUIIukgFcgMYyAESIAoMbmV3X3Bhc3N3b3JkGAIgASgJQgq6SAdyBRAKGMgBIhgKFkNoYW5nZVBhc3N3b3JkUmVzcG9uc2UixwEKDVNpZ25VcFJlcXVlc3QSGAoEbmFtZRgBIAEoCUIKukgHcgUQARjIARIWCgVlbWFpbBgCIAEoCUIHukgEcgJgARIcCghwYXNzd29yZBgDIAEoCUIKukgHcgUQChjIARIkChFvcmdhbml6YXRpb25fbmFtZRgEIAEoCUIJukgGcgQQARhkEkAKEW9yZ2FuaXphdGlvbl9zbHVnGAUgASgJQiW6SCJyIDIeXlthLXpdW2EtejAtOS1dezAsNDh9W2EtejAtOV0kIjcKDlNpZ25VcFJlc3BvbnNlEiUKB3Nlc3Npb24YASABKAsyFC5pemNpLmFwaS52MS5TZXNzaW9uIjEKFEdldEludml0YXRpb25SZXF1ZXN0EhkKBXRva2VuGAEgASgJQgq6SAdyBRAQGIABIlwKFUdldEludml0YXRpb25SZXNwb25zZRIrCgppbnZpdGF0aW9uGAEgASgLMhcuaXpjaS5hcGkudjEuSW52aXRhdGlvbhIWCg5hY2NvdW50X2V4aXN0cxgCIAEoCCJoChdBY2NlcHRJbnZpdGF0aW9uUmVxdWVzdBIZCgV0b2tlbhgBIAEoCUIKukgHcgUQEBiAARIWCgRuYW1lGAIgASgJQgi6SAVyAxjIARIaCghwYXNzd29yZBgDIAEoCUIIukgFcgMYyAEiQQoYQWNjZXB0SW52aXRhdGlvblJlc3BvbnNlEiUKB3Nlc3Npb24YASABKAsyFC5pemNpLmFwaS52MS5TZXNzaW9uKm8KClNpZ251cE1vZGUSGwoXU0lHTlVQX01PREVfVU5TUEVDSUZJRUQQABIWChJTSUdOVVBfTU9ERV9JTlZJVEUQARIUChBTSUdOVVBfTU9ERV9PUEVOEAISFgoSU0lHTlVQX01PREVfQ0xPU0VEEAMyvAcKC0F1dGhTZXJ2aWNlElsKDUdldFNldHVwU3RhdGUSIS5pemNpLmFwaS52MS5HZXRTZXR1cFN0YXRlUmVxdWVzdBoiLml6Y2kuYXBpLnYxLkdldFNldHVwU3RhdGVSZXNwb25zZSIDkAIBElYKDUNvbXBsZXRlU2V0dXASIS5pemNpLmFwaS52MS5Db21wbGV0ZVNldHVwUmVxdWVzdBoiLml6Y2kuYXBpLnYxLkNvbXBsZXRlU2V0dXBSZXNwb25zZRJnChFMaXN0QXV0aFByb3ZpZGVycxIlLml6Y2kuYXBpLnYxLkxpc3RBdXRoUHJvdmlkZXJzUmVxdWVzdBomLml6Y2kuYXBpLnYxLkxpc3RBdXRoUHJvdmlkZXJzUmVzcG9uc2UiA5ACARI+CgVMb2dpbhIZLml6Y2kuYXBpLnYxLkxvZ2luUmVxdWVzdBoaLml6Y2kuYXBpLnYxLkxvZ2luUmVzcG9uc2USXAoPVmVyaWZ5VHdvRmFjdG9yEiMuaXpjaS5hcGkudjEuVmVyaWZ5VHdvRmFjdG9yUmVxdWVzdBokLml6Y2kuYXBpLnYxLlZlcmlmeVR3b0ZhY3RvclJlc3BvbnNlEkEKBkxvZ291dBIaLml6Y2kuYXBpLnYxLkxvZ291dFJlcXVlc3QaGy5pemNpLmFwaS52MS5Mb2dvdXRSZXNwb25zZRJSCgpHZXRTZXNzaW9uEh4uaXpjaS5hcGkudjEuR2V0U2Vzc2lvblJlcXVlc3QaHy5pemNpLmFwaS52MS5HZXRTZXNzaW9uUmVzcG9uc2UiA5ACARJZCg5DaGFuZ2VQYXNzd29yZBIiLml6Y2kuYXBpLnYxLkNoYW5nZVBhc3N3b3JkUmVxdWVzdBojLml6Y2kuYXBpLnYxLkNoYW5nZVBhc3N3b3JkUmVzcG9uc2USQQoGU2lnblVwEhouaXpjaS5hcGkudjEuU2lnblVwUmVxdWVzdBobLml6Y2kuYXBpLnYxLlNpZ25VcFJlc3BvbnNlElsKDUdldEludml0YXRpb24SIS5pemNpLmFwaS52MS5HZXRJbnZpdGF0aW9uUmVxdWVzdBoiLml6Y2kuYXBpLnYxLkdldEludml0YXRpb25SZXNwb25zZSIDkAIBEl8KEEFjY2VwdEludml0YXRpb24SJC5pemNpLmFwaS52MS5BY2NlcHRJbnZpdGF0aW9uUmVxdWVzdBolLml6Y2kuYXBpLnYxLkFjY2VwdEludml0YXRpb25SZXNwb25zZUKfAQoPY29tLml6Y2kuYXBpLnYxQglBdXRoUHJvdG9QAVozZ2l0aHViLmNvbS9tY2loYWQva2VudG9zLWl6Y2kvZ2VuL2l6Y2kvYXBpL3YxO2FwaXYxogIDSUFYqgILSXpjaS5BcGkuVjHKAgtJemNpXEFwaVxWMeICF0l6Y2lcQXBpXFYxXEdQQk1ldGFkYXRh6gINSXpjaTo6QXBpOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_timestamp, file_izci_api_v1_common]);
+  fileDesc("ChZpemNpL2FwaS92MS9hdXRoLnByb3RvEgtpemNpLmFwaS52MSKgAgoEVXNlchIKCgJpZBgBIAEoCRINCgVlbWFpbBgCIAEoCRIMCgRuYW1lGAMgASgJEhIKCmF2YXRhcl91cmwYBCABKAkSEgoKc3VwZXJhZG1pbhgFIAEoCBIUCgxoYXNfcGFzc3dvcmQYBiABKAgSGAoQbGlua2VkX3Byb3ZpZGVycxgHIAMoCRIuCgh0ZWxlZ3JhbRgIIAEoCzIcLml6Y2kuYXBpLnYxLlRlbGVncmFtQWNjb3VudBIuCgpjcmVhdGVkX2F0GAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJ0d29fZmFjdG9yX2VuYWJsZWQYCiABKAgSGwoTcmVjb3ZlcnlfY29kZXNfbGVmdBgLIAEoDSJjCg9UZWxlZ3JhbUFjY291bnQSDwoHdXNlcl9pZBgBIAEoAxIQCgh1c2VybmFtZRgCIAEoCRItCglsaW5rZWRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIn4KCk1lbWJlcnNoaXASMgoMb3JnYW5pemF0aW9uGAEgASgLMhwuaXpjaS5hcGkudjEuT3JnYW5pemF0aW9uUmVmEh8KBHJvbGUYAiABKA4yES5pemNpLmFwaS52MS5Sb2xlEhsKE3JlcXVpcmVzX3R3b19mYWN0b3IYAyABKAgiwAEKB1Nlc3Npb24SHwoEdXNlchgBIAEoCzIRLml6Y2kuYXBpLnYxLlVzZXISLAoLbWVtYmVyc2hpcHMYAiADKAsyFy5pemNpLmFwaS52MS5NZW1iZXJzaGlwEi4KCmV4cGlyZXNfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjYKEnJlYXV0aGVudGljYXRlZF9hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiUQoMQXV0aFByb3ZpZGVyEgoKAmlkGAEgASgJEhQKDGRpc3BsYXlfbmFtZRgCIAEoCRIMCgRpY29uGAMgASgJEhEKCWxvZ2luX3VybBgEIAEoCSKTAgoKSW52aXRhdGlvbhIKCgJpZBgBIAEoCRIyCgxvcmdhbml6YXRpb24YAiABKAsyHC5pemNpLmFwaS52MS5Pcmdhbml6YXRpb25SZWYSDQoFZW1haWwYAyABKAkSHwoEcm9sZRgEIAEoDjIRLml6Y2kuYXBpLnYxLlJvbGUSKAoKaW52aXRlZF9ieRgFIAEoCzIULml6Y2kuYXBpLnYxLlVzZXJSZWYSLgoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKZXhwaXJlc19hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASCwoDdXJsGAggASgJIhYKFEdldFNldHVwU3RhdGVSZXF1ZXN0IlQKFUdldFNldHVwU3RhdGVSZXNwb25zZRIWCg5zZXR1cF9yZXF1aXJlZBgBIAEoCBIPCgd2ZXJzaW9uGAIgASgJEhIKCnB1YmxpY191cmwYAyABKAkisQIKFENvbXBsZXRlU2V0dXBSZXF1ZXN0EhgKBG5hbWUYASABKAlCCrpIB3IFEAEYyAESFgoFZW1haWwYAiABKAlCB7pIBHICYAESHAoIcGFzc3dvcmQYAyABKAlCCrpIB3IFEAoYyAESJAoRb3JnYW5pemF0aW9uX25hbWUYBCABKAlCCbpIBnIEEAEYZBJAChFvcmdhbml6YXRpb25fc2x1ZxgFIAEoCUIlukgiciAyHl5bYS16XVthLXowLTktXXswLDQ4fVthLXowLTldJBIfCgxwcm9qZWN0X25hbWUYBiABKAlCCbpIBnIEEAEYZBIhChBwcm9qZWN0X3BsYXRmb3JtGAcgASgJQge6SARyAhggEh0KC3NldHVwX3Rva2VuGAggASgJQgi6SAVyAxiAASJlChVDb21wbGV0ZVNldHVwUmVzcG9uc2USJQoHc2Vzc2lvbhgBIAEoCzIULml6Y2kuYXBpLnYxLlNlc3Npb24SFAoMcHJvamVjdF9zbHVnGAIgASgJEg8KB2FwaV9rZXkYAyABKAkiGgoYTGlzdEF1dGhQcm92aWRlcnNSZXF1ZXN0IpcBChlMaXN0QXV0aFByb3ZpZGVyc1Jlc3BvbnNlEiwKCXByb3ZpZGVycxgBIAMoCzIZLml6Y2kuYXBpLnYxLkF1dGhQcm92aWRlchIeChZwYXNzd29yZF9sb2dpbl9lbmFibGVkGAIgASgIEiwKC3NpZ251cF9tb2RlGAMgASgOMhcuaXpjaS5hcGkudjEuU2lnbnVwTW9kZSJHCgxMb2dpblJlcXVlc3QSGQoFZW1haWwYASABKAlCCrpIB3IFEAMYwAISHAoIcGFzc3dvcmQYAiABKAlCCrpIB3IFEAEYyAEiUwoNTG9naW5SZXNwb25zZRIlCgdzZXNzaW9uGAEgASgLMhQuaXpjaS5hcGkudjEuU2Vzc2lvbhIbChN0d29fZmFjdG9yX3JlcXVpcmVkGAIgASgIIjEKFlZlcmlmeVR3b0ZhY3RvclJlcXVlc3QSFwoEY29kZRgBIAEoCUIJukgGcgQQBhggIkAKF1ZlcmlmeVR3b0ZhY3RvclJlc3BvbnNlEiUKB3Nlc3Npb24YASABKAsyFC5pemNpLmFwaS52MS5TZXNzaW9uIg8KDUxvZ291dFJlcXVlc3QiEAoOTG9nb3V0UmVzcG9uc2UiEwoRR2V0U2Vzc2lvblJlcXVlc3QiOwoSR2V0U2Vzc2lvblJlc3BvbnNlEiUKB3Nlc3Npb24YASABKAsyFC5pemNpLmFwaS52MS5TZXNzaW9uIkoKFVJlYXV0aGVudGljYXRlUmVxdWVzdBIaCghwYXNzd29yZBgBIAEoCUIIukgFcgMYyAESFQoEY29kZRgCIAEoCUIHukgEcgIYICJQChZSZWF1dGhlbnRpY2F0ZVJlc3BvbnNlEjYKEnJlYXV0aGVudGljYXRlZF9hdBgBIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiXQoVQ2hhbmdlUGFzc3dvcmRSZXF1ZXN0EiIKEGN1cnJlbnRfcGFzc3dvcmQYASABKAlCCLpIBXIDGMgBEiAKDG5ld19wYXNzd29yZBgCIAEoCUIKukgHcgUQChjIASIYChZDaGFuZ2VQYXNzd29yZFJlc3BvbnNlIscBCg1TaWduVXBSZXF1ZXN0EhgKBG5hbWUYASABKAlCCrpIB3IFEAEYyAESFgoFZW1haWwYAiABKAlCB7pIBHICYAESHAoIcGFzc3dvcmQYAyABKAlCCrpIB3IFEAoYyAESJAoRb3JnYW5pemF0aW9uX25hbWUYBCABKAlCCbpIBnIEEAEYZBJAChFvcmdhbml6YXRpb25fc2x1ZxgFIAEoCUIlukgiciAyHl5bYS16XVthLXowLTktXXswLDQ4fVthLXowLTldJCI3Cg5TaWduVXBSZXNwb25zZRIlCgdzZXNzaW9uGAEgASgLMhQuaXpjaS5hcGkudjEuU2Vzc2lvbiIxChRHZXRJbnZpdGF0aW9uUmVxdWVzdBIZCgV0b2tlbhgBIAEoCUIKukgHcgUQEBiAASJcChVHZXRJbnZpdGF0aW9uUmVzcG9uc2USKwoKaW52aXRhdGlvbhgBIAEoCzIXLml6Y2kuYXBpLnYxLkludml0YXRpb24SFgoOYWNjb3VudF9leGlzdHMYAiABKAgiaAoXQWNjZXB0SW52aXRhdGlvblJlcXVlc3QSGQoFdG9rZW4YASABKAlCCrpIB3IFEBAYgAESFgoEbmFtZRgCIAEoCUIIukgFcgMYyAESGgoIcGFzc3dvcmQYAyABKAlCCLpIBXIDGMgBIkEKGEFjY2VwdEludml0YXRpb25SZXNwb25zZRIlCgdzZXNzaW9uGAEgASgLMhQuaXpjaS5hcGkudjEuU2Vzc2lvbipvCgpTaWdudXBNb2RlEhsKF1NJR05VUF9NT0RFX1VOU1BFQ0lGSUVEEAASFgoSU0lHTlVQX01PREVfSU5WSVRFEAESFAoQU0lHTlVQX01PREVfT1BFThACEhYKElNJR05VUF9NT0RFX0NMT1NFRBADMpcICgtBdXRoU2VydmljZRJbCg1HZXRTZXR1cFN0YXRlEiEuaXpjaS5hcGkudjEuR2V0U2V0dXBTdGF0ZVJlcXVlc3QaIi5pemNpLmFwaS52MS5HZXRTZXR1cFN0YXRlUmVzcG9uc2UiA5ACARJWCg1Db21wbGV0ZVNldHVwEiEuaXpjaS5hcGkudjEuQ29tcGxldGVTZXR1cFJlcXVlc3QaIi5pemNpLmFwaS52MS5Db21wbGV0ZVNldHVwUmVzcG9uc2USZwoRTGlzdEF1dGhQcm92aWRlcnMSJS5pemNpLmFwaS52MS5MaXN0QXV0aFByb3ZpZGVyc1JlcXVlc3QaJi5pemNpLmFwaS52MS5MaXN0QXV0aFByb3ZpZGVyc1Jlc3BvbnNlIgOQAgESPgoFTG9naW4SGS5pemNpLmFwaS52MS5Mb2dpblJlcXVlc3QaGi5pemNpLmFwaS52MS5Mb2dpblJlc3BvbnNlElwKD1ZlcmlmeVR3b0ZhY3RvchIjLml6Y2kuYXBpLnYxLlZlcmlmeVR3b0ZhY3RvclJlcXVlc3QaJC5pemNpLmFwaS52MS5WZXJpZnlUd29GYWN0b3JSZXNwb25zZRJBCgZMb2dvdXQSGi5pemNpLmFwaS52MS5Mb2dvdXRSZXF1ZXN0GhsuaXpjaS5hcGkudjEuTG9nb3V0UmVzcG9uc2USUgoKR2V0U2Vzc2lvbhIeLml6Y2kuYXBpLnYxLkdldFNlc3Npb25SZXF1ZXN0Gh8uaXpjaS5hcGkudjEuR2V0U2Vzc2lvblJlc3BvbnNlIgOQAgESWQoOQ2hhbmdlUGFzc3dvcmQSIi5pemNpLmFwaS52MS5DaGFuZ2VQYXNzd29yZFJlcXVlc3QaIy5pemNpLmFwaS52MS5DaGFuZ2VQYXNzd29yZFJlc3BvbnNlElkKDlJlYXV0aGVudGljYXRlEiIuaXpjaS5hcGkudjEuUmVhdXRoZW50aWNhdGVSZXF1ZXN0GiMuaXpjaS5hcGkudjEuUmVhdXRoZW50aWNhdGVSZXNwb25zZRJBCgZTaWduVXASGi5pemNpLmFwaS52MS5TaWduVXBSZXF1ZXN0GhsuaXpjaS5hcGkudjEuU2lnblVwUmVzcG9uc2USWwoNR2V0SW52aXRhdGlvbhIhLml6Y2kuYXBpLnYxLkdldEludml0YXRpb25SZXF1ZXN0GiIuaXpjaS5hcGkudjEuR2V0SW52aXRhdGlvblJlc3BvbnNlIgOQAgESXwoQQWNjZXB0SW52aXRhdGlvbhIkLml6Y2kuYXBpLnYxLkFjY2VwdEludml0YXRpb25SZXF1ZXN0GiUuaXpjaS5hcGkudjEuQWNjZXB0SW52aXRhdGlvblJlc3BvbnNlQp8BCg9jb20uaXpjaS5hcGkudjFCCUF1dGhQcm90b1ABWjNnaXRodWIuY29tL21jaWhhZC9rZW50b3MtaXpjaS9nZW4vaXpjaS9hcGkvdjE7YXBpdjGiAgNJQViqAgtJemNpLkFwaS5WMcoCC0l6Y2lcQXBpXFYx4gIXSXpjaVxBcGlcVjFcR1BCTWV0YWRhdGHqAg1JemNpOjpBcGk6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_timestamp, file_izci_api_v1_common]);
 
 /**
  * User is an izci account.
@@ -210,6 +210,15 @@ export type Session = Message<"izci.api.v1.Session"> & {
    * @generated from field: google.protobuf.Timestamp expires_at = 3;
    */
   expiresAt?: Timestamp | undefined;
+
+  /**
+   * When the session last proved its user's identity (sign-in or
+   * Reauthenticate); unset for access tokens. Sensitive changes need it
+   * within 10 minutes.
+   *
+   * @generated from field: google.protobuf.Timestamp reauthenticated_at = 4;
+   */
+  reauthenticatedAt?: Timestamp | undefined;
 };
 
 /**
@@ -709,6 +718,55 @@ export const GetSessionResponseSchema: GenMessage<GetSessionResponse> = /*@__PUR
   messageDesc(file_izci_api_v1_auth, 19);
 
 /**
+ * ReauthenticateRequest carries one proof of identity.
+ *
+ * @generated from message izci.api.v1.ReauthenticateRequest
+ */
+export type ReauthenticateRequest = Message<"izci.api.v1.ReauthenticateRequest"> & {
+  /**
+   * The account's password.
+   *
+   * @generated from field: string password = 1;
+   */
+  password: string;
+
+  /**
+   * A two-factor code from the authenticator app, or a recovery code.
+   *
+   * @generated from field: string code = 2;
+   */
+  code: string;
+};
+
+/**
+ * Describes the message izci.api.v1.ReauthenticateRequest.
+ * Use `create(ReauthenticateRequestSchema)` to create a new message.
+ */
+export const ReauthenticateRequestSchema: GenMessage<ReauthenticateRequest> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_auth, 20);
+
+/**
+ * ReauthenticateResponse confirms the re-authentication.
+ *
+ * @generated from message izci.api.v1.ReauthenticateResponse
+ */
+export type ReauthenticateResponse = Message<"izci.api.v1.ReauthenticateResponse"> & {
+  /**
+   * When the session proved its user's identity.
+   *
+   * @generated from field: google.protobuf.Timestamp reauthenticated_at = 1;
+   */
+  reauthenticatedAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message izci.api.v1.ReauthenticateResponse.
+ * Use `create(ReauthenticateResponseSchema)` to create a new message.
+ */
+export const ReauthenticateResponseSchema: GenMessage<ReauthenticateResponse> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_auth, 21);
+
+/**
  * ChangePasswordRequest holds the old and new password.
  *
  * @generated from message izci.api.v1.ChangePasswordRequest
@@ -734,7 +792,7 @@ export type ChangePasswordRequest = Message<"izci.api.v1.ChangePasswordRequest">
  * Use `create(ChangePasswordRequestSchema)` to create a new message.
  */
 export const ChangePasswordRequestSchema: GenMessage<ChangePasswordRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_auth, 20);
+  messageDesc(file_izci_api_v1_auth, 22);
 
 /**
  * ChangePasswordResponse has no fields.
@@ -749,7 +807,7 @@ export type ChangePasswordResponse = Message<"izci.api.v1.ChangePasswordResponse
  * Use `create(ChangePasswordResponseSchema)` to create a new message.
  */
 export const ChangePasswordResponseSchema: GenMessage<ChangePasswordResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_auth, 21);
+  messageDesc(file_izci_api_v1_auth, 23);
 
 /**
  * SignUpRequest creates an account and an organization.
@@ -798,7 +856,7 @@ export type SignUpRequest = Message<"izci.api.v1.SignUpRequest"> & {
  * Use `create(SignUpRequestSchema)` to create a new message.
  */
 export const SignUpRequestSchema: GenMessage<SignUpRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_auth, 22);
+  messageDesc(file_izci_api_v1_auth, 24);
 
 /**
  * SignUpResponse returns the new session.
@@ -819,7 +877,7 @@ export type SignUpResponse = Message<"izci.api.v1.SignUpResponse"> & {
  * Use `create(SignUpResponseSchema)` to create a new message.
  */
 export const SignUpResponseSchema: GenMessage<SignUpResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_auth, 23);
+  messageDesc(file_izci_api_v1_auth, 25);
 
 /**
  * GetInvitationRequest identifies an invitation.
@@ -840,7 +898,7 @@ export type GetInvitationRequest = Message<"izci.api.v1.GetInvitationRequest"> &
  * Use `create(GetInvitationRequestSchema)` to create a new message.
  */
 export const GetInvitationRequestSchema: GenMessage<GetInvitationRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_auth, 24);
+  messageDesc(file_izci_api_v1_auth, 26);
 
 /**
  * GetInvitationResponse describes the invitation.
@@ -869,7 +927,7 @@ export type GetInvitationResponse = Message<"izci.api.v1.GetInvitationResponse">
  * Use `create(GetInvitationResponseSchema)` to create a new message.
  */
 export const GetInvitationResponseSchema: GenMessage<GetInvitationResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_auth, 25);
+  messageDesc(file_izci_api_v1_auth, 27);
 
 /**
  * AcceptInvitationRequest accepts an invitation.
@@ -905,7 +963,7 @@ export type AcceptInvitationRequest = Message<"izci.api.v1.AcceptInvitationReque
  * Use `create(AcceptInvitationRequestSchema)` to create a new message.
  */
 export const AcceptInvitationRequestSchema: GenMessage<AcceptInvitationRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_auth, 26);
+  messageDesc(file_izci_api_v1_auth, 28);
 
 /**
  * AcceptInvitationResponse returns the resulting session.
@@ -926,7 +984,7 @@ export type AcceptInvitationResponse = Message<"izci.api.v1.AcceptInvitationResp
  * Use `create(AcceptInvitationResponseSchema)` to create a new message.
  */
 export const AcceptInvitationResponseSchema: GenMessage<AcceptInvitationResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_auth, 27);
+  messageDesc(file_izci_api_v1_auth, 29);
 
 /**
  * SignupMode controls who may create accounts.
@@ -1074,6 +1132,8 @@ export const AuthService: GenService<{
   /**
    * ChangePassword changes (or, for accounts created through OpenID Connect,
    * sets) the password of the signed-in user and ends their other sessions.
+   * Browser sessions only. Setting a first password needs a recent
+   * re-authentication (ERROR_REASON_REAUTHENTICATION_REQUIRED).
    *
    * @generated from rpc izci.api.v1.AuthService.ChangePassword
    */
@@ -1081,6 +1141,24 @@ export const AuthService: GenService<{
     methodKind: "unary";
     input: typeof ChangePasswordRequestSchema;
     output: typeof ChangePasswordResponseSchema;
+  },
+  /**
+   * Reauthenticate proves the signed-in user's identity again, with their
+   * password or a two-factor code (a recovery code included). Sensitive
+   * changes (setting a password, creating access tokens, turning on
+   * two-factor authentication, linking sign-in methods, lifting an
+   * organization's two-factor requirement) need one within 10 minutes;
+   * they fail with ERROR_REASON_REAUTHENTICATION_REQUIRED otherwise.
+   * Accounts with neither re-authenticate through their identity provider:
+   * open AuthProvider.login_url with "?reauth=1&next=<path>". Browser
+   * sessions only.
+   *
+   * @generated from rpc izci.api.v1.AuthService.Reauthenticate
+   */
+  reauthenticate: {
+    methodKind: "unary";
+    input: typeof ReauthenticateRequestSchema;
+    output: typeof ReauthenticateResponseSchema;
   },
   /**
    * SignUp creates an account together with a new organization when self

@@ -323,8 +323,37 @@ func TestOIDCAccountLinking(t *testing.T) {
 	if _, err := authc.Login(ctx, connect.NewRequest(&apiv1.LoginRequest{Email: "ayse@kentos.com.tr", Password: "ayşenin uzun parolası"})); err != nil {
 		t.Fatal(err)
 	}
+	// Linking is a sensitive change: an old session confirms its user's
+	// identity first.
+	age := func() {
+		t.Helper()
+		if _, err := database.Pool.Exec(ctx, `UPDATE sessions SET reauthenticated_at = now() - interval '1 hour'`); err != nil {
+			t.Fatal(err)
+		}
+	}
+	age()
+	if u := visit(ayse, "/auth/oidc/kimlik/start?link=1&next=/o/kentos/account"); u.Path != "/o/kentos/account" || u.Query().Get("oidc_error") != "oidc_reauth_required" {
+		t.Fatalf("link from an old session ended at %s", u)
+	}
+	if _, err := authc.Reauthenticate(ctx, connect.NewRequest(&apiv1.ReauthenticateRequest{Password: "ayşenin uzun parolası"})); err != nil {
+		t.Fatal(err)
+	}
 	if u := visit(ayse, "/auth/oidc/kimlik/start?link=1&next=/o/kentos/account"); u.Path != "/o/kentos/account" || u.Query().Get("oidc_linked") != "kimlik" {
 		t.Fatalf("link ended at %s", u)
+	}
+	// The linked identity re-authenticates Ayşe's session; another
+	// account's identity does not.
+	age()
+	if u := visit(ayse, "/auth/oidc/kimlik/start?reauth=1&next=/o/kentos/account"); u.Path != "/o/kentos/account" || u.Query().Get("oidc_reauth") != "1" {
+		t.Fatalf("re-authentication ended at %s", u)
+	}
+	var recent bool
+	database.Pool.QueryRow(ctx, `SELECT bool_and(reauthenticated_at > now() - interval '1 minute') FROM sessions`).Scan(&recent)
+	if !recent {
+		t.Fatal("re-authentication did not refresh the session")
+	}
+	if u := visit(browser(), "/auth/oidc/kimlik/start?reauth=1&next=/o/kentos/account"); u.Path != "/login" {
+		t.Fatalf("re-authentication without a session ended at %s", u)
 	}
 	phone := browser()
 	if u := visit(phone, "/auth/oidc/kimlik/start?next=/o/kentos"); u.Path != "/o/kentos" {
@@ -347,6 +376,9 @@ func TestOIDCAccountLinking(t *testing.T) {
 	idp.set("ayse-at-kimlik", "mehmet@kentos.com.tr", boolPtr(true))
 	if u := visit(mehmet, "/auth/oidc/kimlik/start?link=1&next=/o/kentos/account"); u.Query().Get("oidc_error") != "oidc_identity_taken" {
 		t.Fatalf("linking someone else's identity ended at %s", u)
+	}
+	if u := visit(mehmet, "/auth/oidc/kimlik/start?reauth=1&next=/o/kentos/account"); u.Query().Get("oidc_error") != "oidc_reauth_mismatch" {
+		t.Fatalf("re-authenticating with someone else's identity ended at %s", u)
 	}
 
 	// At a trusted provider a verified address links the existing account.

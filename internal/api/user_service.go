@@ -64,6 +64,9 @@ func (s *UserServer) CreateAccessToken(ctx context.Context, req *connect.Request
 	if p.Token != nil {
 		return nil, errPermission("access tokens cannot create other tokens")
 	}
+	if err := requireRecentAuth(ctx); err != nil {
+		return nil, err
+	}
 	m := req.Msg
 	var org *store.Organization
 	var orgID *uuid.UUID

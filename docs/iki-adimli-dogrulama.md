@@ -6,7 +6,7 @@
 
 ## Açma
 
-1. **Hesabım › İki adımlı doğrulama** bölümünde **İki adımlı doğrulamayı aç**'a basın.
+1. **Hesabım › İki adımlı doğrulama** bölümünde **İki adımlı doğrulamayı aç**'a basın. Son 10 dakika içinde giriş yapmadıysanız önce parolanız (ya da bağlı kimlik sağlayıcınızla yeniden giriş) istenir.
 2. Doğrulama uygulamanızla QR kodu okutun. Okutamıyorsanız altındaki anahtarı uygulamaya elle girin.
 3. Uygulamanın gösterdiği 6 haneli kodu girip **Doğrula ve aç**'a basın. Kurulum bir saat içinde tamamlanmazsa yeniden başlatılır.
 4. Ekrana gelen **10 kurtarma kodunu** saklayın: kopyalayın ya da `.txt` olarak indirin ve parola yöneticinize koyun. Kodlar bir daha gösterilmez.
@@ -45,7 +45,7 @@ Sıfırlanan hesap yalnız parolayla girer ve iki adımlı doğrulamayı yeniden
 
 ## Organizasyonda zorunlu tutma
 
-Yöneticiler **Organizasyon ayarları › Genel** bölümünde **İki adımlı doğrulama zorunlu** seçeneğini açar. Kendi hesabında açık olmayan biri seçeneği açamaz; böylece kimse kendini dışarıda bırakmaz.
+Yöneticiler **Organizasyon ayarları › Genel** bölümünde **İki adımlı doğrulama zorunlu** seçeneğini açar. Kendi hesabında açık olmayan biri seçeneği açamaz; böylece kimse kendini dışarıda bırakmaz. Zorunluluğu kaldırmak bütün üyelerin hesaplarını zayıflattığı için, son 10 dakika içinde kimliğini doğrulamış bir oturum ister; gerekirse arayüz parolanızı ya da kodunuzu sorar.
 
 Zorunluluk açıkken iki adımlı doğrulaması olmayan üyeler:
 
@@ -64,7 +64,9 @@ Kendi istemcinizi yazıyorsanız:
 1. `AuthService.Login` iki adımlı doğrulaması açık hesaplarda oturum yerine `two_factor_required: true` döner ve 10 dakikalık `izci_2fa` çerezini (HttpOnly) koyar.
 2. `AuthService.VerifyTwoFactor` aynı çerezle ve `code` alanıyla (6 hane ya da kurtarma kodu) çağrılır; başarıda oturum çerezi konur ve oturum döner.
 
-Hatalı kod `ERROR_REASON_INVALID_TWO_FACTOR_CODE`, süresi dolan giriş `ERROR_REASON_TWO_FACTOR_EXPIRED`, kilit `ERROR_REASON_TOO_MANY_ATTEMPTS` (`retry_after_seconds` ile) döner. Kurulum ve kapatma (`UserService.BeginTwoFactorSetup`, `EnableTwoFactor`, `DisableTwoFactor`, `RegenerateRecoveryCodes`) yalnız tarayıcı oturumuyla yapılır, kişisel erişim anahtarıyla yapılamaz. Ayrıntılar [Yönetim API başvurusunda](api/izci.api.v1.md).
+Hatalı kod `ERROR_REASON_INVALID_TWO_FACTOR_CODE`, süresi dolan giriş `ERROR_REASON_TWO_FACTOR_EXPIRED`, kilit `ERROR_REASON_TOO_MANY_ATTEMPTS` (`retry_after_seconds` ile) döner. Kurulum ve kapatma (`UserService.BeginTwoFactorSetup`, `EnableTwoFactor`, `DisableTwoFactor`, `RegenerateRecoveryCodes`) yalnız tarayıcı oturumuyla yapılır, kişisel erişim anahtarıyla yapılamaz.
+
+Kurulumu başlatmak, erişim anahtarı oluşturmak ve zorunluluğu kaldırmak gibi hassas istekler, oturum son 10 dakika içinde kimliğini doğrulamadıysa `FAILED_PRECONDITION` ve `ERROR_REASON_REAUTHENTICATION_REQUIRED` döner. `AuthService.Reauthenticate` aynı oturumla `password` ya da `code` (6 hane ya da kurtarma kodu) alanıyla çağrılır; başarıda `reauthenticated_at` döner ve istek yeniden denenir. Yanlış parola `ERROR_REASON_INVALID_CREDENTIALS` döner (oturum geçerli kalır). Yalnız kimlik sağlayıcısıyla giren hesaplar tarayıcıyı `/auth/oidc/<id>/start?reauth=1&next=<sayfa>` adresine yönlendirir; dönüşte sayfanın adresine `oidc_reauth=1` eklenir. `AuthService.GetSession` son doğrulamanın zamanını `reauthenticated_at` alanında verir. Ayrıntılar [Yönetim API başvurusunda](api/izci.api.v1.md).
 
 ## Nasıl saklanır
 

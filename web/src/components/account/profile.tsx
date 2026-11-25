@@ -11,6 +11,7 @@ import { UserService } from "@/gen/izci/api/v1/user_pb";
 import { baseTransport } from "@/lib/api";
 import { errorField, errorMessage } from "@/lib/errors";
 import { useOrg } from "@/lib/org";
+import { recentlyAuthenticated, requestReauth } from "@/lib/reauth";
 import { sessionQuery, useSession } from "@/lib/session";
 
 export function Profile() {
@@ -123,10 +124,11 @@ export function Profile() {
 /**
  * Identity providers the account can sign in with. Linking happens while
  * signed in, so that a provider never takes over an account just because
- * it reports the same e-mail address.
+ * it reports the same e-mail address, and after a recent re-authentication.
  */
 function SignInMethods({ linked }: { linked: string[] }) {
   const org = useOrg();
+  const session = useSession();
   const providers = useQuery(AuthService.method.listAuthProviders, {}, { transport: baseTransport });
   const list = providers.data?.providers ?? [];
   if (list.length === 0) return null;
@@ -152,7 +154,19 @@ function SignInMethods({ linked }: { linked: string[] }) {
                 <span className="text-sm text-muted-foreground">Bağlı</span>
               ) : (
                 <Button asChild variant="outline" size="sm">
-                  <a href={`${p.loginUrl}?link=1&next=${encodeURIComponent(back)}`}>Bağla</a>
+                  <a
+                    href={`${p.loginUrl}?link=1&next=${encodeURIComponent(back)}`}
+                    onClick={(e) => {
+                      if (recentlyAuthenticated(session)) return;
+                      e.preventDefault();
+                      const href = e.currentTarget.href;
+                      void requestReauth().then((ok) => {
+                        if (ok) window.location.assign(href);
+                      });
+                    }}
+                  >
+                    Bağla
+                  </a>
                 </Button>
               )}
             </li>

@@ -4,7 +4,7 @@
 
 ## Erişim anahtarı
 
-Asistan sizin adınıza **kişisel erişim anahtarıyla** (`izp_…`) çalışır. **Hesabım › Erişim anahtarları › Anahtar oluştur** ile oluşturun ve yalnız gereken kapsamları verin:
+Asistan sizin adınıza **kişisel erişim anahtarıyla** (`izp_…`) çalışır. **Hesabım › Erişim anahtarları › Anahtar oluştur** ile oluşturun ve yalnız gereken kapsamları verin (son 10 dakika içinde giriş yapmadıysanız önce kimliğinizi yeniden doğrulamanız istenir):
 
 | Kapsam | İzin verdiği araçlar |
 |---|---|

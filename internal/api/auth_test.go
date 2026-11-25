@@ -391,3 +391,65 @@ func TestPublicAuthIsCheap(t *testing.T) {
 		t.Fatalf("guessing invitations is not limited: %v", last)
 	}
 }
+
+// TestReauthentication checks that sensitive changes need a session that
+// proved its user's identity in the last minutes.
+func TestReauthentication(t *testing.T) {
+	e := newEnv(t)
+	ctx := context.Background()
+	owner := e.client(map[string]string{"Izci-Org": "kentos"})
+	const password = "uzun ve güçlü parola"
+	if _, err := owner.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{SetupToken: testSetupToken, Name: "Owner", Email: "owner@example.com",
+		Password: password, OrganizationName: "KentOS", OrganizationSlug: "kentos", ProjectName: "Kalem"})); err != nil {
+		t.Fatal(err)
+	}
+	age := func() {
+		t.Helper()
+		if _, err := e.db.Pool.Exec(ctx, `UPDATE sessions SET reauthenticated_at = now() - interval '1 hour'`); err != nil {
+			t.Fatal(err)
+		}
+	}
+	newToken := func(c *client) error {
+		_, err := c.user.CreateAccessToken(ctx, req(&apiv1.CreateAccessTokenRequest{Name: "cli", Scopes: []apiv1.TokenScope{apiv1.TokenScope_TOKEN_SCOPE_READ, apiv1.TokenScope_TOKEN_SCOPE_WRITE}}))
+		return err
+	}
+	// A fresh sign-in is recent enough.
+	if err := newToken(owner); err != nil {
+		t.Fatalf("token right after sign-in: %v", err)
+	}
+	age()
+	if err := newToken(owner); reason(err) != apiv1.ErrorReason_ERROR_REASON_REAUTHENTICATION_REQUIRED {
+		t.Fatalf("token from an old session: %v", err)
+	}
+	if _, err := owner.user.BeginTwoFactorSetup(ctx, req(&apiv1.BeginTwoFactorSetupRequest{})); reason(err) != apiv1.ErrorReason_ERROR_REASON_REAUTHENTICATION_REQUIRED {
+		t.Fatalf("two-factor setup from an old session: %v", err)
+	}
+	if _, err := owner.auth.Reauthenticate(ctx, req(&apiv1.ReauthenticateRequest{Password: "yanlış parola"})); reason(err) != apiv1.ErrorReason_ERROR_REASON_INVALID_CREDENTIALS {
+		t.Fatalf("wrong password: %v", err)
+	}
+	res, err := owner.auth.Reauthenticate(ctx, req(&apiv1.ReauthenticateRequest{Password: password}))
+	if err != nil || time.Since(res.Msg.GetReauthenticatedAt().AsTime()) > time.Minute {
+		t.Fatalf("reauthenticate: %v %v", res, err)
+	}
+	if err := newToken(owner); err != nil {
+		t.Fatalf("token after re-authentication: %v", err)
+	}
+	sess, _ := owner.auth.GetSession(ctx, req(&apiv1.GetSessionRequest{}))
+	if sess.Msg.GetSession().GetReauthenticatedAt() == nil {
+		t.Fatal("session lacks reauthenticated_at")
+	}
+
+	// Access tokens neither re-authenticate nor change passwords.
+	tok, err := owner.user.CreateAccessToken(ctx, req(&apiv1.CreateAccessTokenRequest{Name: "bot", Scopes: []apiv1.TokenScope{apiv1.TokenScope_TOKEN_SCOPE_READ, apiv1.TokenScope_TOKEN_SCOPE_WRITE}}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	bot := e.client(map[string]string{"Authorization": "Bearer " + tok.Msg.GetSecret()})
+	if _, err := bot.auth.Reauthenticate(ctx, req(&apiv1.ReauthenticateRequest{Password: password})); reason(err) != apiv1.ErrorReason_ERROR_REASON_PERMISSION_DENIED {
+		t.Fatalf("token re-authenticating: %v", err)
+	}
+	if _, err := bot.auth.ChangePassword(ctx, req(&apiv1.ChangePasswordRequest{CurrentPassword: password, NewPassword: "yepyeni uzun parola"})); reason(err) != apiv1.ErrorReason_ERROR_REASON_PERMISSION_DENIED {
+		t.Fatalf("token changing the password: %v", err)
+	}
+
+}
