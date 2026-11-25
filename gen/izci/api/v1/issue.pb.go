@@ -3310,6 +3310,135 @@ func (x *UnmergeIssueResponse) GetIssue() *IssueSummary {
 	return nil
 }
 
+// GetQueryStatsRequest is a search, as in ListIssuesRequest.
+type GetQueryStatsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Search query; empty means "is:unresolved".
+	Query string `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
+	// Project slugs; empty means every project.
+	Projects []string `protobuf:"bytes,2,rep,name=projects,proto3" json:"projects,omitempty"`
+	// Window of the counts; the last hour is not supported (24 hours is
+	// used instead).
+	StatsPeriod   StatsPeriod `protobuf:"varint,3,opt,name=stats_period,json=statsPeriod,proto3,enum=izci.api.v1.StatsPeriod" json:"stats_period,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetQueryStatsRequest) Reset() {
+	*x = GetQueryStatsRequest{}
+	mi := &file_izci_api_v1_issue_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetQueryStatsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetQueryStatsRequest) ProtoMessage() {}
+
+func (x *GetQueryStatsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_issue_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetQueryStatsRequest.ProtoReflect.Descriptor instead.
+func (*GetQueryStatsRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *GetQueryStatsRequest) GetQuery() string {
+	if x != nil {
+		return x.Query
+	}
+	return ""
+}
+
+func (x *GetQueryStatsRequest) GetProjects() []string {
+	if x != nil {
+		return x.Projects
+	}
+	return nil
+}
+
+func (x *GetQueryStatsRequest) GetStatsPeriod() StatsPeriod {
+	if x != nil {
+		return x.StatsPeriod
+	}
+	return StatsPeriod_STATS_PERIOD_UNSPECIFIED
+}
+
+// GetQueryStatsResponse sums up the matching issues.
+type GetQueryStatsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Matching issues seen in the period, at most 10000.
+	Issues uint32 `protobuf:"varint,1,opt,name=issues,proto3" json:"issues,omitempty"`
+	// Their events in the period.
+	Events uint64 `protobuf:"varint,2,opt,name=events,proto3" json:"events,omitempty"`
+	// Their events over the period.
+	Series        *Series `protobuf:"bytes,3,opt,name=series,proto3" json:"series,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetQueryStatsResponse) Reset() {
+	*x = GetQueryStatsResponse{}
+	mi := &file_izci_api_v1_issue_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetQueryStatsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetQueryStatsResponse) ProtoMessage() {}
+
+func (x *GetQueryStatsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_issue_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetQueryStatsResponse.ProtoReflect.Descriptor instead.
+func (*GetQueryStatsResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *GetQueryStatsResponse) GetIssues() uint32 {
+	if x != nil {
+		return x.Issues
+	}
+	return 0
+}
+
+func (x *GetQueryStatsResponse) GetEvents() uint64 {
+	if x != nil {
+		return x.Events
+	}
+	return 0
+}
+
+func (x *GetQueryStatsResponse) GetSeries() *Series {
+	if x != nil {
+		return x.Series
+	}
+	return nil
+}
+
 var File_izci_api_v1_issue_proto protoreflect.FileDescriptor
 
 const file_izci_api_v1_issue_proto_rawDesc = "" +
@@ -3546,7 +3675,15 @@ const file_izci_api_v1_issue_proto_rawDesc = "" +
 	"\bissue_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\aissueId\x127\n" +
 	"\vfingerprint\x18\x02 \x01(\tB\x15\xbaH\x12r\x102\x0e^[0-9a-f]{32}$R\vfingerprint\"G\n" +
 	"\x14UnmergeIssueResponse\x12/\n" +
-	"\x05issue\x18\x01 \x01(\v2\x19.izci.api.v1.IssueSummaryR\x05issue*\xae\x01\n" +
+	"\x05issue\x18\x01 \x01(\v2\x19.izci.api.v1.IssueSummaryR\x05issue\"\x99\x01\n" +
+	"\x14GetQueryStatsRequest\x12\x1e\n" +
+	"\x05query\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x18\xd0\x0fR\x05query\x12$\n" +
+	"\bprojects\x18\x02 \x03(\tB\b\xbaH\x05\x92\x01\x02\x102R\bprojects\x12;\n" +
+	"\fstats_period\x18\x03 \x01(\x0e2\x18.izci.api.v1.StatsPeriodR\vstatsPeriod\"t\n" +
+	"\x15GetQueryStatsResponse\x12\x16\n" +
+	"\x06issues\x18\x01 \x01(\rR\x06issues\x12\x16\n" +
+	"\x06events\x18\x02 \x01(\x04R\x06events\x12+\n" +
+	"\x06series\x18\x03 \x01(\v2\x13.izci.api.v1.SeriesR\x06series*\xae\x01\n" +
 	"\aAiState\x12\x18\n" +
 	"\x14AI_STATE_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rAI_STATE_NONE\x10\x01\x12\x14\n" +
@@ -3582,12 +3719,14 @@ const file_izci_api_v1_issue_proto_rawDesc = "" +
 	"\x1bSUGGESTION_KIND_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13SUGGESTION_KIND_KEY\x10\x01\x12\x19\n" +
 	"\x15SUGGESTION_KIND_VALUE\x10\x02\x12\x19\n" +
-	"\x15SUGGESTION_KIND_QUERY\x10\x032\xf5\t\n" +
+	"\x15SUGGESTION_KIND_QUERY\x10\x032\xd2\n" +
+	"\n" +
 	"\fIssueService\x12R\n" +
 	"\n" +
 	"ListIssues\x12\x1e.izci.api.v1.ListIssuesRequest\x1a\x1f.izci.api.v1.ListIssuesResponse\"\x03\x90\x02\x01\x12L\n" +
 	"\bGetIssue\x12\x1c.izci.api.v1.GetIssueRequest\x1a\x1d.izci.api.v1.GetIssueResponse\"\x03\x90\x02\x01\x12S\n" +
-	"\fUpdateIssues\x12 .izci.api.v1.UpdateIssuesRequest\x1a!.izci.api.v1.UpdateIssuesResponse\x12P\n" +
+	"\fUpdateIssues\x12 .izci.api.v1.UpdateIssuesRequest\x1a!.izci.api.v1.UpdateIssuesResponse\x12[\n" +
+	"\rGetQueryStats\x12!.izci.api.v1.GetQueryStatsRequest\x1a\".izci.api.v1.GetQueryStatsResponse\"\x03\x90\x02\x01\x12P\n" +
 	"\vMergeIssues\x12\x1f.izci.api.v1.MergeIssuesRequest\x1a .izci.api.v1.MergeIssuesResponse\x12S\n" +
 	"\fUnmergeIssue\x12 .izci.api.v1.UnmergeIssueRequest\x1a!.izci.api.v1.UnmergeIssueResponse\x12a\n" +
 	"\x0fListIssueEvents\x12#.izci.api.v1.ListIssueEventsRequest\x1a$.izci.api.v1.ListIssueEventsResponse\"\x03\x90\x02\x01\x12[\n" +
@@ -3615,7 +3754,7 @@ func file_izci_api_v1_issue_proto_rawDescGZIP() []byte {
 }
 
 var file_izci_api_v1_issue_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_izci_api_v1_issue_proto_msgTypes = make([]protoimpl.MessageInfo, 43)
+var file_izci_api_v1_issue_proto_msgTypes = make([]protoimpl.MessageInfo, 45)
 var file_izci_api_v1_issue_proto_goTypes = []any{
 	(AiState)(0),                      // 0: izci.api.v1.AiState
 	(IssueSort)(0),                    // 1: izci.api.v1.IssueSort
@@ -3663,105 +3802,111 @@ var file_izci_api_v1_issue_proto_goTypes = []any{
 	(*MergeIssuesResponse)(nil),       // 43: izci.api.v1.MergeIssuesResponse
 	(*UnmergeIssueRequest)(nil),       // 44: izci.api.v1.UnmergeIssueRequest
 	(*UnmergeIssueResponse)(nil),      // 45: izci.api.v1.UnmergeIssueResponse
-	nil,                               // 46: izci.api.v1.IssueActivity.DataEntry
-	(*ProjectRef)(nil),                // 47: izci.api.v1.ProjectRef
-	(v1.Level)(0),                     // 48: izci.ingest.v1.Level
-	(IssueStatus)(0),                  // 49: izci.api.v1.IssueStatus
-	(IssueSubstatus)(0),               // 50: izci.api.v1.IssueSubstatus
-	(Priority)(0),                     // 51: izci.api.v1.Priority
-	(*timestamppb.Timestamp)(nil),     // 52: google.protobuf.Timestamp
-	(*Series)(nil),                    // 53: izci.api.v1.Series
-	(*UserRef)(nil),                   // 54: izci.api.v1.UserRef
-	(StatsPeriod)(0),                  // 55: izci.api.v1.StatsPeriod
-	(*durationpb.Duration)(nil),       // 56: google.protobuf.Duration
-	(*EventSummary)(nil),              // 57: izci.api.v1.EventSummary
+	(*GetQueryStatsRequest)(nil),      // 46: izci.api.v1.GetQueryStatsRequest
+	(*GetQueryStatsResponse)(nil),     // 47: izci.api.v1.GetQueryStatsResponse
+	nil,                               // 48: izci.api.v1.IssueActivity.DataEntry
+	(*ProjectRef)(nil),                // 49: izci.api.v1.ProjectRef
+	(v1.Level)(0),                     // 50: izci.ingest.v1.Level
+	(IssueStatus)(0),                  // 51: izci.api.v1.IssueStatus
+	(IssueSubstatus)(0),               // 52: izci.api.v1.IssueSubstatus
+	(Priority)(0),                     // 53: izci.api.v1.Priority
+	(*timestamppb.Timestamp)(nil),     // 54: google.protobuf.Timestamp
+	(*Series)(nil),                    // 55: izci.api.v1.Series
+	(*UserRef)(nil),                   // 56: izci.api.v1.UserRef
+	(StatsPeriod)(0),                  // 57: izci.api.v1.StatsPeriod
+	(*durationpb.Duration)(nil),       // 58: google.protobuf.Duration
+	(*EventSummary)(nil),              // 59: izci.api.v1.EventSummary
 }
 var file_izci_api_v1_issue_proto_depIdxs = []int32{
-	47, // 0: izci.api.v1.IssueSummary.project:type_name -> izci.api.v1.ProjectRef
-	48, // 1: izci.api.v1.IssueSummary.level:type_name -> izci.ingest.v1.Level
-	49, // 2: izci.api.v1.IssueSummary.status:type_name -> izci.api.v1.IssueStatus
-	50, // 3: izci.api.v1.IssueSummary.substatus:type_name -> izci.api.v1.IssueSubstatus
-	51, // 4: izci.api.v1.IssueSummary.priority:type_name -> izci.api.v1.Priority
-	52, // 5: izci.api.v1.IssueSummary.first_seen:type_name -> google.protobuf.Timestamp
-	52, // 6: izci.api.v1.IssueSummary.last_seen:type_name -> google.protobuf.Timestamp
-	53, // 7: izci.api.v1.IssueSummary.series:type_name -> izci.api.v1.Series
-	54, // 8: izci.api.v1.IssueSummary.assignee:type_name -> izci.api.v1.UserRef
+	49, // 0: izci.api.v1.IssueSummary.project:type_name -> izci.api.v1.ProjectRef
+	50, // 1: izci.api.v1.IssueSummary.level:type_name -> izci.ingest.v1.Level
+	51, // 2: izci.api.v1.IssueSummary.status:type_name -> izci.api.v1.IssueStatus
+	52, // 3: izci.api.v1.IssueSummary.substatus:type_name -> izci.api.v1.IssueSubstatus
+	53, // 4: izci.api.v1.IssueSummary.priority:type_name -> izci.api.v1.Priority
+	54, // 5: izci.api.v1.IssueSummary.first_seen:type_name -> google.protobuf.Timestamp
+	54, // 6: izci.api.v1.IssueSummary.last_seen:type_name -> google.protobuf.Timestamp
+	55, // 7: izci.api.v1.IssueSummary.series:type_name -> izci.api.v1.Series
+	56, // 8: izci.api.v1.IssueSummary.assignee:type_name -> izci.api.v1.UserRef
 	0,  // 9: izci.api.v1.IssueSummary.ai_state:type_name -> izci.api.v1.AiState
 	4,  // 10: izci.api.v1.Issue.summary:type_name -> izci.api.v1.IssueSummary
-	52, // 11: izci.api.v1.Issue.resolved_at:type_name -> google.protobuf.Timestamp
-	54, // 12: izci.api.v1.Issue.resolved_by:type_name -> izci.api.v1.UserRef
+	54, // 11: izci.api.v1.Issue.resolved_at:type_name -> google.protobuf.Timestamp
+	56, // 12: izci.api.v1.Issue.resolved_by:type_name -> izci.api.v1.UserRef
 	7,  // 13: izci.api.v1.Issue.snooze:type_name -> izci.api.v1.Snooze
 	8,  // 14: izci.api.v1.Issue.grouping:type_name -> izci.api.v1.Grouping
 	9,  // 15: izci.api.v1.Issue.location:type_name -> izci.api.v1.IssueLocation
 	10, // 16: izci.api.v1.Issue.pull_requests:type_name -> izci.api.v1.PullRequestRef
 	6,  // 17: izci.api.v1.Issue.tickets:type_name -> izci.api.v1.TicketRef
 	41, // 18: izci.api.v1.Issue.merged:type_name -> izci.api.v1.MergedIssue
-	52, // 19: izci.api.v1.TicketRef.created_at:type_name -> google.protobuf.Timestamp
-	52, // 20: izci.api.v1.Snooze.until:type_name -> google.protobuf.Timestamp
+	54, // 19: izci.api.v1.TicketRef.created_at:type_name -> google.protobuf.Timestamp
+	54, // 20: izci.api.v1.Snooze.until:type_name -> google.protobuf.Timestamp
 	12, // 21: izci.api.v1.TagFacet.values:type_name -> izci.api.v1.TagValueCount
-	52, // 22: izci.api.v1.TagValueCount.first_seen:type_name -> google.protobuf.Timestamp
-	52, // 23: izci.api.v1.TagValueCount.last_seen:type_name -> google.protobuf.Timestamp
+	54, // 22: izci.api.v1.TagValueCount.first_seen:type_name -> google.protobuf.Timestamp
+	54, // 23: izci.api.v1.TagValueCount.last_seen:type_name -> google.protobuf.Timestamp
 	2,  // 24: izci.api.v1.IssueActivity.kind:type_name -> izci.api.v1.ActivityKind
-	54, // 25: izci.api.v1.IssueActivity.actor:type_name -> izci.api.v1.UserRef
-	46, // 26: izci.api.v1.IssueActivity.data:type_name -> izci.api.v1.IssueActivity.DataEntry
-	52, // 27: izci.api.v1.IssueActivity.created_at:type_name -> google.protobuf.Timestamp
+	56, // 25: izci.api.v1.IssueActivity.actor:type_name -> izci.api.v1.UserRef
+	48, // 26: izci.api.v1.IssueActivity.data:type_name -> izci.api.v1.IssueActivity.DataEntry
+	54, // 27: izci.api.v1.IssueActivity.created_at:type_name -> google.protobuf.Timestamp
 	3,  // 28: izci.api.v1.SearchSuggestion.kind:type_name -> izci.api.v1.SuggestionKind
 	1,  // 29: izci.api.v1.ListIssuesRequest.sort:type_name -> izci.api.v1.IssueSort
-	55, // 30: izci.api.v1.ListIssuesRequest.stats_period:type_name -> izci.api.v1.StatsPeriod
+	57, // 30: izci.api.v1.ListIssuesRequest.stats_period:type_name -> izci.api.v1.StatsPeriod
 	4,  // 31: izci.api.v1.ListIssuesResponse.issues:type_name -> izci.api.v1.IssueSummary
-	55, // 32: izci.api.v1.GetIssueRequest.stats_period:type_name -> izci.api.v1.StatsPeriod
+	57, // 32: izci.api.v1.GetIssueRequest.stats_period:type_name -> izci.api.v1.StatsPeriod
 	5,  // 33: izci.api.v1.GetIssueResponse.issue:type_name -> izci.api.v1.Issue
-	49, // 34: izci.api.v1.UpdateIssuesRequest.status:type_name -> izci.api.v1.IssueStatus
+	51, // 34: izci.api.v1.UpdateIssuesRequest.status:type_name -> izci.api.v1.IssueStatus
 	20, // 35: izci.api.v1.UpdateIssuesRequest.resolve:type_name -> izci.api.v1.ResolveOptions
 	21, // 36: izci.api.v1.UpdateIssuesRequest.ignore:type_name -> izci.api.v1.IgnoreOptions
-	51, // 37: izci.api.v1.UpdateIssuesRequest.priority:type_name -> izci.api.v1.Priority
-	56, // 38: izci.api.v1.IgnoreOptions.duration:type_name -> google.protobuf.Duration
+	53, // 37: izci.api.v1.UpdateIssuesRequest.priority:type_name -> izci.api.v1.Priority
+	58, // 38: izci.api.v1.IgnoreOptions.duration:type_name -> google.protobuf.Duration
 	4,  // 39: izci.api.v1.UpdateIssuesResponse.issues:type_name -> izci.api.v1.IssueSummary
-	57, // 40: izci.api.v1.ListIssueEventsResponse.events:type_name -> izci.api.v1.EventSummary
-	55, // 41: izci.api.v1.GetIssueStatsRequest.period:type_name -> izci.api.v1.StatsPeriod
-	53, // 42: izci.api.v1.GetIssueStatsResponse.series:type_name -> izci.api.v1.Series
+	59, // 40: izci.api.v1.ListIssueEventsResponse.events:type_name -> izci.api.v1.EventSummary
+	57, // 41: izci.api.v1.GetIssueStatsRequest.period:type_name -> izci.api.v1.StatsPeriod
+	55, // 42: izci.api.v1.GetIssueStatsResponse.series:type_name -> izci.api.v1.Series
 	11, // 43: izci.api.v1.GetIssueTagFacetsResponse.facets:type_name -> izci.api.v1.TagFacet
 	13, // 44: izci.api.v1.ListIssueActivityResponse.activities:type_name -> izci.api.v1.IssueActivity
 	13, // 45: izci.api.v1.AddIssueCommentResponse.activity:type_name -> izci.api.v1.IssueActivity
 	6,  // 46: izci.api.v1.CreateTicketResponse.ticket:type_name -> izci.api.v1.TicketRef
 	14, // 47: izci.api.v1.SuggestSearchResponse.suggestions:type_name -> izci.api.v1.SearchSuggestion
-	54, // 48: izci.api.v1.MergedIssue.merged_by:type_name -> izci.api.v1.UserRef
-	52, // 49: izci.api.v1.MergedIssue.merged_at:type_name -> google.protobuf.Timestamp
+	56, // 48: izci.api.v1.MergedIssue.merged_by:type_name -> izci.api.v1.UserRef
+	54, // 49: izci.api.v1.MergedIssue.merged_at:type_name -> google.protobuf.Timestamp
 	4,  // 50: izci.api.v1.MergeIssuesResponse.issue:type_name -> izci.api.v1.IssueSummary
 	4,  // 51: izci.api.v1.UnmergeIssueResponse.issue:type_name -> izci.api.v1.IssueSummary
-	15, // 52: izci.api.v1.IssueService.ListIssues:input_type -> izci.api.v1.ListIssuesRequest
-	17, // 53: izci.api.v1.IssueService.GetIssue:input_type -> izci.api.v1.GetIssueRequest
-	19, // 54: izci.api.v1.IssueService.UpdateIssues:input_type -> izci.api.v1.UpdateIssuesRequest
-	42, // 55: izci.api.v1.IssueService.MergeIssues:input_type -> izci.api.v1.MergeIssuesRequest
-	44, // 56: izci.api.v1.IssueService.UnmergeIssue:input_type -> izci.api.v1.UnmergeIssueRequest
-	23, // 57: izci.api.v1.IssueService.ListIssueEvents:input_type -> izci.api.v1.ListIssueEventsRequest
-	25, // 58: izci.api.v1.IssueService.GetIssueStats:input_type -> izci.api.v1.GetIssueStatsRequest
-	27, // 59: izci.api.v1.IssueService.GetIssueTagFacets:input_type -> izci.api.v1.GetIssueTagFacetsRequest
-	29, // 60: izci.api.v1.IssueService.ListIssueActivity:input_type -> izci.api.v1.ListIssueActivityRequest
-	31, // 61: izci.api.v1.IssueService.AddIssueComment:input_type -> izci.api.v1.AddIssueCommentRequest
-	33, // 62: izci.api.v1.IssueService.FollowIssue:input_type -> izci.api.v1.FollowIssueRequest
-	35, // 63: izci.api.v1.IssueService.CreateTicket:input_type -> izci.api.v1.CreateTicketRequest
-	37, // 64: izci.api.v1.IssueService.SuggestSearch:input_type -> izci.api.v1.SuggestSearchRequest
-	39, // 65: izci.api.v1.IssueService.DeleteIssues:input_type -> izci.api.v1.DeleteIssuesRequest
-	16, // 66: izci.api.v1.IssueService.ListIssues:output_type -> izci.api.v1.ListIssuesResponse
-	18, // 67: izci.api.v1.IssueService.GetIssue:output_type -> izci.api.v1.GetIssueResponse
-	22, // 68: izci.api.v1.IssueService.UpdateIssues:output_type -> izci.api.v1.UpdateIssuesResponse
-	43, // 69: izci.api.v1.IssueService.MergeIssues:output_type -> izci.api.v1.MergeIssuesResponse
-	45, // 70: izci.api.v1.IssueService.UnmergeIssue:output_type -> izci.api.v1.UnmergeIssueResponse
-	24, // 71: izci.api.v1.IssueService.ListIssueEvents:output_type -> izci.api.v1.ListIssueEventsResponse
-	26, // 72: izci.api.v1.IssueService.GetIssueStats:output_type -> izci.api.v1.GetIssueStatsResponse
-	28, // 73: izci.api.v1.IssueService.GetIssueTagFacets:output_type -> izci.api.v1.GetIssueTagFacetsResponse
-	30, // 74: izci.api.v1.IssueService.ListIssueActivity:output_type -> izci.api.v1.ListIssueActivityResponse
-	32, // 75: izci.api.v1.IssueService.AddIssueComment:output_type -> izci.api.v1.AddIssueCommentResponse
-	34, // 76: izci.api.v1.IssueService.FollowIssue:output_type -> izci.api.v1.FollowIssueResponse
-	36, // 77: izci.api.v1.IssueService.CreateTicket:output_type -> izci.api.v1.CreateTicketResponse
-	38, // 78: izci.api.v1.IssueService.SuggestSearch:output_type -> izci.api.v1.SuggestSearchResponse
-	40, // 79: izci.api.v1.IssueService.DeleteIssues:output_type -> izci.api.v1.DeleteIssuesResponse
-	66, // [66:80] is the sub-list for method output_type
-	52, // [52:66] is the sub-list for method input_type
-	52, // [52:52] is the sub-list for extension type_name
-	52, // [52:52] is the sub-list for extension extendee
-	0,  // [0:52] is the sub-list for field type_name
+	57, // 52: izci.api.v1.GetQueryStatsRequest.stats_period:type_name -> izci.api.v1.StatsPeriod
+	55, // 53: izci.api.v1.GetQueryStatsResponse.series:type_name -> izci.api.v1.Series
+	15, // 54: izci.api.v1.IssueService.ListIssues:input_type -> izci.api.v1.ListIssuesRequest
+	17, // 55: izci.api.v1.IssueService.GetIssue:input_type -> izci.api.v1.GetIssueRequest
+	19, // 56: izci.api.v1.IssueService.UpdateIssues:input_type -> izci.api.v1.UpdateIssuesRequest
+	46, // 57: izci.api.v1.IssueService.GetQueryStats:input_type -> izci.api.v1.GetQueryStatsRequest
+	42, // 58: izci.api.v1.IssueService.MergeIssues:input_type -> izci.api.v1.MergeIssuesRequest
+	44, // 59: izci.api.v1.IssueService.UnmergeIssue:input_type -> izci.api.v1.UnmergeIssueRequest
+	23, // 60: izci.api.v1.IssueService.ListIssueEvents:input_type -> izci.api.v1.ListIssueEventsRequest
+	25, // 61: izci.api.v1.IssueService.GetIssueStats:input_type -> izci.api.v1.GetIssueStatsRequest
+	27, // 62: izci.api.v1.IssueService.GetIssueTagFacets:input_type -> izci.api.v1.GetIssueTagFacetsRequest
+	29, // 63: izci.api.v1.IssueService.ListIssueActivity:input_type -> izci.api.v1.ListIssueActivityRequest
+	31, // 64: izci.api.v1.IssueService.AddIssueComment:input_type -> izci.api.v1.AddIssueCommentRequest
+	33, // 65: izci.api.v1.IssueService.FollowIssue:input_type -> izci.api.v1.FollowIssueRequest
+	35, // 66: izci.api.v1.IssueService.CreateTicket:input_type -> izci.api.v1.CreateTicketRequest
+	37, // 67: izci.api.v1.IssueService.SuggestSearch:input_type -> izci.api.v1.SuggestSearchRequest
+	39, // 68: izci.api.v1.IssueService.DeleteIssues:input_type -> izci.api.v1.DeleteIssuesRequest
+	16, // 69: izci.api.v1.IssueService.ListIssues:output_type -> izci.api.v1.ListIssuesResponse
+	18, // 70: izci.api.v1.IssueService.GetIssue:output_type -> izci.api.v1.GetIssueResponse
+	22, // 71: izci.api.v1.IssueService.UpdateIssues:output_type -> izci.api.v1.UpdateIssuesResponse
+	47, // 72: izci.api.v1.IssueService.GetQueryStats:output_type -> izci.api.v1.GetQueryStatsResponse
+	43, // 73: izci.api.v1.IssueService.MergeIssues:output_type -> izci.api.v1.MergeIssuesResponse
+	45, // 74: izci.api.v1.IssueService.UnmergeIssue:output_type -> izci.api.v1.UnmergeIssueResponse
+	24, // 75: izci.api.v1.IssueService.ListIssueEvents:output_type -> izci.api.v1.ListIssueEventsResponse
+	26, // 76: izci.api.v1.IssueService.GetIssueStats:output_type -> izci.api.v1.GetIssueStatsResponse
+	28, // 77: izci.api.v1.IssueService.GetIssueTagFacets:output_type -> izci.api.v1.GetIssueTagFacetsResponse
+	30, // 78: izci.api.v1.IssueService.ListIssueActivity:output_type -> izci.api.v1.ListIssueActivityResponse
+	32, // 79: izci.api.v1.IssueService.AddIssueComment:output_type -> izci.api.v1.AddIssueCommentResponse
+	34, // 80: izci.api.v1.IssueService.FollowIssue:output_type -> izci.api.v1.FollowIssueResponse
+	36, // 81: izci.api.v1.IssueService.CreateTicket:output_type -> izci.api.v1.CreateTicketResponse
+	38, // 82: izci.api.v1.IssueService.SuggestSearch:output_type -> izci.api.v1.SuggestSearchResponse
+	40, // 83: izci.api.v1.IssueService.DeleteIssues:output_type -> izci.api.v1.DeleteIssuesResponse
+	69, // [69:84] is the sub-list for method output_type
+	54, // [54:69] is the sub-list for method input_type
+	54, // [54:54] is the sub-list for extension type_name
+	54, // [54:54] is the sub-list for extension extendee
+	0,  // [0:54] is the sub-list for field type_name
 }
 
 func init() { file_izci_api_v1_issue_proto_init() }
@@ -3778,7 +3923,7 @@ func file_izci_api_v1_issue_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_api_v1_issue_proto_rawDesc), len(file_izci_api_v1_issue_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   43,
+			NumMessages:   45,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -93,3 +93,22 @@ Yapay zekâ analizi bekleyen ya da tamamlanmış açık hatalar.
 ## Hatalı arama
 
 Arama anlaşılamazsa sonuç yerine hatanın konumu ve nedeni gösterilir. Örneğin `level:kritik` için: "unknown level" (konum 0, `kritik`). API bu durumda `ERROR_REASON_INVALID_QUERY` ile `position` ve `token` bilgisini döner.
+
+## Kayıtlı aramalar
+
+Hata listesindeki **Kayıtlı aramalar › Bu aramayı kaydet** arama ifadesini, seçili projeleri, sıralamayı ve dönemi bir adla saklar; aynı menüden seçilince hepsi geri gelir. Aramalar kişiseldir; üyeler (`member` ve üstü) **Organizasyonla paylaş** ile bütün organizasyona açabilir. Paylaşılan bir aramayı yalnız sahibi ve yöneticiler değiştirip silebilir. Kaydederken arama denetlenir; anlaşılmayan ifade kaydedilmez.
+
+## Panolar
+
+**Panolar** sayfasında ekipler izledikleri aramaları tek ekranda toplar. Bir pano şu bileşenlerden oluşur:
+
+- **Grafik:** aramanın dönemdeki hata ve olay sayısı ile olayların zaman içindeki dağılımı (son 24 saat ile son 90 gün arası).
+- **Hata listesi:** aramanın seçilen sıralamaya göre ilk 1-20 hatası.
+
+Bileşenler bir arama ifadesiyle ya da bir kayıtlı aramadan doldurulur, yukarı aşağı taşınır ve kaldırılır; **Hatalarda aç** bileşenin aramasını hata listesinde açar. Panolar da kişiseldir ya da paylaşılır; kurallar kayıtlı aramalardaki gibidir. Örnek: bir belediye için `customer:sivas-belediyesi is:unresolved` grafiği ve `customer:sivas-belediyesi level:fatal` listesi.
+
+Grafiğin sayıları `IssueService.GetQueryStats` ile, kayıtlı aramalar ve panolar `ViewService` ile [Yönetim API'sinden](api/izci.api.v1.md) de okunup yazılabilir.
+
+## CSV olarak dışa aktarma
+
+Hata listesindeki **CSV**, o anki aramanın (projeler, sıralama ve dönemle) en çok 1000 hatasını indirir: kısa kimlik, başlık, proje, durum, dönemdeki ve toplam olay, kullanıcı ve müşteri sayısı, atanan kişi, ilk ve son görülme, bağlantı. Dosya noktalı virgülle ayrılır ve Excel'in Türkçe ayarlarıyla doğrudan açılır.

@@ -70,6 +70,15 @@ var rules = map[string]rule{
 	// Browser sessions only (checked in the handler).
 	c.OrganizationServiceDeleteOrganizationProcedure: orgRule(owner, write),
 
+	// ViewService (sharing needs ROLE_MEMBER, checked in the handlers)
+	c.ViewServiceListSavedSearchesProcedure: orgRule(viewer, read),
+	c.ViewServiceSaveSearchProcedure:        orgRule(viewer, write),
+	c.ViewServiceDeleteSavedSearchProcedure: orgRule(viewer, write),
+	c.ViewServiceListDashboardsProcedure:    orgRule(viewer, read),
+	c.ViewServiceGetDashboardProcedure:      orgRule(viewer, read),
+	c.ViewServiceSaveDashboardProcedure:     orgRule(viewer, write),
+	c.ViewServiceDeleteDashboardProcedure:   orgRule(viewer, write),
+
 	// PrivacyService
 	c.PrivacyServiceFindSubjectDataProcedure:   orgRule(admin, read),
 	c.PrivacyServiceExportSubjectDataProcedure: orgRule(admin, read),
@@ -129,6 +138,7 @@ var rules = map[string]rule{
 	c.IssueServiceSuggestSearchProcedure:     orgRule(viewer, read),
 	c.IssueServiceDeleteIssuesProcedure:      orgRule(admin, write),
 	c.IssueServiceMergeIssuesProcedure:       orgRule(member, write),
+	c.IssueServiceGetQueryStatsProcedure:     orgRule(viewer, read),
 	c.IssueServiceUnmergeIssueProcedure:      orgRule(member, write),
 
 	// EventService

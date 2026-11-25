@@ -104,6 +104,7 @@ type client struct {
 	symbol    apiv1connect.SymbolServiceClient
 	ownership apiv1connect.OwnershipServiceClient
 	privacy   apiv1connect.PrivacyServiceClient
+	view      apiv1connect.ViewServiceClient
 	hc        *http.Client
 	hdr       map[string]string
 }
@@ -130,6 +131,7 @@ func (e *env) client(hdr map[string]string) *client {
 		symbol:    apiv1connect.NewSymbolServiceClient(hc, e.srv.URL, opt),
 		ownership: apiv1connect.NewOwnershipServiceClient(hc, e.srv.URL, opt),
 		privacy:   apiv1connect.NewPrivacyServiceClient(hc, e.srv.URL, opt),
+		view:      apiv1connect.NewViewServiceClient(hc, e.srv.URL, opt),
 		hc:        hc,
 		hdr:       hdr,
 	}

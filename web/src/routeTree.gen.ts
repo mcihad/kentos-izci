@@ -31,6 +31,8 @@ import { Route as OOrgSettingsRouteImport } from "./routes/o.$org.settings";
 import { Route as OOrgCustomerReportKeyRouteImport } from "./routes/o.$org.customer-report.$key";
 import { Route as OOrgCustomersIndexRouteImport } from "./routes/o.$org.customers.index";
 import { Route as OOrgCustomersKeyRouteImport } from "./routes/o.$org.customers.$key";
+import { Route as OOrgDashboardsIndexRouteImport } from "./routes/o.$org.dashboards.index";
+import { Route as OOrgDashboardsIdRouteImport } from "./routes/o.$org.dashboards.$id";
 import { Route as OOrgDocsIndexRouteImport } from "./routes/o.$org.docs.index";
 import { Route as OOrgDocsSplatRouteImport } from "./routes/o.$org.docs.$";
 import { Route as OOrgIssuesIndexRouteImport } from "./routes/o.$org.issues.index";
@@ -150,6 +152,16 @@ const OOrgCustomersKeyRoute = OOrgCustomersKeyRouteImport.update({
   path: "/customers/$key",
   getParentRoute: () => OOrgRoute,
 } as any);
+const OOrgDashboardsIndexRoute = OOrgDashboardsIndexRouteImport.update({
+  id: "/dashboards/",
+  path: "/dashboards/",
+  getParentRoute: () => OOrgRoute,
+} as any);
+const OOrgDashboardsIdRoute = OOrgDashboardsIdRouteImport.update({
+  id: "/dashboards/$id",
+  path: "/dashboards/$id",
+  getParentRoute: () => OOrgRoute,
+} as any);
 const OOrgDocsIndexRoute = OOrgDocsIndexRouteImport.update({
   id: "/",
   path: "/",
@@ -213,11 +225,13 @@ export interface FileRoutesByFullPath {
   "/o/$org/": typeof OOrgIndexRoute;
   "/o/$org/customer-report/$key": typeof OOrgCustomerReportKeyRoute;
   "/o/$org/customers/$key": typeof OOrgCustomersKeyRoute;
+  "/o/$org/dashboards/$id": typeof OOrgDashboardsIdRoute;
   "/o/$org/docs/$": typeof OOrgDocsSplatRoute;
   "/o/$org/issues/$issueId": typeof OOrgIssuesIssueIdRoute;
   "/o/$org/monitors/$monitorId": typeof OOrgMonitorsMonitorIdRoute;
   "/o/$org/projects/$slug": typeof OOrgProjectsSlugRoute;
   "/o/$org/customers/": typeof OOrgCustomersIndexRoute;
+  "/o/$org/dashboards/": typeof OOrgDashboardsIndexRoute;
   "/o/$org/docs/": typeof OOrgDocsIndexRoute;
   "/o/$org/issues/": typeof OOrgIssuesIndexRoute;
   "/o/$org/monitors/": typeof OOrgMonitorsIndexRoute;
@@ -243,11 +257,13 @@ export interface FileRoutesByTo {
   "/o/$org": typeof OOrgIndexRoute;
   "/o/$org/customer-report/$key": typeof OOrgCustomerReportKeyRoute;
   "/o/$org/customers/$key": typeof OOrgCustomersKeyRoute;
+  "/o/$org/dashboards/$id": typeof OOrgDashboardsIdRoute;
   "/o/$org/docs/$": typeof OOrgDocsSplatRoute;
   "/o/$org/issues/$issueId": typeof OOrgIssuesIssueIdRoute;
   "/o/$org/monitors/$monitorId": typeof OOrgMonitorsMonitorIdRoute;
   "/o/$org/projects/$slug": typeof OOrgProjectsSlugRoute;
   "/o/$org/customers": typeof OOrgCustomersIndexRoute;
+  "/o/$org/dashboards": typeof OOrgDashboardsIndexRoute;
   "/o/$org/docs": typeof OOrgDocsIndexRoute;
   "/o/$org/issues": typeof OOrgIssuesIndexRoute;
   "/o/$org/monitors": typeof OOrgMonitorsIndexRoute;
@@ -276,11 +292,13 @@ export interface FileRoutesById {
   "/o/$org/": typeof OOrgIndexRoute;
   "/o/$org/customer-report/$key": typeof OOrgCustomerReportKeyRoute;
   "/o/$org/customers/$key": typeof OOrgCustomersKeyRoute;
+  "/o/$org/dashboards/$id": typeof OOrgDashboardsIdRoute;
   "/o/$org/docs/$": typeof OOrgDocsSplatRoute;
   "/o/$org/issues/$issueId": typeof OOrgIssuesIssueIdRoute;
   "/o/$org/monitors/$monitorId": typeof OOrgMonitorsMonitorIdRoute;
   "/o/$org/projects/$slug": typeof OOrgProjectsSlugRoute;
   "/o/$org/customers/": typeof OOrgCustomersIndexRoute;
+  "/o/$org/dashboards/": typeof OOrgDashboardsIndexRoute;
   "/o/$org/docs/": typeof OOrgDocsIndexRoute;
   "/o/$org/issues/": typeof OOrgIssuesIndexRoute;
   "/o/$org/monitors/": typeof OOrgMonitorsIndexRoute;
@@ -310,11 +328,13 @@ export interface FileRouteTypes {
     | "/o/$org/"
     | "/o/$org/customer-report/$key"
     | "/o/$org/customers/$key"
+    | "/o/$org/dashboards/$id"
     | "/o/$org/docs/$"
     | "/o/$org/issues/$issueId"
     | "/o/$org/monitors/$monitorId"
     | "/o/$org/projects/$slug"
     | "/o/$org/customers/"
+    | "/o/$org/dashboards/"
     | "/o/$org/docs/"
     | "/o/$org/issues/"
     | "/o/$org/monitors/"
@@ -340,11 +360,13 @@ export interface FileRouteTypes {
     | "/o/$org"
     | "/o/$org/customer-report/$key"
     | "/o/$org/customers/$key"
+    | "/o/$org/dashboards/$id"
     | "/o/$org/docs/$"
     | "/o/$org/issues/$issueId"
     | "/o/$org/monitors/$monitorId"
     | "/o/$org/projects/$slug"
     | "/o/$org/customers"
+    | "/o/$org/dashboards"
     | "/o/$org/docs"
     | "/o/$org/issues"
     | "/o/$org/monitors"
@@ -372,11 +394,13 @@ export interface FileRouteTypes {
     | "/o/$org/"
     | "/o/$org/customer-report/$key"
     | "/o/$org/customers/$key"
+    | "/o/$org/dashboards/$id"
     | "/o/$org/docs/$"
     | "/o/$org/issues/$issueId"
     | "/o/$org/monitors/$monitorId"
     | "/o/$org/projects/$slug"
     | "/o/$org/customers/"
+    | "/o/$org/dashboards/"
     | "/o/$org/docs/"
     | "/o/$org/issues/"
     | "/o/$org/monitors/"
@@ -552,6 +576,20 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof OOrgCustomersKeyRouteImport;
       parentRoute: typeof OOrgRoute;
     };
+    "/o/$org/dashboards/": {
+      id: "/o/$org/dashboards/";
+      path: "/dashboards";
+      fullPath: "/o/$org/dashboards/";
+      preLoaderRoute: typeof OOrgDashboardsIndexRouteImport;
+      parentRoute: typeof OOrgRoute;
+    };
+    "/o/$org/dashboards/$id": {
+      id: "/o/$org/dashboards/$id";
+      path: "/dashboards/$id";
+      fullPath: "/o/$org/dashboards/$id";
+      preLoaderRoute: typeof OOrgDashboardsIdRouteImport;
+      parentRoute: typeof OOrgRoute;
+    };
     "/o/$org/docs/": {
       id: "/o/$org/docs/";
       path: "/";
@@ -637,10 +675,12 @@ interface OOrgRouteChildren {
   OOrgIndexRoute: typeof OOrgIndexRoute;
   OOrgCustomerReportKeyRoute: typeof OOrgCustomerReportKeyRoute;
   OOrgCustomersKeyRoute: typeof OOrgCustomersKeyRoute;
+  OOrgDashboardsIdRoute: typeof OOrgDashboardsIdRoute;
   OOrgIssuesIssueIdRoute: typeof OOrgIssuesIssueIdRoute;
   OOrgMonitorsMonitorIdRoute: typeof OOrgMonitorsMonitorIdRoute;
   OOrgProjectsSlugRoute: typeof OOrgProjectsSlugRoute;
   OOrgCustomersIndexRoute: typeof OOrgCustomersIndexRoute;
+  OOrgDashboardsIndexRoute: typeof OOrgDashboardsIndexRoute;
   OOrgIssuesIndexRoute: typeof OOrgIssuesIndexRoute;
   OOrgMonitorsIndexRoute: typeof OOrgMonitorsIndexRoute;
   OOrgProjectsIndexRoute: typeof OOrgProjectsIndexRoute;
@@ -658,10 +698,12 @@ const OOrgRouteChildren: OOrgRouteChildren = {
   OOrgIndexRoute: OOrgIndexRoute,
   OOrgCustomerReportKeyRoute: OOrgCustomerReportKeyRoute,
   OOrgCustomersKeyRoute: OOrgCustomersKeyRoute,
+  OOrgDashboardsIdRoute: OOrgDashboardsIdRoute,
   OOrgIssuesIssueIdRoute: OOrgIssuesIssueIdRoute,
   OOrgMonitorsMonitorIdRoute: OOrgMonitorsMonitorIdRoute,
   OOrgProjectsSlugRoute: OOrgProjectsSlugRoute,
   OOrgCustomersIndexRoute: OOrgCustomersIndexRoute,
+  OOrgDashboardsIndexRoute: OOrgDashboardsIndexRoute,
   OOrgIssuesIndexRoute: OOrgIssuesIndexRoute,
   OOrgMonitorsIndexRoute: OOrgMonitorsIndexRoute,
   OOrgProjectsIndexRoute: OOrgProjectsIndexRoute,

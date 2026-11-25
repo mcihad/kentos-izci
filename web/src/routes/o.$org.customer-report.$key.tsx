@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { IssueStatus } from "@/gen/izci/api/v1/common_pb";
 import { CustomerService } from "@/gen/izci/api/v1/customer_pb";
 import type { IssueSummary } from "@/gen/izci/api/v1/issue_pb";
+import { downloadText, toCsv } from "@/lib/csv";
 import { formatDate, formatDateTime, formatNumber } from "@/lib/format";
 import { useOrg } from "@/lib/org";
 import { seriesPoints, seriesStep } from "@/lib/series";
@@ -38,12 +39,8 @@ const statusText: Record<number, string> = {
   [IssueStatus.IGNORED]: "Yoksayıldı",
 };
 
-/** CSV of the report's issues, for spreadsheets (semicolons, as Turkish Excel expects). */
+/** CSV of the report's issues. */
 function issuesCsv(issues: IssueSummary[]): string {
-  const cell = (v: string | number | bigint) => {
-    const s = String(v);
-    return /[";\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s;
-  };
   const head = [
     "Kısa kimlik",
     "Başlık",
@@ -54,8 +51,9 @@ function issuesCsv(issues: IssueSummary[]): string {
     "İlk görülme",
     "Son görülme",
   ];
-  const lines = issues.map((i) =>
-    [
+  return toCsv(
+    head,
+    issues.map((i) => [
       i.shortId,
       i.title,
       i.project?.name ?? "",
@@ -64,11 +62,8 @@ function issuesCsv(issues: IssueSummary[]): string {
       i.usersCount,
       formatDateTime(i.firstSeen),
       formatDateTime(i.lastSeen),
-    ]
-      .map(cell)
-      .join(";"),
+    ]),
   );
-  return `﻿${[head.join(";"), ...lines].join("\r\n")}`;
 }
 
 /** A printable health report of one customer over a period. */
@@ -97,14 +92,8 @@ function CustomerReport() {
 
   const end = new Date();
   const start = new Date(end.getTime() - (periodDays[period.key] ?? 30) * 86_400_000);
-  const download = () => {
-    const url = URL.createObjectURL(new Blob([issuesCsv(d.topIssues)], { type: "text/csv;charset=utf-8" }));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `izci-${c.key}-rapor-${end.toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  const download = () =>
+    downloadText(`izci-${c.key}-rapor-${end.toISOString().slice(0, 10)}.csv`, issuesCsv(d.topIssues));
 
   return (
     <div className={cn("mx-auto max-w-4xl space-y-8 py-6 print:max-w-none print:py-0", gutter)}>

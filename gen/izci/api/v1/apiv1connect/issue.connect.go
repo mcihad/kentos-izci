@@ -40,6 +40,9 @@ const (
 	// IssueServiceUpdateIssuesProcedure is the fully-qualified name of the IssueService's UpdateIssues
 	// RPC.
 	IssueServiceUpdateIssuesProcedure = "/izci.api.v1.IssueService/UpdateIssues"
+	// IssueServiceGetQueryStatsProcedure is the fully-qualified name of the IssueService's
+	// GetQueryStats RPC.
+	IssueServiceGetQueryStatsProcedure = "/izci.api.v1.IssueService/GetQueryStats"
 	// IssueServiceMergeIssuesProcedure is the fully-qualified name of the IssueService's MergeIssues
 	// RPC.
 	IssueServiceMergeIssuesProcedure = "/izci.api.v1.IssueService/MergeIssues"
@@ -84,6 +87,9 @@ type IssueServiceClient interface {
 	// UpdateIssues changes status, assignee or priority of up to 100 issues at
 	// once. Requires ROLE_MEMBER.
 	UpdateIssues(context.Context, *connect.Request[v1.UpdateIssuesRequest]) (*connect.Response[v1.UpdateIssuesResponse], error)
+	// GetQueryStats sums up the issues a search matches: how many there are
+	// and their events in the period, over time. Requires ROLE_VIEWER.
+	GetQueryStats(context.Context, *connect.Request[v1.GetQueryStatsRequest]) (*connect.Response[v1.GetQueryStatsResponse], error)
 	// MergeIssues merges issues of one project into a target issue: their
 	// counters, facets, comments, feedback and followers join the target, and
 	// new events with their fingerprints go to it. Their events move in the
@@ -160,6 +166,13 @@ func NewIssueServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			httpClient,
 			baseURL+IssueServiceUpdateIssuesProcedure,
 			connect.WithSchema(issueServiceMethods.ByName("UpdateIssues")),
+			connect.WithClientOptions(opts...),
+		),
+		getQueryStats: connect.NewClient[v1.GetQueryStatsRequest, v1.GetQueryStatsResponse](
+			httpClient,
+			baseURL+IssueServiceGetQueryStatsProcedure,
+			connect.WithSchema(issueServiceMethods.ByName("GetQueryStats")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		mergeIssues: connect.NewClient[v1.MergeIssuesRequest, v1.MergeIssuesResponse](
@@ -241,6 +254,7 @@ type issueServiceClient struct {
 	listIssues        *connect.Client[v1.ListIssuesRequest, v1.ListIssuesResponse]
 	getIssue          *connect.Client[v1.GetIssueRequest, v1.GetIssueResponse]
 	updateIssues      *connect.Client[v1.UpdateIssuesRequest, v1.UpdateIssuesResponse]
+	getQueryStats     *connect.Client[v1.GetQueryStatsRequest, v1.GetQueryStatsResponse]
 	mergeIssues       *connect.Client[v1.MergeIssuesRequest, v1.MergeIssuesResponse]
 	unmergeIssue      *connect.Client[v1.UnmergeIssueRequest, v1.UnmergeIssueResponse]
 	listIssueEvents   *connect.Client[v1.ListIssueEventsRequest, v1.ListIssueEventsResponse]
@@ -267,6 +281,11 @@ func (c *issueServiceClient) GetIssue(ctx context.Context, req *connect.Request[
 // UpdateIssues calls izci.api.v1.IssueService.UpdateIssues.
 func (c *issueServiceClient) UpdateIssues(ctx context.Context, req *connect.Request[v1.UpdateIssuesRequest]) (*connect.Response[v1.UpdateIssuesResponse], error) {
 	return c.updateIssues.CallUnary(ctx, req)
+}
+
+// GetQueryStats calls izci.api.v1.IssueService.GetQueryStats.
+func (c *issueServiceClient) GetQueryStats(ctx context.Context, req *connect.Request[v1.GetQueryStatsRequest]) (*connect.Response[v1.GetQueryStatsResponse], error) {
+	return c.getQueryStats.CallUnary(ctx, req)
 }
 
 // MergeIssues calls izci.api.v1.IssueService.MergeIssues.
@@ -333,6 +352,9 @@ type IssueServiceHandler interface {
 	// UpdateIssues changes status, assignee or priority of up to 100 issues at
 	// once. Requires ROLE_MEMBER.
 	UpdateIssues(context.Context, *connect.Request[v1.UpdateIssuesRequest]) (*connect.Response[v1.UpdateIssuesResponse], error)
+	// GetQueryStats sums up the issues a search matches: how many there are
+	// and their events in the period, over time. Requires ROLE_VIEWER.
+	GetQueryStats(context.Context, *connect.Request[v1.GetQueryStatsRequest]) (*connect.Response[v1.GetQueryStatsResponse], error)
 	// MergeIssues merges issues of one project into a target issue: their
 	// counters, facets, comments, feedback and followers join the target, and
 	// new events with their fingerprints go to it. Their events move in the
@@ -405,6 +427,13 @@ func NewIssueServiceHandler(svc IssueServiceHandler, opts ...connect.HandlerOpti
 		IssueServiceUpdateIssuesProcedure,
 		svc.UpdateIssues,
 		connect.WithSchema(issueServiceMethods.ByName("UpdateIssues")),
+		connect.WithHandlerOptions(opts...),
+	)
+	issueServiceGetQueryStatsHandler := connect.NewUnaryHandler(
+		IssueServiceGetQueryStatsProcedure,
+		svc.GetQueryStats,
+		connect.WithSchema(issueServiceMethods.ByName("GetQueryStats")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	issueServiceMergeIssuesHandler := connect.NewUnaryHandler(
@@ -486,6 +515,8 @@ func NewIssueServiceHandler(svc IssueServiceHandler, opts ...connect.HandlerOpti
 			issueServiceGetIssueHandler.ServeHTTP(w, r)
 		case IssueServiceUpdateIssuesProcedure:
 			issueServiceUpdateIssuesHandler.ServeHTTP(w, r)
+		case IssueServiceGetQueryStatsProcedure:
+			issueServiceGetQueryStatsHandler.ServeHTTP(w, r)
 		case IssueServiceMergeIssuesProcedure:
 			issueServiceMergeIssuesHandler.ServeHTTP(w, r)
 		case IssueServiceUnmergeIssueProcedure:
@@ -527,6 +558,10 @@ func (UnimplementedIssueServiceHandler) GetIssue(context.Context, *connect.Reque
 
 func (UnimplementedIssueServiceHandler) UpdateIssues(context.Context, *connect.Request[v1.UpdateIssuesRequest]) (*connect.Response[v1.UpdateIssuesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.IssueService.UpdateIssues is not implemented"))
+}
+
+func (UnimplementedIssueServiceHandler) GetQueryStats(context.Context, *connect.Request[v1.GetQueryStatsRequest]) (*connect.Response[v1.GetQueryStatsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.IssueService.GetQueryStats is not implemented"))
 }
 
 func (UnimplementedIssueServiceHandler) MergeIssues(context.Context, *connect.Request[v1.MergeIssuesRequest]) (*connect.Response[v1.MergeIssuesResponse], error) {

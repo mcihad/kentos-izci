@@ -4,6 +4,7 @@ import {
   BugIcon,
   Building2Icon,
   CompassIcon,
+  LayoutDashboardIcon,
   type LucideIcon,
   MessageSquareTextIcon,
   RadioIcon,
@@ -16,6 +17,7 @@ export type NavItem = {
   to:
     | "/o/$org"
     | "/o/$org/issues"
+    | "/o/$org/dashboards"
     | "/o/$org/feedback"
     | "/o/$org/customers"
     | "/o/$org/live"
@@ -31,6 +33,7 @@ export type NavItem = {
 export const primaryNav: NavItem[] = [
   { label: "Genel bakış", to: "/o/$org", icon: CompassIcon, exact: true },
   { label: "Hatalar", to: "/o/$org/issues", icon: BugIcon },
+  { label: "Panolar", to: "/o/$org/dashboards", icon: LayoutDashboardIcon },
   { label: "Geri bildirim", to: "/o/$org/feedback", icon: MessageSquareTextIcon },
   { label: "Müşteriler", to: "/o/$org/customers", icon: Building2Icon },
   { label: "Canlı akış", to: "/o/$org/live", icon: RadioIcon },

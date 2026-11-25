@@ -86,6 +86,7 @@ type Servers struct {
 	Symbol       *SymbolServer
 	Ownership    *OwnershipServer
 	Privacy      *PrivacyServer
+	View         *ViewServer
 	// Hub is the live update hub the services publish to.
 	Hub *realtime.Hub
 }
@@ -97,7 +98,7 @@ var ServiceNames = []string{
 	apiv1connect.CustomerServiceName, apiv1connect.DashboardServiceName, apiv1connect.AlertServiceName,
 	apiv1connect.IntegrationServiceName, apiv1connect.AiServiceName, apiv1connect.AdminServiceName,
 	apiv1connect.FeedbackServiceName, apiv1connect.MonitorServiceName, apiv1connect.SymbolServiceName,
-	apiv1connect.OwnershipServiceName, apiv1connect.PrivacyServiceName,
+	apiv1connect.OwnershipServiceName, apiv1connect.PrivacyServiceName, apiv1connect.ViewServiceName,
 }
 
 // Mount registers every izci.api.v1 service on handle. Services that are
@@ -151,6 +152,7 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 		Symbol:       &SymbolServer{base: b, symbols: d.Symbols},
 		Ownership:    &OwnershipServer{base: b, ownership: d.Ownership},
 		Privacy:      &PrivacyServer{base: b},
+		View:         &ViewServer{base: b},
 		Hub:          d.Hub,
 	}
 	if d.Notifier != nil {
@@ -172,6 +174,7 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 	handle(apiv1connect.NewSymbolServiceHandler(s.Symbol, opts...))
 	handle(apiv1connect.NewOwnershipServiceHandler(s.Ownership, opts...))
 	handle(apiv1connect.NewPrivacyServiceHandler(s.Privacy, opts...))
+	handle(apiv1connect.NewViewServiceHandler(s.View, opts...))
 	handle("GET /attachments/{org}/{id}", http.HandlerFunc(s.Event.ServeAttachment))
 	handle("GET /integrations/github/callback", http.HandlerFunc(s.Integration.GitHubCallback))
 	handle(apiv1connect.NewAdminServiceHandler(s.Admin, opts...))

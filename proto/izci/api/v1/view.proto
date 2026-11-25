@@ -1,0 +1,215 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "izci/api/v1/common.proto";
+import "izci/api/v1/issue.proto";
+
+// ViewService keeps the saved searches and dashboards of the current
+// organization. Members see their own and the shared ones; only the owner
+// (or an administrator, for shared ones) changes or deletes them. Requires
+// ROLE_VIEWER.
+service ViewService {
+  // ListSavedSearches lists the caller's and the shared saved searches, by
+  // name.
+  rpc ListSavedSearches(ListSavedSearchesRequest) returns (ListSavedSearchesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // SaveSearch creates a saved search, or changes one (id set).
+  rpc SaveSearch(SaveSearchRequest) returns (SaveSearchResponse);
+
+  // DeleteSavedSearch deletes a saved search.
+  rpc DeleteSavedSearch(DeleteSavedSearchRequest) returns (DeleteSavedSearchResponse);
+
+  // ListDashboards lists the caller's and the shared dashboards, by name.
+  rpc ListDashboards(ListDashboardsRequest) returns (ListDashboardsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // GetDashboard returns one dashboard.
+  rpc GetDashboard(GetDashboardRequest) returns (GetDashboardResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // SaveDashboard creates a dashboard, or changes one (id set).
+  rpc SaveDashboard(SaveDashboardRequest) returns (SaveDashboardResponse);
+
+  // DeleteDashboard deletes a dashboard.
+  rpc DeleteDashboard(DeleteDashboardRequest) returns (DeleteDashboardResponse);
+}
+
+// SavedSearch is a named issue search.
+message SavedSearch {
+  // Id (UUID); empty when creating.
+  string id = 1 [(buf.validate.field).string.max_len = 36];
+
+  // Name, e.g. "Ödeme hataları".
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // Search query, as in ListIssuesRequest.query.
+  string query = 3 [(buf.validate.field).string.max_len = 2000];
+
+  // Sort order.
+  IssueSort sort = 4;
+
+  // Project slugs; empty means every project.
+  repeated string projects = 5 [(buf.validate.field).repeated.max_items = 50];
+
+  // Window.
+  StatsPeriod stats_period = 6;
+
+  // Visible to every member of the organization.
+  bool shared = 7;
+
+  // Who saved it (output only).
+  UserRef owner = 8;
+
+  // Whether the caller may change and delete it (output only).
+  bool editable = 9;
+
+  // When it last changed (output only).
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+// DashboardWidgetKind is what a dashboard widget shows.
+enum DashboardWidgetKind {
+  // Not set.
+  DASHBOARD_WIDGET_KIND_UNSPECIFIED = 0;
+  // Issue and event counts of the search, with events over time.
+  DASHBOARD_WIDGET_KIND_CHART = 1;
+  // The search's top issues.
+  DASHBOARD_WIDGET_KIND_ISSUES = 2;
+}
+
+// DashboardWidget is one panel of a dashboard: a search shown as a chart
+// or a list.
+message DashboardWidget {
+  // Title, e.g. "Ödeme hataları".
+  string title = 1 [(buf.validate.field).string.max_len = 100];
+
+  // What it shows.
+  DashboardWidgetKind kind = 2 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+
+  // Search query, as in ListIssuesRequest.query.
+  string query = 3 [(buf.validate.field).string.max_len = 2000];
+
+  // Project slugs; empty means every project.
+  repeated string projects = 4 [(buf.validate.field).repeated.max_items = 50];
+
+  // Window.
+  StatsPeriod stats_period = 5;
+
+  // Sort order of a list.
+  IssueSort sort = 6;
+
+  // Issues a list shows, 1 to 20 (default 5).
+  uint32 limit = 7 [(buf.validate.field).uint32.lte = 20];
+}
+
+// Dashboard is a named set of widgets.
+message Dashboard {
+  // Id (UUID); empty when creating.
+  string id = 1 [(buf.validate.field).string.max_len = 36];
+
+  // Name, e.g. "Ödeme ekibi".
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // Widgets in display order.
+  repeated DashboardWidget widgets = 3 [(buf.validate.field).repeated.max_items = 24];
+
+  // Visible to every member of the organization.
+  bool shared = 4;
+
+  // Who created it (output only).
+  UserRef owner = 5;
+
+  // Whether the caller may change and delete it (output only).
+  bool editable = 6;
+
+  // When it last changed (output only).
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+// ListSavedSearchesRequest has no fields.
+message ListSavedSearchesRequest {}
+
+// ListSavedSearchesResponse lists saved searches.
+message ListSavedSearchesResponse {
+  // The caller's and the shared saved searches.
+  repeated SavedSearch searches = 1;
+}
+
+// SaveSearchRequest carries the search to save.
+message SaveSearchRequest {
+  // The search; id set to change an existing one.
+  SavedSearch search = 1 [(buf.validate.field).required = true];
+}
+
+// SaveSearchResponse returns the saved search.
+message SaveSearchResponse {
+  // The saved search.
+  SavedSearch search = 1;
+}
+
+// DeleteSavedSearchRequest names the search to delete.
+message DeleteSavedSearchRequest {
+  // Id (UUID).
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// DeleteSavedSearchResponse has no fields.
+message DeleteSavedSearchResponse {}
+
+// ListDashboardsRequest has no fields.
+message ListDashboardsRequest {}
+
+// ListDashboardsResponse lists dashboards, without their widgets.
+message ListDashboardsResponse {
+  // The caller's and the shared dashboards.
+  repeated Dashboard dashboards = 1;
+}
+
+// GetDashboardRequest names a dashboard.
+message GetDashboardRequest {
+  // Id (UUID).
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// GetDashboardResponse returns the dashboard.
+message GetDashboardResponse {
+  // The dashboard with its widgets.
+  Dashboard dashboard = 1;
+}
+
+// SaveDashboardRequest carries the dashboard to save.
+message SaveDashboardRequest {
+  // The dashboard; id set to change an existing one.
+  Dashboard dashboard = 1 [(buf.validate.field).required = true];
+}
+
+// SaveDashboardResponse returns the saved dashboard.
+message SaveDashboardResponse {
+  // The saved dashboard.
+  Dashboard dashboard = 1;
+}
+
+// DeleteDashboardRequest names the dashboard to delete.
+message DeleteDashboardRequest {
+  // Id (UUID).
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// DeleteDashboardResponse has no fields.
+message DeleteDashboardResponse {}

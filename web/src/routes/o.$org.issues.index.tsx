@@ -17,6 +17,7 @@ import { EmptyState, ErrorState } from "@/components/common/states";
 import { TabStrip, tabActiveOptions, tabClass } from "@/components/common/tab-nav";
 import { IssueRow } from "@/components/issue/issue-row";
 import { MergeDialog } from "@/components/issue/merge";
+import { ExportCsvButton, SavedSearchMenu } from "@/components/issue/saved-searches";
 import { SearchBar, type SearchBarHandle } from "@/components/issue/search-bar";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -26,6 +27,7 @@ import { IssueService, IssueSort } from "@/gen/izci/api/v1/issue_pb";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 import { errorReason } from "@/lib/errors";
 import { formatNumber } from "@/lib/format";
+import { periodKey } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
 import { canWrite } from "@/lib/session";
 import { useHotkeys } from "@/lib/shortcuts";
@@ -222,6 +224,20 @@ function IssuesPage() {
                 value={period.key}
                 onChange={(k) => setSearch({ period: k === "14d" ? undefined : k })}
               />
+              <SavedSearchMenu
+                current={{ query, sort: sorts[sort].value, period: period.value, projects }}
+                onApply={(s) => {
+                  const key = sortKeys.find((k) => sorts[k].value === s.sort) ?? "last_seen";
+                  const p = s.statsPeriod ? periodKey(s.statsPeriod) : "14d";
+                  setSearch({
+                    query: s.query === defaultQuery || !s.query ? undefined : s.query,
+                    sort: key === "last_seen" ? undefined : key,
+                    period: p === "14d" ? undefined : p,
+                    projects: s.projects.length ? s.projects.join(",") : undefined,
+                  });
+                }}
+              />
+              <ExportCsvButton current={{ query, sort: sorts[sort].value, period: period.value, projects }} />
             </div>
           </div>
 

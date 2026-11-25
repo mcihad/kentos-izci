@@ -1136,3 +1136,79 @@ func (s *IssueServer) UnmergeIssue(ctx context.Context, req *connect.Request[api
 	s.PublishIssueUpdates(ctx, t.OrgID(), []uuid.UUID{issueID})
 	return connect.NewResponse(&out), nil
 }
+
+// GetQueryStats implements IssueService.GetQueryStats.
+func (s *IssueServer) GetQueryStats(ctx context.Context, req *connect.Request[apiv1.GetQueryStatsRequest]) (*connect.Response[apiv1.GetQueryStatsResponse], error) {
+	m := req.Msg
+	text := strings.TrimSpace(m.GetQuery())
+	if text == "" {
+		text = "is:unresolved"
+	}
+	q, err := search.Parse(text)
+	if err != nil {
+		var se *search.Error
+		if errors.As(err, &se) {
+			return nil, queryError(se.Msg, se.Pos, se.Token)
+		}
+		return nil, queryError(err.Error(), 0, "")
+	}
+	period := m.GetStatsPeriod()
+	if period == apiv1.StatsPeriod_STATS_PERIOD_LAST_HOUR || period == apiv1.StatsPeriod_STATS_PERIOD_UNSPECIFIED {
+		period = apiv1.StatsPeriod_STATS_PERIOD_LAST_24_HOURS
+	}
+	t := auth.TenantFrom(ctx)
+	now := time.Now()
+	w := periodWindow(period, now, orgLocation(t.Org))
+	b := &sqlb{}
+	b.add("i.org_id = " + b.arg(t.OrgID()))
+	if err := issueFilter(b, q, t.OrgID(), auth.PrincipalFrom(ctx).User.ID, now); err != nil {
+		return nil, err
+	}
+	if len(m.GetProjects()) > 0 {
+		b.add("p.slug = ANY(" + b.arg(lower(m.GetProjects())) + ")")
+	}
+	if !q.Has("last_seen") {
+		b.add("i.last_seen >= " + b.arg(w.start))
+	}
+	b.add("p.deleted_at IS NULL")
+	matching := `SELECT i.id FROM issues i JOIN projects p ON p.id = i.project_id WHERE ` + b.clause() + ` LIMIT 10000`
+	start, end := b.arg(w.start.Truncate(time.Hour)), b.arg(w.end())
+	out := &apiv1.GetQueryStatsResponse{}
+	counts := make([]uint64, w.buckets)
+	err = s.db.InOrg(ctx, t.OrgID(), func(tx pgx.Tx) error {
+		rows, err := tx.Query(ctx, `
+			WITH m AS (`+matching+`)
+			SELECT h.hour, sum(h.count)::bigint, (SELECT count(*) FROM m) FROM issue_hourly h JOIN m ON m.id = h.issue_id
+			WHERE h.hour >= `+start+` AND h.hour < `+end+` GROUP BY h.hour`, b.args...)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var hour time.Time
+			var n int64
+			var issues uint32
+			if err := rows.Scan(&hour, &n, &issues); err != nil {
+				return err
+			}
+			out.Issues = issues
+			out.Events += uint64(n)
+			if i := w.bucketIndex(hour); i >= 0 {
+				counts[i] += uint64(n)
+			}
+		}
+		if err := rows.Err(); err != nil {
+			return err
+		}
+		if out.Events == 0 {
+			// No events in the window: count the issues alone.
+			return tx.QueryRow(ctx, `SELECT count(*) FROM (`+matching+`) m`, b.args[:len(b.args)-2]...).Scan(&out.Issues)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, internal(ctx, s.log, "query stats", err)
+	}
+	out.Series = w.series(counts)
+	return connect.NewResponse(out), nil
+}

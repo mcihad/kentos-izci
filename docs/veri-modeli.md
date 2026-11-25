@@ -59,6 +59,7 @@
 | `integrations`, `project_repositories` | GitHub bağlantıları (şifreli anahtarlar) ve proje-depo eşlemesi. |
 | `ai_runs`, `ai_run_logs` | Yapay zekâ analizleri, sonuçları, diff'leri ve günlükleri. |
 | `invitations`, `audit_log`, `usage_daily` | Davetler, denetim kaydı ve günlük kullanım. |
+| `saved_searches`, `dashboards` | [Kayıtlı aramalar ve panolar](arama.md#kayıtlı-aramalar); kişisel ya da paylaşılan. |
 
 ## Olaylar ve bölümleme
 

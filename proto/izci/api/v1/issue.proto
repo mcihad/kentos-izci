@@ -40,6 +40,12 @@ service IssueService {
   // once. Requires ROLE_MEMBER.
   rpc UpdateIssues(UpdateIssuesRequest) returns (UpdateIssuesResponse);
 
+  // GetQueryStats sums up the issues a search matches: how many there are
+  // and their events in the period, over time. Requires ROLE_VIEWER.
+  rpc GetQueryStats(GetQueryStatsRequest) returns (GetQueryStatsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
   // MergeIssues merges issues of one project into a target issue: their
   // counters, facets, comments, feedback and followers join the target, and
   // new events with their fingerprints go to it. Their events move in the
@@ -825,4 +831,29 @@ message UnmergeIssueResponse {
   // The issue created for the fingerprint; its events arrive in the
   // background.
   IssueSummary issue = 1;
+}
+
+// GetQueryStatsRequest is a search, as in ListIssuesRequest.
+message GetQueryStatsRequest {
+  // Search query; empty means "is:unresolved".
+  string query = 1 [(buf.validate.field).string.max_len = 2000];
+
+  // Project slugs; empty means every project.
+  repeated string projects = 2 [(buf.validate.field).repeated.max_items = 50];
+
+  // Window of the counts; the last hour is not supported (24 hours is
+  // used instead).
+  StatsPeriod stats_period = 3;
+}
+
+// GetQueryStatsResponse sums up the matching issues.
+message GetQueryStatsResponse {
+  // Matching issues seen in the period, at most 10000.
+  uint32 issues = 1;
+
+  // Their events in the period.
+  uint64 events = 2;
+
+  // Their events over the period.
+  Series series = 3;
 }
