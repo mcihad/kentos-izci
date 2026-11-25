@@ -157,8 +157,14 @@ type OrganizationSettings struct {
 	// ERROR_REASON_TWO_FACTOR_REQUIRED. Only a caller who uses two-factor
 	// authentication may turn this on.
 	RequireTwoFactor bool `protobuf:"varint,4,opt,name=require_two_factor,json=requireTwoFactor,proto3" json:"require_two_factor,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Members may send the organization's issues to the AI provider the
+	// server uses (AI_ENABLED): error records with personal data removed
+	// and, with a linked repository, its code. Off by default (KVKK): until
+	// an admin turns it on, analyses fail with ERROR_REASON_AI_NOT_ALLOWED
+	// and automatic analyses do not start.
+	AiEnabled     bool `protobuf:"varint,5,opt,name=ai_enabled,json=aiEnabled,proto3" json:"ai_enabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *OrganizationSettings) Reset() {
@@ -215,6 +221,13 @@ func (x *OrganizationSettings) GetAutoJoinRole() Role {
 func (x *OrganizationSettings) GetRequireTwoFactor() bool {
 	if x != nil {
 		return x.RequireTwoFactor
+	}
+	return false
+}
+
+func (x *OrganizationSettings) GetAiEnabled() bool {
+	if x != nil {
+		return x.AiEnabled
 	}
 	return false
 }
@@ -1602,12 +1615,14 @@ const file_izci_api_v1_organization_proto_rawDesc = "" +
 	"\rproject_count\x18\a \x01(\rR\fprojectCount\x12!\n" +
 	"\fmember_count\x18\b \x01(\rR\vmemberCount\x129\n" +
 	"\n" +
-	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xde\x01\n" +
+	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xfd\x01\n" +
 	"\x14OrganizationSettings\x12#\n" +
 	"\btimezone\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x18@R\btimezone\x12:\n" +
 	"\x11auto_join_domains\x18\x02 \x03(\tB\x0e\xbaH\v\x92\x01\b\x10\x14\"\x04r\x02h\x01R\x0fautoJoinDomains\x127\n" +
 	"\x0eauto_join_role\x18\x03 \x01(\x0e2\x11.izci.api.v1.RoleR\fautoJoinRole\x12,\n" +
-	"\x12require_two_factor\x18\x04 \x01(\bR\x10requireTwoFactor\"\xce\x01\n" +
+	"\x12require_two_factor\x18\x04 \x01(\bR\x10requireTwoFactor\x12\x1d\n" +
+	"\n" +
+	"ai_enabled\x18\x05 \x01(\bR\taiEnabled\"\xce\x01\n" +
 	"\x12OrganizationLimits\x12%\n" +
 	"\x0emonthly_events\x18\x01 \x01(\x04R\rmonthlyEvents\x12%\n" +
 	"\x0eretention_days\x18\x02 \x01(\rR\rretentionDays\x12!\n" +

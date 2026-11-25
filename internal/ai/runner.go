@@ -36,6 +36,7 @@ import (
 // Errors of Start and the publishing calls.
 var (
 	ErrDisabled       = errors.New("AI analysis is disabled on this instance")
+	ErrNotAllowed     = errors.New("the organization does not allow sending its data to the AI provider; an admin turns it on in the organization settings")
 	ErrBudgetExceeded = errors.New("the monthly AI run limit of the organization is reached")
 	ErrEventMismatch  = errors.New("the event does not belong to the issue")
 	ErrNotReady       = errors.New("the run has no proposed change to publish")
@@ -235,8 +236,9 @@ type StartRequest struct {
 	RequestedBy  *uuid.UUID
 }
 
-// Start queues a run. It fails with ErrDisabled, ErrBudgetExceeded,
-// ErrEventMismatch, store.ErrRunActive or store.ErrNotFound.
+// Start queues a run. It fails with ErrDisabled, ErrNotAllowed,
+// ErrBudgetExceeded, ErrEventMismatch, store.ErrRunActive or
+// store.ErrNotFound.
 func (r *Runner) Start(ctx context.Context, orgID uuid.UUID, req StartRequest) (*store.AiRun, error) {
 	if !r.Enabled() {
 		return nil, ErrDisabled
@@ -264,6 +266,11 @@ func (r *Runner) Start(ctx context.Context, orgID uuid.UUID, req StartRequest) (
 		org, err := store.GetOrganization(ctx, tx, orgID)
 		if err != nil {
 			return err
+		}
+		// The organization decides whether its data goes to the provider
+		// (KVKK); every trigger passes here.
+		if !org.Settings.GetAiEnabled() {
+			return ErrNotAllowed
 		}
 		if limit := org.Limits.GetMonthlyAiRuns(); limit > 0 {
 			n, err := store.CountAiRuns(ctx, tx, orgID, nil, false, monthStart(time.Now()))
@@ -511,7 +518,15 @@ func (r *Runner) work(ctx context.Context, run *store.AiRun, lg *runLog) (*check
 		releaseCommit string
 	)
 	err := r.db.InOrg(ctx, run.OrgID, func(tx pgx.Tx) error {
-		var err error
+		// The organization may have withdrawn its consent while the run
+		// was queued.
+		org, err := store.GetOrganization(ctx, tx, run.OrgID)
+		if err != nil {
+			return err
+		}
+		if !org.Settings.GetAiEnabled() {
+			return ErrNotAllowed
+		}
 		if ic, err = loadContext(ctx, tx, run, r.opts.PublicURL); err != nil {
 			return err
 		}
@@ -588,14 +603,16 @@ func (r *Runner) work(ctx context.Context, run *store.AiRun, lg *runLog) (*check
 	if co != nil {
 		history = recentCommits(ctx, co.mirror, co.base, appFiles(ic, dir, rewrites))
 	}
-	if err := writeContext(dir, ic, co, branch, rewrites, history); err != nil {
+	shared, err := writeContext(dir, ic, co, branch, rewrites, history)
+	if err != nil {
 		return co, fmt.Errorf("write context: %w", err)
 	}
+	instructions := prompt(ic, run, co != nil, allowed, r.opts.Config.OutputLanguage)
 
 	var started bool
 	if err := r.db.InOrg(ctx, run.OrgID, func(tx pgx.Tx) error {
 		var err error
-		started, err = store.MarkAiRunRunning(ctx, tx, run.ID, model, run.BaseCommit, run.BaseBranch)
+		started, err = store.MarkAiRunRunning(ctx, tx, run.ID, model, run.BaseCommit, run.BaseBranch, sharedContext(instructions, shared))
 		return err
 	}); err != nil {
 		return co, err
@@ -621,7 +638,7 @@ func (r *Runner) work(ctx context.Context, run *store.AiRun, lg *runLog) (*check
 		sp.mirror = co.mirror
 	}
 	defer os.RemoveAll(sp.state)
-	out, agentErr := a.run(ctx, sp, prompt(ic, run, co != nil, allowed, r.opts.Config.OutputLanguage), "izci "+ic.ShortID, allowed, lg.add)
+	out, agentErr := a.run(ctx, sp, instructions, "izci "+ic.ShortID, allowed, lg.add)
 	run.Usage = out.usage
 	if ctx.Err() != nil {
 		return co, context.Cause(ctx)
@@ -934,6 +951,13 @@ func (r *Runner) consider(ctx context.Context, c candidate) {
 		}
 		s := p.Settings.GetAi()
 		if s.GetAutoAnalyze() != apiv1.AutoAnalyze_AUTO_ANALYZE_NEW_ISSUES || s.GetDailyBudget() == 0 {
+			return errSkip
+		}
+		org, err := store.GetOrganization(ctx, tx, c.orgID)
+		if err != nil {
+			return err
+		}
+		if !org.Settings.GetAiEnabled() {
 			return errSkip
 		}
 		minLevel := s.GetMinLevel()

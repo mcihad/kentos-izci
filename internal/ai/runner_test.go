@@ -170,6 +170,10 @@ func setup(t *testing.T) *fixture {
 			return err
 		}
 		f.org = org.ID
+		// The organization allows sending its data to the provider.
+		if _, err := tx.Exec(ctx, `UPDATE organizations SET settings = settings || '{"ai_enabled": true}' WHERE id = $1`, org.ID); err != nil {
+			return err
+		}
 		if f.kalem, err = store.CreateProject(ctx, tx, org.ID, "kalem", "Kalem", "go"); err != nil {
 			return err
 		}
@@ -440,6 +444,45 @@ func TestTamperedCheckoutCannotRunCode(t *testing.T) {
 	}
 	if !strings.Contains(run.Diff, "division by zero") {
 		t.Fatalf("the fix is missing:\n%s", run.Diff)
+	}
+}
+
+// TestOrganizationConsent checks that an organization's data goes to the
+// AI provider only with its consent, and that a run records what it
+// handed over, without the personal data of the event.
+func TestOrganizationConsent(t *testing.T) {
+	f := setup(t)
+	ctx := context.Background()
+	issue := f.issue(t, f.bildirim, "integer divide by zero")
+	allow := func(on bool) {
+		t.Helper()
+		if err := f.db.InSystem(ctx, func(tx pgx.Tx) error {
+			_, err := tx.Exec(ctx, `UPDATE organizations SET settings = jsonb_set(settings, '{ai_enabled}', to_jsonb($2::boolean)) WHERE id = $1`, f.org, on)
+			return err
+		}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	allow(false)
+	if _, err := f.runner.Start(ctx, f.org, ai.StartRequest{IssueID: issue}); !errors.Is(err, ai.ErrNotAllowed) {
+		t.Fatalf("start without consent: %v", err)
+	}
+	allow(true)
+	run, err := f.runner.Start(ctx, f.org, ai.StartRequest{IssueID: issue})
+	if err != nil {
+		t.Fatal(err)
+	}
+	run = f.finished(t, run.ID)
+	if run.Status != store.AiSucceeded {
+		t.Fatalf("run: status %d error %q", run.Status, run.Error)
+	}
+	for _, want := range []string{"## Prompt", "## .izci/context.md", "## .izci/event.json", "integer divide by zero"} {
+		if !strings.Contains(run.SharedContext, want) {
+			t.Errorf("shared context lacks %q", want)
+		}
+	}
+	if strings.Contains(run.SharedContext, "ayse@example.com") {
+		t.Error("the shared context carries the user's e-mail address")
 	}
 }
 

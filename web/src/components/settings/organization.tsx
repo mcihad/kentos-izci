@@ -1,4 +1,4 @@
-import { create } from "@bufbuild/protobuf";
+import { clone, create } from "@bufbuild/protobuf";
 import { createConnectQueryKey, useInfiniteQuery, useQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -16,10 +16,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
+import { AiService } from "@/gen/izci/api/v1/ai_pb";
 import { Role } from "@/gen/izci/api/v1/common_pb";
 import {
   type DailyUsage,
   OrganizationService,
+  type OrganizationSettings,
   OrganizationSettingsSchema,
 } from "@/gen/izci/api/v1/organization_pb";
 import { errorMessage } from "@/lib/errors";
@@ -62,6 +64,8 @@ export function OrganizationGeneral() {
         domains: o.settings?.autoJoinDomains.join(", ") ?? "",
         role: o.settings?.autoJoinRole || Role.MEMBER,
         requireTwoFactor: o.settings?.requireTwoFactor ?? false,
+        aiEnabled: o.settings?.aiEnabled ?? false,
+        settings: o.settings,
       }}
       plan={o.plan}
       onSaved={onSaved}
@@ -74,7 +78,16 @@ function GeneralForm({
   plan,
   onSaved,
 }: {
-  initial: { name: string; tz: string; domains: string; role: Role; requireTwoFactor: boolean };
+  initial: {
+    name: string;
+    tz: string;
+    domains: string;
+    role: Role;
+    requireTwoFactor: boolean;
+    aiEnabled: boolean;
+    // Settings this form does not show are kept as they are.
+    settings?: OrganizationSettings;
+  };
   plan: string;
   onSaved: () => void;
 }) {
@@ -85,6 +98,9 @@ function GeneralForm({
   const [domains, setDomains] = useState(initial.domains);
   const [role, setRole] = useState(initial.role);
   const [requireTwoFactor, setRequireTwoFactor] = useState(initial.requireTwoFactor);
+  const [aiEnabled, setAiEnabled] = useState(initial.aiEnabled);
+  // The choice matters only where the server runs AI analyses.
+  const ai = useQuery(AiService.method.getAiStatus, {}, { staleTime: 60_000 }).data;
   const update = useSensitiveMutation(OrganizationService.method.updateOrganization, {
     onSuccess: () => {
       toast.success("Organizasyon ayarları kaydedildi");
@@ -97,18 +113,19 @@ function GeneralForm({
       className="grid max-w-2xl grid-cols-1 *:min-w-0 gap-5 py-6"
       onSubmit={(e) => {
         e.preventDefault();
-        update.mutate({
-          name,
-          settings: create(OrganizationSettingsSchema, {
-            timezone: tz,
-            autoJoinDomains: domains
-              .split(",")
-              .map((d) => d.trim().toLowerCase())
-              .filter(Boolean),
-            autoJoinRole: role,
-            requireTwoFactor,
-          }),
-        });
+        const settings = clone(
+          OrganizationSettingsSchema,
+          initial.settings ?? create(OrganizationSettingsSchema),
+        );
+        settings.timezone = tz;
+        settings.autoJoinDomains = domains
+          .split(",")
+          .map((d) => d.trim().toLowerCase())
+          .filter(Boolean);
+        settings.autoJoinRole = role;
+        settings.requireTwoFactor = requireTwoFactor;
+        settings.aiEnabled = aiEnabled;
+        update.mutate({ name, settings });
       }}
     >
       <Field label="Organizasyon adı" htmlFor="org-name">
@@ -194,6 +211,29 @@ function GeneralForm({
           </p>
         </div>
       </div>
+      {ai?.enabled || initial.aiEnabled ? (
+        <div className="flex items-start gap-3">
+          <Switch id="org-ai" checked={aiEnabled} onCheckedChange={setAiEnabled} className="mt-0.5" />
+          <div className="grid gap-0.5">
+            <Label htmlFor="org-ai" className="text-md">
+              Yapay zekâ ile analize izin ver
+            </Label>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Açıkken üyeler hataları sunucunun kullandığı yapay zekâ sağlayıcısına analiz ettirebilir;
+              projeler yeni hatalar için otomatik analiz de açabilir. Sağlayıcıya hata kaydı gider
+              (kullanıcının e-posta ve IP adresi, çerezler ve yetki başlıkları çıkarılır), bağlı depo varsa
+              kod da gider. Sağlayıcı yurt dışında olabilir; KVKK açısından değerlendirip açın. Kapalıyken
+              analiz başlatılamaz.
+              {ai?.defaultModel ? (
+                <>
+                  {" "}
+                  Sunucunun varsayılan modeli: <code className="font-mono text-xs">{ai.defaultModel}</code>.
+                </>
+              ) : null}
+            </p>
+          </div>
+        </div>
+      ) : null}
       <p className="text-sm text-muted-foreground">
         Plan: <span className="text-foreground">{plan || "varsayılan"}</span>
       </p>

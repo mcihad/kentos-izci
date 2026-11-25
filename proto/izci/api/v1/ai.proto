@@ -128,6 +128,12 @@ message AiRun {
   // it, and CreateBranch and CreatePullRequest need
   // allow_sensitive_changes.
   repeated string sensitive_files = 22;
+
+  // What the run handed to the AI provider besides the repository's code:
+  // the prompt, the error summary and the event with personal data
+  // removed. Empty until the agent starts, and for runs from before it was
+  // recorded.
+  string shared_context = 23;
 }
 
 // AiRunStatus is the lifecycle state of a run.
@@ -446,4 +452,8 @@ message GetAiStatusResponse {
 
   // How the agent is isolated (AI_SANDBOX): "bwrap" or "none".
   string sandbox = 10;
+
+  // The organization allows sending its data to the AI provider
+  // (OrganizationSettings.ai_enabled).
+  bool organization_enabled = 11;
 }

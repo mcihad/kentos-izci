@@ -209,19 +209,31 @@ func shareable(ev *ingestv1.Event) *ingestv1.Event {
 	return ev
 }
 
-// writeContext writes .izci/context.md and .izci/event.json. co is nil
-// when no repository is checked out.
-func writeContext(dir string, c *issueContext, co *checkout, branch string, rewrites []pathRewrite, history string) error {
+// maxSharedContext bounds the record of what a run handed to the AI
+// provider.
+const maxSharedContext = 512 << 10
+
+// sharedContext is the record of what a run hands to the AI provider
+// besides the repository's code: the prompt, then context.md and
+// event.json as written by writeContext.
+func sharedContext(prompt, files string) string {
+	return clip("## Prompt\n\n"+prompt+"\n\n"+files, maxSharedContext)
+}
+
+// writeContext writes .izci/context.md and .izci/event.json and returns
+// both, as recorded on the run. co is nil when no repository is checked
+// out.
+func writeContext(dir string, c *issueContext, co *checkout, branch string, rewrites []pathRewrite, history string) (string, error) {
 	if err := ensureDir(filepath.Join(dir, ".izci")); err != nil {
-		return err
+		return "", err
 	}
 	ev := shareable(c.Event)
 	raw, err := protojson.MarshalOptions{Multiline: true, UseProtoNames: true}.Marshal(ev)
 	if err != nil {
-		return err
+		return "", err
 	}
 	if err := os.WriteFile(filepath.Join(dir, ".izci", "event.json"), raw, 0o640); err != nil {
-		return err
+		return "", err
 	}
 	repoDir := ""
 	if co != nil {
@@ -338,7 +350,10 @@ func writeContext(dir string, c *issueContext, co *checkout, branch string, rewr
 	if history != "" {
 		fmt.Fprintf(&b, "\n## Recent commits touching these files\n\n```\n%s\n```\n", history)
 	}
-	return os.WriteFile(filepath.Join(dir, ".izci", "context.md"), []byte(b.String()), 0o640)
+	if err := os.WriteFile(filepath.Join(dir, ".izci", "context.md"), []byte(b.String()), 0o640); err != nil {
+		return "", err
+	}
+	return "## .izci/context.md\n\n" + b.String() + "\n## .izci/event.json\n\n```json\n" + string(raw) + "\n```\n", nil
 }
 
 func orDash(s string) string {

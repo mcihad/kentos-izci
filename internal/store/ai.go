@@ -102,10 +102,13 @@ type AiRun struct {
 	PullRequest  *PullRequestInfo
 	Error        string
 	Usage        AiUsage
-	Worker       string
-	CreatedAt    time.Time
-	StartedAt    *time.Time
-	FinishedAt   *time.Time
+	// SharedContext is what the run handed to the AI provider besides the
+	// repository's code.
+	SharedContext string
+	Worker        string
+	CreatedAt     time.Time
+	StartedAt     *time.Time
+	FinishedAt    *time.Time
 }
 
 // Active reports whether the run is queued or in progress.
@@ -114,14 +117,15 @@ func (r *AiRun) Active() bool {
 }
 
 const aiRunColumns = `id, org_id, project_id, issue_id, event_id, status, trigger, mode, model, instructions, requested_by,
-	base_commit, base_branch, result, analysis, diff, files, pull_request, error, usage, worker, created_at, started_at, finished_at`
+	base_commit, base_branch, result, analysis, diff, files, pull_request, error, usage, shared_context, worker, created_at, started_at,
+	finished_at`
 
 func scanAiRun(row interface{ Scan(...any) error }) (*AiRun, error) {
 	var r AiRun
 	var result, files, pr, usage []byte
 	if err := row.Scan(&r.ID, &r.OrgID, &r.ProjectID, &r.IssueID, &r.EventID, &r.Status, &r.Trigger, &r.Mode, &r.Model,
 		&r.Instructions, &r.RequestedBy, &r.BaseCommit, &r.BaseBranch, &result, &r.Analysis, &r.Diff, &files, &pr, &r.Error,
-		&usage, &r.Worker, &r.CreatedAt, &r.StartedAt, &r.FinishedAt); err != nil {
+		&usage, &r.SharedContext, &r.Worker, &r.CreatedAt, &r.StartedAt, &r.FinishedAt); err != nil {
 		return nil, notFound(err)
 	}
 	_ = json.Unmarshal(result, &r.Result)
@@ -203,12 +207,13 @@ func ClaimAiRuns(ctx context.Context, q Querier, limit int, worker string) ([]*A
 	return out, rows.Err()
 }
 
-// MarkAiRunRunning records the checkout of a preparing run and moves it to
-// "running". It reports false when the run is no longer preparing (for
-// example because it was cancelled).
-func MarkAiRunRunning(ctx context.Context, q Querier, id uuid.UUID, model, baseCommit, baseBranch string) (bool, error) {
-	tag, err := q.Exec(ctx, `UPDATE ai_runs SET status = 3, model = $2, base_commit = $3, base_branch = $4
-		WHERE id = $1 AND status = 2`, id, model, baseCommit, baseBranch)
+// MarkAiRunRunning records the checkout of a preparing run and what it is
+// about to hand to the AI provider, and moves it to "running". It reports
+// false when the run is no longer preparing (for example because it was
+// cancelled).
+func MarkAiRunRunning(ctx context.Context, q Querier, id uuid.UUID, model, baseCommit, baseBranch, sharedContext string) (bool, error) {
+	tag, err := q.Exec(ctx, `UPDATE ai_runs SET status = 3, model = $2, base_commit = $3, base_branch = $4, shared_context = $5
+		WHERE id = $1 AND status = 2`, id, model, baseCommit, baseBranch, sharedContext)
 	return tag.RowsAffected() == 1, err
 }
 

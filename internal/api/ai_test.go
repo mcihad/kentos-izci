@@ -93,6 +93,26 @@ func TestAiRunLifecycle(t *testing.T) {
 	ctx := context.Background()
 	owner, issue := setupOrg(t, e)
 
+	// Nothing goes to the provider until an admin allows it (KVKK).
+	if _, err := owner.ai.StartRun(ctx, req(&apiv1.StartRunRequest{IssueId: issue})); reason(err) != apiv1.ErrorReason_ERROR_REASON_AI_NOT_ALLOWED {
+		t.Fatalf("start without the organization's consent: %v", err)
+	}
+	if st, err := owner.ai.GetAiStatus(ctx, req(&apiv1.GetAiStatusRequest{})); err != nil || !st.Msg.GetEnabled() || st.Msg.GetOrganizationEnabled() {
+		t.Fatalf("status before consent: %v %v", st, err)
+	}
+	o, err := owner.org.GetOrganization(ctx, req(&apiv1.GetOrganizationRequest{}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	settings := o.Msg.GetOrganization().GetSettings()
+	settings.AiEnabled = true
+	if _, err := owner.org.UpdateOrganization(ctx, req(&apiv1.UpdateOrganizationRequest{Settings: settings})); err != nil {
+		t.Fatal(err)
+	}
+	if st, err := owner.ai.GetAiStatus(ctx, req(&apiv1.GetAiStatusRequest{})); err != nil || !st.Msg.GetOrganizationEnabled() {
+		t.Fatalf("status after consent: %v %v", st, err)
+	}
+
 	started, err := owner.ai.StartRun(ctx, req(&apiv1.StartRunRequest{IssueId: issue, Instructions: "Kısa tut."}))
 	if err != nil {
 		t.Fatal(err)
@@ -138,6 +158,9 @@ func TestAiRunLifecycle(t *testing.T) {
 	got, err := owner.ai.GetRun(ctx, req(&apiv1.GetRunRequest{Id: run.GetId(), IncludeLog: true}))
 	if err != nil || len(got.Msg.GetLog()) != len(texts) {
 		t.Fatalf("GetRun: %d log entries (streamed %d), %v", len(got.Msg.GetLog()), len(texts), err)
+	}
+	if !strings.Contains(got.Msg.GetRun().GetSharedContext(), "## .izci/event.json") {
+		t.Fatalf("shared context: %q", got.Msg.GetRun().GetSharedContext())
 	}
 	list, err := owner.ai.ListRuns(ctx, req(&apiv1.ListRunsRequest{IssueId: "KALEM-1"}))
 	if err != nil || len(list.Msg.GetRuns()) != 1 || list.Msg.GetRuns()[0].GetAnalysisMarkdown() != "" {

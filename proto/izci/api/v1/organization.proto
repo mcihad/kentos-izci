@@ -113,6 +113,13 @@ message OrganizationSettings {
   // ERROR_REASON_TWO_FACTOR_REQUIRED. Only a caller who uses two-factor
   // authentication may turn this on.
   bool require_two_factor = 4;
+
+  // Members may send the organization's issues to the AI provider the
+  // server uses (AI_ENABLED): error records with personal data removed
+  // and, with a linked repository, its code. Off by default (KVKK): until
+  // an admin turns it on, analyses fail with ERROR_REASON_AI_NOT_ALLOWED
+  // and automatic analyses do not start.
+  bool ai_enabled = 5;
 }
 
 // OrganizationLimits are the plan limits of an organization. Zero means

@@ -47,6 +47,8 @@ export function ProjectAi({ project }: { project: Project }) {
   const serverCommands = status.data?.allowedCommands ?? [];
   const refused = lines(commands).filter((c) => !permitted(c, serverCommands));
 
+  const notAllowed = status.data?.enabled && !status.data.organizationEnabled;
+
   return (
     <form
       className="grid max-w-2xl grid-cols-1 *:min-w-0 gap-5 py-6"
@@ -72,6 +74,13 @@ export function ProjectAi({ project }: { project: Project }) {
           analiz, yeni hatalar için bu adımı sizin yerinize başlatır.
         </p>
       </div>
+      {notAllowed ? (
+        <p className="rounded-lg border border-(--status-warning-border) bg-(--status-warning-bg) px-4 py-3 text-(--status-warning-fg) text-sm leading-relaxed">
+          Organizasyon yapay zekâ kullanımına izin vermediği için analiz başlatılamaz ve otomatik analiz
+          çalışmaz. Bir yönetici <b className="font-medium">Organizasyon ayarları › Genel</b> bölümünden
+          açabilir.
+        </p>
+      ) : null}
       <Field label="Otomatik analiz" htmlFor="ai-auto">
         <Select
           value={String(auto)}

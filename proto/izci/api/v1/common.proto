@@ -295,4 +295,7 @@ enum ErrorReason {
   ERROR_REASON_EMAIL_DELIVERY_FAILED = 38;
   // The sign-up link is unknown, already used or expired; sign up again.
   ERROR_REASON_VERIFICATION_LINK_INVALID = 39;
+  // The organization has not allowed sending its data to the AI provider
+  // (OrganizationSettings.ai_enabled); an admin can turn it on.
+  ERROR_REASON_AI_NOT_ALLOWED = 40;
 }

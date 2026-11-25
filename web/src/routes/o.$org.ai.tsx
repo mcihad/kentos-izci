@@ -110,8 +110,12 @@ function AiPage() {
             stats={[
               {
                 label: "Durum",
-                value: st.enabled ? "Açık" : "Kapalı",
-                note: st.enabled ? `opencode ${st.opencodeVersion || "bulunamadı"}` : "AI_ENABLED=false",
+                value: !st.enabled ? "Kapalı" : st.organizationEnabled ? "Açık" : "İzin yok",
+                note: !st.enabled
+                  ? "AI_ENABLED=false"
+                  : st.organizationEnabled
+                    ? `opencode ${st.opencodeVersion || "bulunamadı"}`
+                    : "Organizasyon ayarlarından açılır",
               },
               {
                 label: "Model",

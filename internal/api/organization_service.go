@@ -156,9 +156,17 @@ func (s *OrganizationServer) UpdateOrganization(ctx context.Context, req *connec
 		if err != nil {
 			return err
 		}
-		var meta map[string]string
+		meta := map[string]string{}
 		if before != after {
-			meta = map[string]string{"require_two_factor": strconv.FormatBool(after)}
+			meta["require_two_factor"] = strconv.FormatBool(after)
+		}
+		// Who allowed sending the organization's data to the AI provider,
+		// and when (KVKK).
+		if was, is := t.Org.Settings.GetAiEnabled(), settings.GetAiEnabled(); was != is {
+			meta["ai_enabled"] = strconv.FormatBool(is)
+		}
+		if len(meta) == 0 {
+			meta = nil
 		}
 		return s.audit(ctx, tx, "organization.update", "organization", org.ID.String(), org.Name, meta)
 	})

@@ -1695,6 +1695,7 @@ AiRun is one AI analysis of an issue.
 | `started_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the agent started. |
 | `finished_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the run finished. |
 | `sensitive_files` | repeated `string` | Changed files that CI, build tools, package managers or git act on (workflows, build scripts, dependency manifests and lockfiles, repository settings). A change there runs code with the repository's secrets once CI builds the branch: automatic publishing never pushes it, and CreateBranch and CreatePullRequest need allow_sensitive_changes. |
+| `shared_context` | `string` | What the run handed to the AI provider besides the repository's code: the prompt, the error summary and the event with personal data removed. Empty until the agent starts, and for runs from before it was recorded. |
 
 <a id="izci-api-v1-aisettings"></a>
 
@@ -2786,6 +2787,7 @@ GetAiStatusResponse describes AI availability.
 | `monthly_limit` | `uint32` | Monthly limit of the organization (0 = unlimited). |
 | `allowed_commands` | repeated `string` | Shell commands projects may let the agent run (AI_ALLOWED_COMMANDS); a project entry must equal one of them or add arguments. Empty: the agent runs no commands. |
 | `sandbox` | `string` | How the agent is isolated (AI_SANDBOX): "bwrap" or "none". |
+| `organization_enabled` | `bool` | The organization allows sending its data to the AI provider (OrganizationSettings.ai_enabled). |
 
 <a id="izci-api-v1-getcustomerrequest"></a>
 
@@ -4322,6 +4324,7 @@ OrganizationSettings are editable organization settings.
 | `auto_join_domains` | repeated `string` | Email domains whose users join the organization automatically when they first sign in with OpenID Connect, e.g. ["kentos.com.tr"]. | max 20 items, each hostname |
 | `auto_join_role` | [Role](#izci-api-v1-role) | Role granted to users who join through auto_join_domains. |  |
 | `require_two_factor` | `bool` | Members must turn on two-factor authentication. Until they do, every call in the organization (sessions and access tokens alike) fails with ERROR_REASON_TWO_FACTOR_REQUIRED. Only a caller who uses two-factor authentication may turn this on. |  |
+| `ai_enabled` | `bool` | Members may send the organization's issues to the AI provider the server uses (AI_ENABLED): error records with personal data removed and, with a linked repository, its code. Off by default (KVKK): until an admin turns it on, analyses fail with ERROR_REASON_AI_NOT_ALLOWED and automatic analyses do not start. |  |
 
 <a id="izci-api-v1-overviewtotals"></a>
 
@@ -5822,6 +5825,7 @@ reason to a localized message.
 | `ERROR_REASON_REAUTHENTICATION_REQUIRED` | 37 | The change needs a browser session that proved its user's identity in the last 10 minutes: call AuthService.Reauthenticate and retry. |
 | `ERROR_REASON_EMAIL_DELIVERY_FAILED` | 38 | The e-mail confirming a sign-up could not be sent; try again later. |
 | `ERROR_REASON_VERIFICATION_LINK_INVALID` | 39 | The sign-up link is unknown, already used or expired; sign up again. |
+| `ERROR_REASON_AI_NOT_ALLOWED` | 40 | The organization has not allowed sending its data to the AI provider (OrganizationSettings.ai_enabled); an admin can turn it on. |
 
 <a id="izci-api-v1-eventpick"></a>
 

@@ -434,9 +434,14 @@ export function RunView({
                   </span>
                 </TabsTrigger>
               ) : null}
-              <TabsTrigger value="log" className="px-0 text-sm">
+              <TabsTrigger value="log" className="px-0 pr-4 text-sm">
                 Günlük
               </TabsTrigger>
+              {run.sharedContext ? (
+                <TabsTrigger value="shared" className="px-0 text-sm">
+                  Gönderilen bağlam
+                </TabsTrigger>
+              ) : null}
             </TabsList>
             <TabsContent value="analysis" className="pt-3">
               <Suspense fallback={<Skeleton className="h-32 w-full" />}>
@@ -461,6 +466,11 @@ export function RunView({
             <TabsContent value="log" className="pt-3">
               <FinishedLog runId={run.id} />
             </TabsContent>
+            {run.sharedContext ? (
+              <TabsContent value="shared" className="pt-3">
+                <SharedContext text={run.sharedContext} />
+              </TabsContent>
+            ) : null}
           </Tabs>
         </>
       ) : (
@@ -483,8 +493,32 @@ export function RunView({
             )}
           </section>
           <FinishedLog runId={run.id} />
+          {run.sharedContext ? (
+            <details className="card px-4 py-3">
+              <summary className="cursor-pointer font-medium text-sm">Gönderilen bağlam</summary>
+              <div className="pt-3">
+                <SharedContext text={run.sharedContext} />
+              </div>
+            </details>
+          ) : null}
         </>
       )}
+    </div>
+  );
+}
+
+/** What a run handed to the AI provider besides the repository's code. */
+function SharedContext({ text }: { text: string }) {
+  return (
+    <div className="grid gap-2">
+      <p className="text-sm text-muted-foreground leading-relaxed">
+        Analiz yapay zekâ sağlayıcısına bunları gönderdi: talimatlar, hatanın özeti ve olay kaydı.
+        Kullanıcının e-posta ve IP adresi, çerezler ve yetki başlıkları çıkarıldı. Bağlı depo varsa ajan
+        ayrıca okuduğu kod dosyalarını gönderir.
+      </p>
+      <pre className="max-h-[32rem] overflow-auto rounded-md border bg-code p-3 font-mono text-xs leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">
+        {text}
+      </pre>
     </div>
   );
 }

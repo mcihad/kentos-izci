@@ -72,6 +72,8 @@ izci ai doctor
 
 ## 4. Analiz başlatın
 
+Bir organizasyonun hataları, organizasyon izin verene kadar yapay zekâ sağlayıcısına gönderilmez. Bir yönetici **Organizasyon ayarları › Genel › Yapay zekâ ile analize izin ver** seçeneğini açar (bkz. [Sağlayıcıya giden veri](#sağlayıcıya-giden-veri-kvkk)).
+
 - **Arayüz:** hata sayfası › **Yapay zekâ** › **Analizi başlat**. Kip seçin: *kök nedeni bul ve düzeltme öner* (depo bağlıysa) ya da *yalnız analiz et*. İsterseniz ajana ek bilgi verin.
 - **Telegram:** bildirimdeki **🤖 Yapay zekâ ile analiz et** düğmesi.
 - **MCP:** `start_ai_analysis` aracı.
@@ -120,6 +122,40 @@ on:
 ```
 
 Çekme isteklerinde çalışan işlerde sırları, `github.head_ref` `izci-auto/` ile başlıyorsa vermeyin ya da onay isteyen bir ortam (environment) kullanın.
+
+## Sağlayıcıya giden veri (KVKK)
+
+Analiz, hata kayıtlarını ve kodu model sağlayıcısına gönderir; sağlayıcı çoğu zaman yurt dışındadır. Bu yüzden karar organizasyonundur:
+
+- **İzin organizasyon ayarıdır.** **Organizasyon ayarları › Genel › Yapay zekâ ile analize izin ver** varsayılan olarak kapalıdır. Kapalıyken arayüz, otomatik analiz, Telegram düğmesi, MCP ve komut satırı analiz başlatamaz (API `ERROR_REASON_AI_NOT_ALLOWED` döner); izin sıradaki bir analiz başlamadan geri çekilirse o analiz de çalışmaz. İzni kimin, ne zaman değiştirdiği denetim kaydına yazılır. Bu ayardan önce analiz çalıştırmış ya da otomatik analizi açmış organizasyonlarda izin açık başlar.
+- **Giden:** ajana verilen talimatlar; hatanın özeti (mesaj, yığın izi ve kod satırları, hatadan önceki adımlar, istek yolu ve gövdesi, çalışma ortamı, etiketler); olay kaydı; depo bağlıysa ajanın okuduğu kod dosyaları.
+- **Gitmeyen:** kullanıcının e-posta adresi, adı, IP adresi, çerezler, yetki ve yönlendirme başlıkları. Olaylar zaten [maskelenerek](guvenlik.md#maskeleme) saklanır.
+- **Kayıt:** her analizin **Gönderilen bağlam** sekmesi, sağlayıcıya kod dışında tam olarak ne gönderildiğini gösterir; ajanın okuduğu dosyalar **Günlük** sekmesindedir.
+
+### Kurum içi model
+
+Verinin kurum dışına çıkmasını istemiyorsanız opencode'u kendi sunucunuzda çalışan bir modele bağlayın. Örneğin [Ollama](https://ollama.com)'nın OpenAI uyumlu ucuyla bir ayar dosyası:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama",
+      "options": { "baseURL": "http://127.0.0.1:11434/v1" },
+      "models": { "qwen2.5-coder:32b": { "name": "Qwen2.5 Coder 32B" } }
+    }
+  }
+}
+```
+
+```bash
+AI_OPENCODE_CONFIG=/etc/izci/opencode.json
+AI_OPENCODE_MODEL=ollama/qwen2.5-coder:32b
+```
+
+Model araç çağırmayı (tool calling) desteklemelidir; analizin kalitesi modele bağlıdır. Projeler kendi ayarlarında başka bir model seçebilir. `izci ai doctor` ayar dosyasını ve modeli denetler.
 
 ## Güvenlik
 

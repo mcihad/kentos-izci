@@ -1,5 +1,6 @@
 import { useQuery } from "@connectrpc/connect-query";
-import { BotIcon, SparklesIcon } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { BotIcon, ShieldOffIcon, SparklesIcon } from "lucide-react";
 import { useState } from "react";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,8 @@ import { type AiRun, AiService } from "@/gen/izci/api/v1/ai_pb";
 import type { IssueSummary } from "@/gen/izci/api/v1/issue_pb";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 import { formatDateTime } from "@/lib/format";
+import { useOrg } from "@/lib/org";
+import { canAdmin } from "@/lib/session";
 import { isActive, runStatus } from "./labels";
 import { RunView } from "./run-view";
 import { StartRunDialog } from "./start-dialog";
@@ -29,6 +32,7 @@ export function IssueAi({
   writable: boolean;
 }) {
   const invalidate = useInvalidateRuns();
+  const org = useOrg();
   const [starting, setStarting] = useState(false);
   const status = useQuery(AiService.method.getAiStatus, {});
   const runs = useQuery(AiService.method.listRuns, { issueId: issue.id, pageSize: 20 });
@@ -51,7 +55,9 @@ export function IssueAi({
 
   const list = runs.data.runs;
   const selected: AiRun | undefined = list.find((r) => r.id === runId) ?? list[0];
-  const enabled = status.data?.enabled ?? false;
+  const server = status.data?.enabled ?? false;
+  // The organization decides whether its data goes to the provider.
+  const enabled = server && (status.data?.organizationEnabled ?? false);
   const busy = list.some(isActive);
   const dialog = (
     <StartRunDialog
@@ -86,6 +92,23 @@ export function IssueAi({
           >
             Yapay zekâ yığın izini, olayın bağlamını {repository ? "ve bağlı depodaki kodu " : ""}inceleyip
             kök nedeni açıklar{repository ? ", bir düzeltme önerir" : ""}.
+          </EmptyState>
+        ) : server ? (
+          <EmptyState
+            icon={ShieldOffIcon}
+            title="Yapay zekâ kullanımı bu organizasyonda kapalı"
+            action={
+              canAdmin(org.role) ? (
+                <Button asChild variant="outline">
+                  <Link to="/o/$org/settings" params={{ org: org.slug }} search={{ tab: "general" }}>
+                    Organizasyon ayarlarını aç
+                  </Link>
+                </Button>
+              ) : null
+            }
+          >
+            Hata kayıtları ve kod, organizasyon izin verene kadar yapay zekâ sağlayıcısına gönderilmez.
+            {canAdmin(org.role) ? "" : " Bir yöneticiden açmasını isteyin."}
           </EmptyState>
         ) : (
           <EmptyState icon={BotIcon} title="Yapay zekâ analizi kapalı">

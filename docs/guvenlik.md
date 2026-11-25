@@ -75,7 +75,8 @@ Organizasyonlar arası yalıtım PostgreSQL satır düzeyi güvenliğiyle sağla
 
 - Ajan kabuk, web ve çalışma dizini dışındaki dosyalara erişemez. İzci'nin sırlarını ve GitHub anahtarını göremez.
 - Olaydaki e-posta, IP, ad, çerez ve yönlendirme başlıkları model sağlayıcısına **gönderilmez**. Yığın izi, mesaj, istek yolu ve gövdesi (maskelenmiş hâliyle) gönderilir.
-- Hangi model sağlayıcısının kullanıldığını ve verinin nerede işlendiğini siz seçersiniz (`AI_OPENCODE_MODEL`, `AI_OPENCODE_CONFIG`). Kurum içi bir model de kullanılabilir.
+- Hangi model sağlayıcısının kullanıldığını ve verinin nerede işlendiğini siz seçersiniz (`AI_OPENCODE_MODEL`, `AI_OPENCODE_CONFIG`). [Kurum içi bir model](yapay-zeka.md#kurum-içi-model) de kullanılabilir.
+- Bir organizasyonun verisi, organizasyon **Yapay zekâ ile analize izin ver** ayarını açmadıkça sağlayıcıya gitmez (varsayılan kapalı). Her analizin sağlayıcıya ne gönderdiği **Gönderilen bağlam** sekmesinde görünür; izni kimin değiştirdiği denetim kaydına yazılır.
 
 Ayrıntılar: [GitHub ve yapay zekâ analizi](yapay-zeka.md#güvenlik).
 
@@ -86,7 +87,7 @@ Ayrıntılar: [GitHub ve yapay zekâ analizi](yapay-zeka.md#güvenlik).
 - [ ] İstek gövdelerine gerçekten ihtiyacınız yoksa saklamayı kapatın.
 - [ ] Mobil uygulamalar ekran görüntüsü gönderiyorsa (`attachScreenshot`) bunun aydınlatma metninizde yer aldığından emin olun ya da **olay eklerini** kapatın.
 - [ ] `RETENTION_DAYS` değerini veri envanterinizdeki süreyle eşleyin.
-- [ ] Yapay zekâ kullanıyorsanız model sağlayıcısını aydınlatma metninize ekleyin ya da kurum içi model kullanın.
+- [ ] Yapay zekâ kullanıyorsanız model sağlayıcısını aydınlatma metninize ekleyin ya da kurum içi model kullanın; organizasyonda izni (**Organizasyon ayarları › Genel**) bundan sonra açın.
 - [ ] Veritabanı yedeklerini şifreli saklayın (bkz. [İşletim](operasyon.md)).
 
 ## Güvenlik açığı bildirimi

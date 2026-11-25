@@ -36,6 +36,8 @@ func (s *AiServer) aiError(ctx context.Context, op string, err error) error {
 			"files", strings.Join(sensitive.Files, ","))
 	case errors.Is(err, ai.ErrDisabled):
 		return apiError(connect.CodeFailedPrecondition, apiv1.ErrorReason_ERROR_REASON_AI_DISABLED, "AI analysis is disabled on this server")
+	case errors.Is(err, ai.ErrNotAllowed):
+		return apiError(connect.CodeFailedPrecondition, apiv1.ErrorReason_ERROR_REASON_AI_NOT_ALLOWED, err.Error())
 	case errors.Is(err, ai.ErrBudgetExceeded):
 		return apiError(connect.CodeResourceExhausted, apiv1.ErrorReason_ERROR_REASON_AI_BUDGET_EXCEEDED, err.Error())
 	case errors.Is(err, store.ErrRunActive):
@@ -127,7 +129,7 @@ func toAiRun(r *store.AiRun, refs *runRefs, full bool) *apiv1.AiRun {
 			Draft: pr.Draft, State: pr.State, AiRunId: r.ID.String()}
 	}
 	if full {
-		out.AnalysisMarkdown, out.Diff = r.Analysis, r.Diff
+		out.AnalysisMarkdown, out.Diff, out.SharedContext = r.Analysis, r.Diff, r.SharedContext
 	}
 	return out
 }
@@ -418,6 +420,7 @@ func (s *AiServer) GetAiStatus(ctx context.Context, _ *connect.Request[apiv1.Get
 		monthly, err := store.CountAiRuns(ctx, tx, t.OrgID(), nil, false, time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC))
 		out.Queued, out.Running, out.MonthlyRuns = uint32(queued), uint32(running), uint32(max(monthly, 0))
 		out.MonthlyLimit = t.Org.Limits.GetMonthlyAiRuns()
+		out.OrganizationEnabled = t.Org.Settings.GetAiEnabled()
 		return err
 	})
 	if err != nil {

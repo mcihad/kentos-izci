@@ -386,8 +386,13 @@ type AiRun struct {
 	// it, and CreateBranch and CreatePullRequest need
 	// allow_sensitive_changes.
 	SensitiveFiles []string `protobuf:"bytes,22,rep,name=sensitive_files,json=sensitiveFiles,proto3" json:"sensitive_files,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// What the run handed to the AI provider besides the repository's code:
+	// the prompt, the error summary and the event with personal data
+	// removed. Empty until the agent starts, and for runs from before it was
+	// recorded.
+	SharedContext string `protobuf:"bytes,23,opt,name=shared_context,json=sharedContext,proto3" json:"shared_context,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AiRun) Reset() {
@@ -572,6 +577,13 @@ func (x *AiRun) GetSensitiveFiles() []string {
 		return x.SensitiveFiles
 	}
 	return nil
+}
+
+func (x *AiRun) GetSharedContext() string {
+	if x != nil {
+		return x.SharedContext
+	}
+	return ""
 }
 
 // AiResult is the structured outcome of an analysis.
@@ -1778,9 +1790,12 @@ type GetAiStatusResponse struct {
 	// agent runs no commands.
 	AllowedCommands []string `protobuf:"bytes,9,rep,name=allowed_commands,json=allowedCommands,proto3" json:"allowed_commands,omitempty"`
 	// How the agent is isolated (AI_SANDBOX): "bwrap" or "none".
-	Sandbox       string `protobuf:"bytes,10,opt,name=sandbox,proto3" json:"sandbox,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Sandbox string `protobuf:"bytes,10,opt,name=sandbox,proto3" json:"sandbox,omitempty"`
+	// The organization allows sending its data to the AI provider
+	// (OrganizationSettings.ai_enabled).
+	OrganizationEnabled bool `protobuf:"varint,11,opt,name=organization_enabled,json=organizationEnabled,proto3" json:"organization_enabled,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *GetAiStatusResponse) Reset() {
@@ -1883,11 +1898,18 @@ func (x *GetAiStatusResponse) GetSandbox() string {
 	return ""
 }
 
+func (x *GetAiStatusResponse) GetOrganizationEnabled() bool {
+	if x != nil {
+		return x.OrganizationEnabled
+	}
+	return false
+}
+
 var File_izci_api_v1_ai_proto protoreflect.FileDescriptor
 
 const file_izci_api_v1_ai_proto_rawDesc = "" +
 	"\n" +
-	"\x14izci/api/v1/ai.proto\x12\vizci.api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x18izci/api/v1/common.proto\x1a\x17izci/api/v1/issue.proto\"\xb4\a\n" +
+	"\x14izci/api/v1/ai.proto\x12\vizci.api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x18izci/api/v1/common.proto\x1a\x17izci/api/v1/issue.proto\"\xdb\a\n" +
 	"\x05AiRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12+\n" +
 	"\x05issue\x18\x02 \x01(\v2\x15.izci.api.v1.IssueRefR\x05issue\x121\n" +
@@ -1916,7 +1938,8 @@ const file_izci_api_v1_ai_proto_rawDesc = "" +
 	"started_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x12;\n" +
 	"\vfinished_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"finishedAt\x12'\n" +
-	"\x0fsensitive_files\x18\x16 \x03(\tR\x0esensitiveFiles\"\xd6\x01\n" +
+	"\x0fsensitive_files\x18\x16 \x03(\tR\x0esensitiveFiles\x12%\n" +
+	"\x0eshared_context\x18\x17 \x01(\tR\rsharedContext\"\xd6\x01\n" +
 	"\bAiResult\x12\x18\n" +
 	"\asummary\x18\x01 \x01(\tR\asummary\x12\x1d\n" +
 	"\n" +
@@ -1993,7 +2016,7 @@ const file_izci_api_v1_ai_proto_rawDesc = "" +
 	"\x17allow_sensitive_changes\x18\x05 \x01(\bR\x15allowSensitiveChanges\"[\n" +
 	"\x19CreatePullRequestResponse\x12>\n" +
 	"\fpull_request\x18\x01 \x01(\v2\x1b.izci.api.v1.PullRequestRefR\vpullRequest\"\x14\n" +
-	"\x12GetAiStatusRequest\"\xe5\x02\n" +
+	"\x12GetAiStatusRequest\"\x98\x03\n" +
 	"\x13GetAiStatusResponse\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x12)\n" +
 	"\x10opencode_version\x18\x02 \x01(\tR\x0fopencodeVersion\x12#\n" +
@@ -2005,7 +2028,8 @@ const file_izci_api_v1_ai_proto_rawDesc = "" +
 	"\rmonthly_limit\x18\b \x01(\rR\fmonthlyLimit\x12)\n" +
 	"\x10allowed_commands\x18\t \x03(\tR\x0fallowedCommands\x12\x18\n" +
 	"\asandbox\x18\n" +
-	" \x01(\tR\asandbox*\xd2\x01\n" +
+	" \x01(\tR\asandbox\x121\n" +
+	"\x14organization_enabled\x18\v \x01(\bR\x13organizationEnabled*\xd2\x01\n" +
 	"\vAiRunStatus\x12\x1d\n" +
 	"\x19AI_RUN_STATUS_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14AI_RUN_STATUS_QUEUED\x10\x01\x12\x1b\n" +

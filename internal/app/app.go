@@ -363,6 +363,8 @@ func (a *App) analyzeFromTelegram(ctx context.Context, orgID, issueID, userID uu
 		return "Organizasyonun bu ayki yapay zekâ analiz hakkı doldu."
 	case errors.Is(err, ai.ErrDisabled):
 		return "Yapay zekâ analizi bu sunucuda kapalı."
+	case errors.Is(err, ai.ErrNotAllowed):
+		return "Yapay zekâ kullanımı bu organizasyonda kapalı. Bir yönetici Organizasyon ayarları'ndan açabilir."
 	case errors.Is(err, store.ErrNotFound):
 		return "Bu hata artık yok."
 	}
