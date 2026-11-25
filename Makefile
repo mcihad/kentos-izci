@@ -23,7 +23,7 @@ LDFLAGS := -s -w \
 	-X $(PKG)/internal/version.Commit=$(COMMIT) \
 	-X $(PKG)/internal/version.Date=$(DATE)
 
-.PHONY: help help-check setup db-setup db-reset migrate demo gen lint-proto web build docker run dev test test-go test-web lint typecheck check clean
+.PHONY: help help-check setup db-setup db-reset migrate demo gen lint-proto web build docker run dev test test-go test-web lint typecheck check audit clean
 
 #? Lists every target with a one-line summary. With T=<target> prints that
 #? target's full description, variables and examples.
@@ -169,6 +169,15 @@ typecheck: ## Type-check the web app
 #? linters, type-check and all tests.
 #> make check
 check: help-check lint typecheck test ## Run every quality gate
+
+#? Scans dependencies for known vulnerabilities: govulncheck for the Go
+#? code (only vulnerabilities in code izci calls) and pnpm audit for the
+#? web UI's production dependencies. Needs network access. CI also scans
+#? the container image (Trivy) and records its SBOM.
+#> make audit
+audit: ## Scan dependencies for known vulnerabilities
+	$(GO) run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
+	$(PNPM) -C web audit --prod --audit-level high
 
 #? Removes build outputs (bin/, web/dist contents).
 #> make clean

@@ -96,6 +96,7 @@ commit message and the phase table in `docs/mimari.md` (once written).
 | `examples` | Dependency-free clients (curl, .NET, Node, Python, Dart) and Sentry SDK samples; each must keep working against a local server |
 | `scripts` | build helpers (`make-help.awk`) |
 | `Dockerfile`, `.github/workflows/ci.yml` | multi-stage image (`make docker`, optional opencode, non-root, `izci healthcheck`); CI: generated code current, `make check` on PostgreSQL 18, binary and image build |
+| `.github/workflows/security.yml`, `.github/dependabot.yml` | govulncheck, `pnpm audit`, Trivy image scan and SBOM on pushes, pull requests and weekly; weekly Dependabot updates |
 
 ## Commands
 
@@ -107,6 +108,7 @@ make dev                  # Go server :5300 + Vite HMR :5301 (open :5301)
 make build && make run    # static binary with the UI embedded
 make docker               # container image (WITH_OPENCODE=true adds opencode)
 make check                # the full gate: help-check, lint, typecheck, tests
+make audit                # govulncheck + pnpm audit (needs network)
 ```
 
 Local PostgreSQL is the `postgis_db` container from

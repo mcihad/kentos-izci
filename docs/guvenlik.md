@@ -103,6 +103,14 @@ Ayrıntılar: [GitHub ve yapay zekâ analizi](yapay-zeka.md#güvenlik).
 - [ ] Yapay zekâ kullanıyorsanız model sağlayıcısını aydınlatma metninize ekleyin ya da kurum içi model kullanın; organizasyonda izni (**Organizasyon ayarları › Genel**) bundan sonra açın.
 - [ ] Veritabanı yedeklerini şifreli saklayın (bkz. [İşletim](operasyon.md)).
 
+## Bağımlılıklar
+
+İzci'nin bağımlılıkları sürekli taranır:
+
+- Her değişiklikte ve haftada bir CI, Go kodunu `govulncheck` ile (yalnız izci'nin gerçekten çağırdığı koddaki açıklar), arayüzün üretim bağımlılıklarını `pnpm audit` ile ve konteyner imajını Trivy ile tarar; yüksek ya da kritik, düzeltmesi yayımlanmış bir açık derlemeyi durdurur. İmajın yazılım malzeme listesi (SBOM, SPDX) iş akışının çıktısı olarak saklanır.
+- Dependabot Go modüllerini, web paketlerini, GitHub Actions'ı ve Docker taban imajını haftalık günceller; güvenlik güncellemeleri için depo ayarlarından **Dependabot security updates** açılmalıdır.
+- Yerelde `make audit` aynı bağımlılık taramalarını çalıştırır.
+
 ## Güvenlik açığı bildirimi
 
 Bir açık bulduğunuzu düşünüyorsanız herkese açık bir kanala yazmak yerine KentOS güvenlik ekibine doğrudan bildirin.
