@@ -875,6 +875,89 @@ func (x *UpdateUserResponse) GetUser() *AdminUser {
 	return nil
 }
 
+// DeleteUserRequest identifies the user to delete.
+type DeleteUserRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// User id.
+	UserId        string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteUserRequest) Reset() {
+	*x = DeleteUserRequest{}
+	mi := &file_izci_api_v1_admin_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteUserRequest) ProtoMessage() {}
+
+func (x *DeleteUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_admin_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteUserRequest.ProtoReflect.Descriptor instead.
+func (*DeleteUserRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_admin_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *DeleteUserRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+// DeleteUserResponse has no fields.
+type DeleteUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteUserResponse) Reset() {
+	*x = DeleteUserResponse{}
+	mi := &file_izci_api_v1_admin_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteUserResponse) ProtoMessage() {}
+
+func (x *DeleteUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_admin_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteUserResponse.ProtoReflect.Descriptor instead.
+func (*DeleteUserResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_admin_proto_rawDescGZIP(), []int{14}
+}
+
 var File_izci_api_v1_admin_proto protoreflect.FileDescriptor
 
 const file_izci_api_v1_admin_proto_rawDesc = "" +
@@ -945,14 +1028,19 @@ const file_izci_api_v1_admin_proto_rawDesc = "" +
 	"\v_superadminB\v\n" +
 	"\t_disabled\"@\n" +
 	"\x12UpdateUserResponse\x12*\n" +
-	"\x04user\x18\x01 \x01(\v2\x16.izci.api.v1.AdminUserR\x04user2\xed\x03\n" +
+	"\x04user\x18\x01 \x01(\v2\x16.izci.api.v1.AdminUserR\x04user\"6\n" +
+	"\x11DeleteUserRequest\x12!\n" +
+	"\auser_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06userId\"\x14\n" +
+	"\x12DeleteUserResponse2\xbc\x04\n" +
 	"\fAdminService\x12a\n" +
 	"\x0fGetInstanceInfo\x12#.izci.api.v1.GetInstanceInfoRequest\x1a$.izci.api.v1.GetInstanceInfoResponse\"\x03\x90\x02\x01\x12g\n" +
 	"\x11ListOrganizations\x12%.izci.api.v1.ListOrganizationsRequest\x1a&.izci.api.v1.ListOrganizationsResponse\"\x03\x90\x02\x01\x12q\n" +
 	"\x16UpdateOrganizationPlan\x12*.izci.api.v1.UpdateOrganizationPlanRequest\x1a+.izci.api.v1.UpdateOrganizationPlanResponse\x12O\n" +
 	"\tListUsers\x12\x1d.izci.api.v1.ListUsersRequest\x1a\x1e.izci.api.v1.ListUsersResponse\"\x03\x90\x02\x01\x12M\n" +
 	"\n" +
-	"UpdateUser\x12\x1e.izci.api.v1.UpdateUserRequest\x1a\x1f.izci.api.v1.UpdateUserResponseB\xa0\x01\n" +
+	"UpdateUser\x12\x1e.izci.api.v1.UpdateUserRequest\x1a\x1f.izci.api.v1.UpdateUserResponse\x12M\n" +
+	"\n" +
+	"DeleteUser\x12\x1e.izci.api.v1.DeleteUserRequest\x1a\x1f.izci.api.v1.DeleteUserResponseB\xa0\x01\n" +
 	"\x0fcom.izci.api.v1B\n" +
 	"AdminProtoP\x01Z3github.com/mcihad/kentos-izci/gen/izci/api/v1;apiv1\xa2\x02\x03IAX\xaa\x02\vIzci.Api.V1\xca\x02\vIzci\\Api\\V1\xe2\x02\x17Izci\\Api\\V1\\GPBMetadata\xea\x02\rIzci::Api::V1b\x06proto3"
 
@@ -968,7 +1056,7 @@ func file_izci_api_v1_admin_proto_rawDescGZIP() []byte {
 	return file_izci_api_v1_admin_proto_rawDescData
 }
 
-var file_izci_api_v1_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_izci_api_v1_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_izci_api_v1_admin_proto_goTypes = []any{
 	(*FeatureFlags)(nil),                   // 0: izci.api.v1.FeatureFlags
 	(*AdminOrganization)(nil),              // 1: izci.api.v1.AdminOrganization
@@ -983,21 +1071,23 @@ var file_izci_api_v1_admin_proto_goTypes = []any{
 	(*ListUsersResponse)(nil),              // 10: izci.api.v1.ListUsersResponse
 	(*UpdateUserRequest)(nil),              // 11: izci.api.v1.UpdateUserRequest
 	(*UpdateUserResponse)(nil),             // 12: izci.api.v1.UpdateUserResponse
-	(*Organization)(nil),                   // 13: izci.api.v1.Organization
-	(*timestamppb.Timestamp)(nil),          // 14: google.protobuf.Timestamp
-	(*User)(nil),                           // 15: izci.api.v1.User
-	(*OrganizationLimits)(nil),             // 16: izci.api.v1.OrganizationLimits
+	(*DeleteUserRequest)(nil),              // 13: izci.api.v1.DeleteUserRequest
+	(*DeleteUserResponse)(nil),             // 14: izci.api.v1.DeleteUserResponse
+	(*Organization)(nil),                   // 15: izci.api.v1.Organization
+	(*timestamppb.Timestamp)(nil),          // 16: google.protobuf.Timestamp
+	(*User)(nil),                           // 17: izci.api.v1.User
+	(*OrganizationLimits)(nil),             // 18: izci.api.v1.OrganizationLimits
 }
 var file_izci_api_v1_admin_proto_depIdxs = []int32{
-	13, // 0: izci.api.v1.AdminOrganization.organization:type_name -> izci.api.v1.Organization
-	14, // 1: izci.api.v1.AdminOrganization.last_event_at:type_name -> google.protobuf.Timestamp
-	15, // 2: izci.api.v1.AdminUser.user:type_name -> izci.api.v1.User
-	14, // 3: izci.api.v1.AdminUser.last_login_at:type_name -> google.protobuf.Timestamp
+	15, // 0: izci.api.v1.AdminOrganization.organization:type_name -> izci.api.v1.Organization
+	16, // 1: izci.api.v1.AdminOrganization.last_event_at:type_name -> google.protobuf.Timestamp
+	17, // 2: izci.api.v1.AdminUser.user:type_name -> izci.api.v1.User
+	16, // 3: izci.api.v1.AdminUser.last_login_at:type_name -> google.protobuf.Timestamp
 	0,  // 4: izci.api.v1.GetInstanceInfoResponse.features:type_name -> izci.api.v1.FeatureFlags
-	14, // 5: izci.api.v1.GetInstanceInfoResponse.started_at:type_name -> google.protobuf.Timestamp
+	16, // 5: izci.api.v1.GetInstanceInfoResponse.started_at:type_name -> google.protobuf.Timestamp
 	1,  // 6: izci.api.v1.ListOrganizationsResponse.organizations:type_name -> izci.api.v1.AdminOrganization
-	16, // 7: izci.api.v1.UpdateOrganizationPlanRequest.limits:type_name -> izci.api.v1.OrganizationLimits
-	13, // 8: izci.api.v1.UpdateOrganizationPlanResponse.organization:type_name -> izci.api.v1.Organization
+	18, // 7: izci.api.v1.UpdateOrganizationPlanRequest.limits:type_name -> izci.api.v1.OrganizationLimits
+	15, // 8: izci.api.v1.UpdateOrganizationPlanResponse.organization:type_name -> izci.api.v1.Organization
 	2,  // 9: izci.api.v1.ListUsersResponse.users:type_name -> izci.api.v1.AdminUser
 	2,  // 10: izci.api.v1.UpdateUserResponse.user:type_name -> izci.api.v1.AdminUser
 	3,  // 11: izci.api.v1.AdminService.GetInstanceInfo:input_type -> izci.api.v1.GetInstanceInfoRequest
@@ -1005,13 +1095,15 @@ var file_izci_api_v1_admin_proto_depIdxs = []int32{
 	7,  // 13: izci.api.v1.AdminService.UpdateOrganizationPlan:input_type -> izci.api.v1.UpdateOrganizationPlanRequest
 	9,  // 14: izci.api.v1.AdminService.ListUsers:input_type -> izci.api.v1.ListUsersRequest
 	11, // 15: izci.api.v1.AdminService.UpdateUser:input_type -> izci.api.v1.UpdateUserRequest
-	4,  // 16: izci.api.v1.AdminService.GetInstanceInfo:output_type -> izci.api.v1.GetInstanceInfoResponse
-	6,  // 17: izci.api.v1.AdminService.ListOrganizations:output_type -> izci.api.v1.ListOrganizationsResponse
-	8,  // 18: izci.api.v1.AdminService.UpdateOrganizationPlan:output_type -> izci.api.v1.UpdateOrganizationPlanResponse
-	10, // 19: izci.api.v1.AdminService.ListUsers:output_type -> izci.api.v1.ListUsersResponse
-	12, // 20: izci.api.v1.AdminService.UpdateUser:output_type -> izci.api.v1.UpdateUserResponse
-	16, // [16:21] is the sub-list for method output_type
-	11, // [11:16] is the sub-list for method input_type
+	13, // 16: izci.api.v1.AdminService.DeleteUser:input_type -> izci.api.v1.DeleteUserRequest
+	4,  // 17: izci.api.v1.AdminService.GetInstanceInfo:output_type -> izci.api.v1.GetInstanceInfoResponse
+	6,  // 18: izci.api.v1.AdminService.ListOrganizations:output_type -> izci.api.v1.ListOrganizationsResponse
+	8,  // 19: izci.api.v1.AdminService.UpdateOrganizationPlan:output_type -> izci.api.v1.UpdateOrganizationPlanResponse
+	10, // 20: izci.api.v1.AdminService.ListUsers:output_type -> izci.api.v1.ListUsersResponse
+	12, // 21: izci.api.v1.AdminService.UpdateUser:output_type -> izci.api.v1.UpdateUserResponse
+	14, // 22: izci.api.v1.AdminService.DeleteUser:output_type -> izci.api.v1.DeleteUserResponse
+	17, // [17:23] is the sub-list for method output_type
+	11, // [11:17] is the sub-list for method input_type
 	11, // [11:11] is the sub-list for extension type_name
 	11, // [11:11] is the sub-list for extension extendee
 	0,  // [0:11] is the sub-list for field type_name
@@ -1031,7 +1123,7 @@ func file_izci_api_v1_admin_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_api_v1_admin_proto_rawDesc), len(file_izci_api_v1_admin_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

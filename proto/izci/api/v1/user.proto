@@ -83,6 +83,14 @@ service UserService {
   // UpdateNotificationSettings changes where the caller's personal
   // notifications go.
   rpc UpdateNotificationSettings(UpdateNotificationSettingsRequest) returns (UpdateNotificationSettingsResponse);
+
+  // DeleteAccount deletes the caller's account: memberships, sessions,
+  // access tokens and settings. Comments and other organization records
+  // stay without the author. The only owner of an organization must hand it
+  // over or delete it first (ERROR_REASON_LAST_OWNER); the last server
+  // administrator cannot leave (ERROR_REASON_LAST_SUPERADMIN). Browser
+  // sessions only, re-authenticated in the last 10 minutes.
+  rpc DeleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse);
 }
 
 // UserNotificationKind is why a member is notified personally.
@@ -460,3 +468,13 @@ message RegenerateRecoveryCodesResponse {
   // Ten new single-use recovery codes. Shown only once.
   repeated string recovery_codes = 1;
 }
+
+// DeleteAccountRequest confirms the deletion of the caller's account.
+message DeleteAccountRequest {
+  // Must repeat the account's e-mail address, as a safeguard against
+  // accidental deletion.
+  string confirm_email = 1 [(buf.validate.field).string.max_len = 320];
+}
+
+// DeleteAccountResponse has no fields.
+message DeleteAccountResponse {}

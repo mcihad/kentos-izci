@@ -66,7 +66,7 @@ func newOrgCmd(a *cliApp) *cobra.Command {
 				return err
 			}
 			defer database.Close()
-			rows, err := database.Pool.Query(cmd.Context(), `SELECT slug, name, plan, created_at FROM organizations ORDER BY slug`)
+			rows, err := database.Pool.Query(cmd.Context(), `SELECT slug, name, plan, created_at FROM organizations WHERE deleted_at IS NULL ORDER BY slug`)
 			if err != nil {
 				return err
 			}

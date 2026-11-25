@@ -31,6 +31,12 @@ service AdminService {
   // UpdateUser grants or revokes superadmin and disables or enables an
   // account. A superadmin cannot demote or disable themselves.
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+
+  // DeleteUser deletes another user's account like
+  // UserService.DeleteAccount. The only owner of an organization cannot be
+  // deleted until the organization has another owner or is deleted
+  // (ERROR_REASON_LAST_OWNER).
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
 }
 
 // FeatureFlags tells which optional features are configured.
@@ -199,3 +205,12 @@ message UpdateUserResponse {
   // The updated user.
   AdminUser user = 1;
 }
+
+// DeleteUserRequest identifies the user to delete.
+message DeleteUserRequest {
+  // User id.
+  string user_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// DeleteUserResponse has no fields.
+message DeleteUserResponse {}

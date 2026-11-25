@@ -1,11 +1,14 @@
 import { clone, create } from "@bufbuild/protobuf";
+import { useQuery } from "@connectrpc/connect-query";
 import { useState } from "react";
 import { Field } from "@/components/common/field";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { OrganizationService } from "@/gen/izci/api/v1/organization_pb";
 import {
   InAppRulesSchema,
   IpStorage,
@@ -36,6 +39,11 @@ export function ProjectPrivacy({ project }: { project: Project }) {
   const [attachments, setAttachments] = useState(!(s?.privacy?.discardAttachments ?? false));
   const [include, setInclude] = useState(s?.inApp?.include.join("\n") ?? "");
   const [exclude, setExclude] = useState(s?.inApp?.exclude.join("\n") ?? "");
+  const [retention, setRetention] = useState(String(s?.privacy?.retentionDays ?? 0));
+  // Projects keep their data at most as long as the organization does.
+  const o = useQuery(OrganizationService.method.getOrganization, {}, { staleTime: 60_000 }).data
+    ?.organization;
+  const orgDays = o ? o.settings?.retentionDays || o.maxRetentionDays : 0;
 
   return (
     <form
@@ -50,6 +58,7 @@ export function ProjectPrivacy({ project }: { project: Project }) {
           storeCookieValues: cookies,
           storeRequestBodies: bodies,
           discardAttachments: !attachments,
+          retentionDays: Math.max(0, Math.trunc(Number(retention) || 0)),
         });
         settings.inApp = create(InAppRulesSchema, { include: lines(include), exclude: lines(exclude) });
         update.mutate({ slug: project.slug, settings });
@@ -78,6 +87,35 @@ export function ProjectPrivacy({ project }: { project: Project }) {
             </div>
           ))}
         </RadioGroup>
+      </section>
+
+      <section className="grid gap-3">
+        <div>
+          <h2 className="font-semibold text-lg">Saklama süresi</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground leading-relaxed">
+            Projenin olayları, ekleri ve geri bildirimleri bu kadar gün saklanır; süresi dolanlar birkaç saat
+            içinde silinir.
+            {orgDays
+              ? ` Organizasyon verileri ${orgDays} gün saklıyor; proje daha kısa bir süre seçebilir.`
+              : ""}
+          </p>
+        </div>
+        <Field
+          label="Gün"
+          htmlFor="retention"
+          hint="0: organizasyonun süresi. Kısaltmak kimliğinizi yeniden doğrulamanızı ister."
+        >
+          <Input
+            id="retention"
+            type="number"
+            min={0}
+            max={orgDays || 3650}
+            value={retention}
+            onChange={(e) => setRetention(e.target.value)}
+            disabled={!admin}
+            className="w-32"
+          />
+        </Field>
       </section>
 
       <section className="grid gap-4">

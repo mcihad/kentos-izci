@@ -3,6 +3,7 @@ import { DurationSchema } from "@bufbuild/protobuf/wkt";
 import { useQuery } from "@connectrpc/connect-query";
 import { CheckIcon, ChevronDownIcon, EyeOffIcon, RotateCcwIcon, UserRoundIcon } from "lucide-react";
 import { UserAvatar } from "@/components/common/user-avatar";
+import { DeleteIssueButton } from "@/components/issue/delete-issue";
 import { FollowButton } from "@/components/issue/follow-button";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +20,8 @@ import { IssueStatus, Priority } from "@/gen/izci/api/v1/common_pb";
 import type { Issue } from "@/gen/izci/api/v1/issue_pb";
 import { OrganizationService } from "@/gen/izci/api/v1/organization_pb";
 import { priorityLabels } from "@/lib/labels";
+import { useOrg } from "@/lib/org";
+import { canAdmin } from "@/lib/session";
 import { useTriage } from "@/lib/triage";
 
 const hours = (h: number) => create(DurationSchema, { seconds: BigInt(h * 3600) });
@@ -26,6 +29,7 @@ const hours = (h: number) => create(DurationSchema, { seconds: BigInt(h * 3600) 
 /** Resolve, ignore, assign and prioritize one issue. */
 export function TriageBar({ issue, writable }: { issue: Issue; writable: boolean }) {
   const s = issue.summary;
+  const org = useOrg();
   const triage = useTriage();
   const members = useQuery(
     OrganizationService.method.listMembers,
@@ -185,6 +189,7 @@ export function TriageBar({ issue, writable }: { issue: Issue; writable: boolean
       </DropdownMenu>
       {/* Viewers may follow too. */}
       <FollowButton issue={issue} />
+      {canAdmin(org.role) ? <DeleteIssueButton issue={issue} /> : null}
     </div>
   );
 }

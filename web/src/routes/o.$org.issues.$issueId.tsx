@@ -21,6 +21,7 @@ import {
   SubstatusBadge,
   UnhandledBadge,
 } from "@/components/issue/badges";
+import { DeleteEventButton } from "@/components/issue/delete-issue";
 import { Impact } from "@/components/issue/impact";
 import { IssueAside } from "@/components/issue/issue-aside";
 import { IssueEvents } from "@/components/issue/issue-events";
@@ -42,7 +43,7 @@ import { isNotFound } from "@/lib/errors";
 import { formatCompact } from "@/lib/format";
 import { platformLabel } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
-import { canWrite } from "@/lib/session";
+import { canAdmin, canWrite } from "@/lib/session";
 import { useHotkeys } from "@/lib/shortcuts";
 import { useTriage } from "@/lib/triage";
 import { cn } from "@/lib/utils";
@@ -304,6 +305,8 @@ function EventToolbar({
   nextId: string | undefined;
   current: string | undefined;
 }) {
+  const org = useOrg();
+  const navigate = useNavigate({ from: Route.fullPath });
   const [raw, setRaw] = useState(false);
   const ev = detail?.event;
   const which = current && current in picks ? current : current ? "" : "recommended";
@@ -382,6 +385,12 @@ function EventToolbar({
           <BracesIcon className="size-4" />
           Ham veri
         </Button>
+        {detail && canAdmin(org.role) ? (
+          <DeleteEventButton
+            eventId={detail.id}
+            onDeleted={() => void navigate({ search: (p) => ({ ...p, event: undefined }), replace: true })}
+          />
+        ) : null}
       </div>
       {detail ? <RawEventDialog id={detail.id} open={raw} onOpenChange={setRaw} /> : null}
     </div>

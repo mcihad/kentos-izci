@@ -168,7 +168,7 @@ func resolveKey(ctx context.Context, q Querier, where string, args ...any) (*Res
 		       p.slug, p.name, p.public_id, p.settings, o.slug, o.limits
 		FROM api_keys k
 		JOIN projects p ON p.id = k.project_id AND p.deleted_at IS NULL
-		JOIN organizations o ON o.id = k.org_id
+		JOIN organizations o ON o.id = k.org_id AND o.deleted_at IS NULL
 		WHERE `+where, args...)
 	var r ResolvedKey
 	var k APIKey

@@ -1,0 +1,150 @@
+syntax = "proto3";
+
+package izci.api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+// PrivacyService answers data subject requests (KVKK, GDPR) in the current
+// organization: it finds, exports and deletes what izci keeps about a
+// person or a customer. Every procedure requires ROLE_ADMIN; exports and
+// deletions are recorded in the audit log.
+service PrivacyService {
+  // FindSubjectData counts the events, issues, attachments and user
+  // feedback about a subject and lists the latest events.
+  rpc FindSubjectData(FindSubjectDataRequest) returns (FindSubjectDataResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // ExportSubjectData returns the events and user feedback about a subject
+  // as JSON, a page at a time, oldest event first.
+  rpc ExportSubjectData(ExportSubjectDataRequest) returns (ExportSubjectDataResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+
+  // DeleteSubjectData deletes the events about a subject with their
+  // attachments and user feedback, the subject's other user feedback, and
+  // the affected-user and tag records that name them. Issues and their
+  // counters stay. A large deletion stops after about 20 seconds with
+  // done = false; call again to continue.
+  rpc DeleteSubjectData(DeleteSubjectDataRequest) returns (DeleteSubjectDataResponse);
+}
+
+// DataSubject is whom a request is about: a person, identified by any of
+// their identifiers (events matching any of them belong to the person), or
+// a customer.
+message DataSubject {
+  // E-mail address: user.email of events (case-insensitive) and the e-mail
+  // of user feedback.
+  string email = 1 [(buf.validate.field).string.max_len = 256];
+
+  // User id the application sends (user.id).
+  string user_id = 2 [(buf.validate.field).string.max_len = 128];
+
+  // Login name (user.username).
+  string username = 3 [(buf.validate.field).string.max_len = 128];
+
+  // IP address: the client address of events, as stored (anonymized
+  // addresses end in .0).
+  string ip_address = 4 [(buf.validate.field).string.max_len = 64];
+
+  // Customer key (customer.id of events); cannot be combined with the
+  // identifiers of a person.
+  string customer = 5 [(buf.validate.field).string.max_len = 200];
+
+  // Project slug; empty means every project of the organization.
+  string project = 6 [(buf.validate.field).string.max_len = 50];
+}
+
+// FindSubjectDataRequest names the subject.
+message FindSubjectDataRequest {
+  // The person or customer.
+  DataSubject subject = 1 [(buf.validate.field).required = true];
+}
+
+// FindSubjectDataResponse summarizes what izci keeps about the subject.
+message FindSubjectDataResponse {
+  // Events about the subject.
+  uint64 events = 1;
+
+  // Issues those events belong to.
+  uint64 issues = 2;
+
+  // Attachments of those events.
+  uint64 attachments = 3;
+
+  // User feedback sent with those events or, for a person, from their
+  // e-mail address; for a customer, sent by the customer's users.
+  uint64 feedback = 4;
+
+  // The latest events, at most 20.
+  repeated SubjectEvent latest = 5;
+}
+
+// SubjectEvent is an event in FindSubjectDataResponse.
+message SubjectEvent {
+  // Server-side event id (EventSummary.id).
+  string id = 1;
+
+  // Project slug.
+  string project = 2;
+
+  // Short id of the issue, e.g. "KALEM-1A".
+  string issue_short_id = 3;
+
+  // Title of the event.
+  string title = 4;
+
+  // How the event names its user (e-mail, username, name, id or address).
+  string user_label = 5;
+
+  // When izci received the event.
+  google.protobuf.Timestamp received_at = 6;
+}
+
+// ExportSubjectDataRequest asks for a page of the export.
+message ExportSubjectDataRequest {
+  // The person or customer.
+  DataSubject subject = 1 [(buf.validate.field).required = true];
+
+  // Events per page, at most 500 (default 200).
+  uint32 page_size = 2 [(buf.validate.field).uint32.lte = 500];
+
+  // next_page_token of the previous page; empty for the first page.
+  string page_token = 3 [(buf.validate.field).string.max_len = 200];
+}
+
+// ExportSubjectDataResponse is a page of the export.
+message ExportSubjectDataResponse {
+  // Events, each a JSON object with its ids, project, issue short id,
+  // times, attachments (name, type and size; the contents are not
+  // exported) and the stored event.
+  repeated string events_json = 1;
+
+  // User feedback, each a JSON object; on the first page only.
+  repeated string feedback_json = 2;
+
+  // Token of the next page; empty after the last one.
+  string next_page_token = 3;
+}
+
+// DeleteSubjectDataRequest names the subject whose data to delete.
+message DeleteSubjectDataRequest {
+  // The person or customer.
+  DataSubject subject = 1 [(buf.validate.field).required = true];
+}
+
+// DeleteSubjectDataResponse reports what this call deleted.
+message DeleteSubjectDataResponse {
+  // Events deleted.
+  uint64 events = 1;
+
+  // Attachments deleted.
+  uint64 attachments = 2;
+
+  // User feedback deleted.
+  uint64 feedback = 3;
+
+  // False when time ran out before everything was deleted; call again.
+  bool done = 4;
+}

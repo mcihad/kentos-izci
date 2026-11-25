@@ -21,6 +21,10 @@ service EventService {
   rpc GetRawEvent(GetRawEventRequest) returns (GetRawEventResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
   }
+
+  // DeleteEvent deletes one event with its attachments and user feedback.
+  // The issue and its counters stay. Requires ROLE_ADMIN.
+  rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
 }
 
 // EventSummary is the compact form of an event used in lists.
@@ -245,3 +249,12 @@ message GetRawEventResponse {
   // Stored event as pretty-printed JSON.
   string json = 1;
 }
+
+// DeleteEventRequest identifies the event to delete.
+message DeleteEventRequest {
+  // Server-side event id (EventSummary.id).
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// DeleteEventResponse has no fields.
+message DeleteEventResponse {}

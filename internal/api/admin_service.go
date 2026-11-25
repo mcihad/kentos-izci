@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"strconv"
 	"strings"
 	"time"
@@ -55,7 +56,7 @@ func (s *AdminServer) GetInstanceInfo(ctx context.Context, _ *connect.Request[ap
 	err := s.db.InSystem(ctx, func(tx pgx.Tx) error {
 		var events int64
 		err := tx.QueryRow(ctx, `SELECT current_setting('server_version'),
-			(SELECT count(*) FROM organizations)::int, (SELECT count(*) FROM users)::int,
+			(SELECT count(*) FROM organizations WHERE deleted_at IS NULL)::int, (SELECT count(*) FROM users)::int,
 			(SELECT coalesce(sum(count), 0) FROM project_hourly WHERE hour >= now() - interval '24 hours')::bigint`).Scan(
 			&out.PostgresVersion, &out.Organizations, &out.Users, &events)
 		out.Events_24H = uint64(events)
@@ -96,7 +97,7 @@ func (s *AdminServer) ListOrganizations(ctx context.Context, req *connect.Reques
 		}
 		for _, o := range list {
 			out.Organizations = append(out.Organizations, &apiv1.AdminOrganization{
-				Organization: toOrganization(o.Org, uint32(o.Projects), uint32(o.Members)),
+				Organization: s.organization(o.Org, uint32(o.Projects), uint32(o.Members)),
 				MonthEvents:  uint64(o.MonthEvents), LastEventAt: tsp(o.LastEventAt),
 			})
 		}
@@ -137,7 +138,7 @@ func (s *AdminServer) UpdateOrganizationPlan(ctx context.Context, req *connect.R
 			(SELECT count(*) FROM org_members WHERE org_id = $1)::int`, id).Scan(&projects, &members); err != nil {
 			return err
 		}
-		out.Organization = toOrganization(org, projects, members)
+		out.Organization = s.organization(org, projects, members)
 		return s.adminAudit(ctx, tx, &id, "organization.plan_update", "organization", id.String(), org.Slug,
 			map[string]string{"plan": org.Plan})
 	})
@@ -262,4 +263,26 @@ func (s *AdminServer) UpdateUser(ctx context.Context, req *connect.Request[apiv1
 		s.account.TwoFactorDisabled(ctx, resetEmail, true, time.Now())
 	}
 	return connect.NewResponse(&out), nil
+}
+
+// DeleteUser implements AdminService.DeleteUser.
+func (s *AdminServer) DeleteUser(ctx context.Context, req *connect.Request[apiv1.DeleteUserRequest]) (*connect.Response[apiv1.DeleteUserResponse], error) {
+	id, _ := uuid.Parse(req.Msg.GetUserId())
+	if id == auth.PrincipalFrom(ctx).User.ID {
+		return nil, fieldError("user_id", "delete your own account from your account page")
+	}
+	if err := requireRecentAuth(ctx); err != nil {
+		return nil, err
+	}
+	u, err := store.GetUser(ctx, s.db.Pool, id)
+	if err != nil {
+		return nil, internal(ctx, s.log, "delete user", err)
+	}
+	if err := s.deleteUser(ctx, u); err != nil {
+		return nil, internal(ctx, s.log, "delete user", err)
+	}
+	s.account.AccountDeleted(ctx, u.Email, true, time.Now())
+	s.log.InfoContext(ctx, "user deleted by an administrator", slog.String("user_id", u.ID.String()),
+		slog.String("by", auth.PrincipalFrom(ctx).User.Email))
+	return connect.NewResponse(&apiv1.DeleteUserResponse{}), nil
 }

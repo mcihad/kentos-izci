@@ -418,7 +418,7 @@ func (s *Service) JoinAutomatically(ctx context.Context, tx pgx.Tx, userID uuid.
 		SELECT o.id, $1, coalesce(CASE o.settings->>'auto_join_role'
 		         WHEN 'ROLE_VIEWER' THEN 1 WHEN 'ROLE_MEMBER' THEN 2 WHEN 'ROLE_ADMIN' THEN 3 END, 2)
 		FROM organizations o
-		WHERE o.settings->'auto_join_domains' ? $2
+		WHERE o.settings->'auto_join_domains' ? $2 AND o.deleted_at IS NULL
 		ON CONFLICT (org_id, user_id) DO NOTHING`, userID, domain)
 	return err
 }

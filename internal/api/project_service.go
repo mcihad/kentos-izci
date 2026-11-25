@@ -263,6 +263,10 @@ func (s *ProjectServer) UpdateProject(ctx context.Context, req *connect.Request[
 			if err := validateFilters(settings.GetFilters()); err != nil {
 				return err
 			}
+			if err := checkRetention(ctx, "settings.privacy.retention_days", settings.GetPrivacy().GetRetentionDays(),
+				p.Settings.GetPrivacy().GetRetentionDays(), s.orgRetentionDays(t.Org)); err != nil {
+				return err
+			}
 			// Commands an agent may run are the server operator's call.
 			for _, c := range settings.GetAi().GetAllowedCommands() {
 				if strings.TrimSpace(c) != "" && !ai.CommandPermitted(c, s.cfg.AI.AllowedCommands) {
@@ -361,9 +365,11 @@ func validateFilters(f *apiv1.InboundFilters) error {
 	return nil
 }
 
-func (s *ProjectServer) invalidateKeys() {
-	if s.keys != nil {
-		s.keys.InvalidateAll()
+// invalidateKeys drops cached ingest keys after projects or their settings
+// changed.
+func (b *base) invalidateKeys() {
+	if b.keys != nil {
+		b.keys.InvalidateAll()
 	}
 }
 

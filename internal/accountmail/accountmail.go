@@ -1,7 +1,7 @@
 // Package accountmail writes the e-mails of account flows: sign-up links,
 // invitations, password resets and security notices (a sign-in from a new
 // device, a changed password, two-factor authentication turned off, a new
-// access token). Messages carry nothing an outsider typed beyond what the
+// access token, a deleted account). Messages carry nothing an outsider typed beyond what the
 // recipient needs to recognize, so they cannot be used to send arbitrary
 // text to other people's addresses.
 package accountmail
@@ -183,6 +183,22 @@ func (s *Sender) TokenCreated(ctx context.Context, to, name, scopes string, expi
 			"Anahtarı siz oluşturmadıysanız iptal edin ve parolanızı değiştirin.",
 		},
 		Button: "Erişim anahtarları", Link: s.account("tokens"),
+	})
+}
+
+// AccountDeleted tells a person their account was deleted, by themselves
+// or by an administrator.
+func (s *Sender) AccountDeleted(ctx context.Context, to string, byAdmin bool, at time.Time) {
+	who := "İzci hesabınız"
+	if byAdmin {
+		who = "İzci hesabınız bir sunucu yöneticisi tarafından"
+	}
+	s.notice(ctx, to, message{
+		Subject: "İzci hesabınız silindi",
+		Paragraphs: []string{
+			fmt.Sprintf("%s %s saatinde silindi. Üyelikleriniz, oturumlarınız ve erişim anahtarlarınız kaldırıldı.", who, s.when(at)),
+			"Bu işlemi siz yapmadıysanız sunucu yöneticinize başvurun.",
+		},
 	})
 }
 

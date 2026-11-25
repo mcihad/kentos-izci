@@ -87,6 +87,12 @@ service IssueService {
   rpc SuggestSearch(SuggestSearchRequest) returns (SuggestSearchResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
   }
+
+  // DeleteIssues deletes issues with their events, attachments, comments
+  // and counters. The issues disappear at once; their events are removed in
+  // the background. A later event with the same fingerprint opens a new
+  // issue. Requires ROLE_ADMIN.
+  rpc DeleteIssues(DeleteIssuesRequest) returns (DeleteIssuesResponse);
 }
 
 // IssueSummary is the compact form of an issue used in lists.
@@ -721,4 +727,20 @@ message SuggestSearchResponse {
 
   // End (exclusive) of the term the suggestions replace.
   uint32 replace_to = 3;
+}
+
+// DeleteIssuesRequest lists the issues to delete.
+message DeleteIssuesRequest {
+  // Issue ids (UUID).
+  repeated string issue_ids = 1 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 100
+    items: {string: {uuid: true}}
+  }];
+}
+
+// DeleteIssuesResponse reports the deletion.
+message DeleteIssuesResponse {
+  // Number of issues deleted; unknown ids are skipped.
+  uint32 deleted = 1;
 }

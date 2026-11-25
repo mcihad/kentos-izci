@@ -36,7 +36,7 @@ func ListOrganizationStats(ctx context.Context, q Querier, pattern string, limit
 		  (SELECT coalesce(sum(u.accepted), 0) FROM usage_daily u WHERE u.org_id = o.id AND u.day >= date_trunc('month', now())::date)::bigint,
 		  (SELECT max(p.last_event_at) FROM projects p WHERE p.org_id = o.id AND p.deleted_at IS NULL)
 		FROM organizations o
-		WHERE $1 = '' OR (o.slug || ' ' || o.name) ILIKE $1
+		WHERE o.deleted_at IS NULL AND ($1 = '' OR (o.slug || ' ' || o.name) ILIKE $1)
 		ORDER BY lower(o.name), o.id LIMIT $2 OFFSET $3`, pattern, limit, offset)
 	if err != nil {
 		return nil, err

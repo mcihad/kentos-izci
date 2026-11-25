@@ -260,6 +260,11 @@ message PrivacySettings {
   // dropped instead of stored. Off by default: SDKs send attachments only
   // when the application turns them on.
   bool discard_attachments = 6;
+
+  // Days the project's events and the data derived from them are kept; 0
+  // means the organization's retention. Shorter than the organization's
+  // retention only.
+  uint32 retention_days = 7 [(buf.validate.field).uint32.lte = 3650];
 }
 
 // IpStorage selects how IP addresses are stored.

@@ -302,4 +302,6 @@ enum ErrorReason {
   // than OrganizationSettings.token_max_days, or was unused for
   // token_idle_days and has been revoked. Create a new token.
   ERROR_REASON_ACCESS_TOKEN_POLICY = 41;
+  // The operation would leave the server without an administrator.
+  ERROR_REASON_LAST_SUPERADMIN = 42;
 }

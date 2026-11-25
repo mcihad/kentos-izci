@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
 	"github.com/mcihad/kentos-izci/gen/izci/api/v1/apiv1connect"
@@ -190,4 +192,66 @@ func scopeNames(scopes []apiv1.TokenScope) string {
 		}
 	}
 	return strings.Join(out, " + ")
+}
+
+// deleteUser deletes an account once nothing depends on it: organizations
+// it is the only owner of, or the server's last administrator. Each
+// organization's audit log records the departure.
+func (b *base) deleteUser(ctx context.Context, u *store.User) error {
+	return b.db.InSystem(ctx, func(tx pgx.Tx) error {
+		owned, err := store.SoleOwnedOrganizations(ctx, tx, u.ID)
+		if err != nil {
+			return err
+		}
+		if len(owned) > 0 {
+			slugs := make([]string, len(owned))
+			for i, o := range owned {
+				slugs[i] = o.Slug
+			}
+			return apiError(connect.CodeFailedPrecondition, apiv1.ErrorReason_ERROR_REASON_LAST_OWNER,
+				"hand over or delete the organizations this account is the only owner of first",
+				"organizations", strings.Join(slugs, ","))
+		}
+		if u.Superadmin && !u.Disabled {
+			n, err := store.CountSuperadmins(ctx, tx)
+			if err != nil {
+				return err
+			}
+			if n <= 1 {
+				return apiError(connect.CodeFailedPrecondition, apiv1.ErrorReason_ERROR_REASON_LAST_SUPERADMIN,
+					"make someone else a server administrator first")
+			}
+		}
+		memberships, err := store.ListMemberships(ctx, tx, u.ID)
+		if err != nil {
+			return err
+		}
+		actor := auth.PrincipalFrom(ctx).User.ID
+		for _, m := range memberships {
+			if err := store.InsertAudit(ctx, tx, store.AuditEntry{OrgID: &m.Organization.ID, ActorID: &actor, Action: "user.delete",
+				TargetType: "user", TargetID: u.ID.String(), TargetName: u.Email, IP: infoFrom(ctx).IP}); err != nil {
+				return err
+			}
+		}
+		return store.DeleteUser(ctx, tx, u.ID)
+	})
+}
+
+// DeleteAccount implements UserService.DeleteAccount.
+func (s *UserServer) DeleteAccount(ctx context.Context, req *connect.Request[apiv1.DeleteAccountRequest]) (*connect.Response[apiv1.DeleteAccountResponse], error) {
+	u := auth.PrincipalFrom(ctx).User
+	if !strings.EqualFold(strings.TrimSpace(req.Msg.GetConfirmEmail()), u.Email) {
+		return nil, fieldError("confirm_email", "confirmation does not match the account's e-mail address")
+	}
+	if err := requireRecentAuth(ctx); err != nil {
+		return nil, err
+	}
+	if err := s.deleteUser(ctx, u); err != nil {
+		return nil, internal(ctx, s.log, "delete account", err)
+	}
+	s.account.AccountDeleted(ctx, u.Email, false, time.Now())
+	s.log.InfoContext(ctx, "account deleted", slog.String("user_id", u.ID.String()))
+	resp := connect.NewResponse(&apiv1.DeleteAccountResponse{})
+	resp.Header().Add("Set-Cookie", s.auth.ClearCookie().String())
+	return resp, nil
 }

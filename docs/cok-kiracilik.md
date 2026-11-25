@@ -26,7 +26,8 @@ Bir kullanıcı birden fazla organizasyonun üyesi olabilir; organizasyonlar ara
 | Uyarı kuralları ve Telegram sohbetleri | | | ✓ | ✓ |
 | GitHub bağlantıları | | | ✓ | ✓ |
 | Üye davet etme ve rol değiştirme, denetim kaydı | | | ✓ | ✓ |
-| Proje silme | | | | ✓ |
+| Hata ve olay silme, kişisel veri talepleri, saklama süresi | | | ✓ | ✓ |
+| Proje ve organizasyon silme | | | | ✓ |
 
 Organizasyonun en az bir sahibi (`owner`) kalmalıdır.
 
@@ -64,8 +65,14 @@ Sunucu yöneticisi her organizasyona bir plan ve sınırlar atayabilir (**Sunucu
 | Aylık olay | Aşıldığında yeni olaylar `RESOURCE_EXHAUSTED` (Sentry SDK'larında `429`) ile reddedilir. |
 | Proje ve üye sayısı | Yeni proje ya da davet oluşturulamaz. |
 | Aylık yapay zekâ analizi | Yeni analiz başlatılamaz. |
+| Saklama süresi | Olaylar en çok bu kadar gün saklanır (sunucunun `RETENTION_DAYS` değerini aşamaz); organizasyon ve projeler daha kısasını seçebilir. |
 
 Boş ya da sıfır sınır, sınırsız demektir. Kullanım **Organizasyon ayarları › Kullanım** bölümünde görünür.
+
+## Organizasyonu ve hesabı silme
+
+- **Organizasyon:** sahipler **Organizasyon ayarları › Genel › Organizasyonu sil** ile, kısa adı yazıp kimliklerini yeniden doğrulayarak siler. Organizasyon hemen kaybolur: üyelikler, davetler ve organizasyona bağlı erişim anahtarları silinir, ingest anahtarları çalışmaz, kısa adı boşa çıkar. Projeler, olaylar ve diğer veriler arka planda temizlenir. Denetim kaydı da silindiği için silme işlemi sunucu günlüğüne yazılır.
+- **Hesap:** herkes kendi hesabını **Hesabım › Profil** bölümünden siler; sunucu yöneticisi başkasınınkini **Sunucu yönetimi › Kullanıcılar** bölümünden. Kişi organizasyonların tek sahibiyse önce sahipliği devretmeli ya da organizasyonu silmelidir. Silme, kişinin üye olduğu organizasyonların denetim kaydına yazılır ve kişiye e-postayla bildirilir.
 
 ## Yalıtım nasıl sağlanır
 

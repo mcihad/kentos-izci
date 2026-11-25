@@ -23,6 +23,8 @@ const reasonMessages: Partial<Record<ErrorReason, string>> = {
   [ErrorReason.SLUG_TAKEN]: "Bu kısa ad kullanılıyor. Başka bir kısa ad seçin.",
   [ErrorReason.INVITATION_INVALID]: "Davet bağlantısı geçersiz ya da süresi dolmuş.",
   [ErrorReason.LAST_OWNER]: "Organizasyonun en az bir sahibi kalmalı.",
+  [ErrorReason.LAST_SUPERADMIN]:
+    "Sunucunun son yöneticisi hesabını silemez. Önce başka birini sunucu yöneticisi yapın.",
   [ErrorReason.LIMIT_REACHED]: "Planınızın sınırına ulaştınız.",
   [ErrorReason.QUOTA_EXCEEDED]: "Bu ayın olay kotası doldu.",
   [ErrorReason.INVALID_QUERY]: "Arama ifadesi anlaşılamadı.",
@@ -70,6 +72,10 @@ export function errorReason(err: unknown): ErrorReason {
 /** A user-facing Turkish message for any error thrown by an API call. */
 export function errorMessage(err: unknown): string {
   const reason = errorReason(err);
+  const owned = errorDetail(err)?.metadata.organizations;
+  if (reason === ErrorReason.LAST_OWNER && owned) {
+    return `Önce tek sahibi olunan organizasyonları başka birine devredin ya da silin: ${owned.split(",").join(", ")}.`;
+  }
   if (reason === ErrorReason.LIMIT_REACHED && errorDetail(err)?.metadata.resource === "organizations") {
     const limit = errorDetail(err)?.metadata.limit;
     return `Bu sunucuda en çok ${limit} organizasyonun sahibi olabilirsiniz.`;

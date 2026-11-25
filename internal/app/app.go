@@ -324,6 +324,17 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 			if len(purged) > 0 {
 				log.Info("deleted projects purged", slog.Any("projects", purged))
 			}
+			if err != nil {
+				return err
+			}
+			orgs, err := database.PurgeDeletedOrganizations(ctx, 5)
+			if len(orgs) > 0 {
+				log.Info("deleted organizations purged", slog.Any("organizations", orgs))
+			}
+			return err
+		}},
+		jobs.Task{Name: "issue-purge", Interval: time.Minute, Run: func(ctx context.Context) error {
+			_, err := database.PurgeDeletedIssues(ctx, 20)
 			return err
 		}},
 		jobs.Task{Name: "retention", Interval: 6 * time.Hour, RunAtStart: true, Run: func(ctx context.Context) error {
@@ -332,7 +343,24 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 			if len(res.Partitions) > 0 {
 				log.Info("retention dropped event partitions", slog.Any("partitions", res.Partitions))
 			}
-			return err
+			if err != nil {
+				return err
+			}
+			// Organizations and projects may keep their data for less time.
+			short, err := database.ShortRetentionProjects(ctx, cfg.Retention.Days)
+			if err != nil {
+				return err
+			}
+			for _, p := range short {
+				n, err := database.ApplyProjectRetention(ctx, p.ProjectID, time.Now().AddDate(0, 0, -p.Days))
+				if err != nil {
+					return err
+				}
+				if n > 0 {
+					log.Info("project retention deleted events", slog.String("project", p.ProjectID.String()), slog.Int64("events", n))
+				}
+			}
+			return nil
 		}},
 	)
 	return a, nil

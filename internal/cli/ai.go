@@ -51,7 +51,7 @@ func (a *cliApp) aiEnv(ctx context.Context) (*aiEnv, error) {
 func (e *aiEnv) orgID(ctx context.Context, slug string) (uuid.UUID, error) {
 	var ids []uuid.UUID
 	err := e.db.InSystem(ctx, func(tx pgx.Tx) error {
-		rows, err := tx.Query(ctx, `SELECT id FROM organizations WHERE $1 = '' OR slug = lower($1) ORDER BY slug LIMIT 2`, slug)
+		rows, err := tx.Query(ctx, `SELECT id FROM organizations WHERE deleted_at IS NULL AND ($1 = '' OR slug = lower($1)) ORDER BY slug LIMIT 2`, slug)
 		if err != nil {
 			return err
 		}

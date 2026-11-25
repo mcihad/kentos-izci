@@ -946,6 +946,89 @@ func (x *GetRawEventResponse) GetJson() string {
 	return ""
 }
 
+// DeleteEventRequest identifies the event to delete.
+type DeleteEventRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Server-side event id (EventSummary.id).
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteEventRequest) Reset() {
+	*x = DeleteEventRequest{}
+	mi := &file_izci_api_v1_event_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteEventRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteEventRequest) ProtoMessage() {}
+
+func (x *DeleteEventRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_event_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteEventRequest.ProtoReflect.Descriptor instead.
+func (*DeleteEventRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_event_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *DeleteEventRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+// DeleteEventResponse has no fields.
+type DeleteEventResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteEventResponse) Reset() {
+	*x = DeleteEventResponse{}
+	mi := &file_izci_api_v1_event_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteEventResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteEventResponse) ProtoMessage() {}
+
+func (x *DeleteEventResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_event_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteEventResponse.ProtoReflect.Descriptor instead.
+func (*DeleteEventResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_event_proto_rawDescGZIP(), []int{10}
+}
+
 var File_izci_api_v1_event_proto protoreflect.FileDescriptor
 
 const file_izci_api_v1_event_proto_rawDesc = "" +
@@ -1032,15 +1115,19 @@ const file_izci_api_v1_event_proto_rawDesc = "" +
 	"\x12GetRawEventRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\")\n" +
 	"\x13GetRawEventResponse\x12\x12\n" +
-	"\x04json\x18\x01 \x01(\tR\x04json*q\n" +
+	"\x04json\x18\x01 \x01(\tR\x04json\".\n" +
+	"\x12DeleteEventRequest\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x15\n" +
+	"\x13DeleteEventResponse*q\n" +
 	"\tEventPick\x12\x1a\n" +
 	"\x16EVENT_PICK_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11EVENT_PICK_LATEST\x10\x01\x12\x15\n" +
 	"\x11EVENT_PICK_OLDEST\x10\x02\x12\x1a\n" +
-	"\x16EVENT_PICK_RECOMMENDED\x10\x032\xb3\x01\n" +
+	"\x16EVENT_PICK_RECOMMENDED\x10\x032\x85\x02\n" +
 	"\fEventService\x12L\n" +
 	"\bGetEvent\x12\x1c.izci.api.v1.GetEventRequest\x1a\x1d.izci.api.v1.GetEventResponse\"\x03\x90\x02\x01\x12U\n" +
-	"\vGetRawEvent\x12\x1f.izci.api.v1.GetRawEventRequest\x1a .izci.api.v1.GetRawEventResponse\"\x03\x90\x02\x01B\xa0\x01\n" +
+	"\vGetRawEvent\x12\x1f.izci.api.v1.GetRawEventRequest\x1a .izci.api.v1.GetRawEventResponse\"\x03\x90\x02\x01\x12P\n" +
+	"\vDeleteEvent\x12\x1f.izci.api.v1.DeleteEventRequest\x1a .izci.api.v1.DeleteEventResponseB\xa0\x01\n" +
 	"\x0fcom.izci.api.v1B\n" +
 	"EventProtoP\x01Z3github.com/mcihad/kentos-izci/gen/izci/api/v1;apiv1\xa2\x02\x03IAX\xaa\x02\vIzci.Api.V1\xca\x02\vIzci\\Api\\V1\xe2\x02\x17Izci\\Api\\V1\\GPBMetadata\xea\x02\rIzci::Api::V1b\x06proto3"
 
@@ -1057,7 +1144,7 @@ func file_izci_api_v1_event_proto_rawDescGZIP() []byte {
 }
 
 var file_izci_api_v1_event_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_izci_api_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_izci_api_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_izci_api_v1_event_proto_goTypes = []any{
 	(EventPick)(0),                // 0: izci.api.v1.EventPick
 	(*EventSummary)(nil),          // 1: izci.api.v1.EventSummary
@@ -1069,36 +1156,40 @@ var file_izci_api_v1_event_proto_goTypes = []any{
 	(*GetEventResponse)(nil),      // 7: izci.api.v1.GetEventResponse
 	(*GetRawEventRequest)(nil),    // 8: izci.api.v1.GetRawEventRequest
 	(*GetRawEventResponse)(nil),   // 9: izci.api.v1.GetRawEventResponse
-	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
-	(v1.Level)(0),                 // 11: izci.ingest.v1.Level
-	(*CustomerRef)(nil),           // 12: izci.api.v1.CustomerRef
-	(*IssueRef)(nil),              // 13: izci.api.v1.IssueRef
-	(*ProjectRef)(nil),            // 14: izci.api.v1.ProjectRef
-	(*v1.Event)(nil),              // 15: izci.ingest.v1.Event
-	(*UserFeedback)(nil),          // 16: izci.api.v1.UserFeedback
+	(*DeleteEventRequest)(nil),    // 10: izci.api.v1.DeleteEventRequest
+	(*DeleteEventResponse)(nil),   // 11: izci.api.v1.DeleteEventResponse
+	(*timestamppb.Timestamp)(nil), // 12: google.protobuf.Timestamp
+	(v1.Level)(0),                 // 13: izci.ingest.v1.Level
+	(*CustomerRef)(nil),           // 14: izci.api.v1.CustomerRef
+	(*IssueRef)(nil),              // 15: izci.api.v1.IssueRef
+	(*ProjectRef)(nil),            // 16: izci.api.v1.ProjectRef
+	(*v1.Event)(nil),              // 17: izci.ingest.v1.Event
+	(*UserFeedback)(nil),          // 18: izci.api.v1.UserFeedback
 }
 var file_izci_api_v1_event_proto_depIdxs = []int32{
-	10, // 0: izci.api.v1.EventSummary.received_at:type_name -> google.protobuf.Timestamp
-	10, // 1: izci.api.v1.EventSummary.occurred_at:type_name -> google.protobuf.Timestamp
-	11, // 2: izci.api.v1.EventSummary.level:type_name -> izci.ingest.v1.Level
-	12, // 3: izci.api.v1.EventSummary.customer:type_name -> izci.api.v1.CustomerRef
-	13, // 4: izci.api.v1.EventDetail.issue:type_name -> izci.api.v1.IssueRef
-	14, // 5: izci.api.v1.EventDetail.project:type_name -> izci.api.v1.ProjectRef
-	10, // 6: izci.api.v1.EventDetail.received_at:type_name -> google.protobuf.Timestamp
-	15, // 7: izci.api.v1.EventDetail.event:type_name -> izci.ingest.v1.Event
+	12, // 0: izci.api.v1.EventSummary.received_at:type_name -> google.protobuf.Timestamp
+	12, // 1: izci.api.v1.EventSummary.occurred_at:type_name -> google.protobuf.Timestamp
+	13, // 2: izci.api.v1.EventSummary.level:type_name -> izci.ingest.v1.Level
+	14, // 3: izci.api.v1.EventSummary.customer:type_name -> izci.api.v1.CustomerRef
+	15, // 4: izci.api.v1.EventDetail.issue:type_name -> izci.api.v1.IssueRef
+	16, // 5: izci.api.v1.EventDetail.project:type_name -> izci.api.v1.ProjectRef
+	12, // 6: izci.api.v1.EventDetail.received_at:type_name -> google.protobuf.Timestamp
+	17, // 7: izci.api.v1.EventDetail.event:type_name -> izci.ingest.v1.Event
 	5,  // 8: izci.api.v1.EventDetail.user_agent:type_name -> izci.api.v1.UserAgentInfo
 	4,  // 9: izci.api.v1.EventDetail.path_rewrites:type_name -> izci.api.v1.PathRewrite
 	3,  // 10: izci.api.v1.EventDetail.attachments:type_name -> izci.api.v1.EventAttachment
-	16, // 11: izci.api.v1.EventDetail.feedback:type_name -> izci.api.v1.UserFeedback
-	10, // 12: izci.api.v1.EventAttachment.created_at:type_name -> google.protobuf.Timestamp
+	18, // 11: izci.api.v1.EventDetail.feedback:type_name -> izci.api.v1.UserFeedback
+	12, // 12: izci.api.v1.EventAttachment.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 13: izci.api.v1.GetEventRequest.pick:type_name -> izci.api.v1.EventPick
 	2,  // 14: izci.api.v1.GetEventResponse.event:type_name -> izci.api.v1.EventDetail
 	6,  // 15: izci.api.v1.EventService.GetEvent:input_type -> izci.api.v1.GetEventRequest
 	8,  // 16: izci.api.v1.EventService.GetRawEvent:input_type -> izci.api.v1.GetRawEventRequest
-	7,  // 17: izci.api.v1.EventService.GetEvent:output_type -> izci.api.v1.GetEventResponse
-	9,  // 18: izci.api.v1.EventService.GetRawEvent:output_type -> izci.api.v1.GetRawEventResponse
-	17, // [17:19] is the sub-list for method output_type
-	15, // [15:17] is the sub-list for method input_type
+	10, // 17: izci.api.v1.EventService.DeleteEvent:input_type -> izci.api.v1.DeleteEventRequest
+	7,  // 18: izci.api.v1.EventService.GetEvent:output_type -> izci.api.v1.GetEventResponse
+	9,  // 19: izci.api.v1.EventService.GetRawEvent:output_type -> izci.api.v1.GetRawEventResponse
+	11, // 20: izci.api.v1.EventService.DeleteEvent:output_type -> izci.api.v1.DeleteEventResponse
+	18, // [18:21] is the sub-list for method output_type
+	15, // [15:18] is the sub-list for method input_type
 	15, // [15:15] is the sub-list for extension type_name
 	15, // [15:15] is the sub-list for extension extendee
 	0,  // [0:15] is the sub-list for field type_name
@@ -1117,7 +1208,7 @@ func file_izci_api_v1_event_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_api_v1_event_proto_rawDesc), len(file_izci_api_v1_event_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   9,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

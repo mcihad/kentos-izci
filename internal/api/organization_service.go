@@ -62,7 +62,7 @@ func (s *OrganizationServer) GetOrganization(ctx context.Context, _ *connect.Req
 	var out apiv1.GetOrganizationResponse
 	err := s.inOrg(ctx, func(tx pgx.Tx, t *auth.Tenant) error {
 		p, m, err := s.counts(ctx, tx, t.OrgID())
-		out.Organization, out.Role = toOrganization(t.Org, p, m), t.Role
+		out.Organization, out.Role = s.organization(t.Org, p, m), t.Role
 		return err
 	})
 	if err != nil {
@@ -111,7 +111,7 @@ func (s *OrganizationServer) CreateOrganization(ctx context.Context, req *connec
 	if err != nil {
 		return nil, internal(ctx, s.log, "create organization", err)
 	}
-	return connect.NewResponse(&apiv1.CreateOrganizationResponse{Organization: toOrganization(org, 0, 1)}), nil
+	return connect.NewResponse(&apiv1.CreateOrganizationResponse{Organization: s.organization(org, 0, 1)}), nil
 }
 
 // UpdateOrganization implements OrganizationService.UpdateOrganization.
@@ -149,12 +149,16 @@ func (s *OrganizationServer) UpdateOrganization(ctx context.Context, req *connec
 				return err
 			}
 		}
+		if err := checkRetention(ctx, "settings.retention_days", settings.GetRetentionDays(), t.Org.Settings.GetRetentionDays(),
+			s.maxRetentionDays(t.Org)); err != nil {
+			return err
+		}
 		org, err := store.UpdateOrganization(ctx, tx, t.OrgID(), name, settings)
 		if err != nil {
 			return err
 		}
 		p, mem, err := s.counts(ctx, tx, org.ID)
-		out.Organization = toOrganization(org, p, mem)
+		out.Organization = s.organization(org, p, mem)
 		if err != nil {
 			return err
 		}
@@ -172,6 +176,9 @@ func (s *OrganizationServer) UpdateOrganization(ctx context.Context, req *connec
 		}
 		if was, is := t.Org.Settings.GetTokenIdleDays(), settings.GetTokenIdleDays(); was != is {
 			meta["token_idle_days"] = strconv.FormatUint(uint64(is), 10)
+		}
+		if was, is := t.Org.Settings.GetRetentionDays(), settings.GetRetentionDays(); was != is {
+			meta["retention_days"] = strconv.FormatUint(uint64(is), 10)
 		}
 		if len(meta) == 0 {
 			meta = nil
@@ -491,4 +498,27 @@ func deref(s *string) string {
 		return ""
 	}
 	return *s
+}
+
+// DeleteOrganization implements OrganizationService.DeleteOrganization.
+func (s *OrganizationServer) DeleteOrganization(ctx context.Context, req *connect.Request[apiv1.DeleteOrganizationRequest]) (*connect.Response[apiv1.DeleteOrganizationResponse], error) {
+	t := auth.TenantFrom(ctx)
+	if req.Msg.GetConfirmSlug() != t.Org.Slug {
+		return nil, fieldError("confirm_slug", "confirmation does not match the organization slug")
+	}
+	if err := requireRecentAuth(ctx); err != nil {
+		return nil, err
+	}
+	err := s.db.InSystem(ctx, func(tx pgx.Tx) error {
+		return store.MarkOrganizationDeleted(ctx, tx, t.OrgID())
+	})
+	if err != nil {
+		return nil, internal(ctx, s.log, "delete organization", err)
+	}
+	s.invalidateKeys()
+	// The audit log goes with the organization: the server log keeps the
+	// record.
+	s.log.InfoContext(ctx, "organization deleted", slog.String("org", t.Org.Slug), slog.String("org_id", t.OrgID().String()),
+		slog.String("by", auth.PrincipalFrom(ctx).User.Email))
+	return connect.NewResponse(&apiv1.DeleteOrganizationResponse{}), nil
 }

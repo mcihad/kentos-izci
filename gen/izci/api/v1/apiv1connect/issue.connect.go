@@ -64,6 +64,9 @@ const (
 	// IssueServiceSuggestSearchProcedure is the fully-qualified name of the IssueService's
 	// SuggestSearch RPC.
 	IssueServiceSuggestSearchProcedure = "/izci.api.v1.IssueService/SuggestSearch"
+	// IssueServiceDeleteIssuesProcedure is the fully-qualified name of the IssueService's DeleteIssues
+	// RPC.
+	IssueServiceDeleteIssuesProcedure = "/izci.api.v1.IssueService/DeleteIssues"
 )
 
 // IssueServiceClient is a client for the izci.api.v1.IssueService service.
@@ -105,6 +108,11 @@ type IssueServiceClient interface {
 	// SuggestSearch completes the search term under the cursor: keys, values
 	// seen in the data and operators. Requires ROLE_VIEWER.
 	SuggestSearch(context.Context, *connect.Request[v1.SuggestSearchRequest]) (*connect.Response[v1.SuggestSearchResponse], error)
+	// DeleteIssues deletes issues with their events, attachments, comments
+	// and counters. The issues disappear at once; their events are removed in
+	// the background. A later event with the same fingerprint opens a new
+	// issue. Requires ROLE_ADMIN.
+	DeleteIssues(context.Context, *connect.Request[v1.DeleteIssuesRequest]) (*connect.Response[v1.DeleteIssuesResponse], error)
 }
 
 // NewIssueServiceClient constructs a client for the izci.api.v1.IssueService service. By default,
@@ -191,6 +199,12 @@ func NewIssueServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		deleteIssues: connect.NewClient[v1.DeleteIssuesRequest, v1.DeleteIssuesResponse](
+			httpClient,
+			baseURL+IssueServiceDeleteIssuesProcedure,
+			connect.WithSchema(issueServiceMethods.ByName("DeleteIssues")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -207,6 +221,7 @@ type issueServiceClient struct {
 	followIssue       *connect.Client[v1.FollowIssueRequest, v1.FollowIssueResponse]
 	createTicket      *connect.Client[v1.CreateTicketRequest, v1.CreateTicketResponse]
 	suggestSearch     *connect.Client[v1.SuggestSearchRequest, v1.SuggestSearchResponse]
+	deleteIssues      *connect.Client[v1.DeleteIssuesRequest, v1.DeleteIssuesResponse]
 }
 
 // ListIssues calls izci.api.v1.IssueService.ListIssues.
@@ -264,6 +279,11 @@ func (c *issueServiceClient) SuggestSearch(ctx context.Context, req *connect.Req
 	return c.suggestSearch.CallUnary(ctx, req)
 }
 
+// DeleteIssues calls izci.api.v1.IssueService.DeleteIssues.
+func (c *issueServiceClient) DeleteIssues(ctx context.Context, req *connect.Request[v1.DeleteIssuesRequest]) (*connect.Response[v1.DeleteIssuesResponse], error) {
+	return c.deleteIssues.CallUnary(ctx, req)
+}
+
 // IssueServiceHandler is an implementation of the izci.api.v1.IssueService service.
 type IssueServiceHandler interface {
 	// ListIssues searches issues. Requires ROLE_VIEWER.
@@ -303,6 +323,11 @@ type IssueServiceHandler interface {
 	// SuggestSearch completes the search term under the cursor: keys, values
 	// seen in the data and operators. Requires ROLE_VIEWER.
 	SuggestSearch(context.Context, *connect.Request[v1.SuggestSearchRequest]) (*connect.Response[v1.SuggestSearchResponse], error)
+	// DeleteIssues deletes issues with their events, attachments, comments
+	// and counters. The issues disappear at once; their events are removed in
+	// the background. A later event with the same fingerprint opens a new
+	// issue. Requires ROLE_ADMIN.
+	DeleteIssues(context.Context, *connect.Request[v1.DeleteIssuesRequest]) (*connect.Response[v1.DeleteIssuesResponse], error)
 }
 
 // NewIssueServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -385,6 +410,12 @@ func NewIssueServiceHandler(svc IssueServiceHandler, opts ...connect.HandlerOpti
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	issueServiceDeleteIssuesHandler := connect.NewUnaryHandler(
+		IssueServiceDeleteIssuesProcedure,
+		svc.DeleteIssues,
+		connect.WithSchema(issueServiceMethods.ByName("DeleteIssues")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/izci.api.v1.IssueService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case IssueServiceListIssuesProcedure:
@@ -409,6 +440,8 @@ func NewIssueServiceHandler(svc IssueServiceHandler, opts ...connect.HandlerOpti
 			issueServiceCreateTicketHandler.ServeHTTP(w, r)
 		case IssueServiceSuggestSearchProcedure:
 			issueServiceSuggestSearchHandler.ServeHTTP(w, r)
+		case IssueServiceDeleteIssuesProcedure:
+			issueServiceDeleteIssuesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -460,4 +493,8 @@ func (UnimplementedIssueServiceHandler) CreateTicket(context.Context, *connect.R
 
 func (UnimplementedIssueServiceHandler) SuggestSearch(context.Context, *connect.Request[v1.SuggestSearchRequest]) (*connect.Response[v1.SuggestSearchResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.IssueService.SuggestSearch is not implemented"))
+}
+
+func (UnimplementedIssueServiceHandler) DeleteIssues(context.Context, *connect.Request[v1.DeleteIssuesRequest]) (*connect.Response[v1.DeleteIssuesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.IssueService.DeleteIssues is not implemented"))
 }

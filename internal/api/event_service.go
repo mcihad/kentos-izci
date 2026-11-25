@@ -16,6 +16,7 @@ import (
 	"github.com/mcihad/kentos-izci/gen/izci/api/v1/apiv1connect"
 	"github.com/mcihad/kentos-izci/internal/auth"
 	"github.com/mcihad/kentos-izci/internal/ingest"
+	"github.com/mcihad/kentos-izci/internal/store"
 	ingestv1 "github.com/mcihad/kentos-izci/sdk/go/proto/izci/ingest/v1"
 )
 
@@ -243,4 +244,34 @@ func (s *EventServer) GetRawEvent(ctx context.Context, req *connect.Request[apiv
 		return nil, internal(ctx, s.log, "get raw event", err)
 	}
 	return connect.NewResponse(&out), nil
+}
+
+// DeleteEvent implements EventService.DeleteEvent.
+func (s *EventServer) DeleteEvent(ctx context.Context, req *connect.Request[apiv1.DeleteEventRequest]) (*connect.Response[apiv1.DeleteEventResponse], error) {
+	id, err := uuid.Parse(req.Msg.GetId())
+	if err != nil || id.Version() != 7 {
+		return nil, errNotFound("event")
+	}
+	at := ingest.ReceivedAt(id)
+	err = s.inOrg(ctx, func(tx pgx.Tx, t *auth.Tenant) error {
+		d, err := store.DeleteEvent(ctx, tx, id, at.Add(-time.Second), at.Add(time.Second))
+		if errors.Is(err, store.ErrNotFound) {
+			return errNotFound("event")
+		}
+		if err != nil {
+			return err
+		}
+		if err := forgetUsers(ctx, tx, d.Deleted); err != nil {
+			return err
+		}
+		var slug string
+		var seq int32
+		_ = tx.QueryRow(ctx, `SELECT p.slug, coalesce(i.short_seq, 0) FROM issues i JOIN projects p ON p.id = i.project_id WHERE i.id = $1`,
+			d.Deleted[0].IssueID).Scan(&slug, &seq)
+		return s.audit(ctx, tx, "event.delete", "event", id.String(), ingest.ShortID(slug, seq), nil)
+	})
+	if err != nil {
+		return nil, internal(ctx, s.log, "delete event", err)
+	}
+	return connect.NewResponse(&apiv1.DeleteEventResponse{}), nil
 }

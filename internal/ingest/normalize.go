@@ -76,24 +76,27 @@ type Processed struct {
 	TenantKey    string
 	UserLabel    string
 	UserHash     []byte
-	ClientIP     netip.Addr
-	ServerName   string
-	Transaction  string
-	URL          string
-	UA           UserAgentInfo
-	Browser      string
-	OS           string
-	Title        string
-	Culprit      string
-	Type         string
-	Value        string
-	Location     Location
-	Grouping     Grouping
-	Unhandled    bool
-	Score        int16
-	Tags         map[string]string
-	Warnings     []string
-	Payload      []byte
+	// SubjectHashes identify the person the event is about, for data
+	// subject requests (issue_subjects).
+	SubjectHashes [][]byte
+	ClientIP      netip.Addr
+	ServerName    string
+	Transaction   string
+	URL           string
+	UA            UserAgentInfo
+	Browser       string
+	OS            string
+	Title         string
+	Culprit       string
+	Type          string
+	Value         string
+	Location      Location
+	Grouping      Grouping
+	Unhandled     bool
+	Score         int16
+	Tags          map[string]string
+	Warnings      []string
+	Payload       []byte
 }
 
 var payloadJSON = protojson.MarshalOptions{UseProtoNames: true}
@@ -228,7 +231,37 @@ func Normalize(ev *ingestv1.Event, opt NormalizeOptions) (*Processed, error) {
 	}
 	p.Payload = payload
 	p.Warnings = w.list
+	for _, k := range SubjectKeys(ev.GetUser(), p.ClientIP) {
+		p.SubjectHashes = append(p.SubjectHashes, SubjectKeyHash(k))
+	}
 	return p, nil
+}
+
+// SubjectKeys are the identifiers of the person an event is about, as the
+// SQL function izci_subject_keys computes them from the stored event: user
+// id, e-mail (lower case), username and client IP, each with its kind as
+// prefix.
+func SubjectKeys(u *ingestv1.User, ip netip.Addr) []string {
+	var keys []string
+	if v := u.GetId(); v != "" {
+		keys = append(keys, "id:"+v)
+	}
+	if v := u.GetEmail(); v != "" {
+		keys = append(keys, "email:"+strings.ToLower(v))
+	}
+	if v := u.GetUsername(); v != "" {
+		keys = append(keys, "username:"+v)
+	}
+	if ip.IsValid() {
+		keys = append(keys, "ip:"+ip.Unmap().String())
+	}
+	return keys
+}
+
+// SubjectKeyHash is the issue_subjects hash of a subject key.
+func SubjectKeyHash(key string) []byte {
+	sum := sha256.Sum256([]byte(key))
+	return sum[:8]
 }
 
 func hasCrashedThread(ev *ingestv1.Event) bool {
@@ -916,6 +949,13 @@ func normalizeDisplayFile(f string) string {
 		return f[i+1:]
 	}
 	return f
+}
+
+// UserHash is the identity hash of an event's user as issue_users stores
+// it; nil when the event names no user.
+func UserHash(u *ingestv1.User) []byte {
+	_, h := userIdentity(u)
+	return h
 }
 
 // userIdentity returns a display label and an 8-byte hash identifying the

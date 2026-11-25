@@ -41,7 +41,7 @@ Hatalı bir değer sunucunun açılmasını engeller; hata mesajı hangi değiş
 
 | Değişken | Varsayılan | Açıklama |
 |---|---|---|
-| `RETENTION_DAYS` | `90` | Olayların en uzun saklanma süresi (1–3650 gün). Olaylar günlük bölümlerde tutulur; süresi dolan bölüm bütünüyle silinir. Süre bütün organizasyonlar için ortaktır. |
+| `RETENTION_DAYS` | `90` | Olayların en uzun saklanma süresi (1–3650 gün). Olaylar günlük bölümlerde tutulur; süresi dolan bölüm bütünüyle silinir. Organizasyonlar ve projeler daha kısa bir süre seçebilir; onların süresi dolan olayları ayrıca silinir. |
 | `PARTITION_PREMAKE_DAYS` | `7` | Önceden oluşturulan günlük bölüm sayısı (1–60). |
 
 ## Ingest

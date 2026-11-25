@@ -67,6 +67,13 @@ var rules = map[string]rule{
 	c.OrganizationServiceRemoveMemberProcedure:       orgRule(viewer, write), // self-removal; others need admin (checked in handler)
 	c.OrganizationServiceGetUsageProcedure:           orgRule(viewer, read),
 	c.OrganizationServiceListAuditLogProcedure:       orgRule(admin, read),
+	// Browser sessions only (checked in the handler).
+	c.OrganizationServiceDeleteOrganizationProcedure: orgRule(owner, write),
+
+	// PrivacyService
+	c.PrivacyServiceFindSubjectDataProcedure:   orgRule(admin, read),
+	c.PrivacyServiceExportSubjectDataProcedure: orgRule(admin, read),
+	c.PrivacyServiceDeleteSubjectDataProcedure: orgRule(admin, write),
 
 	// MonitorService
 	c.MonitorServiceListMonitorsProcedure:  orgRule(viewer, read),
@@ -119,10 +126,12 @@ var rules = map[string]rule{
 	c.IssueServiceFollowIssueProcedure:       orgRule(viewer, read),
 	c.IssueServiceCreateTicketProcedure:      orgRule(member, write),
 	c.IssueServiceSuggestSearchProcedure:     orgRule(viewer, read),
+	c.IssueServiceDeleteIssuesProcedure:      orgRule(admin, write),
 
 	// EventService
 	c.EventServiceGetEventProcedure:    orgRule(viewer, read),
 	c.EventServiceGetRawEventProcedure: orgRule(viewer, read),
+	c.EventServiceDeleteEventProcedure: orgRule(admin, write),
 
 	// FeedbackService
 	c.FeedbackServiceListFeedbackProcedure: orgRule(viewer, read),
@@ -185,6 +194,7 @@ var rules = map[string]rule{
 	c.UserServiceMarkNotificationsReadProcedure:      {scope: read},
 	c.UserServiceGetNotificationSettingsProcedure:    {scope: read},
 	c.UserServiceUpdateNotificationSettingsProcedure: {scope: write},
+	c.UserServiceDeleteAccountProcedure:              {scope: write},
 
 	// AdminService
 	c.AdminServiceGetInstanceInfoProcedure:        {superadmin: true, scope: read},
@@ -192,4 +202,5 @@ var rules = map[string]rule{
 	c.AdminServiceUpdateOrganizationPlanProcedure: {superadmin: true, scope: write},
 	c.AdminServiceListUsersProcedure:              {superadmin: true, scope: read},
 	c.AdminServiceUpdateUserProcedure:             {superadmin: true, scope: write},
+	c.AdminServiceDeleteUserProcedure:             {superadmin: true, scope: write},
 }

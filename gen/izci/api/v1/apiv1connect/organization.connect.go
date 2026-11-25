@@ -63,6 +63,9 @@ const (
 	// OrganizationServiceListAuditLogProcedure is the fully-qualified name of the OrganizationService's
 	// ListAuditLog RPC.
 	OrganizationServiceListAuditLogProcedure = "/izci.api.v1.OrganizationService/ListAuditLog"
+	// OrganizationServiceDeleteOrganizationProcedure is the fully-qualified name of the
+	// OrganizationService's DeleteOrganization RPC.
+	OrganizationServiceDeleteOrganizationProcedure = "/izci.api.v1.OrganizationService/DeleteOrganization"
 )
 
 // OrganizationServiceClient is a client for the izci.api.v1.OrganizationService service.
@@ -78,8 +81,8 @@ type OrganizationServiceClient interface {
 	// ListMembers lists members and pending invitations. Requires ROLE_VIEWER.
 	ListMembers(context.Context, *connect.Request[v1.ListMembersRequest]) (*connect.Response[v1.ListMembersResponse], error)
 	// InviteMember invites an email address. Requires ROLE_ADMIN; inviting an
-	// owner requires ROLE_OWNER. Returns the invitation link to share (izci
-	// does not send email).
+	// owner requires ROLE_OWNER. Returns the invitation link to share; with
+	// send_email the link is also e-mailed when the server sends e-mail.
 	InviteMember(context.Context, *connect.Request[v1.InviteMemberRequest]) (*connect.Response[v1.InviteMemberResponse], error)
 	// RevokeInvitation cancels a pending invitation. Requires ROLE_ADMIN.
 	RevokeInvitation(context.Context, *connect.Request[v1.RevokeInvitationRequest]) (*connect.Response[v1.RevokeInvitationResponse], error)
@@ -96,6 +99,12 @@ type OrganizationServiceClient interface {
 	// ListAuditLog lists security-relevant changes (keys, members,
 	// integrations, settings), newest first. Requires ROLE_ADMIN.
 	ListAuditLog(context.Context, *connect.Request[v1.ListAuditLogRequest]) (*connect.Response[v1.ListAuditLogResponse], error)
+	// DeleteOrganization deletes the organization with all its projects,
+	// events and settings. It disappears at once; its data is removed in the
+	// background. Requires ROLE_OWNER and a browser session that
+	// re-authenticated in the last 10 minutes
+	// (ERROR_REASON_REAUTHENTICATION_REQUIRED).
+	DeleteOrganization(context.Context, *connect.Request[v1.DeleteOrganizationRequest]) (*connect.Response[v1.DeleteOrganizationResponse], error)
 }
 
 // NewOrganizationServiceClient constructs a client for the izci.api.v1.OrganizationService service.
@@ -173,6 +182,12 @@ func NewOrganizationServiceClient(httpClient connect.HTTPClient, baseURL string,
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		deleteOrganization: connect.NewClient[v1.DeleteOrganizationRequest, v1.DeleteOrganizationResponse](
+			httpClient,
+			baseURL+OrganizationServiceDeleteOrganizationProcedure,
+			connect.WithSchema(organizationServiceMethods.ByName("DeleteOrganization")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -188,6 +203,7 @@ type organizationServiceClient struct {
 	removeMember       *connect.Client[v1.RemoveMemberRequest, v1.RemoveMemberResponse]
 	getUsage           *connect.Client[v1.GetUsageRequest, v1.GetUsageResponse]
 	listAuditLog       *connect.Client[v1.ListAuditLogRequest, v1.ListAuditLogResponse]
+	deleteOrganization *connect.Client[v1.DeleteOrganizationRequest, v1.DeleteOrganizationResponse]
 }
 
 // GetOrganization calls izci.api.v1.OrganizationService.GetOrganization.
@@ -240,6 +256,11 @@ func (c *organizationServiceClient) ListAuditLog(ctx context.Context, req *conne
 	return c.listAuditLog.CallUnary(ctx, req)
 }
 
+// DeleteOrganization calls izci.api.v1.OrganizationService.DeleteOrganization.
+func (c *organizationServiceClient) DeleteOrganization(ctx context.Context, req *connect.Request[v1.DeleteOrganizationRequest]) (*connect.Response[v1.DeleteOrganizationResponse], error) {
+	return c.deleteOrganization.CallUnary(ctx, req)
+}
+
 // OrganizationServiceHandler is an implementation of the izci.api.v1.OrganizationService service.
 type OrganizationServiceHandler interface {
 	// GetOrganization returns the current organization. Requires ROLE_VIEWER.
@@ -253,8 +274,8 @@ type OrganizationServiceHandler interface {
 	// ListMembers lists members and pending invitations. Requires ROLE_VIEWER.
 	ListMembers(context.Context, *connect.Request[v1.ListMembersRequest]) (*connect.Response[v1.ListMembersResponse], error)
 	// InviteMember invites an email address. Requires ROLE_ADMIN; inviting an
-	// owner requires ROLE_OWNER. Returns the invitation link to share (izci
-	// does not send email).
+	// owner requires ROLE_OWNER. Returns the invitation link to share; with
+	// send_email the link is also e-mailed when the server sends e-mail.
 	InviteMember(context.Context, *connect.Request[v1.InviteMemberRequest]) (*connect.Response[v1.InviteMemberResponse], error)
 	// RevokeInvitation cancels a pending invitation. Requires ROLE_ADMIN.
 	RevokeInvitation(context.Context, *connect.Request[v1.RevokeInvitationRequest]) (*connect.Response[v1.RevokeInvitationResponse], error)
@@ -271,6 +292,12 @@ type OrganizationServiceHandler interface {
 	// ListAuditLog lists security-relevant changes (keys, members,
 	// integrations, settings), newest first. Requires ROLE_ADMIN.
 	ListAuditLog(context.Context, *connect.Request[v1.ListAuditLogRequest]) (*connect.Response[v1.ListAuditLogResponse], error)
+	// DeleteOrganization deletes the organization with all its projects,
+	// events and settings. It disappears at once; its data is removed in the
+	// background. Requires ROLE_OWNER and a browser session that
+	// re-authenticated in the last 10 minutes
+	// (ERROR_REASON_REAUTHENTICATION_REQUIRED).
+	DeleteOrganization(context.Context, *connect.Request[v1.DeleteOrganizationRequest]) (*connect.Response[v1.DeleteOrganizationResponse], error)
 }
 
 // NewOrganizationServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -344,6 +371,12 @@ func NewOrganizationServiceHandler(svc OrganizationServiceHandler, opts ...conne
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	organizationServiceDeleteOrganizationHandler := connect.NewUnaryHandler(
+		OrganizationServiceDeleteOrganizationProcedure,
+		svc.DeleteOrganization,
+		connect.WithSchema(organizationServiceMethods.ByName("DeleteOrganization")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/izci.api.v1.OrganizationService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OrganizationServiceGetOrganizationProcedure:
@@ -366,6 +399,8 @@ func NewOrganizationServiceHandler(svc OrganizationServiceHandler, opts ...conne
 			organizationServiceGetUsageHandler.ServeHTTP(w, r)
 		case OrganizationServiceListAuditLogProcedure:
 			organizationServiceListAuditLogHandler.ServeHTTP(w, r)
+		case OrganizationServiceDeleteOrganizationProcedure:
+			organizationServiceDeleteOrganizationHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -413,4 +448,8 @@ func (UnimplementedOrganizationServiceHandler) GetUsage(context.Context, *connec
 
 func (UnimplementedOrganizationServiceHandler) ListAuditLog(context.Context, *connect.Request[v1.ListAuditLogRequest]) (*connect.Response[v1.ListAuditLogResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.OrganizationService.ListAuditLog is not implemented"))
+}
+
+func (UnimplementedOrganizationServiceHandler) DeleteOrganization(context.Context, *connect.Request[v1.DeleteOrganizationRequest]) (*connect.Response[v1.DeleteOrganizationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.OrganizationService.DeleteOrganization is not implemented"))
 }

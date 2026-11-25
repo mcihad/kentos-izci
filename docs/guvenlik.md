@@ -41,7 +41,9 @@ Projeye özel ayarlar **Projeler › proje › Gizlilik** bölümündedir:
 ## Saklama ve silme
 
 - Olaylar `RETENTION_DAYS` gün (varsayılan 90) saklanır. Günlük bölümler bütünüyle silinir; silinen olay geri getirilemez.
-- Silinen bir projenin bütün verisi arka planda temizlenir.
+- Organizasyonlar (**Organizasyon ayarları › Genel › Saklama süresi**) ve projeler (**Proje ayarları › Gizlilik › Saklama süresi**) daha kısa bir süre seçebilir; sunucu yöneticisinin plan sınırı (`retention_days`) da süreyi kısaltır. Süresi dolan olaylar, ekleri, geri bildirimler, sayaçlar ve bu süreden beri görülmeyen hatalar altı saatte bir çalışan saklama işiyle silinir. Süreyi kısaltmak eski veriyi sildiği için kimliğin yeniden doğrulanmasını ister.
+- Yöneticiler tek bir olayı (olay sayfasında **Olayı sil**) ya da bir hatayı bütün olaylarıyla (**Sil**) silebilir; hatanın olayları arka planda temizlenir. Silinen bir projenin, organizasyonun bütün verisi de arka planda temizlenir; organizasyon hemen kaybolur ve kısa adı boşa çıkar.
+- Bir kişi hesabını **Hesabım › Profil › Hesabı sil** ile silebilir (sunucu yöneticisi de **Sunucu yönetimi › Kullanıcılar** bölümünden). Üyelikler, oturumlar, erişim anahtarları ve kişisel ayarlar silinir; yorumlar ve denetim kayıtları yazarsız kalır. Tek sahibi olunan organizasyon ya da sunucunun son yöneticisi varken hesap silinemez.
 - [Kaynak eşlemeleri ve sembol dosyaları](kaynak-eslemeleri.md) yığın izi çözdükçe tutulur; 90 gün (ya da daha uzunsa `RETENTION_DAYS`) kullanılmayanlar silinir. Kaynak eşlemeleri çoğu zaman uygulamanın kaynak kodunu içerir; organizasyon üyeleri hata sayfasında bu kodun satırlarını görür.
 - Son olayı bu süreden eski olan hatalar da; saatlik sayaçları, etiket dağılımları ve etkilenen kullanıcı kayıtlarıyla birlikte silinir. Organizasyonların kullanım istatistikleri (günlük olay sayıları) 400 gün tutulur.
 
@@ -95,13 +97,27 @@ Organizasyonlar arası yalıtım PostgreSQL satır düzeyi güvenliğiyle sağla
 
 Ayrıntılar: [GitHub ve yapay zekâ analizi](yapay-zeka.md#güvenlik).
 
+## Kişisel veri talepleri
+
+KVKK'nın 11. maddesi (GDPR'da erişim ve silme hakları) kapsamındaki talepler **Organizasyon ayarları › Kişisel veriler** bölümünden karşılanır (yalnız yöneticiler):
+
+1. Kişiyi tanıtan bilgileri yazın: e-posta, uygulamanın gönderdiği kullanıcı kimliği (`user.id`), kullanıcı adı, IP adresi. Bunlardan herhangi biri geçen olaylar kişiye sayılır; e-posta büyük/küçük harf ayırmadan karşılaştırılır. Müşteri (ör. sözleşmesi biten bir belediye) için müşteri anahtarını yazın. İsterseniz tek bir projeyle sınırlayın.
+2. **Verileri bul** olay, hata, ek ve geri bildirim sayılarını ve son olayları gösterir.
+3. **JSON olarak dışa aktar** bütün olayları (saklanan hâliyle, eklerin ad ve boyutlarıyla) ve geri bildirimleri tek bir dosyaya indirir. Ek içerikleri dosyaya konmaz; gerekiyorsa olay sayfasından indirilir.
+4. **Verileri sil** olayları, eklerini, kişinin geri bildirimlerini ve hatalardaki etkilenen kullanıcı ve etiket kayıtlarını siler; müşteri için müşteri kaydını ve sayaçlarını da. Hatalar ve olay sayaçları kalır.
+
+Dışa aktarmalar ve silmeler denetim kaydına yazılır; kayıtta kimlik bilgileri maskelenir (`ay***@example.com`). Bir IP adresi birden çok kişiye ait olabilir, yalnız gerekiyorsa kullanın. Hata başlıkları, yorumlar ve yapay zekâ analizleri taranmaz: kişisel veri içerebilecek hataları ayrıca silin. Sürüm sağlığı kayıtlarındaki kullanıcılar yalnız anahtarlı özet olarak tutulur ve saklama süresiyle silinir.
+
+Aynı işlemler [Yönetim API'sinde](api/izci.api.v1.md) `PrivacyService` ile yapılabilir. Bir kişinin hangi hatalarda geçtiği, kimliklerinin özetleriyle (`issue_subjects`) tutulur; böylece talepler olay tablosunun büyüklüğünden bağımsız olarak dizinden yanıtlanır.
+
 ## KVKK için kontrol listesi
 
 - [ ] IP saklamayı ihtiyacınıza göre **anonimleştirilmiş** ya da **hiç** olarak ayarlayın.
 - [ ] Uygulamalarınızın özel alan adlarını **ek olarak gizlenecek alanlara** ekleyin.
 - [ ] İstek gövdelerine gerçekten ihtiyacınız yoksa saklamayı kapatın.
 - [ ] Mobil uygulamalar ekran görüntüsü gönderiyorsa (`attachScreenshot`) bunun aydınlatma metninizde yer aldığından emin olun ya da **olay eklerini** kapatın.
-- [ ] `RETENTION_DAYS` değerini veri envanterinizdeki süreyle eşleyin.
+- [ ] `RETENTION_DAYS` değerini ve organizasyon ya da proje saklama sürelerini veri envanterinizdeki süreyle eşleyin.
+- [ ] Kişisel veri taleplerini kimin karşılayacağını belirleyin; o kişiler organizasyonda yönetici olmalı.
 - [ ] Yapay zekâ kullanıyorsanız model sağlayıcısını aydınlatma metninize ekleyin ya da kurum içi model kullanın; organizasyonda izni (**Organizasyon ayarları › Genel**) bundan sonra açın.
 - [ ] Veritabanı yedeklerini şifreli saklayın (bkz. [İşletim](operasyon.md)).
 

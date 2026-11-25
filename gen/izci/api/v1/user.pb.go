@@ -2143,6 +2143,90 @@ func (x *RegenerateRecoveryCodesResponse) GetRecoveryCodes() []string {
 	return nil
 }
 
+// DeleteAccountRequest confirms the deletion of the caller's account.
+type DeleteAccountRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Must repeat the account's e-mail address, as a safeguard against
+	// accidental deletion.
+	ConfirmEmail  string `protobuf:"bytes,1,opt,name=confirm_email,json=confirmEmail,proto3" json:"confirm_email,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteAccountRequest) Reset() {
+	*x = DeleteAccountRequest{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteAccountRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteAccountRequest) ProtoMessage() {}
+
+func (x *DeleteAccountRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteAccountRequest.ProtoReflect.Descriptor instead.
+func (*DeleteAccountRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *DeleteAccountRequest) GetConfirmEmail() string {
+	if x != nil {
+		return x.ConfirmEmail
+	}
+	return ""
+}
+
+// DeleteAccountResponse has no fields.
+type DeleteAccountResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteAccountResponse) Reset() {
+	*x = DeleteAccountResponse{}
+	mi := &file_izci_api_v1_user_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteAccountResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteAccountResponse) ProtoMessage() {}
+
+func (x *DeleteAccountResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_user_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteAccountResponse.ProtoReflect.Descriptor instead.
+func (*DeleteAccountResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_user_proto_rawDescGZIP(), []int{38}
+}
+
 var File_izci_api_v1_user_proto protoreflect.FileDescriptor
 
 const file_izci_api_v1_user_proto_rawDesc = "" +
@@ -2269,7 +2353,10 @@ const file_izci_api_v1_user_proto_rawDesc = "" +
 	"\x1eRegenerateRecoveryCodesRequest\x12\x1d\n" +
 	"\x04code\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x06\x18 R\x04code\"H\n" +
 	"\x1fRegenerateRecoveryCodesResponse\x12%\n" +
-	"\x0erecovery_codes\x18\x01 \x03(\tR\rrecoveryCodes*\xd5\x01\n" +
+	"\x0erecovery_codes\x18\x01 \x03(\tR\rrecoveryCodes\"E\n" +
+	"\x14DeleteAccountRequest\x12-\n" +
+	"\rconfirm_email\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x18\xc0\x02R\fconfirmEmail\"\x17\n" +
+	"\x15DeleteAccountResponse*\xd5\x01\n" +
 	"\x14UserNotificationKind\x12&\n" +
 	"\"USER_NOTIFICATION_KIND_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fUSER_NOTIFICATION_KIND_ASSIGNED\x10\x01\x12$\n" +
@@ -2281,7 +2368,7 @@ const file_izci_api_v1_user_proto_rawDesc = "" +
 	"\x17TOKEN_SCOPE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10TOKEN_SCOPE_READ\x10\x01\x12\x15\n" +
 	"\x11TOKEN_SCOPE_WRITE\x10\x02\x12\x12\n" +
-	"\x0eTOKEN_SCOPE_AI\x10\x032\xb0\r\n" +
+	"\x0eTOKEN_SCOPE_AI\x10\x032\x88\x0e\n" +
 	"\vUserService\x12V\n" +
 	"\rUpdateProfile\x12!.izci.api.v1.UpdateProfileRequest\x1a\".izci.api.v1.UpdateProfileResponse\x12d\n" +
 	"\x10ListAccessTokens\x12$.izci.api.v1.ListAccessTokensRequest\x1a%.izci.api.v1.ListAccessTokensResponse\"\x03\x90\x02\x01\x12b\n" +
@@ -2298,7 +2385,8 @@ const file_izci_api_v1_user_proto_rawDesc = "" +
 	"\x11ListNotifications\x12%.izci.api.v1.ListNotificationsRequest\x1a&.izci.api.v1.ListNotificationsResponse\"\x03\x90\x02\x01\x12n\n" +
 	"\x15MarkNotificationsRead\x12).izci.api.v1.MarkNotificationsReadRequest\x1a*.izci.api.v1.MarkNotificationsReadResponse\x12y\n" +
 	"\x17GetNotificationSettings\x12+.izci.api.v1.GetNotificationSettingsRequest\x1a,.izci.api.v1.GetNotificationSettingsResponse\"\x03\x90\x02\x01\x12}\n" +
-	"\x1aUpdateNotificationSettings\x12..izci.api.v1.UpdateNotificationSettingsRequest\x1a/.izci.api.v1.UpdateNotificationSettingsResponseB\x9f\x01\n" +
+	"\x1aUpdateNotificationSettings\x12..izci.api.v1.UpdateNotificationSettingsRequest\x1a/.izci.api.v1.UpdateNotificationSettingsResponse\x12V\n" +
+	"\rDeleteAccount\x12!.izci.api.v1.DeleteAccountRequest\x1a\".izci.api.v1.DeleteAccountResponseB\x9f\x01\n" +
 	"\x0fcom.izci.api.v1B\tUserProtoP\x01Z3github.com/mcihad/kentos-izci/gen/izci/api/v1;apiv1\xa2\x02\x03IAX\xaa\x02\vIzci.Api.V1\xca\x02\vIzci\\Api\\V1\xe2\x02\x17Izci\\Api\\V1\\GPBMetadata\xea\x02\rIzci::Api::V1b\x06proto3"
 
 var (
@@ -2314,7 +2402,7 @@ func file_izci_api_v1_user_proto_rawDescGZIP() []byte {
 }
 
 var file_izci_api_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_izci_api_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 37)
+var file_izci_api_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 39)
 var file_izci_api_v1_user_proto_goTypes = []any{
 	(UserNotificationKind)(0),                     // 0: izci.api.v1.UserNotificationKind
 	(TokenScope)(0),                               // 1: izci.api.v1.TokenScope
@@ -2355,19 +2443,21 @@ var file_izci_api_v1_user_proto_goTypes = []any{
 	(*DisableTwoFactorResponse)(nil),              // 36: izci.api.v1.DisableTwoFactorResponse
 	(*RegenerateRecoveryCodesRequest)(nil),        // 37: izci.api.v1.RegenerateRecoveryCodesRequest
 	(*RegenerateRecoveryCodesResponse)(nil),       // 38: izci.api.v1.RegenerateRecoveryCodesResponse
-	(*OrganizationRef)(nil),                       // 39: izci.api.v1.OrganizationRef
-	(*IssueRef)(nil),                              // 40: izci.api.v1.IssueRef
-	(*UserRef)(nil),                               // 41: izci.api.v1.UserRef
-	(*timestamppb.Timestamp)(nil),                 // 42: google.protobuf.Timestamp
-	(*User)(nil),                                  // 43: izci.api.v1.User
-	(*durationpb.Duration)(nil),                   // 44: google.protobuf.Duration
+	(*DeleteAccountRequest)(nil),                  // 39: izci.api.v1.DeleteAccountRequest
+	(*DeleteAccountResponse)(nil),                 // 40: izci.api.v1.DeleteAccountResponse
+	(*OrganizationRef)(nil),                       // 41: izci.api.v1.OrganizationRef
+	(*IssueRef)(nil),                              // 42: izci.api.v1.IssueRef
+	(*UserRef)(nil),                               // 43: izci.api.v1.UserRef
+	(*timestamppb.Timestamp)(nil),                 // 44: google.protobuf.Timestamp
+	(*User)(nil),                                  // 45: izci.api.v1.User
+	(*durationpb.Duration)(nil),                   // 46: google.protobuf.Duration
 }
 var file_izci_api_v1_user_proto_depIdxs = []int32{
 	0,  // 0: izci.api.v1.UserNotification.kind:type_name -> izci.api.v1.UserNotificationKind
-	39, // 1: izci.api.v1.UserNotification.organization:type_name -> izci.api.v1.OrganizationRef
-	40, // 2: izci.api.v1.UserNotification.issue:type_name -> izci.api.v1.IssueRef
-	41, // 3: izci.api.v1.UserNotification.actor:type_name -> izci.api.v1.UserRef
-	42, // 4: izci.api.v1.UserNotification.created_at:type_name -> google.protobuf.Timestamp
+	41, // 1: izci.api.v1.UserNotification.organization:type_name -> izci.api.v1.OrganizationRef
+	42, // 2: izci.api.v1.UserNotification.issue:type_name -> izci.api.v1.IssueRef
+	43, // 3: izci.api.v1.UserNotification.actor:type_name -> izci.api.v1.UserRef
+	44, // 4: izci.api.v1.UserNotification.created_at:type_name -> google.protobuf.Timestamp
 	2,  // 5: izci.api.v1.ListNotificationsResponse.notifications:type_name -> izci.api.v1.UserNotification
 	7,  // 6: izci.api.v1.NotificationSettings.assigned:type_name -> izci.api.v1.NotificationChannels
 	7,  // 7: izci.api.v1.NotificationSettings.mentioned:type_name -> izci.api.v1.NotificationChannels
@@ -2376,21 +2466,21 @@ var file_izci_api_v1_user_proto_depIdxs = []int32{
 	8,  // 10: izci.api.v1.GetNotificationSettingsResponse.settings:type_name -> izci.api.v1.NotificationSettings
 	8,  // 11: izci.api.v1.UpdateNotificationSettingsRequest.settings:type_name -> izci.api.v1.NotificationSettings
 	8,  // 12: izci.api.v1.UpdateNotificationSettingsResponse.settings:type_name -> izci.api.v1.NotificationSettings
-	39, // 13: izci.api.v1.AccessToken.organization:type_name -> izci.api.v1.OrganizationRef
+	41, // 13: izci.api.v1.AccessToken.organization:type_name -> izci.api.v1.OrganizationRef
 	1,  // 14: izci.api.v1.AccessToken.scopes:type_name -> izci.api.v1.TokenScope
-	42, // 15: izci.api.v1.AccessToken.created_at:type_name -> google.protobuf.Timestamp
-	42, // 16: izci.api.v1.AccessToken.last_used_at:type_name -> google.protobuf.Timestamp
-	42, // 17: izci.api.v1.AccessToken.expires_at:type_name -> google.protobuf.Timestamp
-	42, // 18: izci.api.v1.SessionInfo.created_at:type_name -> google.protobuf.Timestamp
-	42, // 19: izci.api.v1.SessionInfo.last_seen_at:type_name -> google.protobuf.Timestamp
-	42, // 20: izci.api.v1.SessionInfo.expires_at:type_name -> google.protobuf.Timestamp
-	43, // 21: izci.api.v1.UpdateProfileResponse.user:type_name -> izci.api.v1.User
+	44, // 15: izci.api.v1.AccessToken.created_at:type_name -> google.protobuf.Timestamp
+	44, // 16: izci.api.v1.AccessToken.last_used_at:type_name -> google.protobuf.Timestamp
+	44, // 17: izci.api.v1.AccessToken.expires_at:type_name -> google.protobuf.Timestamp
+	44, // 18: izci.api.v1.SessionInfo.created_at:type_name -> google.protobuf.Timestamp
+	44, // 19: izci.api.v1.SessionInfo.last_seen_at:type_name -> google.protobuf.Timestamp
+	44, // 20: izci.api.v1.SessionInfo.expires_at:type_name -> google.protobuf.Timestamp
+	45, // 21: izci.api.v1.UpdateProfileResponse.user:type_name -> izci.api.v1.User
 	13, // 22: izci.api.v1.ListAccessTokensResponse.tokens:type_name -> izci.api.v1.AccessToken
 	1,  // 23: izci.api.v1.CreateAccessTokenRequest.scopes:type_name -> izci.api.v1.TokenScope
-	44, // 24: izci.api.v1.CreateAccessTokenRequest.expires_in:type_name -> google.protobuf.Duration
+	46, // 24: izci.api.v1.CreateAccessTokenRequest.expires_in:type_name -> google.protobuf.Duration
 	13, // 25: izci.api.v1.CreateAccessTokenResponse.token:type_name -> izci.api.v1.AccessToken
 	14, // 26: izci.api.v1.ListSessionsResponse.sessions:type_name -> izci.api.v1.SessionInfo
-	42, // 27: izci.api.v1.CreateTelegramAccountLinkCodeResponse.expires_at:type_name -> google.protobuf.Timestamp
+	44, // 27: izci.api.v1.CreateTelegramAccountLinkCodeResponse.expires_at:type_name -> google.protobuf.Timestamp
 	15, // 28: izci.api.v1.UserService.UpdateProfile:input_type -> izci.api.v1.UpdateProfileRequest
 	17, // 29: izci.api.v1.UserService.ListAccessTokens:input_type -> izci.api.v1.ListAccessTokensRequest
 	19, // 30: izci.api.v1.UserService.CreateAccessToken:input_type -> izci.api.v1.CreateAccessTokenRequest
@@ -2407,24 +2497,26 @@ var file_izci_api_v1_user_proto_depIdxs = []int32{
 	5,  // 41: izci.api.v1.UserService.MarkNotificationsRead:input_type -> izci.api.v1.MarkNotificationsReadRequest
 	9,  // 42: izci.api.v1.UserService.GetNotificationSettings:input_type -> izci.api.v1.GetNotificationSettingsRequest
 	11, // 43: izci.api.v1.UserService.UpdateNotificationSettings:input_type -> izci.api.v1.UpdateNotificationSettingsRequest
-	16, // 44: izci.api.v1.UserService.UpdateProfile:output_type -> izci.api.v1.UpdateProfileResponse
-	18, // 45: izci.api.v1.UserService.ListAccessTokens:output_type -> izci.api.v1.ListAccessTokensResponse
-	20, // 46: izci.api.v1.UserService.CreateAccessToken:output_type -> izci.api.v1.CreateAccessTokenResponse
-	22, // 47: izci.api.v1.UserService.RevokeAccessToken:output_type -> izci.api.v1.RevokeAccessTokenResponse
-	24, // 48: izci.api.v1.UserService.ListSessions:output_type -> izci.api.v1.ListSessionsResponse
-	26, // 49: izci.api.v1.UserService.RevokeSession:output_type -> izci.api.v1.RevokeSessionResponse
-	28, // 50: izci.api.v1.UserService.CreateTelegramAccountLinkCode:output_type -> izci.api.v1.CreateTelegramAccountLinkCodeResponse
-	30, // 51: izci.api.v1.UserService.UnlinkTelegramAccount:output_type -> izci.api.v1.UnlinkTelegramAccountResponse
-	32, // 52: izci.api.v1.UserService.BeginTwoFactorSetup:output_type -> izci.api.v1.BeginTwoFactorSetupResponse
-	34, // 53: izci.api.v1.UserService.EnableTwoFactor:output_type -> izci.api.v1.EnableTwoFactorResponse
-	36, // 54: izci.api.v1.UserService.DisableTwoFactor:output_type -> izci.api.v1.DisableTwoFactorResponse
-	38, // 55: izci.api.v1.UserService.RegenerateRecoveryCodes:output_type -> izci.api.v1.RegenerateRecoveryCodesResponse
-	4,  // 56: izci.api.v1.UserService.ListNotifications:output_type -> izci.api.v1.ListNotificationsResponse
-	6,  // 57: izci.api.v1.UserService.MarkNotificationsRead:output_type -> izci.api.v1.MarkNotificationsReadResponse
-	10, // 58: izci.api.v1.UserService.GetNotificationSettings:output_type -> izci.api.v1.GetNotificationSettingsResponse
-	12, // 59: izci.api.v1.UserService.UpdateNotificationSettings:output_type -> izci.api.v1.UpdateNotificationSettingsResponse
-	44, // [44:60] is the sub-list for method output_type
-	28, // [28:44] is the sub-list for method input_type
+	39, // 44: izci.api.v1.UserService.DeleteAccount:input_type -> izci.api.v1.DeleteAccountRequest
+	16, // 45: izci.api.v1.UserService.UpdateProfile:output_type -> izci.api.v1.UpdateProfileResponse
+	18, // 46: izci.api.v1.UserService.ListAccessTokens:output_type -> izci.api.v1.ListAccessTokensResponse
+	20, // 47: izci.api.v1.UserService.CreateAccessToken:output_type -> izci.api.v1.CreateAccessTokenResponse
+	22, // 48: izci.api.v1.UserService.RevokeAccessToken:output_type -> izci.api.v1.RevokeAccessTokenResponse
+	24, // 49: izci.api.v1.UserService.ListSessions:output_type -> izci.api.v1.ListSessionsResponse
+	26, // 50: izci.api.v1.UserService.RevokeSession:output_type -> izci.api.v1.RevokeSessionResponse
+	28, // 51: izci.api.v1.UserService.CreateTelegramAccountLinkCode:output_type -> izci.api.v1.CreateTelegramAccountLinkCodeResponse
+	30, // 52: izci.api.v1.UserService.UnlinkTelegramAccount:output_type -> izci.api.v1.UnlinkTelegramAccountResponse
+	32, // 53: izci.api.v1.UserService.BeginTwoFactorSetup:output_type -> izci.api.v1.BeginTwoFactorSetupResponse
+	34, // 54: izci.api.v1.UserService.EnableTwoFactor:output_type -> izci.api.v1.EnableTwoFactorResponse
+	36, // 55: izci.api.v1.UserService.DisableTwoFactor:output_type -> izci.api.v1.DisableTwoFactorResponse
+	38, // 56: izci.api.v1.UserService.RegenerateRecoveryCodes:output_type -> izci.api.v1.RegenerateRecoveryCodesResponse
+	4,  // 57: izci.api.v1.UserService.ListNotifications:output_type -> izci.api.v1.ListNotificationsResponse
+	6,  // 58: izci.api.v1.UserService.MarkNotificationsRead:output_type -> izci.api.v1.MarkNotificationsReadResponse
+	10, // 59: izci.api.v1.UserService.GetNotificationSettings:output_type -> izci.api.v1.GetNotificationSettingsResponse
+	12, // 60: izci.api.v1.UserService.UpdateNotificationSettings:output_type -> izci.api.v1.UpdateNotificationSettingsResponse
+	40, // 61: izci.api.v1.UserService.DeleteAccount:output_type -> izci.api.v1.DeleteAccountResponse
+	45, // [45:62] is the sub-list for method output_type
+	28, // [28:45] is the sub-list for method input_type
 	28, // [28:28] is the sub-list for extension type_name
 	28, // [28:28] is the sub-list for extension extendee
 	0,  // [0:28] is the sub-list for field type_name
@@ -2443,7 +2535,7 @@ func file_izci_api_v1_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_api_v1_user_proto_rawDesc), len(file_izci_api_v1_user_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   37,
+			NumMessages:   39,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

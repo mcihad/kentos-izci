@@ -961,3 +961,29 @@ func (s *IssueServer) PublishIssueUpdates(ctx context.Context, orgID uuid.UUID, 
 			Level: is.GetLevel(), Time: now, Issue: is})
 	}
 }
+
+// DeleteIssues implements IssueService.DeleteIssues.
+func (s *IssueServer) DeleteIssues(ctx context.Context, req *connect.Request[apiv1.DeleteIssuesRequest]) (*connect.Response[apiv1.DeleteIssuesResponse], error) {
+	ids := make([]uuid.UUID, 0, len(req.Msg.GetIssueIds()))
+	for _, raw := range req.Msg.GetIssueIds() {
+		id, _ := uuid.Parse(raw)
+		ids = append(ids, id)
+	}
+	var deleted []store.DeletedIssue
+	err := s.inOrg(ctx, func(tx pgx.Tx, t *auth.Tenant) error {
+		var err error
+		if deleted, err = store.DeleteIssues(ctx, tx, ids); err != nil {
+			return err
+		}
+		for _, d := range deleted {
+			if err := s.audit(ctx, tx, "issue.delete", "issue", d.ID.String(), ingest.ShortID(d.ProjectSlug, d.ShortSeq), nil); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, internal(ctx, s.log, "delete issues", err)
+	}
+	return connect.NewResponse(&apiv1.DeleteIssuesResponse{Deleted: uint32(len(deleted))}), nil
+}

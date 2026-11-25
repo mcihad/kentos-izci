@@ -62,12 +62,12 @@ func CreateOrganization(ctx context.Context, q Querier, slug, name string) (*Org
 
 // GetOrganization returns an organization by id.
 func GetOrganization(ctx context.Context, q Querier, id uuid.UUID) (*Organization, error) {
-	return scanOrganization(q.QueryRow(ctx, `SELECT `+orgColumns+` FROM organizations WHERE id = $1`, id))
+	return scanOrganization(q.QueryRow(ctx, `SELECT `+orgColumns+` FROM organizations WHERE id = $1 AND deleted_at IS NULL`, id))
 }
 
 // GetOrganizationBySlug returns an organization by slug.
 func GetOrganizationBySlug(ctx context.Context, q Querier, slug string) (*Organization, error) {
-	return scanOrganization(q.QueryRow(ctx, `SELECT `+orgColumns+` FROM organizations WHERE slug = $1`, slug))
+	return scanOrganization(q.QueryRow(ctx, `SELECT `+orgColumns+` FROM organizations WHERE slug = $1 AND deleted_at IS NULL`, slug))
 }
 
 // UpdateOrganization changes name and settings.
@@ -124,7 +124,7 @@ type Membership struct {
 func ListMemberships(ctx context.Context, q Querier, userID uuid.UUID) ([]Membership, error) {
 	rows, err := q.Query(ctx, `
 		SELECT o.id, o.slug, o.name, o.plan, o.settings, o.limits, o.created_at, o.updated_at, m.role
-		FROM org_members m JOIN organizations o ON o.id = m.org_id
+		FROM org_members m JOIN organizations o ON o.id = m.org_id AND o.deleted_at IS NULL
 		WHERE m.user_id = $1
 		ORDER BY lower(o.name)`, userID)
 	if err != nil {

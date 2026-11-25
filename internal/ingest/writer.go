@@ -658,6 +658,7 @@ func writeCounters(ctx context.Context, tx pgx.Tx, b *Batch) error {
 	custHours := map[custHourKey]int64{}
 	tags := map[tagKey]*tagAgg{}
 	users := map[userKey]uuid.UUID{}
+	subjects := map[userKey]uuid.UUID{}
 	usage := map[usageKey]int64{}
 	lastEvent := map[uuid.UUID]time.Time{}
 
@@ -688,6 +689,9 @@ func writeCounters(ctx context.Context, tx pgx.Tx, b *Batch) error {
 		}
 		if len(p.UserHash) > 0 {
 			users[userKey{issue, string(p.UserHash)}] = p.OrgID
+		}
+		for _, h := range p.SubjectHashes {
+			subjects[userKey{issue, string(h)}] = p.OrgID
 		}
 		day := time.Date(p.ReceivedAt.Year(), p.ReceivedAt.Month(), p.ReceivedAt.Day(), 0, 0, 0, 0, time.UTC)
 		usage[usageKey{p.OrgID, day}]++
@@ -846,6 +850,25 @@ func writeCounters(ctx context.Context, tx pgx.Tx, b *Batch) error {
 				}
 				return rows.Err()
 			})
+	}
+	if len(subjects) > 0 {
+		// Sorted, like every upsert here, so concurrent batches lock rows in
+		// the same order.
+		keys := sortedMapKeys(subjects, func(a, c userKey) int {
+			if r := bytes.Compare(a.issue[:], c.issue[:]); r != 0 {
+				return r
+			}
+			return compareStrings(a.hash, c.hash)
+		})
+		var iss, org []uuid.UUID
+		var hashes [][]byte
+		for _, k := range keys {
+			iss, hashes, org = append(iss, k.issue), append(hashes, []byte(k.hash)), append(org, subjects[k])
+		}
+		batch.Queue(`
+			INSERT INTO issue_subjects (issue_id, key_hash, org_id)
+			SELECT * FROM unnest($1::uuid[], $2::bytea[], $3::uuid[])
+			ON CONFLICT (issue_id, key_hash) DO NOTHING`, iss, hashes, org)
 	}
 
 	{

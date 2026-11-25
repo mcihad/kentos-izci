@@ -30,6 +30,7 @@ import { OrganizationLimitsSchema } from "@/gen/izci/api/v1/organization_pb";
 import { baseTransport } from "@/lib/api";
 import { errorMessage } from "@/lib/errors";
 import { formatCompact, formatDateTime, formatNumber } from "@/lib/format";
+import { useSensitiveMutation } from "@/lib/reauth";
 import { useSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
@@ -339,6 +340,7 @@ function Users() {
   const me = useSession()?.user?.id;
   const [query, setQuery] = useState("");
   const [resetting, setResetting] = useState<AdminUser>();
+  const [removing, setRemoving] = useState<AdminUser>();
   const q = useQuery(
     AdminService.method.listUsers,
     { query, pageSize: 100 },
@@ -348,6 +350,21 @@ function Users() {
     transport: baseTransport,
     onSuccess: () => {
       toast.success("Kullanıcı güncellendi");
+      void qc.invalidateQueries({
+        queryKey: createConnectQueryKey({
+          schema: AdminService,
+          transport: baseTransport,
+          cardinality: undefined,
+        }),
+      });
+    },
+    onError: (err) => toast.error(errorMessage(err)),
+  });
+  const remove = useSensitiveMutation(AdminService.method.deleteUser, {
+    transport: baseTransport,
+    onSuccess: () => {
+      toast.success(`${removing?.user?.email} silindi`);
+      setRemoving(undefined);
       void qc.invalidateQueries({
         queryKey: createConnectQueryKey({
           schema: AdminService,
@@ -418,6 +435,11 @@ function Users() {
                   Devre dışı
                 </Label>
               </div>
+              {self ? null : (
+                <Button variant="ghost" size="sm" className="text-destructive" onClick={() => setRemoving(u)}>
+                  Sil
+                </Button>
+              )}
             </li>
           );
         })}
@@ -447,6 +469,30 @@ function Users() {
               }
             >
               Sıfırla
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={removing !== undefined} onOpenChange={(v) => (v ? undefined : setRemoving(undefined))}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{removing?.user?.email} silinsin mi?</DialogTitle>
+            <DialogDescription>
+              Hesabın üyelikleri, oturumları ve erişim anahtarları silinir; yorumları ve denetim kayıtları
+              yazarsız kalır. Kişiye e-postayla haber verilir. Tek sahibi olduğu organizasyonlar varsa önce
+              sahipliği devredin. Bu işlem geri alınamaz; yalnız erişimi kesmek için devre dışı bırakın.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setRemoving(undefined)}>
+              Vazgeç
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={remove.isPending}
+              onClick={() => remove.mutate({ userId: removing?.user?.id ?? "" })}
+            >
+              Kalıcı olarak sil
             </Button>
           </DialogFooter>
         </DialogContent>

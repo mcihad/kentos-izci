@@ -43,9 +43,12 @@ type Organization struct {
 	// Number of members.
 	MemberCount uint32 `protobuf:"varint,8,opt,name=member_count,json=memberCount,proto3" json:"member_count,omitempty"`
 	// When the organization was created.
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// The longest retention the organization can choose, in days: the
+	// server's RETENTION_DAYS or the plan's limit, whichever is shorter.
+	MaxRetentionDays uint32 `protobuf:"varint,10,opt,name=max_retention_days,json=maxRetentionDays,proto3" json:"max_retention_days,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *Organization) Reset() {
@@ -141,6 +144,13 @@ func (x *Organization) GetCreatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Organization) GetMaxRetentionDays() uint32 {
+	if x != nil {
+		return x.MaxRetentionDays
+	}
+	return 0
+}
+
 // OrganizationSettings are editable organization settings.
 type OrganizationSettings struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -172,6 +182,10 @@ type OrganizationSettings struct {
 	// to reach the organization (ERROR_REASON_ACCESS_TOKEN_POLICY); 0 means
 	// never.
 	TokenIdleDays uint32 `protobuf:"varint,7,opt,name=token_idle_days,json=tokenIdleDays,proto3" json:"token_idle_days,omitempty"`
+	// Days events and the data derived from them are kept; 0 means
+	// Organization.max_retention_days. Projects can keep their data shorter
+	// (PrivacySettings.retention_days), never longer.
+	RetentionDays uint32 `protobuf:"varint,8,opt,name=retention_days,json=retentionDays,proto3" json:"retention_days,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -251,6 +265,13 @@ func (x *OrganizationSettings) GetTokenMaxDays() uint32 {
 func (x *OrganizationSettings) GetTokenIdleDays() uint32 {
 	if x != nil {
 		return x.TokenIdleDays
+	}
+	return 0
+}
+
+func (x *OrganizationSettings) GetRetentionDays() uint32 {
+	if x != nil {
+		return x.RetentionDays
 	}
 	return 0
 }
@@ -1641,11 +1662,96 @@ func (x *ListAuditLogResponse) GetNextPageToken() string {
 	return ""
 }
 
+// DeleteOrganizationRequest confirms the deletion of the current
+// organization.
+type DeleteOrganizationRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Must repeat the organization's slug, as a safeguard against accidental
+	// deletion.
+	ConfirmSlug   string `protobuf:"bytes,1,opt,name=confirm_slug,json=confirmSlug,proto3" json:"confirm_slug,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteOrganizationRequest) Reset() {
+	*x = DeleteOrganizationRequest{}
+	mi := &file_izci_api_v1_organization_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteOrganizationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteOrganizationRequest) ProtoMessage() {}
+
+func (x *DeleteOrganizationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_organization_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteOrganizationRequest.ProtoReflect.Descriptor instead.
+func (*DeleteOrganizationRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_organization_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *DeleteOrganizationRequest) GetConfirmSlug() string {
+	if x != nil {
+		return x.ConfirmSlug
+	}
+	return ""
+}
+
+// DeleteOrganizationResponse has no fields.
+type DeleteOrganizationResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteOrganizationResponse) Reset() {
+	*x = DeleteOrganizationResponse{}
+	mi := &file_izci_api_v1_organization_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteOrganizationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteOrganizationResponse) ProtoMessage() {}
+
+func (x *DeleteOrganizationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_organization_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteOrganizationResponse.ProtoReflect.Descriptor instead.
+func (*DeleteOrganizationResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_organization_proto_rawDescGZIP(), []int{27}
+}
+
 var File_izci_api_v1_organization_proto protoreflect.FileDescriptor
 
 const file_izci_api_v1_organization_proto_rawDesc = "" +
 	"\n" +
-	"\x1eizci/api/v1/organization.proto\x12\vizci.api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16izci/api/v1/auth.proto\x1a\x18izci/api/v1/common.proto\"\xd5\x02\n" +
+	"\x1eizci/api/v1/organization.proto\x12\vizci.api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16izci/api/v1/auth.proto\x1a\x18izci/api/v1/common.proto\"\x83\x03\n" +
 	"\fOrganization\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04slug\x18\x02 \x01(\tR\x04slug\x12\x12\n" +
@@ -1656,7 +1762,9 @@ const file_izci_api_v1_organization_proto_rawDesc = "" +
 	"\rproject_count\x18\a \x01(\rR\fprojectCount\x12!\n" +
 	"\fmember_count\x18\b \x01(\rR\vmemberCount\x129\n" +
 	"\n" +
-	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xdf\x02\n" +
+	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12,\n" +
+	"\x12max_retention_days\x18\n" +
+	" \x01(\rR\x10maxRetentionDays\"\x90\x03\n" +
 	"\x14OrganizationSettings\x12#\n" +
 	"\btimezone\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x18@R\btimezone\x12:\n" +
 	"\x11auto_join_domains\x18\x02 \x03(\tB\x0e\xbaH\v\x92\x01\b\x10\x14\"\x04r\x02h\x01R\x0fautoJoinDomains\x127\n" +
@@ -1665,7 +1773,8 @@ const file_izci_api_v1_organization_proto_rawDesc = "" +
 	"\n" +
 	"ai_enabled\x18\x05 \x01(\bR\taiEnabled\x12.\n" +
 	"\x0etoken_max_days\x18\x06 \x01(\rB\b\xbaH\x05*\x03\x18\xc2\x1cR\ftokenMaxDays\x120\n" +
-	"\x0ftoken_idle_days\x18\a \x01(\rB\b\xbaH\x05*\x03\x18\xc2\x1cR\rtokenIdleDays\"\xce\x01\n" +
+	"\x0ftoken_idle_days\x18\a \x01(\rB\b\xbaH\x05*\x03\x18\xc2\x1cR\rtokenIdleDays\x12/\n" +
+	"\x0eretention_days\x18\b \x01(\rB\b\xbaH\x05*\x03\x18\xc2\x1cR\rretentionDays\"\xce\x01\n" +
 	"\x12OrganizationLimits\x12%\n" +
 	"\x0emonthly_events\x18\x01 \x01(\x04R\rmonthlyEvents\x12%\n" +
 	"\x0eretention_days\x18\x02 \x01(\rR\rretentionDays\x12!\n" +
@@ -1761,7 +1870,10 @@ const file_izci_api_v1_organization_proto_rawDesc = "" +
 	"page_token\x18\x02 \x01(\tR\tpageToken\"t\n" +
 	"\x14ListAuditLogResponse\x124\n" +
 	"\aentries\x18\x01 \x03(\v2\x1a.izci.api.v1.AuditLogEntryR\aentries\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xa5\a\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"G\n" +
+	"\x19DeleteOrganizationRequest\x12*\n" +
+	"\fconfirm_slug\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x182R\vconfirmSlug\"\x1c\n" +
+	"\x1aDeleteOrganizationResponse2\x8c\b\n" +
 	"\x13OrganizationService\x12a\n" +
 	"\x0fGetOrganization\x12#.izci.api.v1.GetOrganizationRequest\x1a$.izci.api.v1.GetOrganizationResponse\"\x03\x90\x02\x01\x12e\n" +
 	"\x12CreateOrganization\x12&.izci.api.v1.CreateOrganizationRequest\x1a'.izci.api.v1.CreateOrganizationResponse\x12e\n" +
@@ -1772,7 +1884,8 @@ const file_izci_api_v1_organization_proto_rawDesc = "" +
 	"\fUpdateMember\x12 .izci.api.v1.UpdateMemberRequest\x1a!.izci.api.v1.UpdateMemberResponse\x12S\n" +
 	"\fRemoveMember\x12 .izci.api.v1.RemoveMemberRequest\x1a!.izci.api.v1.RemoveMemberResponse\x12L\n" +
 	"\bGetUsage\x12\x1c.izci.api.v1.GetUsageRequest\x1a\x1d.izci.api.v1.GetUsageResponse\"\x03\x90\x02\x01\x12X\n" +
-	"\fListAuditLog\x12 .izci.api.v1.ListAuditLogRequest\x1a!.izci.api.v1.ListAuditLogResponse\"\x03\x90\x02\x01B\xa7\x01\n" +
+	"\fListAuditLog\x12 .izci.api.v1.ListAuditLogRequest\x1a!.izci.api.v1.ListAuditLogResponse\"\x03\x90\x02\x01\x12e\n" +
+	"\x12DeleteOrganization\x12&.izci.api.v1.DeleteOrganizationRequest\x1a'.izci.api.v1.DeleteOrganizationResponseB\xa7\x01\n" +
 	"\x0fcom.izci.api.v1B\x11OrganizationProtoP\x01Z3github.com/mcihad/kentos-izci/gen/izci/api/v1;apiv1\xa2\x02\x03IAX\xaa\x02\vIzci.Api.V1\xca\x02\vIzci\\Api\\V1\xe2\x02\x17Izci\\Api\\V1\\GPBMetadata\xea\x02\rIzci::Api::V1b\x06proto3"
 
 var (
@@ -1787,7 +1900,7 @@ func file_izci_api_v1_organization_proto_rawDescGZIP() []byte {
 	return file_izci_api_v1_organization_proto_rawDescData
 }
 
-var file_izci_api_v1_organization_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_izci_api_v1_organization_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
 var file_izci_api_v1_organization_proto_goTypes = []any{
 	(*Organization)(nil),               // 0: izci.api.v1.Organization
 	(*OrganizationSettings)(nil),       // 1: izci.api.v1.OrganizationSettings
@@ -1815,34 +1928,36 @@ var file_izci_api_v1_organization_proto_goTypes = []any{
 	(*GetUsageResponse)(nil),           // 23: izci.api.v1.GetUsageResponse
 	(*ListAuditLogRequest)(nil),        // 24: izci.api.v1.ListAuditLogRequest
 	(*ListAuditLogResponse)(nil),       // 25: izci.api.v1.ListAuditLogResponse
-	nil,                                // 26: izci.api.v1.AuditLogEntry.MetadataEntry
-	(*timestamppb.Timestamp)(nil),      // 27: google.protobuf.Timestamp
-	(Role)(0),                          // 28: izci.api.v1.Role
-	(*UserRef)(nil),                    // 29: izci.api.v1.UserRef
-	(*Invitation)(nil),                 // 30: izci.api.v1.Invitation
+	(*DeleteOrganizationRequest)(nil),  // 26: izci.api.v1.DeleteOrganizationRequest
+	(*DeleteOrganizationResponse)(nil), // 27: izci.api.v1.DeleteOrganizationResponse
+	nil,                                // 28: izci.api.v1.AuditLogEntry.MetadataEntry
+	(*timestamppb.Timestamp)(nil),      // 29: google.protobuf.Timestamp
+	(Role)(0),                          // 30: izci.api.v1.Role
+	(*UserRef)(nil),                    // 31: izci.api.v1.UserRef
+	(*Invitation)(nil),                 // 32: izci.api.v1.Invitation
 }
 var file_izci_api_v1_organization_proto_depIdxs = []int32{
 	1,  // 0: izci.api.v1.Organization.settings:type_name -> izci.api.v1.OrganizationSettings
 	2,  // 1: izci.api.v1.Organization.limits:type_name -> izci.api.v1.OrganizationLimits
-	27, // 2: izci.api.v1.Organization.created_at:type_name -> google.protobuf.Timestamp
-	28, // 3: izci.api.v1.OrganizationSettings.auto_join_role:type_name -> izci.api.v1.Role
-	29, // 4: izci.api.v1.Member.user:type_name -> izci.api.v1.UserRef
-	28, // 5: izci.api.v1.Member.role:type_name -> izci.api.v1.Role
-	27, // 6: izci.api.v1.Member.joined_at:type_name -> google.protobuf.Timestamp
-	27, // 7: izci.api.v1.Member.last_seen_at:type_name -> google.protobuf.Timestamp
-	29, // 8: izci.api.v1.AuditLogEntry.actor:type_name -> izci.api.v1.UserRef
-	26, // 9: izci.api.v1.AuditLogEntry.metadata:type_name -> izci.api.v1.AuditLogEntry.MetadataEntry
-	27, // 10: izci.api.v1.AuditLogEntry.created_at:type_name -> google.protobuf.Timestamp
+	29, // 2: izci.api.v1.Organization.created_at:type_name -> google.protobuf.Timestamp
+	30, // 3: izci.api.v1.OrganizationSettings.auto_join_role:type_name -> izci.api.v1.Role
+	31, // 4: izci.api.v1.Member.user:type_name -> izci.api.v1.UserRef
+	30, // 5: izci.api.v1.Member.role:type_name -> izci.api.v1.Role
+	29, // 6: izci.api.v1.Member.joined_at:type_name -> google.protobuf.Timestamp
+	29, // 7: izci.api.v1.Member.last_seen_at:type_name -> google.protobuf.Timestamp
+	31, // 8: izci.api.v1.AuditLogEntry.actor:type_name -> izci.api.v1.UserRef
+	28, // 9: izci.api.v1.AuditLogEntry.metadata:type_name -> izci.api.v1.AuditLogEntry.MetadataEntry
+	29, // 10: izci.api.v1.AuditLogEntry.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 11: izci.api.v1.GetOrganizationResponse.organization:type_name -> izci.api.v1.Organization
-	28, // 12: izci.api.v1.GetOrganizationResponse.role:type_name -> izci.api.v1.Role
+	30, // 12: izci.api.v1.GetOrganizationResponse.role:type_name -> izci.api.v1.Role
 	0,  // 13: izci.api.v1.CreateOrganizationResponse.organization:type_name -> izci.api.v1.Organization
 	1,  // 14: izci.api.v1.UpdateOrganizationRequest.settings:type_name -> izci.api.v1.OrganizationSettings
 	0,  // 15: izci.api.v1.UpdateOrganizationResponse.organization:type_name -> izci.api.v1.Organization
 	3,  // 16: izci.api.v1.ListMembersResponse.members:type_name -> izci.api.v1.Member
-	30, // 17: izci.api.v1.ListMembersResponse.invitations:type_name -> izci.api.v1.Invitation
-	28, // 18: izci.api.v1.InviteMemberRequest.role:type_name -> izci.api.v1.Role
-	30, // 19: izci.api.v1.InviteMemberResponse.invitation:type_name -> izci.api.v1.Invitation
-	28, // 20: izci.api.v1.UpdateMemberRequest.role:type_name -> izci.api.v1.Role
+	32, // 17: izci.api.v1.ListMembersResponse.invitations:type_name -> izci.api.v1.Invitation
+	30, // 18: izci.api.v1.InviteMemberRequest.role:type_name -> izci.api.v1.Role
+	32, // 19: izci.api.v1.InviteMemberResponse.invitation:type_name -> izci.api.v1.Invitation
+	30, // 20: izci.api.v1.UpdateMemberRequest.role:type_name -> izci.api.v1.Role
 	3,  // 21: izci.api.v1.UpdateMemberResponse.member:type_name -> izci.api.v1.Member
 	2,  // 22: izci.api.v1.GetUsageResponse.limits:type_name -> izci.api.v1.OrganizationLimits
 	4,  // 23: izci.api.v1.GetUsageResponse.days:type_name -> izci.api.v1.DailyUsage
@@ -1857,18 +1972,20 @@ var file_izci_api_v1_organization_proto_depIdxs = []int32{
 	20, // 32: izci.api.v1.OrganizationService.RemoveMember:input_type -> izci.api.v1.RemoveMemberRequest
 	22, // 33: izci.api.v1.OrganizationService.GetUsage:input_type -> izci.api.v1.GetUsageRequest
 	24, // 34: izci.api.v1.OrganizationService.ListAuditLog:input_type -> izci.api.v1.ListAuditLogRequest
-	7,  // 35: izci.api.v1.OrganizationService.GetOrganization:output_type -> izci.api.v1.GetOrganizationResponse
-	9,  // 36: izci.api.v1.OrganizationService.CreateOrganization:output_type -> izci.api.v1.CreateOrganizationResponse
-	11, // 37: izci.api.v1.OrganizationService.UpdateOrganization:output_type -> izci.api.v1.UpdateOrganizationResponse
-	13, // 38: izci.api.v1.OrganizationService.ListMembers:output_type -> izci.api.v1.ListMembersResponse
-	15, // 39: izci.api.v1.OrganizationService.InviteMember:output_type -> izci.api.v1.InviteMemberResponse
-	17, // 40: izci.api.v1.OrganizationService.RevokeInvitation:output_type -> izci.api.v1.RevokeInvitationResponse
-	19, // 41: izci.api.v1.OrganizationService.UpdateMember:output_type -> izci.api.v1.UpdateMemberResponse
-	21, // 42: izci.api.v1.OrganizationService.RemoveMember:output_type -> izci.api.v1.RemoveMemberResponse
-	23, // 43: izci.api.v1.OrganizationService.GetUsage:output_type -> izci.api.v1.GetUsageResponse
-	25, // 44: izci.api.v1.OrganizationService.ListAuditLog:output_type -> izci.api.v1.ListAuditLogResponse
-	35, // [35:45] is the sub-list for method output_type
-	25, // [25:35] is the sub-list for method input_type
+	26, // 35: izci.api.v1.OrganizationService.DeleteOrganization:input_type -> izci.api.v1.DeleteOrganizationRequest
+	7,  // 36: izci.api.v1.OrganizationService.GetOrganization:output_type -> izci.api.v1.GetOrganizationResponse
+	9,  // 37: izci.api.v1.OrganizationService.CreateOrganization:output_type -> izci.api.v1.CreateOrganizationResponse
+	11, // 38: izci.api.v1.OrganizationService.UpdateOrganization:output_type -> izci.api.v1.UpdateOrganizationResponse
+	13, // 39: izci.api.v1.OrganizationService.ListMembers:output_type -> izci.api.v1.ListMembersResponse
+	15, // 40: izci.api.v1.OrganizationService.InviteMember:output_type -> izci.api.v1.InviteMemberResponse
+	17, // 41: izci.api.v1.OrganizationService.RevokeInvitation:output_type -> izci.api.v1.RevokeInvitationResponse
+	19, // 42: izci.api.v1.OrganizationService.UpdateMember:output_type -> izci.api.v1.UpdateMemberResponse
+	21, // 43: izci.api.v1.OrganizationService.RemoveMember:output_type -> izci.api.v1.RemoveMemberResponse
+	23, // 44: izci.api.v1.OrganizationService.GetUsage:output_type -> izci.api.v1.GetUsageResponse
+	25, // 45: izci.api.v1.OrganizationService.ListAuditLog:output_type -> izci.api.v1.ListAuditLogResponse
+	27, // 46: izci.api.v1.OrganizationService.DeleteOrganization:output_type -> izci.api.v1.DeleteOrganizationResponse
+	36, // [36:47] is the sub-list for method output_type
+	25, // [25:36] is the sub-list for method input_type
 	25, // [25:25] is the sub-list for extension type_name
 	25, // [25:25] is the sub-list for extension extendee
 	0,  // [0:25] is the sub-list for field type_name
@@ -1887,7 +2004,7 @@ func file_izci_api_v1_organization_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_api_v1_organization_proto_rawDesc), len(file_izci_api_v1_organization_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   27,
+			NumMessages:   29,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

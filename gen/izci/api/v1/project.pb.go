@@ -745,8 +745,12 @@ type PrivacySettings struct {
 	// dropped instead of stored. Off by default: SDKs send attachments only
 	// when the application turns them on.
 	DiscardAttachments bool `protobuf:"varint,6,opt,name=discard_attachments,json=discardAttachments,proto3" json:"discard_attachments,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Days the project's events and the data derived from them are kept; 0
+	// means the organization's retention. Shorter than the organization's
+	// retention only.
+	RetentionDays uint32 `protobuf:"varint,7,opt,name=retention_days,json=retentionDays,proto3" json:"retention_days,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *PrivacySettings) Reset() {
@@ -819,6 +823,13 @@ func (x *PrivacySettings) GetDiscardAttachments() bool {
 		return x.DiscardAttachments
 	}
 	return false
+}
+
+func (x *PrivacySettings) GetRetentionDays() uint32 {
+	if x != nil {
+		return x.RetentionDays
+	}
+	return 0
 }
 
 // InAppRules classify stack frames as application code.
@@ -3594,7 +3605,7 @@ const file_izci_api_v1_project_proto_rawDesc = "" +
 	"\x0eerror_messages\x18\x05 \x03(\tB\x11\xbaH\x0e\x92\x01\v\x102\"\ar\x05\x10\x01\x18\xc8\x01R\rerrorMessages\x123\n" +
 	"\fip_addresses\x18\x06 \x03(\tB\x10\xbaH\r\x92\x01\n" +
 	"\x102\"\x06r\x04\x10\x01\x182R\vipAddresses\x12-\n" +
-	"\breleases\x18\a \x03(\tB\x11\xbaH\x0e\x92\x01\v\x102\"\ar\x05\x10\x01\x18\xc8\x01R\breleases\"\xb3\x02\n" +
+	"\breleases\x18\a \x03(\tB\x11\xbaH\x0e\x92\x01\v\x102\"\ar\x05\x10\x01\x18\xc8\x01R\breleases\"\xe4\x02\n" +
 	"\x0fPrivacySettings\x125\n" +
 	"\n" +
 	"ip_storage\x18\x01 \x01(\x0e2\x16.izci.api.v1.IpStorageR\tipStorage\x12+\n" +
@@ -3603,7 +3614,8 @@ const file_izci_api_v1_project_proto_rawDesc = "" +
 	"safeFields\x12.\n" +
 	"\x13store_cookie_values\x18\x04 \x01(\bR\x11storeCookieValues\x120\n" +
 	"\x14store_request_bodies\x18\x05 \x01(\bR\x12storeRequestBodies\x12/\n" +
-	"\x13discard_attachments\x18\x06 \x01(\bR\x12discardAttachments\"T\n" +
+	"\x13discard_attachments\x18\x06 \x01(\bR\x12discardAttachments\x12/\n" +
+	"\x0eretention_days\x18\a \x01(\rB\b\xbaH\x05*\x03\x18\xc2\x1cR\rretentionDays\"T\n" +
 	"\n" +
 	"InAppRules\x12\"\n" +
 	"\ainclude\x18\x01 \x03(\tB\b\xbaH\x05\x92\x01\x02\x102R\ainclude\x12\"\n" +

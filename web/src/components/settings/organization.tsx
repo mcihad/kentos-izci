@@ -1,7 +1,7 @@
 import { clone, create } from "@bufbuild/protobuf";
 import { createConnectQueryKey, useInfiniteQuery, useQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { StackedBars } from "@/components/charts/stacked-bars";
@@ -11,6 +11,14 @@ import { StatStrip } from "@/components/common/stat-strip";
 import { EmptyState } from "@/components/common/states";
 import { thClass, theadClass, trClass } from "@/components/common/table";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -67,9 +75,11 @@ export function OrganizationGeneral() {
         aiEnabled: o.settings?.aiEnabled ?? false,
         tokenMaxDays: o.settings?.tokenMaxDays ?? 0,
         tokenIdleDays: o.settings?.tokenIdleDays ?? 0,
+        retentionDays: o.settings?.retentionDays ?? 0,
         settings: o.settings,
       }}
       plan={o.plan}
+      maxRetentionDays={o.maxRetentionDays}
       onSaved={onSaved}
     />
   );
@@ -78,6 +88,7 @@ export function OrganizationGeneral() {
 function GeneralForm({
   initial,
   plan,
+  maxRetentionDays,
   onSaved,
 }: {
   initial: {
@@ -89,10 +100,12 @@ function GeneralForm({
     aiEnabled: boolean;
     tokenMaxDays: number;
     tokenIdleDays: number;
+    retentionDays: number;
     // Settings this form does not show are kept as they are.
     settings?: OrganizationSettings;
   };
   plan: string;
+  maxRetentionDays: number;
   onSaved: () => void;
 }) {
   const org = useOrg();
@@ -105,6 +118,8 @@ function GeneralForm({
   const [aiEnabled, setAiEnabled] = useState(initial.aiEnabled);
   const [tokenMaxDays, setTokenMaxDays] = useState(String(initial.tokenMaxDays));
   const [tokenIdleDays, setTokenIdleDays] = useState(String(initial.tokenIdleDays));
+  const [retentionDays, setRetentionDays] = useState(String(initial.retentionDays));
+  const [deleting, setDeleting] = useState(false);
   // The choice matters only where the server runs AI analyses.
   const ai = useQuery(AiService.method.getAiStatus, {}, { staleTime: 60_000 }).data;
   const update = useSensitiveMutation(OrganizationService.method.updateOrganization, {
@@ -133,6 +148,7 @@ function GeneralForm({
         settings.aiEnabled = aiEnabled;
         settings.tokenMaxDays = Math.max(0, Math.trunc(Number(tokenMaxDays) || 0));
         settings.tokenIdleDays = Math.max(0, Math.trunc(Number(tokenIdleDays) || 0));
+        settings.retentionDays = Math.max(0, Math.trunc(Number(retentionDays) || 0));
         update.mutate({ name, settings });
       }}
     >
@@ -274,6 +290,21 @@ function GeneralForm({
           />
         </Field>
       </div>
+      <Field
+        label="Saklama süresi (gün)"
+        htmlFor="org-retention"
+        hint={`Olaylar, ekleri, geri bildirimler ve sayaçlar bu kadar gün saklanır; en çok ${maxRetentionDays} gün (sunucu ya da plan sınırı). 0: ${maxRetentionDays} gün. Kısaltırsanız eski veriler birkaç saat içinde silinir ve kimliğinizi yeniden doğrulamanız istenir. Projeler daha kısa bir süre seçebilir.`}
+      >
+        <Input
+          id="org-retention"
+          type="number"
+          min={0}
+          max={maxRetentionDays}
+          value={retentionDays}
+          onChange={(e) => setRetentionDays(e.target.value)}
+          className="w-32"
+        />
+      </Field>
       <p className="text-sm text-muted-foreground">
         Plan: <span className="text-foreground">{plan || "varsayılan"}</span>
       </p>
@@ -282,7 +313,81 @@ function GeneralForm({
           Kaydet
         </Button>
       </div>
+      {org.role === Role.OWNER ? (
+        <section className="mt-4 rounded-lg border border-destructive/35 px-5 py-4">
+          <h2 className="font-semibold text-md">Organizasyonu sil</h2>
+          <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
+            Bütün projeler, hatalar, olaylar, anahtarlar, kanallar ve denetim kaydı kalıcı olarak silinir;
+            üyeler organizasyona erişemez. Organizasyon hemen kaybolur, verileri arka planda temizlenir.
+          </p>
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            className="mt-3"
+            onClick={() => setDeleting(true)}
+          >
+            Organizasyonu sil
+          </Button>
+        </section>
+      ) : null}
+      <DeleteOrganizationDialog name={initial.name} open={deleting} onOpenChange={setDeleting} />
     </form>
+  );
+}
+
+function DeleteOrganizationDialog({
+  name,
+  open,
+  onOpenChange,
+}: {
+  name: string;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
+  const org = useOrg();
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+  const [confirm, setConfirm] = useState("");
+  const del = useSensitiveMutation(OrganizationService.method.deleteOrganization, {
+    onSuccess: async () => {
+      toast.success(`${name} silindi`);
+      await qc.invalidateQueries({ queryKey: sessionQuery.queryKey });
+      void navigate({ to: "/" });
+    },
+    onError: (err) => toast.error(errorMessage(err)),
+  });
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{name} silinsin mi?</DialogTitle>
+          <DialogDescription>
+            Bu işlem geri alınamaz. Onaylamak için organizasyonun kısa adını yazın:{" "}
+            <code className="font-mono text-foreground">{org.slug}</code>
+          </DialogDescription>
+        </DialogHeader>
+        <Input
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          autoFocus
+          className="font-mono text-sm"
+          aria-label="Organizasyonun kısa adı"
+        />
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+            Vazgeç
+          </Button>
+          <Button
+            variant="destructive"
+            disabled={confirm !== org.slug || del.isPending}
+            onClick={() => del.mutate({ confirmSlug: confirm })}
+          >
+            Kalıcı olarak sil
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -389,9 +494,11 @@ const actionLabels: Record<string, string> = {
   "channel.delete": "Bildirim kanalını kaldırdı",
   "channel.update": "Bildirim kanalını değiştirdi",
   "customer.update": "Müşteri bilgilerini değiştirdi",
+  "event.delete": "Olayı sildi",
   "instance.setup": "İzci kurulumunu tamamladı",
   "invitation.create": "Üye davet etti",
   "invitation.revoke": "Daveti geri aldı",
+  "issue.delete": "Hatayı sildi",
   "member.join": "Organizasyona katıldı",
   "member.remove": "Üyeyi çıkardı",
   "member.update": "Üyenin rolünü değiştirdi",
@@ -400,6 +507,8 @@ const actionLabels: Record<string, string> = {
   "monitor.update": "Zamanlanmış görev izleyicisini değiştirdi",
   "organization.plan_update": "Planı değiştirdi",
   "organization.update": "Organizasyon ayarlarını değiştirdi",
+  "privacy.delete": "Kişisel verileri sildi",
+  "privacy.export": "Kişisel verileri dışa aktardı",
   "project.create": "Proje oluşturdu",
   "project.delete": "Projeyi sildi",
   "project.link_repository": "Depo bağladı",
@@ -407,6 +516,7 @@ const actionLabels: Record<string, string> = {
   "project.update": "Proje ayarlarını değiştirdi",
   "symbols.bundle.delete": "Kaynak eşleme paketini sildi",
   "symbols.debug_file.delete": "Sembol dosyasını sildi",
+  "user.delete": "Kullanıcı hesabını sildi",
   "user.two_factor.disable": "İki adımlı doğrulamayı kapattı",
   "user.two_factor.enable": "İki adımlı doğrulamayı açtı",
   "user.two_factor.recovery_codes": "Yeni kurtarma kodları oluşturdu",

@@ -5,13 +5,21 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Field, FormError } from "@/components/common/field";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { AuthService } from "@/gen/izci/api/v1/auth_pb";
 import { UserService } from "@/gen/izci/api/v1/user_pb";
 import { baseTransport } from "@/lib/api";
 import { errorField, errorMessage } from "@/lib/errors";
 import { useOrg } from "@/lib/org";
-import { recentlyAuthenticated, requestReauth } from "@/lib/reauth";
+import { recentlyAuthenticated, requestReauth, useSensitiveMutation } from "@/lib/reauth";
 import { sessionQuery, useSession } from "@/lib/session";
 
 export function Profile() {
@@ -117,7 +125,63 @@ export function Profile() {
           Hesabınız kimlik sağlayıcısıyla giriş yapıyor; parola tanımlı değil.
         </p>
       )}
+      <DeleteAccount email={user.email} />
     </div>
+  );
+}
+
+/** Deletes the caller's account after they repeat its e-mail address. */
+function DeleteAccount({ email }: { email: string }) {
+  const [open, setOpen] = useState(false);
+  const [confirm, setConfirm] = useState("");
+  const del = useSensitiveMutation(UserService.method.deleteAccount, {
+    transport: baseTransport,
+    // The session ended with the account: start over from the sign-in page.
+    onSuccess: () => window.location.assign("/login"),
+    onError: (err) => toast.error(errorMessage(err)),
+  });
+  return (
+    <section className="rounded-lg border border-destructive/35 px-5 py-4">
+      <h2 className="font-semibold text-md">Hesabı sil</h2>
+      <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
+        Üyelikleriniz, oturumlarınız, erişim anahtarlarınız ve bildirim tercihleriniz silinir. Yazdığınız
+        yorumlar ve denetim kayıtları organizasyonlarda yazarsız olarak kalır; size atanan hatalar boşa çıkar.
+        Tek sahibi olduğunuz organizasyonları önce başka birine devredin ya da silin.
+      </p>
+      <Button variant="destructive" size="sm" className="mt-3" onClick={() => setOpen(true)}>
+        Hesabımı sil
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Hesabınız silinsin mi?</DialogTitle>
+            <DialogDescription>
+              Bu işlem geri alınamaz. Onaylamak için e-posta adresinizi yazın:{" "}
+              <code className="font-mono text-foreground">{email}</code>
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            type="email"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            autoFocus
+            aria-label="E-posta adresiniz"
+          />
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              Vazgeç
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={confirm.trim().toLowerCase() !== email.toLowerCase() || del.isPending}
+              onClick={() => del.mutate({ confirmEmail: confirm.trim() })}
+            >
+              Hesabımı kalıcı olarak sil
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </section>
   );
 }
 

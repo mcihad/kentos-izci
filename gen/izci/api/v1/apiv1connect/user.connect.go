@@ -81,6 +81,9 @@ const (
 	// UserServiceUpdateNotificationSettingsProcedure is the fully-qualified name of the UserService's
 	// UpdateNotificationSettings RPC.
 	UserServiceUpdateNotificationSettingsProcedure = "/izci.api.v1.UserService/UpdateNotificationSettings"
+	// UserServiceDeleteAccountProcedure is the fully-qualified name of the UserService's DeleteAccount
+	// RPC.
+	UserServiceDeleteAccountProcedure = "/izci.api.v1.UserService/DeleteAccount"
 )
 
 // UserServiceClient is a client for the izci.api.v1.UserService service.
@@ -133,6 +136,13 @@ type UserServiceClient interface {
 	// UpdateNotificationSettings changes where the caller's personal
 	// notifications go.
 	UpdateNotificationSettings(context.Context, *connect.Request[v1.UpdateNotificationSettingsRequest]) (*connect.Response[v1.UpdateNotificationSettingsResponse], error)
+	// DeleteAccount deletes the caller's account: memberships, sessions,
+	// access tokens and settings. Comments and other organization records
+	// stay without the author. The only owner of an organization must hand it
+	// over or delete it first (ERROR_REASON_LAST_OWNER); the last server
+	// administrator cannot leave (ERROR_REASON_LAST_SUPERADMIN). Browser
+	// sessions only, re-authenticated in the last 10 minutes.
+	DeleteAccount(context.Context, *connect.Request[v1.DeleteAccountRequest]) (*connect.Response[v1.DeleteAccountResponse], error)
 }
 
 // NewUserServiceClient constructs a client for the izci.api.v1.UserService service. By default, it
@@ -246,6 +256,12 @@ func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(userServiceMethods.ByName("UpdateNotificationSettings")),
 			connect.WithClientOptions(opts...),
 		),
+		deleteAccount: connect.NewClient[v1.DeleteAccountRequest, v1.DeleteAccountResponse](
+			httpClient,
+			baseURL+UserServiceDeleteAccountProcedure,
+			connect.WithSchema(userServiceMethods.ByName("DeleteAccount")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -267,6 +283,7 @@ type userServiceClient struct {
 	markNotificationsRead         *connect.Client[v1.MarkNotificationsReadRequest, v1.MarkNotificationsReadResponse]
 	getNotificationSettings       *connect.Client[v1.GetNotificationSettingsRequest, v1.GetNotificationSettingsResponse]
 	updateNotificationSettings    *connect.Client[v1.UpdateNotificationSettingsRequest, v1.UpdateNotificationSettingsResponse]
+	deleteAccount                 *connect.Client[v1.DeleteAccountRequest, v1.DeleteAccountResponse]
 }
 
 // UpdateProfile calls izci.api.v1.UserService.UpdateProfile.
@@ -349,6 +366,11 @@ func (c *userServiceClient) UpdateNotificationSettings(ctx context.Context, req 
 	return c.updateNotificationSettings.CallUnary(ctx, req)
 }
 
+// DeleteAccount calls izci.api.v1.UserService.DeleteAccount.
+func (c *userServiceClient) DeleteAccount(ctx context.Context, req *connect.Request[v1.DeleteAccountRequest]) (*connect.Response[v1.DeleteAccountResponse], error) {
+	return c.deleteAccount.CallUnary(ctx, req)
+}
+
 // UserServiceHandler is an implementation of the izci.api.v1.UserService service.
 type UserServiceHandler interface {
 	// UpdateProfile changes the display name.
@@ -399,6 +421,13 @@ type UserServiceHandler interface {
 	// UpdateNotificationSettings changes where the caller's personal
 	// notifications go.
 	UpdateNotificationSettings(context.Context, *connect.Request[v1.UpdateNotificationSettingsRequest]) (*connect.Response[v1.UpdateNotificationSettingsResponse], error)
+	// DeleteAccount deletes the caller's account: memberships, sessions,
+	// access tokens and settings. Comments and other organization records
+	// stay without the author. The only owner of an organization must hand it
+	// over or delete it first (ERROR_REASON_LAST_OWNER); the last server
+	// administrator cannot leave (ERROR_REASON_LAST_SUPERADMIN). Browser
+	// sessions only, re-authenticated in the last 10 minutes.
+	DeleteAccount(context.Context, *connect.Request[v1.DeleteAccountRequest]) (*connect.Response[v1.DeleteAccountResponse], error)
 }
 
 // NewUserServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -508,6 +537,12 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(userServiceMethods.ByName("UpdateNotificationSettings")),
 		connect.WithHandlerOptions(opts...),
 	)
+	userServiceDeleteAccountHandler := connect.NewUnaryHandler(
+		UserServiceDeleteAccountProcedure,
+		svc.DeleteAccount,
+		connect.WithSchema(userServiceMethods.ByName("DeleteAccount")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/izci.api.v1.UserService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case UserServiceUpdateProfileProcedure:
@@ -542,6 +577,8 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 			userServiceGetNotificationSettingsHandler.ServeHTTP(w, r)
 		case UserServiceUpdateNotificationSettingsProcedure:
 			userServiceUpdateNotificationSettingsHandler.ServeHTTP(w, r)
+		case UserServiceDeleteAccountProcedure:
+			userServiceDeleteAccountHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -613,4 +650,8 @@ func (UnimplementedUserServiceHandler) GetNotificationSettings(context.Context, 
 
 func (UnimplementedUserServiceHandler) UpdateNotificationSettings(context.Context, *connect.Request[v1.UpdateNotificationSettingsRequest]) (*connect.Response[v1.UpdateNotificationSettingsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.UserService.UpdateNotificationSettings is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) DeleteAccount(context.Context, *connect.Request[v1.DeleteAccountRequest]) (*connect.Response[v1.DeleteAccountResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.UserService.DeleteAccount is not implemented"))
 }

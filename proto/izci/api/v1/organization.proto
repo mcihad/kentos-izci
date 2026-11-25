@@ -33,8 +33,8 @@ service OrganizationService {
   }
 
   // InviteMember invites an email address. Requires ROLE_ADMIN; inviting an
-  // owner requires ROLE_OWNER. Returns the invitation link to share (izci
-  // does not send email).
+  // owner requires ROLE_OWNER. Returns the invitation link to share; with
+  // send_email the link is also e-mailed when the server sends e-mail.
   rpc InviteMember(InviteMemberRequest) returns (InviteMemberResponse);
 
   // RevokeInvitation cancels a pending invitation. Requires ROLE_ADMIN.
@@ -60,6 +60,13 @@ service OrganizationService {
   rpc ListAuditLog(ListAuditLogRequest) returns (ListAuditLogResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
   }
+
+  // DeleteOrganization deletes the organization with all its projects,
+  // events and settings. It disappears at once; its data is removed in the
+  // background. Requires ROLE_OWNER and a browser session that
+  // re-authenticated in the last 10 minutes
+  // (ERROR_REASON_REAUTHENTICATION_REQUIRED).
+  rpc DeleteOrganization(DeleteOrganizationRequest) returns (DeleteOrganizationResponse);
 }
 
 // Organization is a tenant of izci.
@@ -90,6 +97,10 @@ message Organization {
 
   // When the organization was created.
   google.protobuf.Timestamp created_at = 9;
+
+  // The longest retention the organization can choose, in days: the
+  // server's RETENTION_DAYS or the plan's limit, whichever is shorter.
+  uint32 max_retention_days = 10;
 }
 
 // OrganizationSettings are editable organization settings.
@@ -131,6 +142,11 @@ message OrganizationSettings {
   // to reach the organization (ERROR_REASON_ACCESS_TOKEN_POLICY); 0 means
   // never.
   uint32 token_idle_days = 7 [(buf.validate.field).uint32.lte = 3650];
+
+  // Days events and the data derived from them are kept; 0 means
+  // Organization.max_retention_days. Projects can keep their data shorter
+  // (PrivacySettings.retention_days), never longer.
+  uint32 retention_days = 8 [(buf.validate.field).uint32.lte = 3650];
 }
 
 // OrganizationLimits are the plan limits of an organization. Zero means
@@ -381,3 +397,14 @@ message ListAuditLogResponse {
   // Token for the next page; empty on the last page.
   string next_page_token = 2;
 }
+
+// DeleteOrganizationRequest confirms the deletion of the current
+// organization.
+message DeleteOrganizationRequest {
+  // Must repeat the organization's slug, as a safeguard against accidental
+  // deletion.
+  string confirm_slug = 1 [(buf.validate.field).string.max_len = 50];
+}
+
+// DeleteOrganizationResponse has no fields.
+message DeleteOrganizationResponse {}

@@ -46,6 +46,8 @@ const (
 	AdminServiceListUsersProcedure = "/izci.api.v1.AdminService/ListUsers"
 	// AdminServiceUpdateUserProcedure is the fully-qualified name of the AdminService's UpdateUser RPC.
 	AdminServiceUpdateUserProcedure = "/izci.api.v1.AdminService/UpdateUser"
+	// AdminServiceDeleteUserProcedure is the fully-qualified name of the AdminService's DeleteUser RPC.
+	AdminServiceDeleteUserProcedure = "/izci.api.v1.AdminService/DeleteUser"
 )
 
 // AdminServiceClient is a client for the izci.api.v1.AdminService service.
@@ -61,6 +63,11 @@ type AdminServiceClient interface {
 	// UpdateUser grants or revokes superadmin and disables or enables an
 	// account. A superadmin cannot demote or disable themselves.
 	UpdateUser(context.Context, *connect.Request[v1.UpdateUserRequest]) (*connect.Response[v1.UpdateUserResponse], error)
+	// DeleteUser deletes another user's account like
+	// UserService.DeleteAccount. The only owner of an organization cannot be
+	// deleted until the organization has another owner or is deleted
+	// (ERROR_REASON_LAST_OWNER).
+	DeleteUser(context.Context, *connect.Request[v1.DeleteUserRequest]) (*connect.Response[v1.DeleteUserResponse], error)
 }
 
 // NewAdminServiceClient constructs a client for the izci.api.v1.AdminService service. By default,
@@ -107,6 +114,12 @@ func NewAdminServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(adminServiceMethods.ByName("UpdateUser")),
 			connect.WithClientOptions(opts...),
 		),
+		deleteUser: connect.NewClient[v1.DeleteUserRequest, v1.DeleteUserResponse](
+			httpClient,
+			baseURL+AdminServiceDeleteUserProcedure,
+			connect.WithSchema(adminServiceMethods.ByName("DeleteUser")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -117,6 +130,7 @@ type adminServiceClient struct {
 	updateOrganizationPlan *connect.Client[v1.UpdateOrganizationPlanRequest, v1.UpdateOrganizationPlanResponse]
 	listUsers              *connect.Client[v1.ListUsersRequest, v1.ListUsersResponse]
 	updateUser             *connect.Client[v1.UpdateUserRequest, v1.UpdateUserResponse]
+	deleteUser             *connect.Client[v1.DeleteUserRequest, v1.DeleteUserResponse]
 }
 
 // GetInstanceInfo calls izci.api.v1.AdminService.GetInstanceInfo.
@@ -144,6 +158,11 @@ func (c *adminServiceClient) UpdateUser(ctx context.Context, req *connect.Reques
 	return c.updateUser.CallUnary(ctx, req)
 }
 
+// DeleteUser calls izci.api.v1.AdminService.DeleteUser.
+func (c *adminServiceClient) DeleteUser(ctx context.Context, req *connect.Request[v1.DeleteUserRequest]) (*connect.Response[v1.DeleteUserResponse], error) {
+	return c.deleteUser.CallUnary(ctx, req)
+}
+
 // AdminServiceHandler is an implementation of the izci.api.v1.AdminService service.
 type AdminServiceHandler interface {
 	// GetInstanceInfo returns version, database and feature information.
@@ -157,6 +176,11 @@ type AdminServiceHandler interface {
 	// UpdateUser grants or revokes superadmin and disables or enables an
 	// account. A superadmin cannot demote or disable themselves.
 	UpdateUser(context.Context, *connect.Request[v1.UpdateUserRequest]) (*connect.Response[v1.UpdateUserResponse], error)
+	// DeleteUser deletes another user's account like
+	// UserService.DeleteAccount. The only owner of an organization cannot be
+	// deleted until the organization has another owner or is deleted
+	// (ERROR_REASON_LAST_OWNER).
+	DeleteUser(context.Context, *connect.Request[v1.DeleteUserRequest]) (*connect.Response[v1.DeleteUserResponse], error)
 }
 
 // NewAdminServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -199,6 +223,12 @@ func NewAdminServiceHandler(svc AdminServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(adminServiceMethods.ByName("UpdateUser")),
 		connect.WithHandlerOptions(opts...),
 	)
+	adminServiceDeleteUserHandler := connect.NewUnaryHandler(
+		AdminServiceDeleteUserProcedure,
+		svc.DeleteUser,
+		connect.WithSchema(adminServiceMethods.ByName("DeleteUser")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/izci.api.v1.AdminService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AdminServiceGetInstanceInfoProcedure:
@@ -211,6 +241,8 @@ func NewAdminServiceHandler(svc AdminServiceHandler, opts ...connect.HandlerOpti
 			adminServiceListUsersHandler.ServeHTTP(w, r)
 		case AdminServiceUpdateUserProcedure:
 			adminServiceUpdateUserHandler.ServeHTTP(w, r)
+		case AdminServiceDeleteUserProcedure:
+			adminServiceDeleteUserHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -238,4 +270,8 @@ func (UnimplementedAdminServiceHandler) ListUsers(context.Context, *connect.Requ
 
 func (UnimplementedAdminServiceHandler) UpdateUser(context.Context, *connect.Request[v1.UpdateUserRequest]) (*connect.Response[v1.UpdateUserResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.AdminService.UpdateUser is not implemented"))
+}
+
+func (UnimplementedAdminServiceHandler) DeleteUser(context.Context, *connect.Request[v1.DeleteUserRequest]) (*connect.Response[v1.DeleteUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.AdminService.DeleteUser is not implemented"))
 }

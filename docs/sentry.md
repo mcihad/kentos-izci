@@ -139,7 +139,7 @@ Saklanmayan öğeler için SDK hata almaz. Ağ trafiğini azaltmak için örnekl
 ### Ekler
 
 - Bir ekin boyutu `INGEST_ATTACHMENT_MAX_BYTES` (varsayılan 10 MiB) ile sınırlıdır; daha büyük dosyalar atılır.
-- Ekler olaylarla aynı süre saklanır (`RETENTION_DAYS`).
+- Ekler olaylarla aynı süre saklanır (`RETENTION_DAYS` ya da organizasyonun, projenin daha kısa saklama süresi).
 - Ekran görüntüleri ve dosyalar gizleme kurallarından **geçmez**. Kişisel veri içerebilirler; gerekmiyorsa **Projeler › proje › Gizlilik** sayfasında "Olay eklerini sakla" seçeneğini kapatın.
 - Ekler izci arayüzünde oturum açmış organizasyon üyelerine sunulur. HTML, SVG ve betikler tarayıcıda çalıştırılmaz, yalnız indirilir.
 - Oran sınırına ya da [gelen veri filtrelerine](filtreler.md) takılan olayların ekleri de atılır.

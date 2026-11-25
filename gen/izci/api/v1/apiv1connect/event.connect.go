@@ -38,6 +38,9 @@ const (
 	// EventServiceGetRawEventProcedure is the fully-qualified name of the EventService's GetRawEvent
 	// RPC.
 	EventServiceGetRawEventProcedure = "/izci.api.v1.EventService/GetRawEvent"
+	// EventServiceDeleteEventProcedure is the fully-qualified name of the EventService's DeleteEvent
+	// RPC.
+	EventServiceDeleteEventProcedure = "/izci.api.v1.EventService/DeleteEvent"
 )
 
 // EventServiceClient is a client for the izci.api.v1.EventService service.
@@ -48,6 +51,9 @@ type EventServiceClient interface {
 	// GetRawEvent returns the stored event as JSON, for download and
 	// debugging. Requires ROLE_VIEWER.
 	GetRawEvent(context.Context, *connect.Request[v1.GetRawEventRequest]) (*connect.Response[v1.GetRawEventResponse], error)
+	// DeleteEvent deletes one event with its attachments and user feedback.
+	// The issue and its counters stay. Requires ROLE_ADMIN.
+	DeleteEvent(context.Context, *connect.Request[v1.DeleteEventRequest]) (*connect.Response[v1.DeleteEventResponse], error)
 }
 
 // NewEventServiceClient constructs a client for the izci.api.v1.EventService service. By default,
@@ -75,6 +81,12 @@ func NewEventServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		deleteEvent: connect.NewClient[v1.DeleteEventRequest, v1.DeleteEventResponse](
+			httpClient,
+			baseURL+EventServiceDeleteEventProcedure,
+			connect.WithSchema(eventServiceMethods.ByName("DeleteEvent")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -82,6 +94,7 @@ func NewEventServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 type eventServiceClient struct {
 	getEvent    *connect.Client[v1.GetEventRequest, v1.GetEventResponse]
 	getRawEvent *connect.Client[v1.GetRawEventRequest, v1.GetRawEventResponse]
+	deleteEvent *connect.Client[v1.DeleteEventRequest, v1.DeleteEventResponse]
 }
 
 // GetEvent calls izci.api.v1.EventService.GetEvent.
@@ -94,6 +107,11 @@ func (c *eventServiceClient) GetRawEvent(ctx context.Context, req *connect.Reque
 	return c.getRawEvent.CallUnary(ctx, req)
 }
 
+// DeleteEvent calls izci.api.v1.EventService.DeleteEvent.
+func (c *eventServiceClient) DeleteEvent(ctx context.Context, req *connect.Request[v1.DeleteEventRequest]) (*connect.Response[v1.DeleteEventResponse], error) {
+	return c.deleteEvent.CallUnary(ctx, req)
+}
+
 // EventServiceHandler is an implementation of the izci.api.v1.EventService service.
 type EventServiceHandler interface {
 	// GetEvent returns one event with everything needed to render it, plus the
@@ -102,6 +120,9 @@ type EventServiceHandler interface {
 	// GetRawEvent returns the stored event as JSON, for download and
 	// debugging. Requires ROLE_VIEWER.
 	GetRawEvent(context.Context, *connect.Request[v1.GetRawEventRequest]) (*connect.Response[v1.GetRawEventResponse], error)
+	// DeleteEvent deletes one event with its attachments and user feedback.
+	// The issue and its counters stay. Requires ROLE_ADMIN.
+	DeleteEvent(context.Context, *connect.Request[v1.DeleteEventRequest]) (*connect.Response[v1.DeleteEventResponse], error)
 }
 
 // NewEventServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -125,12 +146,20 @@ func NewEventServiceHandler(svc EventServiceHandler, opts ...connect.HandlerOpti
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	eventServiceDeleteEventHandler := connect.NewUnaryHandler(
+		EventServiceDeleteEventProcedure,
+		svc.DeleteEvent,
+		connect.WithSchema(eventServiceMethods.ByName("DeleteEvent")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/izci.api.v1.EventService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case EventServiceGetEventProcedure:
 			eventServiceGetEventHandler.ServeHTTP(w, r)
 		case EventServiceGetRawEventProcedure:
 			eventServiceGetRawEventHandler.ServeHTTP(w, r)
+		case EventServiceDeleteEventProcedure:
+			eventServiceDeleteEventHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -146,4 +175,8 @@ func (UnimplementedEventServiceHandler) GetEvent(context.Context, *connect.Reque
 
 func (UnimplementedEventServiceHandler) GetRawEvent(context.Context, *connect.Request[v1.GetRawEventRequest]) (*connect.Response[v1.GetRawEventResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.EventService.GetRawEvent is not implemented"))
+}
+
+func (UnimplementedEventServiceHandler) DeleteEvent(context.Context, *connect.Request[v1.DeleteEventRequest]) (*connect.Response[v1.DeleteEventResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.EventService.DeleteEvent is not implemented"))
 }
