@@ -180,7 +180,8 @@ message Session {
   // Organizations the user belongs to, ordered by name.
   repeated Membership memberships = 2;
 
-  // When the session expires unless it is used again (sliding expiration).
+  // When the session expires unless it is used again. Use extends it by
+  // AUTH_SESSION_TTL, but never past AUTH_SESSION_MAX_AGE after sign-in.
   google.protobuf.Timestamp expires_at = 3;
 
   // When the session last proved its user's identity (sign-in or

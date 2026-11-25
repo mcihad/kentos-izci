@@ -99,7 +99,7 @@ func (s *UserServer) EnableTwoFactor(ctx context.Context, req *connect.Request[a
 	if err := sessionOnly(p); err != nil {
 		return nil, err
 	}
-	codes, err := s.auth.EnableTOTP(ctx, p.User.ID, req.Msg.GetCode())
+	codes, err := s.auth.EnableTOTP(ctx, p.User.ID, p.Session.ID, req.Msg.GetCode())
 	if err != nil {
 		return nil, secondFactorError(ctx, s.log, "enable two-factor", err)
 	}
@@ -113,7 +113,7 @@ func (s *UserServer) DisableTwoFactor(ctx context.Context, req *connect.Request[
 	if err := sessionOnly(p); err != nil {
 		return nil, err
 	}
-	if err := s.auth.DisableTOTP(ctx, p.User.ID, req.Msg.GetCode()); err != nil {
+	if err := s.auth.DisableTOTP(ctx, p.User.ID, p.Session.ID, req.Msg.GetCode()); err != nil {
 		return nil, secondFactorError(ctx, s.log, "disable two-factor", err)
 	}
 	s.userAudit(ctx, p.User, "user.two_factor.disable")

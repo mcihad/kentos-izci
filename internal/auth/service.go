@@ -96,7 +96,7 @@ func (s *Service) Authenticate(ctx context.Context, h http.Header) (*Principal, 
 		if c.Name != CookieName || !secret.HasPrefix(c.Value, secret.PrefixSession) {
 			continue
 		}
-		sw, err := store.LookupSession(ctx, s.db.Pool, c.Value)
+		sw, err := store.LookupSession(ctx, s.db.Pool, c.Value, s.sessionMaxAge())
 		if errors.Is(err, store.ErrNotFound) {
 			return nil, nil
 		}
@@ -108,8 +108,8 @@ func (s *Service) Authenticate(ctx context.Context, h http.Header) (*Principal, 
 		}
 		// Sliding expiration, written at most once a minute.
 		if time.Since(sw.Session.LastSeenAt) > time.Minute {
-			if err := store.TouchSession(ctx, s.db.Pool, sw.Session.ID, s.cfg.Auth.SessionTTL); err == nil {
-				sw.Session.ExpiresAt = time.Now().Add(s.cfg.Auth.SessionTTL)
+			if expires, err := store.TouchSession(ctx, s.db.Pool, sw.Session.ID, s.cfg.Auth.SessionTTL, s.sessionMaxAge()); err == nil {
+				sw.Session.ExpiresAt = expires
 			}
 		}
 		return &Principal{User: sw.User, Session: sw.Session}, nil
@@ -195,11 +195,23 @@ func (s *Service) Login(ctx context.Context, email, password string, ip netip.Ad
 
 // StartSession creates a session for the user and returns its cookie.
 func (s *Service) StartSession(ctx context.Context, userID uuid.UUID, ip netip.Addr, userAgent string) (*http.Cookie, *store.Session, error) {
-	sess, token, err := store.CreateSession(ctx, s.db.Pool, userID, ip, userAgent, s.cfg.Auth.SessionTTL)
+	maxAge := s.sessionMaxAge()
+	sess, token, err := store.CreateSession(ctx, s.db.Pool, userID, ip, userAgent, min(s.cfg.Auth.SessionTTL, maxAge))
 	if err != nil {
 		return nil, nil, err
 	}
-	return s.sessionCookie(token, sess.ExpiresAt), sess, nil
+	// The browser keeps the cookie until the session's last possible
+	// moment; the server ends it earlier when it goes unused.
+	return s.sessionCookie(token, sess.CreatedAt.Add(maxAge)), sess, nil
+}
+
+// sessionMaxAge is AUTH_SESSION_MAX_AGE (configurations built in code may
+// leave it out; then sessions end after AUTH_SESSION_TTL).
+func (s *Service) sessionMaxAge() time.Duration {
+	if s.cfg.Auth.SessionMaxAge > 0 {
+		return s.cfg.Auth.SessionMaxAge
+	}
+	return s.cfg.Auth.SessionTTL
 }
 
 func (s *Service) secureCookies() bool { return strings.HasPrefix(s.cfg.PublicURL, "https://") }

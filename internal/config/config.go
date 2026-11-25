@@ -141,8 +141,12 @@ type IngestConfig struct {
 type AuthConfig struct {
 	// Signup is "invite" (default), "open" or "closed".
 	Signup string `env:"AUTH_SIGNUP" envDefault:"invite"`
-	// SessionTTL is the sliding lifetime of browser sessions.
+	// SessionTTL is how long an unused browser session stays valid; every
+	// use extends it (sliding idle timeout).
 	SessionTTL time.Duration `env:"AUTH_SESSION_TTL" envDefault:"720h"`
+	// SessionMaxAge ends a browser session this long after sign-in, however
+	// often it is used.
+	SessionMaxAge time.Duration `env:"AUTH_SESSION_MAX_AGE" envDefault:"720h"`
 	// PasswordLogin enables email + password sign-in.
 	PasswordLogin bool `env:"AUTH_PASSWORD_LOGIN" envDefault:"true"`
 	// InvitationTTL is how long invitation links stay valid.
@@ -400,6 +404,10 @@ func (c *Config) finalize() error {
 	case "invite", "open", "closed":
 	default:
 		errs = append(errs, fmt.Errorf("AUTH_SIGNUP must be invite, open or closed (got %q)", c.Auth.Signup))
+	}
+	if c.Auth.SessionTTL < time.Minute || c.Auth.SessionMaxAge < time.Minute {
+		errs = append(errs, fmt.Errorf("AUTH_SESSION_TTL and AUTH_SESSION_MAX_AGE must be at least 1m (got %s and %s)",
+			c.Auth.SessionTTL, c.Auth.SessionMaxAge))
 	}
 	for _, p := range c.OIDC {
 		if p.Issuer == "" || p.ClientID == "" {

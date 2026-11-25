@@ -215,12 +215,22 @@ func (s *AdminServer) UpdateUser(ctx context.Context, req *connect.Request[apiv1
 		if m.GetDisabled() {
 			// Disabled accounts are rejected at authentication; dropping
 			// their sessions also ends open browser tabs immediately.
-			if _, err := tx.Exec(ctx, `DELETE FROM sessions WHERE user_id = $1`, id); err != nil {
+			if _, err := store.DeleteUserSessions(ctx, tx, id); err != nil {
 				return err
 			}
 		}
 		if m.GetResetTwoFactor() {
 			if err := store.DisableTwoFactor(ctx, tx, id); err != nil {
+				return err
+			}
+			// Sessions that passed the second step end with it; an
+			// administrator resetting their own keeps the current one.
+			if p := auth.PrincipalFrom(ctx); self && p.Session != nil {
+				_, err = store.DeleteOtherSessions(ctx, tx, id, p.Session.ID)
+			} else {
+				_, err = store.DeleteUserSessions(ctx, tx, id)
+			}
+			if err != nil {
 				return err
 			}
 		}

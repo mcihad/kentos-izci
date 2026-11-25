@@ -205,7 +205,8 @@ export type Session = Message<"izci.api.v1.Session"> & {
   memberships: Membership[];
 
   /**
-   * When the session expires unless it is used again (sliding expiration).
+   * When the session expires unless it is used again. Use extends it by
+   * AUTH_SESSION_TTL, but never past AUTH_SESSION_MAX_AGE after sign-in.
    *
    * @generated from field: google.protobuf.Timestamp expires_at = 3;
    */

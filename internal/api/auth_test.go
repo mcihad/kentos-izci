@@ -453,3 +453,37 @@ func TestReauthentication(t *testing.T) {
 	}
 
 }
+
+// TestSessionLifetime checks that use extends a session only up to its
+// absolute lifetime (AUTH_SESSION_MAX_AGE; in tests the 1h TTL).
+func TestSessionLifetime(t *testing.T) {
+	e := newEnv(t)
+	ctx := context.Background()
+	owner := e.client(map[string]string{"Izci-Org": "kentos"})
+	if _, err := owner.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{SetupToken: testSetupToken, Name: "Owner", Email: "owner@example.com",
+		Password: "uzun ve güçlü parola", OrganizationName: "KentOS", OrganizationSlug: "kentos", ProjectName: "Kalem"})); err != nil {
+		t.Fatal(err)
+	}
+	// Close to its end a used session is extended only to it.
+	if _, err := e.db.Pool.Exec(ctx, `UPDATE sessions SET created_at = now() - interval '59 minutes', last_seen_at = now() - interval '5 minutes'`); err != nil {
+		t.Fatal(err)
+	}
+	res, err := owner.auth.GetSession(ctx, req(&apiv1.GetSessionRequest{}))
+	if err != nil {
+		t.Fatalf("session near its end: %v", err)
+	}
+	if left := time.Until(res.Msg.GetSession().GetExpiresAt().AsTime()); left > 2*time.Minute || left <= 0 {
+		t.Fatalf("a used session must not outlive its absolute lifetime: %s left", left)
+	}
+	var capped bool
+	if err := e.db.Pool.QueryRow(ctx, `SELECT bool_and(expires_at <= created_at + interval '1 hour') FROM sessions`).Scan(&capped); err != nil || !capped {
+		t.Fatalf("stored expiry past the absolute lifetime: %v", err)
+	}
+	// Past it the session is over, even if its expiry says otherwise.
+	if _, err := e.db.Pool.Exec(ctx, `UPDATE sessions SET created_at = now() - interval '2 hours', expires_at = now() + interval '1 hour'`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := owner.auth.GetSession(ctx, req(&apiv1.GetSessionRequest{})); reason(err) != apiv1.ErrorReason_ERROR_REASON_UNAUTHENTICATED {
+		t.Fatalf("session past its absolute lifetime: %v", err)
+	}
+}

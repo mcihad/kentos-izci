@@ -11,6 +11,8 @@
 3. Uygulamanın gösterdiği 6 haneli kodu girip **Doğrula ve aç**'a basın. Kurulum bir saat içinde tamamlanmazsa yeniden başlatılır.
 4. Ekrana gelen **10 kurtarma kodunu** saklayın: kopyalayın ya da `.txt` olarak indirin ve parola yöneticinize koyun. Kodlar bir daha gösterilmez.
 
+Açtığınız anda diğer cihazlardaki oturumlarınız kapatılır; oralarda parola ve kodla yeniden girersiniz. Böylece yalnız parolayla açılmış, belki de başkasının elindeki bir oturum açık kalmaz.
+
 ## Giriş
 
 - E-posta ve parolanın ardından kod ekranı açılır. Kodu **10 dakika** içinde girin; süre dolarsa parolayla yeniden başlarsınız.
@@ -26,7 +28,7 @@ Telefonunuza erişemezseniz kod ekranında **Kurtarma kodu kullan**'a basıp kod
 
 ## Kapatma ve telefon değiştirme
 
-**Kapat**, doğrulama uygulamasındaki bir kodla ya da bir kurtarma koduyla onaylanır. Kurtarma kodları da silinir. İki adımlı doğrulamayı zorunlu tutan organizasyonlar, yeniden açana kadar erişiminizi keser; pencere bunları listeler.
+**Kapat**, doğrulama uygulamasındaki bir kodla ya da bir kurtarma koduyla onaylanır. Kurtarma kodları da silinir ve diğer cihazlardaki oturumlarınız kapatılır. İki adımlı doğrulamayı zorunlu tutan organizasyonlar, yeniden açana kadar erişiminizi keser; pencere bunları listeler.
 
 Telefon değiştirirken eski telefon elinizdeyken kapatıp yeni telefonla yeniden açın. 1Password gibi eşitlenen uygulamalarda bu gerekmez.
 
@@ -41,7 +43,7 @@ Telefon değiştirirken eski telefon elinizdeyken kapatıp yeni telefonla yenide
   izci user reset-2fa ayse@kentos.com.tr
   ```
 
-Sıfırlanan hesap yalnız parolayla girer ve iki adımlı doğrulamayı yeniden açabilir. `izci user list` hangi hesaplarda açık olduğunu gösterir.
+Sıfırlama kişinin bütün oturumlarını kapatır (yönetici kendi hesabını sıfırlıyorsa o anki oturumu açık kalır). Sıfırlanan hesap yalnız parolayla girer ve iki adımlı doğrulamayı yeniden açabilir. `izci user list` hangi hesaplarda açık olduğunu gösterir.
 
 ## Organizasyonda zorunlu tutma
 

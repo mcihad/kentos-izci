@@ -86,7 +86,8 @@ func scanSession(row interface{ Scan(...any) error }) (*Session, error) {
 	return &s, nil
 }
 
-// CreateSession stores a session and returns it with the cookie token.
+// CreateSession stores a session and returns it with the cookie token. It
+// expires after ttl unless used (see TouchSession).
 func CreateSession(ctx context.Context, q Querier, userID uuid.UUID, ip netip.Addr, userAgent string, ttl time.Duration) (*Session, string, error) {
 	token := secret.NewSessionToken()
 	var ipArg *netip.Addr
@@ -109,13 +110,15 @@ type SessionWithUser struct {
 	User    *User
 }
 
-// LookupSession finds an unexpired session by cookie token.
-func LookupSession(ctx context.Context, q Querier, token string) (*SessionWithUser, error) {
+// LookupSession finds an unexpired session by cookie token that started
+// less than maxAge ago.
+func LookupSession(ctx context.Context, q Querier, token string, maxAge time.Duration) (*SessionWithUser, error) {
 	var s Session
 	u, err := scanUser(extraScanner{q.QueryRow(ctx, `
 		SELECT `+prefixed("u.", userColumns)+`, `+prefixed("s.", sessionColumns)+`
 		FROM sessions s JOIN users u ON u.id = s.user_id
-		WHERE s.token_hash = $1 AND s.expires_at > now()`, secret.Hash(token)),
+		WHERE s.token_hash = $1 AND s.expires_at > now() AND s.created_at > now() - $2::interval`,
+		secret.Hash(token), maxAge.String()),
 		[]any{&s.ID, &s.UserID, &s.IPAddress, &s.UserAgent, &s.CreatedAt, &s.LastSeenAt, &s.ExpiresAt, &s.ReauthenticatedAt}})
 	if err != nil {
 		return nil, err
@@ -131,15 +134,25 @@ func MarkSessionReauthenticated(ctx context.Context, q Querier, id uuid.UUID) (t
 	return at, notFound(err)
 }
 
-// TouchSession extends a session (sliding expiration).
-func TouchSession(ctx context.Context, q Querier, id uuid.UUID, ttl time.Duration) error {
-	_, err := q.Exec(ctx, `UPDATE sessions SET last_seen_at = now(), expires_at = now() + $2::interval WHERE id = $1`, id, ttl.String())
-	return err
+// TouchSession extends a session by ttl (sliding expiration), but never
+// past maxAge after it started, and returns the new expiry.
+func TouchSession(ctx context.Context, q Querier, id uuid.UUID, ttl, maxAge time.Duration) (time.Time, error) {
+	var expires time.Time
+	err := q.QueryRow(ctx, `
+		UPDATE sessions SET last_seen_at = now(), expires_at = least(now() + $2::interval, created_at + $3::interval)
+		WHERE id = $1 RETURNING expires_at`, id, ttl.String(), maxAge.String()).Scan(&expires)
+	return expires, notFound(err)
 }
 
 // DeleteSession ends one session of a user.
 func DeleteSession(ctx context.Context, q Querier, userID, id uuid.UUID) (int64, error) {
 	tag, err := q.Exec(ctx, `DELETE FROM sessions WHERE id = $1 AND user_id = $2`, id, userID)
+	return tag.RowsAffected(), err
+}
+
+// DeleteUserSessions ends every session of a user.
+func DeleteUserSessions(ctx context.Context, q Querier, userID uuid.UUID) (int64, error) {
+	tag, err := q.Exec(ctx, `DELETE FROM sessions WHERE user_id = $1`, userID)
 	return tag.RowsAffected(), err
 }
 

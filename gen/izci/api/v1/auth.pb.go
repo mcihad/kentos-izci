@@ -358,7 +358,8 @@ type Session struct {
 	User *User `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	// Organizations the user belongs to, ordered by name.
 	Memberships []*Membership `protobuf:"bytes,2,rep,name=memberships,proto3" json:"memberships,omitempty"`
-	// When the session expires unless it is used again (sliding expiration).
+	// When the session expires unless it is used again. Use extends it by
+	// AUTH_SESSION_TTL, but never past AUTH_SESSION_MAX_AGE after sign-in.
 	ExpiresAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	// When the session last proved its user's identity (sign-in or
 	// Reauthenticate); unset for access tokens. Sensitive changes need it

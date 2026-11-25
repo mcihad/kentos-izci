@@ -68,8 +68,9 @@ func (s *Service) BeginTOTP(ctx context.Context, u *store.User) (*TOTPSetup, err
 
 // EnableTOTP confirms a started setup with a code from the authenticator
 // app, turns two-factor authentication on and returns the recovery codes,
-// which are shown only this once.
-func (s *Service) EnableTOTP(ctx context.Context, userID uuid.UUID, code string) ([]string, error) {
+// which are shown only this once. The user's other sessions end: they
+// started without the second step.
+func (s *Service) EnableTOTP(ctx context.Context, userID, keepSession uuid.UUID, code string) ([]string, error) {
 	var codes []string
 	err := pgx.BeginFunc(ctx, s.db.Pool, func(tx pgx.Tx) error {
 		st, err := store.LockTwoFactor(ctx, tx, userID)
@@ -93,6 +94,9 @@ func (s *Service) EnableTOTP(ctx context.Context, userID uuid.UUID, code string)
 		if err := store.EnableTOTP(ctx, tx, userID, step); err != nil {
 			return err
 		}
+		if _, err := store.DeleteOtherSessions(ctx, tx, userID, keepSession); err != nil {
+			return err
+		}
 		codes, err = s.replaceRecoveryCodes(ctx, tx, userID)
 		return err
 	})
@@ -109,10 +113,15 @@ func (s *Service) replaceRecoveryCodes(ctx context.Context, tx pgx.Tx, userID uu
 }
 
 // DisableTOTP turns two-factor authentication off after checking a code
-// from the authenticator app or a recovery code.
-func (s *Service) DisableTOTP(ctx context.Context, userID uuid.UUID, code string) error {
+// from the authenticator app or a recovery code, and ends the user's other
+// sessions.
+func (s *Service) DisableTOTP(ctx context.Context, userID, keepSession uuid.UUID, code string) error {
 	return s.withSecondFactor(ctx, userID, code, func(tx pgx.Tx) error {
-		return store.DisableTwoFactor(ctx, tx, userID)
+		if err := store.DisableTwoFactor(ctx, tx, userID); err != nil {
+			return err
+		}
+		_, err := store.DeleteOtherSessions(ctx, tx, userID, keepSession)
+		return err
 	})
 }
 

@@ -1,4 +1,4 @@
-import { useMutation } from "@connectrpc/connect-query";
+import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { CopyIcon, DownloadIcon, ShieldCheckIcon, TriangleAlertIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -237,7 +237,17 @@ export function TwoFactor() {
   const qc = useQueryClient();
   const [codes, setCodes] = useState<string[]>();
   const [confirm, setConfirm] = useState<Confirm>();
-  const refresh = () => void qc.invalidateQueries({ queryKey: sessionQuery.queryKey });
+  // Turning two-factor authentication on or off ends the other sessions.
+  const refresh = () => {
+    void qc.invalidateQueries({ queryKey: sessionQuery.queryKey });
+    void qc.invalidateQueries({
+      queryKey: createConnectQueryKey({
+        schema: UserService.method.listSessions,
+        transport: baseTransport,
+        cardinality: "finite",
+      }),
+    });
+  };
   const user = session?.user;
   if (!session || !user) return null;
   const requiring = session.memberships
@@ -303,6 +313,7 @@ export function TwoFactor() {
             onEnabled={(c) => {
               setCodes(c);
               refresh();
+              toast.success("İki adımlı doğrulama açıldı. Diğer cihazlardaki oturumlar kapatıldı.");
             }}
           />
         </>
@@ -342,7 +353,7 @@ function ConfirmDialog({
   const disable = useMutation(UserService.method.disableTwoFactor, {
     transport: baseTransport,
     onSuccess: () => {
-      toast.success("İki adımlı doğrulama kapatıldı");
+      toast.success("İki adımlı doğrulama kapatıldı. Diğer cihazlardaki oturumlar kapatıldı.");
       onChanged();
       close();
     },

@@ -63,7 +63,8 @@ Hatalı bir değer sunucunun açılmasını engeller; hata mesajı hangi değiş
 | Değişken | Varsayılan | Açıklama |
 |---|---|---|
 | `AUTH_SIGNUP` | `invite` | Kim hesap açabilir: `invite` (yalnız davetle), `open` (herkes; kendi organizasyonunu oluşturur) ya da `closed`. |
-| `AUTH_SESSION_TTL` | `720h` | Tarayıcı oturumunun kayan ömrü. |
+| `AUTH_SESSION_TTL` | `720h` | Kullanılmayan tarayıcı oturumunun ömrü (boşta kalma süresi); her kullanım uzatır. Kısa tutmak (ör. `8h`) ortak bilgisayarlarda açık kalan oturumların riskini azaltır. |
+| `AUTH_SESSION_MAX_AGE` | `720h` | Oturumun girişten itibaren en uzun ömrü. Ne kadar kullanılırsa kullanılsın bu süre dolunca yeniden giriş istenir; çalınan bir oturum çerezi süresiz kullanılamaz. |
 | `AUTH_PASSWORD_LOGIN` | `true` | E-posta ve parolayla giriş. Kapatılırsa yalnız OpenID Connect ile girilir. |
 | `AUTH_INVITATION_TTL` | `168h` | Davet bağlantısının geçerlilik süresi. |
 

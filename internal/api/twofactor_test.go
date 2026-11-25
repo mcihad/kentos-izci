@@ -68,6 +68,12 @@ func TestTwoFactorAuthentication(t *testing.T) {
 		t.Fatalf("require without own 2FA: %v", err)
 	}
 
+	// A session on another device, signed in with the password alone.
+	laptop := e.client(map[string]string{"Izci-Org": "kentos"})
+	if _, err := laptop.auth.Login(ctx, req(&apiv1.LoginRequest{Email: "ayse@example.com", Password: password})); err != nil {
+		t.Fatal(err)
+	}
+
 	// Setup: a secret, a confirming code, recovery codes.
 	setup, err := owner.user.BeginTwoFactorSetup(ctx, req(&apiv1.BeginTwoFactorSetupRequest{}))
 	if err != nil || !strings.HasPrefix(setup.Msg.GetUri(), "otpauth://totp/%C4%B0zci:ayse@example.com?secret="+setup.Msg.GetSecret()+"&") {
@@ -88,6 +94,10 @@ func TestTwoFactorAuthentication(t *testing.T) {
 	}
 	if _, err := owner.user.BeginTwoFactorSetup(ctx, req(&apiv1.BeginTwoFactorSetupRequest{})); reason(err) != apiv1.ErrorReason_ERROR_REASON_CONFLICT {
 		t.Fatalf("second setup: %v", err)
+	}
+	// Sessions that never passed the second step end.
+	if _, err := laptop.auth.GetSession(ctx, req(&apiv1.GetSessionRequest{})); reason(err) != apiv1.ErrorReason_ERROR_REASON_UNAUTHENTICATED {
+		t.Fatalf("other session after enabling: %v", err)
 	}
 	// Access tokens cannot change two-factor settings.
 	tok, err := owner.user.CreateAccessToken(ctx, req(&apiv1.CreateAccessTokenRequest{Name: "cli",
@@ -250,6 +260,16 @@ func TestTwoFactorAuthentication(t *testing.T) {
 	sess, _ = owner.auth.GetSession(ctx, req(&apiv1.GetSessionRequest{}))
 	if _, err := owner.admin.UpdateUser(ctx, req(&apiv1.UpdateUserRequest{UserId: sess.Msg.GetSession().GetUser().GetId(), ResetTwoFactor: true})); err != nil {
 		t.Fatalf("admin reset: %v", err)
+	}
+	// The sessions that passed the second step end with it, except the
+	// administrator's own current one.
+	var sessions int
+	if err := e.db.Pool.QueryRow(ctx, `SELECT count(*) FROM sessions s JOIN users u ON u.id = s.user_id
+		WHERE u.email = 'ayse@example.com'`).Scan(&sessions); err != nil || sessions != 1 {
+		t.Fatalf("sessions after the reset: %d %v", sessions, err)
+	}
+	if _, err := owner.auth.GetSession(ctx, req(&apiv1.GetSessionRequest{})); err != nil {
+		t.Fatalf("own session after the reset: %v", err)
 	}
 	plain := e.client(map[string]string{"Izci-Org": "kentos"})
 	res, err := plain.auth.Login(ctx, req(&apiv1.LoginRequest{Email: "ayse@example.com", Password: password}))

@@ -6,6 +6,7 @@ import (
 	"net/netip"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestSecretKeyUnmarshal(t *testing.T) {
@@ -81,6 +82,14 @@ func TestLoadDefaultsAndValidation(t *testing.T) {
 	if !cfg.SecretGenerated() || len(cfg.SecretKey) != 32 {
 		t.Error("development without IZCI_SECRET_KEY must generate an ephemeral key")
 	}
+	if cfg.Auth.SessionTTL != 720*time.Hour || cfg.Auth.SessionMaxAge != 720*time.Hour {
+		t.Errorf("session lifetimes: %s idle, %s at most", cfg.Auth.SessionTTL, cfg.Auth.SessionMaxAge)
+	}
+	t.Setenv("AUTH_SESSION_MAX_AGE", "0s")
+	if _, err := Load(""); err == nil || !strings.Contains(err.Error(), "AUTH_SESSION_MAX_AGE") {
+		t.Fatalf("sessions without an end must fail, got %v", err)
+	}
+	t.Setenv("AUTH_SESSION_MAX_AGE", "720h")
 
 	t.Setenv("IZCI_ENV", "production")
 	_, err = Load("")

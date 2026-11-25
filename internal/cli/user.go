@@ -255,7 +255,7 @@ func newUserCmd(a *cliApp) *cobra.Command {
 			if err := store.UpdateUserPassword(cmd.Context(), database.Pool, u.ID, hash); err != nil {
 				return err
 			}
-			if _, err := database.Pool.Exec(cmd.Context(), `DELETE FROM sessions WHERE user_id = $1`, u.ID); err != nil {
+			if _, err := store.DeleteUserSessions(cmd.Context(), database.Pool, u.ID); err != nil {
 				return err
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "password of %s changed; sessions ended\n", u.Email)
@@ -267,10 +267,10 @@ func newUserCmd(a *cliApp) *cobra.Command {
 	reset2FA := &cobra.Command{
 		Use:   "reset-2fa EMAIL",
 		Short: "Turn off two-factor authentication for a user who lost their authenticator and recovery codes",
-		Long: `Turn off two-factor authentication and delete the recovery codes of a user
-who lost both. They sign in with their password alone and can set it up
-again; organizations requiring two-factor authentication turn them away
-until they do.`,
+		Long: `Turn off two-factor authentication, delete the recovery codes and end the
+sessions of a user who lost both. They sign in with their password alone
+and can set it up again; organizations requiring two-factor authentication
+turn them away until they do.`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			database, err := a.openDB(cmd.Context())
@@ -286,10 +286,17 @@ until they do.`,
 				fmt.Fprintf(cmd.OutOrStdout(), "two-factor authentication of %s is already off\n", u.Email)
 				return nil
 			}
-			if err := store.DisableTwoFactor(cmd.Context(), database.Pool, u.ID); err != nil {
+			err = pgx.BeginFunc(cmd.Context(), database.Pool, func(tx pgx.Tx) error {
+				if err := store.DisableTwoFactor(cmd.Context(), tx, u.ID); err != nil {
+					return err
+				}
+				_, err := store.DeleteUserSessions(cmd.Context(), tx, u.ID)
+				return err
+			})
+			if err != nil {
 				return err
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "two-factor authentication of %s turned off\n", u.Email)
+			fmt.Fprintf(cmd.OutOrStdout(), "two-factor authentication of %s turned off and their sessions ended\n", u.Email)
 			return nil
 		},
 	}

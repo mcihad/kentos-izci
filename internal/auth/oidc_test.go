@@ -20,6 +20,7 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/go-jose/go-jose/v4"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
@@ -187,7 +188,7 @@ func TestOIDCLoginFlow(t *testing.T) {
 	}
 	totpSecret, _ := base32.StdEncoding.WithPadding(base32.NoPadding).DecodeString(setup.Secret)
 	now := auth.TOTPStep(time.Now())
-	if _, err := svc.EnableTOTP(ctx, zeynep.ID, auth.TOTPCode(totpSecret, now-1)); err != nil {
+	if _, err := svc.EnableTOTP(ctx, zeynep.ID, uuid.Nil, auth.TOTPCode(totpSecret, now-1)); err != nil {
 		t.Fatal(err)
 	}
 	jar2, _ := cookiejar.New(nil)
