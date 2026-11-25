@@ -966,20 +966,26 @@ func (r *Runner) autoPublish(ctx context.Context, run *store.AiRun) {
 	})
 	var err error
 	switch action {
+	// Automatic changes go to "izci-auto/" branches, pull requests are
+	// always drafts (AUTO_ACTION_PULL_REQUEST included) and changes to
+	// files CI or build tools run are never published.
 	case apiv1.AutoAction_AUTO_ACTION_BRANCH:
-		_, err = r.CreateBranch(ctx, run.OrgID, run.ID, "", nil)
-	case apiv1.AutoAction_AUTO_ACTION_DRAFT_PULL_REQUEST:
-		_, err = r.CreatePullRequest(ctx, run.OrgID, run.ID, PullRequestOptions{Draft: true}, nil)
-	case apiv1.AutoAction_AUTO_ACTION_PULL_REQUEST:
-		_, err = r.CreatePullRequest(ctx, run.OrgID, run.ID, PullRequestOptions{}, nil)
+		_, err = r.CreateBranch(ctx, run.OrgID, run.ID, BranchOptions{automatic: true}, nil)
+	case apiv1.AutoAction_AUTO_ACTION_DRAFT_PULL_REQUEST, apiv1.AutoAction_AUTO_ACTION_PULL_REQUEST:
+		_, err = r.CreatePullRequest(ctx, run.OrgID, run.ID, PullRequestOptions{automatic: true}, nil)
 	default:
 		return
 	}
 	lg := &runLog{r: r, run: run, seq: r.lastSeq(ctx, run)}
-	if err != nil {
+	var sensitive *SensitiveChangesError
+	switch {
+	case errors.As(err, &sensitive):
+		lg.add(LogSystem, "", "Öneri otomatik olarak yayınlanmadı: CI, derleme araçları ya da git'in çalıştırdığı dosyalara dokunuyor ("+
+			clip(strings.Join(sensitive.Files, ", "), 400)+"). İnceleyip el ile yayınlayabilirsiniz.")
+	case err != nil:
 		lg.add(LogError, "", "Otomatik yayınlama başarısız: "+clip(err.Error(), 500))
 		r.log.Warn("automatic AI publishing", slog.String("run", run.ID.String()), slog.Any("err", err))
-	} else {
+	default:
 		lg.add(LogSystem, "", "Öneri otomatik olarak yayınlandı")
 	}
 	lg.flush(ctx)

@@ -1658,6 +1658,7 @@ AiRun is one AI analysis of an issue.
 | `created_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the run was queued. |
 | `started_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the agent started. |
 | `finished_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the run finished. |
+| `sensitive_files` | repeated `string` | Changed files that CI, build tools, package managers or git act on (workflows, build scripts, dependency manifests and lockfiles, repository settings). A change there runs code with the repository's secrets once CI builds the branch: automatic publishing never pushes it, and CreateBranch and CreatePullRequest need allow_sensitive_changes. |
 
 <a id="izci-api-v1-aisettings"></a>
 
@@ -2098,6 +2099,7 @@ CreateBranchRequest names the branch.
 |---|---|---|---|
 | `run_id` | `string` | Run id. | UUID |
 | `branch` | `string` | Branch name; defaults to "izci/fix/<short-id>-<slug>". | max length 200 |
+| `allow_sensitive_changes` | `bool` | Confirms that the person reviewed the changes to AiRun.sensitive_files; without it such a run fails with ERROR_REASON_AI_SENSITIVE_CHANGES. |  |
 
 <a id="izci-api-v1-createbranchresponse"></a>
 
@@ -2217,6 +2219,7 @@ CreatePullRequestRequest describes the pull request.
 | `draft` | `bool` | Open as a draft (recommended). |  |
 | `title` | `string` | Title; defaults to "fix: <issue title> (<short id>)". | max length 250 |
 | `base_branch` | `string` | Target branch; defaults to the repository's default branch. | max length 200 |
+| `allow_sensitive_changes` | `bool` | Confirms that the person reviewed the changes to AiRun.sensitive_files; without it such a run fails with ERROR_REASON_AI_SENSITIVE_CHANGES. |  |
 
 <a id="izci-api-v1-createpullrequestresponse"></a>
 
@@ -5600,9 +5603,9 @@ AutoAction selects what happens after a successful automatic analysis.
 |---|---|---|
 | `AUTO_ACTION_UNSPECIFIED` | 0 | Not set; treated as AUTO_ACTION_NONE. |
 | `AUTO_ACTION_NONE` | 1 | Keep the result for review in the UI. |
-| `AUTO_ACTION_BRANCH` | 2 | Push the proposed fix to a branch. |
-| `AUTO_ACTION_DRAFT_PULL_REQUEST` | 3 | Push the fix and open a draft pull request. |
-| `AUTO_ACTION_PULL_REQUEST` | 4 | Push the fix and open a ready-for-review pull request. |
+| `AUTO_ACTION_BRANCH` | 2 | Push the proposed fix to a branch under "izci-auto/". |
+| `AUTO_ACTION_DRAFT_PULL_REQUEST` | 3 | Push the fix to a branch under "izci-auto/" and open a draft pull request. |
+| `AUTO_ACTION_PULL_REQUEST` | 4 | Legacy value kept for stored settings: automatic pull requests are always drafts, so this is treated as AUTO_ACTION_DRAFT_PULL_REQUEST. |
 
 <a id="izci-api-v1-autoanalyze"></a>
 
@@ -5731,6 +5734,7 @@ reason to a localized message.
 | `ERROR_REASON_TWO_FACTOR_REQUIRED` | 32 | The organization requires two-factor authentication and the caller has not turned it on (UserService.BeginTwoFactorSetup). |
 | `ERROR_REASON_INVALID_TWO_FACTOR_CODE` | 33 | The two-factor code (from the authenticator app, or a recovery code) is wrong or was used already. |
 | `ERROR_REASON_TWO_FACTOR_EXPIRED` | 34 | The sign-in or setup waiting for a two-factor code expired; sign in or start the setup again. |
+| `ERROR_REASON_AI_SENSITIVE_CHANGES` | 35 | An AI run changes files CI, build tools or git run; metadata "files" lists them. Publish with allow_sensitive_changes after reviewing them. |
 
 <a id="izci-api-v1-eventpick"></a>
 

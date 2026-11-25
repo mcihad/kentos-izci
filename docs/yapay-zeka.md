@@ -93,6 +93,7 @@ Analiz sırasında log canlı akar: deponun hazırlanması, ajanın okuduğu ve 
 - Hiçbir zaman zorla (`--force`) push yapılmaz. Aynı adlı dal başka commit'ler içeriyorsa işlem durur.
 - Çekme isteğinin açıklaması Türkçe analizi, hatanın bağlantısını ve etkisini (olay, kullanıcı, müşteri) içerir.
 - Hata sayfasının **Etkinlik** akışına dal ve çekme isteği yazılır.
+- Değişiklik CI'ın, derleme araçlarının ya da git'in çalıştırdığı dosyalara dokunuyorsa (`.github/`, `.gitlab-ci.yml`, `Jenkinsfile`, `Makefile`, `Dockerfile`, `package.json` ve kilit dosyaları, `go.mod`, `*.csproj`, kabuk betikleri, `.gitmodules`, `.env` …) bu dosyalar ayrıca listelenir ve **"Bu dosyalardaki değişiklikleri satır satır inceledim"** onayı verilmeden gönderilemez. Hata kayıtları dışarıdan gelir ve yapay zekâyı yanıltmaya çalışan metin içerebilir; böyle bir değişiklik dal derlenir derlenmez deponun sırlarıyla çalışır. API'de bu onay `allow_sensitive_changes`, komut satırında `--allow-sensitive`'dir; MCP üzerinden bu tür değişiklikler gönderilemez.
 
 ## Otomasyon
 
@@ -102,13 +103,23 @@ Analiz sırasında log canlı akar: deponun hazırlanması, ajanın okuduğu ve 
 |---|---|
 | Otomatik analiz | Yeni hatalarda analizi kendiliğinden başlatır. Varsayılan: kapalı. |
 | En düşük seviye | Bu seviyenin altındaki yeni hatalar analiz edilmez. |
-| Analizden sonra | Yalnız analiz, düzeltmeyi bir dala gönder, taslak çekme isteği ya da çekme isteği aç. |
+| Analizden sonra | Yalnız analiz, düzeltmeyi bir dala gönder ya da taslak çekme isteği aç. Otomatik değişiklikler `izci-auto/` ile başlayan dallara gider, çekme istekleri hep taslaktır ve CI ya da derleme dosyalarına dokunan değişiklikler otomatik gönderilmez (koşunun günlüğünde nedeni yazar; inceleyip el ile gönderebilirsiniz). |
 | Günlük analiz sınırı | Projenin günde başlatabileceği otomatik analiz; 0 ise otomatik analiz başlamaz. |
 | Model | Projeye özel model; boşsa sunucu varsayılanı. |
 | Çalıştırılabilecek komutlar | Ajanın düzeltmeyi doğrulamak için çalıştırabileceği komutlar (ör. `dotnet test`). Aşağıdaki uyarıya bakın. |
 | Proje talimatları | Her analize eklenen kurallar: kod stili, dokunulmaması gereken yerler… |
 
 Organizasyonun aylık analiz sınırı (plan) aşıldığında yeni analizler başlamaz.
+
+**Otomatik gönderimde CI.** Otomatik analiz, uygulamanın dışından gelen bir hata kaydıyla başlar; bu kayıt yapay zekâyı yanıltmaya çalışan metin içerebilir. Otomatik dallar bu yüzden `izci-auto/` ile başlar: CI'ınızı bu dallarda sır kullanmayacak şekilde ayarlayın. GitHub Actions'ta örneğin:
+
+```yaml
+on:
+  push:
+    branches-ignore: ["izci-auto/**"]
+```
+
+Çekme isteklerinde çalışan işlerde sırları, `github.head_ref` `izci-auto/` ile başlıyorsa vermeyin ya da onay isteyen bir ortam (environment) kullanın.
 
 ## Güvenlik
 

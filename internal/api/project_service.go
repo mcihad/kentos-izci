@@ -299,8 +299,12 @@ func normalizeProjectSettings(in *apiv1.ProjectSettings) *apiv1.ProjectSettings 
 	if in.Ai.AutoAnalyze == apiv1.AutoAnalyze_AUTO_ANALYZE_UNSPECIFIED {
 		in.Ai.AutoAnalyze = apiv1.AutoAnalyze_AUTO_ANALYZE_OFF
 	}
-	if in.Ai.AutoAction == apiv1.AutoAction_AUTO_ACTION_UNSPECIFIED {
+	switch in.Ai.AutoAction {
+	case apiv1.AutoAction_AUTO_ACTION_UNSPECIFIED:
 		in.Ai.AutoAction = apiv1.AutoAction_AUTO_ACTION_NONE
+	case apiv1.AutoAction_AUTO_ACTION_PULL_REQUEST:
+		// Automatic pull requests are always drafts.
+		in.Ai.AutoAction = apiv1.AutoAction_AUTO_ACTION_DRAFT_PULL_REQUEST
 	}
 	if in.Ai.MinLevel == ingestv1.Level_LEVEL_UNSPECIFIED {
 		in.Ai.MinLevel = ingestv1.Level_LEVEL_ERROR

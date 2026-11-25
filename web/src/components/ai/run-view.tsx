@@ -7,18 +7,21 @@ import {
   GitBranchIcon,
   GitPullRequestDraftIcon,
   GitPullRequestIcon,
+  TriangleAlertIcon,
 } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { RelativeTime } from "@/components/common/relative-time";
 import { pill } from "@/components/issue/badges";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type AiRun, AiRunMode, AiRunStatus, AiService } from "@/gen/izci/api/v1/ai_pb";
@@ -189,7 +192,10 @@ function PublishBar({
     onError,
   });
   const published = run.pullRequest;
-  const busy = branch.isPending || pr.isPending;
+  const sensitive = run.sensitiveFiles;
+  const [confirmed, setConfirmed] = useState(false);
+  const busy = branch.isPending || pr.isPending || (sensitive.length > 0 && !published && !confirmed);
+  const allowSensitiveChanges = sensitive.length > 0 && confirmed;
 
   if (published?.number) {
     return (
@@ -220,82 +226,116 @@ function PublishBar({
 
   const canPublish = !!repository?.integrationId;
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/30 px-4 py-3">
-      <div className="min-w-0 flex-[1_1_16rem]">
-        {published ? (
-          <p className="text-sm">
-            Düzeltme{" "}
-            <a
-              href={published.url}
-              target="_blank"
-              rel="noreferrer"
-              className="font-mono text-sm hover:underline"
-            >
-              {published.branch}
-            </a>{" "}
-            dalında.
+    <div className="grid gap-3">
+      {sensitive.length > 0 && !published && writable && canPublish ? (
+        <div className="grid gap-2 rounded-lg border border-(--status-warning-border) bg-(--status-warning-bg) px-4 py-3 text-(--status-warning-fg) text-sm">
+          <p className="flex gap-2 font-medium">
+            <TriangleAlertIcon className="mt-0.5 size-4 shrink-0" />
+            Değişiklik, CI'ın, derleme araçlarının ya da git'in çalıştırdığı dosyalara dokunuyor
           </p>
-        ) : (
-          <p className="text-sm">Önerilen düzeltmeyi inceleyin; uygunsa GitHub'a gönderin.</p>
-        )}
-        {!canPublish ? (
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Göndermek için projenin deposunu bir GitHub bağlantısıyla bağlayın:{" "}
-            <Link
-              to="/o/$org/projects/$slug"
-              params={{ org: org.slug, slug: run.project?.slug ?? "" }}
-              search={{ tab: "repository" }}
-              className="text-link hover:underline"
-            >
-              proje ayarları
-            </Link>
+          <ul className="grid gap-0.5 pl-6 font-mono text-xs">
+            {sensitive.slice(0, 8).map((f) => (
+              <li key={f} className="truncate">
+                {f}
+              </li>
+            ))}
+            {sensitive.length > 8 ? <li>ve {sensitive.length - 8} dosya daha</li> : null}
+          </ul>
+          <p className="pl-6 leading-relaxed">
+            Hata kayıtları uygulamanın dışından gelir ve yapay zekâyı yanıltmaya çalışan metin içerebilir. Bu
+            dosyalar dal derlenir derlenmez deponun sırlarıyla çalışabilir.
           </p>
-        ) : null}
-      </div>
-      {writable && canPublish ? (
-        <div className="flex items-center gap-2">
-          {!published ? (
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={busy}
-              onClick={() => branch.mutate({ runId: run.id })}
-            >
-              <GitBranchIcon className="size-4" />
-              Dal oluştur
-            </Button>
-          ) : null}
-          <div className="flex">
-            <Button
-              size="sm"
-              className="rounded-r-none"
-              disabled={busy}
-              onClick={() => pr.mutate({ runId: run.id, draft: true })}
-            >
-              <GitPullRequestDraftIcon className="size-4" />
-              Taslak çekme isteği aç
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  size="sm"
-                  className="rounded-l-none border-l border-primary-foreground/20 px-2"
-                  disabled={busy}
-                  aria-label="Diğer seçenekler"
-                >
-                  <ChevronDownIcon className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onSelect={() => pr.mutate({ runId: run.id, draft: false })}>
-                  <GitPullRequestIcon className="size-4" />
-                  İncelemeye hazır çekme isteği aç
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <div className="flex items-start gap-2 pl-6">
+            <Checkbox
+              id={`sensitive-${run.id}`}
+              checked={confirmed}
+              onCheckedChange={(v) => setConfirmed(v === true)}
+            />
+            <Label htmlFor={`sensitive-${run.id}`} className="font-normal text-sm leading-snug">
+              Bu dosyalardaki değişiklikleri satır satır inceledim
+            </Label>
           </div>
         </div>
       ) : null}
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/30 px-4 py-3">
+        <div className="min-w-0 flex-[1_1_16rem]">
+          {published ? (
+            <p className="text-sm">
+              Düzeltme{" "}
+              <a
+                href={published.url}
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono text-sm hover:underline"
+              >
+                {published.branch}
+              </a>{" "}
+              dalında.
+            </p>
+          ) : (
+            <p className="text-sm">Önerilen düzeltmeyi inceleyin; uygunsa GitHub'a gönderin.</p>
+          )}
+          {!canPublish ? (
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Göndermek için projenin deposunu bir GitHub bağlantısıyla bağlayın:{" "}
+              <Link
+                to="/o/$org/projects/$slug"
+                params={{ org: org.slug, slug: run.project?.slug ?? "" }}
+                search={{ tab: "repository" }}
+                className="text-link hover:underline"
+              >
+                proje ayarları
+              </Link>
+            </p>
+          ) : null}
+        </div>
+        {writable && canPublish ? (
+          <div className="flex items-center gap-2">
+            {!published ? (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={busy}
+                onClick={() => branch.mutate({ runId: run.id, allowSensitiveChanges })}
+              >
+                <GitBranchIcon className="size-4" />
+                Dal oluştur
+              </Button>
+            ) : null}
+            <div className="flex">
+              <Button
+                size="sm"
+                className="rounded-r-none"
+                disabled={busy}
+                onClick={() => pr.mutate({ runId: run.id, draft: true, allowSensitiveChanges })}
+              >
+                <GitPullRequestDraftIcon className="size-4" />
+                Taslak çekme isteği aç
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="sm"
+                    className="rounded-l-none border-l border-primary-foreground/20 px-2"
+                    disabled={busy}
+                    aria-label="Diğer seçenekler"
+                  >
+                    <ChevronDownIcon className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onSelect={() => pr.mutate({ runId: run.id, draft: false, allowSensitiveChanges })}
+                  >
+                    <GitPullRequestIcon className="size-4" />
+                    İncelemeye hazır çekme isteği aç
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

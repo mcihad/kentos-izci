@@ -282,4 +282,7 @@ enum ErrorReason {
   // The sign-in or setup waiting for a two-factor code expired; sign in or
   // start the setup again.
   ERROR_REASON_TWO_FACTOR_EXPIRED = 34;
+  // An AI run changes files CI, build tools or git run; metadata "files"
+  // lists them. Publish with allow_sensitive_changes after reviewing them.
+  ERROR_REASON_AI_SENSITIVE_CHANGES = 35;
 }

@@ -27,6 +27,17 @@ func (e *PublishError) Error() string { return e.Err.Error() }
 
 func (e *PublishError) Unwrap() error { return e.Err }
 
+// BranchOptions describe the branch a run's change is pushed to.
+type BranchOptions struct {
+	// Name defaults to "izci/fix/<short-id>-<slug>-<run>".
+	Name string
+	// AllowSensitive confirms a change to files CI, build tools or git run
+	// (see SensitiveFiles); without it such a change is refused.
+	AllowSensitive bool
+	// automatic publishing: never sensitive, "izci-auto/" branches.
+	automatic bool
+}
+
 // PullRequestOptions describe a pull request made from a run.
 type PullRequestOptions struct {
 	Draft bool
@@ -34,7 +45,16 @@ type PullRequestOptions struct {
 	Title string
 	// Base defaults to the branch the analysis ran on.
 	Base string
+	// AllowSensitive is as for BranchOptions.
+	AllowSensitive bool
+	// automatic publishing: always a draft, see BranchOptions.
+	automatic bool
 }
+
+// AutoBranchPrefix starts the branches of automatic publishing, so that CI
+// can be told not to build them (they carry code influenced by error data
+// from outside).
+const AutoBranchPrefix = "izci-auto/"
 
 // publication is everything needed to push a run's change.
 type publication struct {
@@ -52,7 +72,7 @@ type publication struct {
 
 // CreateBranch pushes the proposed change of a run to a new branch.
 // Calling it again returns the existing branch.
-func (r *Runner) CreateBranch(ctx context.Context, orgID, runID uuid.UUID, branch string, actor *uuid.UUID) (*store.PullRequestInfo, error) {
+func (r *Runner) CreateBranch(ctx context.Context, orgID, runID uuid.UUID, o BranchOptions, actor *uuid.UUID) (*store.PullRequestInfo, error) {
 	p, err := r.publication(ctx, orgID, runID)
 	if err != nil {
 		return nil, err
@@ -60,7 +80,10 @@ func (r *Runner) CreateBranch(ctx context.Context, orgID, runID uuid.UUID, branc
 	if pr := p.run.PullRequest; pr != nil {
 		return pr, nil
 	}
-	info, err := r.pushBranch(ctx, p, branch)
+	if err := checkSensitive(p.run, o.AllowSensitive && !o.automatic); err != nil {
+		return nil, err
+	}
+	info, err := r.pushBranch(ctx, p, o.Name, o.automatic)
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +101,14 @@ func (r *Runner) CreatePullRequest(ctx context.Context, orgID, runID uuid.UUID, 
 	if info != nil && info.Number > 0 {
 		return info, nil
 	}
+	if o.automatic {
+		o.Draft = true
+	}
 	if info == nil {
-		if info, err = r.pushBranch(ctx, p, ""); err != nil {
+		if err := checkSensitive(p.run, o.AllowSensitive && !o.automatic); err != nil {
+			return nil, err
+		}
+		if info, err = r.pushBranch(ctx, p, "", o.automatic); err != nil {
 			return nil, err
 		}
 		// Keep the pushed branch even if opening the pull request fails.
@@ -93,7 +122,7 @@ func (r *Runner) CreatePullRequest(ctx context.Context, orgID, runID uuid.UUID, 
 	}
 	base := firstNonEmpty(o.Base, p.run.BaseBranch, p.repo.DefaultBranch)
 	pr, err := p.client.CreatePullRequest(ctx, p.repo.Owner, p.repo.Name, github.NewPullRequest{
-		Title: title, Body: pullRequestBody(p), Head: info.Branch, Base: base, Draft: o.Draft})
+		Title: title, Body: pullRequestBody(p, o.automatic), Head: info.Branch, Base: base, Draft: o.Draft})
 	if err != nil {
 		return nil, fmt.Errorf("open pull request: %w", err)
 	}
@@ -147,10 +176,21 @@ func (r *Runner) publication(ctx context.Context, orgID, runID uuid.UUID) (*publ
 	return p, nil
 }
 
+// checkSensitive refuses a change to sensitive files unless confirmed.
+func checkSensitive(run *store.AiRun, confirmed bool) error {
+	if files := SensitiveFiles(changedPaths(run.Files)); len(files) > 0 && !confirmed {
+		return &SensitiveChangesError{Files: files}
+	}
+	return nil
+}
+
 // pushBranch commits the run's patch in the mirror and pushes it.
-func (r *Runner) pushBranch(ctx context.Context, p *publication, branch string) (*store.PullRequestInfo, error) {
-	if branch = strings.TrimSpace(branch); branch == "" {
+func (r *Runner) pushBranch(ctx context.Context, p *publication, branch string, automatic bool) (*store.PullRequestInfo, error) {
+	if branch = strings.TrimSpace(branch); branch == "" || automatic {
 		branch = defaultBranch(p.shortID, p.title, p.run.ID)
+		if automatic {
+			branch = AutoBranchPrefix + strings.TrimPrefix(branch, "izci/")
+		}
 	}
 	if !validBranch(branch) {
 		return nil, ErrInvalidBranch
@@ -212,9 +252,14 @@ func (r *Runner) recordPublication(ctx context.Context, p *publication, info *st
 }
 
 // pullRequestBody is the (Turkish) description of a pull request.
-func pullRequestBody(p *publication) string {
+func pullRequestBody(p *publication, automatic bool) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "## İzci yapay zekâ analizi\n\n**Hata:** [%s](%s) — %s\n\n", p.shortID, p.permalink, escapeMarkdown(p.title))
+	if automatic {
+		b.WriteString("> **Otomatik açıldı.** Bu değişikliği kimse istemedi; yeni bir hata kaydı üzerine kendiliğinden hazırlandı. " +
+			"Hata kayıtları uygulamanın dışından gelir ve yapay zekâyı yanıltmaya çalışan metin içerebilir: değişikliği satır satır " +
+			"inceleyin, CI'ın bu dalda sırlarla çalışmadığından emin olun.\n\n")
+	}
 	fmt.Fprintf(&b, "**Etki:** %d olay · %d kullanıcı · %d müşteri · son görülme %s\n\n",
 		p.timesSeen, p.users, p.customers, p.lastSeen.UTC().Format("2006-01-02 15:04 UTC"))
 	res := p.run.Result

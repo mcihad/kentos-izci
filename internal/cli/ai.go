@@ -405,6 +405,7 @@ pull requests.`,
 	logs.Flags().BoolVarP(&followLog, "follow", "f", false, "keep printing until the run finishes")
 
 	var branchName string
+	var allowSensitive bool
 	branch := &cobra.Command{
 		Use:   "branch RUN",
 		Short: "Push the proposed change of a run to a new branch",
@@ -420,7 +421,7 @@ pull requests.`,
 			if err != nil {
 				return err
 			}
-			info, err := e.runner.CreateBranch(ctx, r.OrgID, r.ID, branchName, nil)
+			info, err := e.runner.CreateBranch(ctx, r.OrgID, r.ID, ai.BranchOptions{Name: branchName, AllowSensitive: allowSensitive}, nil)
 			if err != nil {
 				return err
 			}
@@ -429,6 +430,8 @@ pull requests.`,
 		},
 	}
 	branch.Flags().StringVar(&branchName, "name", "", "branch name (default: izci/fix/<issue>-<title>-<run>)")
+	branch.Flags().BoolVar(&allowSensitive, "allow-sensitive", false,
+		"push even though the change touches files CI, build tools or git run (review them first)")
 
 	var draft bool
 	var title, base string
@@ -447,7 +450,8 @@ pull requests.`,
 			if err != nil {
 				return err
 			}
-			info, err := e.runner.CreatePullRequest(ctx, r.OrgID, r.ID, ai.PullRequestOptions{Draft: draft, Title: title, Base: base}, nil)
+			info, err := e.runner.CreatePullRequest(ctx, r.OrgID, r.ID,
+				ai.PullRequestOptions{Draft: draft, Title: title, Base: base, AllowSensitive: allowSensitive}, nil)
 			if err != nil {
 				return err
 			}
@@ -458,6 +462,8 @@ pull requests.`,
 	pr.Flags().BoolVar(&draft, "draft", true, "open as a draft")
 	pr.Flags().StringVar(&title, "title", "", "title (default: fix: <issue title> (<short id>))")
 	pr.Flags().StringVar(&base, "base", "", "target branch (default: the branch the analysis ran on)")
+	pr.Flags().BoolVar(&allowSensitive, "allow-sensitive", false,
+		"push even though the change touches files CI, build tools or git run (review them first)")
 
 	cancel := &cobra.Command{
 		Use:   "cancel RUN",

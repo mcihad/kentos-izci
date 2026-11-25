@@ -21,7 +21,6 @@ const actions = [
   { value: AutoAction.NONE, label: "Yalnız analiz et" },
   { value: AutoAction.BRANCH, label: "Düzeltmeyi bir dala gönder" },
   { value: AutoAction.DRAFT_PULL_REQUEST, label: "Taslak çekme isteği aç" },
-  { value: AutoAction.PULL_REQUEST, label: "Çekme isteği aç" },
 ];
 
 export function ProjectAi({ project }: { project: Project }) {
@@ -31,7 +30,12 @@ export function ProjectAi({ project }: { project: Project }) {
   const ai = project.settings?.ai;
   const [auto, setAuto] = useState<AutoAnalyze>(ai?.autoAnalyze || AutoAnalyze.OFF);
   const [minLevel, setMinLevel] = useState<Level>(ai?.minLevel || Level.ERROR);
-  const [action, setAction] = useState<AutoAction>(ai?.autoAction || AutoAction.NONE);
+  // Automatic pull requests are always drafts (PULL_REQUEST is a legacy value).
+  const [action, setAction] = useState<AutoAction>(
+    ai?.autoAction === AutoAction.PULL_REQUEST
+      ? AutoAction.DRAFT_PULL_REQUEST
+      : ai?.autoAction || AutoAction.NONE,
+  );
   const [budget, setBudget] = useState(ai?.dailyBudget ? String(ai.dailyBudget) : "10");
   const [model, setModel] = useState(ai?.model ?? "");
   const [commands, setCommands] = useState(ai?.allowedCommands.join("\n") ?? "");
@@ -95,7 +99,11 @@ export function ProjectAi({ project }: { project: Project }) {
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Analizden sonra" htmlFor="ai-action">
+          <Field
+            label="Analizden sonra"
+            htmlFor="ai-action"
+            hint="Otomatik değişiklikler izci-auto/ ile başlayan dallara gider ve çekme istekleri hep taslak açılır. CI dosyalarına, derleme betiklerine ya da bağımlılık dosyalarına dokunan değişiklikler otomatik gönderilmez. CI'ı izci-auto/ dallarında sırlarla çalışmayacak şekilde ayarlayın."
+          >
             <Select
               value={String(action)}
               onValueChange={(v) => setAction(Number(v) as AutoAction)}

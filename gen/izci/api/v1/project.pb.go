@@ -219,11 +219,13 @@ const (
 	AutoAction_AUTO_ACTION_UNSPECIFIED AutoAction = 0
 	// Keep the result for review in the UI.
 	AutoAction_AUTO_ACTION_NONE AutoAction = 1
-	// Push the proposed fix to a branch.
+	// Push the proposed fix to a branch under "izci-auto/".
 	AutoAction_AUTO_ACTION_BRANCH AutoAction = 2
-	// Push the fix and open a draft pull request.
+	// Push the fix to a branch under "izci-auto/" and open a draft pull
+	// request.
 	AutoAction_AUTO_ACTION_DRAFT_PULL_REQUEST AutoAction = 3
-	// Push the fix and open a ready-for-review pull request.
+	// Legacy value kept for stored settings: automatic pull requests are
+	// always drafts, so this is treated as AUTO_ACTION_DRAFT_PULL_REQUEST.
 	AutoAction_AUTO_ACTION_PULL_REQUEST AutoAction = 4
 )
 

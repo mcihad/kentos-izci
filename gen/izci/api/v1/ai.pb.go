@@ -378,9 +378,16 @@ type AiRun struct {
 	// When the agent started.
 	StartedAt *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
 	// When the run finished.
-	FinishedAt    *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	FinishedAt *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
+	// Changed files that CI, build tools, package managers or git act on
+	// (workflows, build scripts, dependency manifests and lockfiles,
+	// repository settings). A change there runs code with the repository's
+	// secrets once CI builds the branch: automatic publishing never pushes
+	// it, and CreateBranch and CreatePullRequest need
+	// allow_sensitive_changes.
+	SensitiveFiles []string `protobuf:"bytes,22,rep,name=sensitive_files,json=sensitiveFiles,proto3" json:"sensitive_files,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *AiRun) Reset() {
@@ -556,6 +563,13 @@ func (x *AiRun) GetStartedAt() *timestamppb.Timestamp {
 func (x *AiRun) GetFinishedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.FinishedAt
+	}
+	return nil
+}
+
+func (x *AiRun) GetSensitiveFiles() []string {
+	if x != nil {
+		return x.SensitiveFiles
 	}
 	return nil
 }
@@ -1469,9 +1483,12 @@ type CreateBranchRequest struct {
 	// Run id.
 	RunId string `protobuf:"bytes,1,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
 	// Branch name; defaults to "izci/fix/<short-id>-<slug>".
-	Branch        string `protobuf:"bytes,2,opt,name=branch,proto3" json:"branch,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Branch string `protobuf:"bytes,2,opt,name=branch,proto3" json:"branch,omitempty"`
+	// Confirms that the person reviewed the changes to AiRun.sensitive_files;
+	// without it such a run fails with ERROR_REASON_AI_SENSITIVE_CHANGES.
+	AllowSensitiveChanges bool `protobuf:"varint,3,opt,name=allow_sensitive_changes,json=allowSensitiveChanges,proto3" json:"allow_sensitive_changes,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *CreateBranchRequest) Reset() {
@@ -1516,6 +1533,13 @@ func (x *CreateBranchRequest) GetBranch() string {
 		return x.Branch
 	}
 	return ""
+}
+
+func (x *CreateBranchRequest) GetAllowSensitiveChanges() bool {
+	if x != nil {
+		return x.AllowSensitiveChanges
+	}
+	return false
 }
 
 // CreateBranchResponse returns the pushed branch.
@@ -1574,9 +1598,12 @@ type CreatePullRequestRequest struct {
 	// Title; defaults to "fix: <issue title> (<short id>)".
 	Title string `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
 	// Target branch; defaults to the repository's default branch.
-	BaseBranch    string `protobuf:"bytes,4,opt,name=base_branch,json=baseBranch,proto3" json:"base_branch,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	BaseBranch string `protobuf:"bytes,4,opt,name=base_branch,json=baseBranch,proto3" json:"base_branch,omitempty"`
+	// Confirms that the person reviewed the changes to AiRun.sensitive_files;
+	// without it such a run fails with ERROR_REASON_AI_SENSITIVE_CHANGES.
+	AllowSensitiveChanges bool `protobuf:"varint,5,opt,name=allow_sensitive_changes,json=allowSensitiveChanges,proto3" json:"allow_sensitive_changes,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *CreatePullRequestRequest) Reset() {
@@ -1635,6 +1662,13 @@ func (x *CreatePullRequestRequest) GetBaseBranch() string {
 		return x.BaseBranch
 	}
 	return ""
+}
+
+func (x *CreatePullRequestRequest) GetAllowSensitiveChanges() bool {
+	if x != nil {
+		return x.AllowSensitiveChanges
+	}
+	return false
 }
 
 // CreatePullRequestResponse returns the pull request.
@@ -1833,7 +1867,7 @@ var File_izci_api_v1_ai_proto protoreflect.FileDescriptor
 
 const file_izci_api_v1_ai_proto_rawDesc = "" +
 	"\n" +
-	"\x14izci/api/v1/ai.proto\x12\vizci.api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x18izci/api/v1/common.proto\x1a\x17izci/api/v1/issue.proto\"\x8b\a\n" +
+	"\x14izci/api/v1/ai.proto\x12\vizci.api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x18izci/api/v1/common.proto\x1a\x17izci/api/v1/issue.proto\"\xb4\a\n" +
 	"\x05AiRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12+\n" +
 	"\x05issue\x18\x02 \x01(\v2\x15.izci.api.v1.IssueRefR\x05issue\x121\n" +
@@ -1861,7 +1895,8 @@ const file_izci_api_v1_ai_proto_rawDesc = "" +
 	"\n" +
 	"started_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x12;\n" +
 	"\vfinished_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"finishedAt\"\xd6\x01\n" +
+	"finishedAt\x12'\n" +
+	"\x0fsensitive_files\x18\x16 \x03(\tR\x0esensitiveFiles\"\xd6\x01\n" +
 	"\bAiResult\x12\x18\n" +
 	"\asummary\x18\x01 \x01(\tR\asummary\x12\x1d\n" +
 	"\n" +
@@ -1922,18 +1957,20 @@ const file_izci_api_v1_ai_proto_rawDesc = "" +
 	"\x10CancelRunRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"9\n" +
 	"\x11CancelRunResponse\x12$\n" +
-	"\x03run\x18\x01 \x01(\v2\x12.izci.api.v1.AiRunR\x03run\"X\n" +
+	"\x03run\x18\x01 \x01(\v2\x12.izci.api.v1.AiRunR\x03run\"\x90\x01\n" +
 	"\x13CreateBranchRequest\x12\x1f\n" +
 	"\x06run_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x05runId\x12 \n" +
-	"\x06branch\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x18\xc8\x01R\x06branch\"V\n" +
+	"\x06branch\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x18\xc8\x01R\x06branch\x126\n" +
+	"\x17allow_sensitive_changes\x18\x03 \x01(\bR\x15allowSensitiveChanges\"V\n" +
 	"\x14CreateBranchResponse\x12>\n" +
-	"\fpull_request\x18\x01 \x01(\v2\x1b.izci.api.v1.PullRequestRefR\vpullRequest\"\x9c\x01\n" +
+	"\fpull_request\x18\x01 \x01(\v2\x1b.izci.api.v1.PullRequestRefR\vpullRequest\"\xd4\x01\n" +
 	"\x18CreatePullRequestRequest\x12\x1f\n" +
 	"\x06run_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x05runId\x12\x14\n" +
 	"\x05draft\x18\x02 \x01(\bR\x05draft\x12\x1e\n" +
 	"\x05title\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\xfa\x01R\x05title\x12)\n" +
 	"\vbase_branch\x18\x04 \x01(\tB\b\xbaH\x05r\x03\x18\xc8\x01R\n" +
-	"baseBranch\"[\n" +
+	"baseBranch\x126\n" +
+	"\x17allow_sensitive_changes\x18\x05 \x01(\bR\x15allowSensitiveChanges\"[\n" +
 	"\x19CreatePullRequestResponse\x12>\n" +
 	"\fpull_request\x18\x01 \x01(\v2\x1b.izci.api.v1.PullRequestRefR\vpullRequest\"\x14\n" +
 	"\x12GetAiStatusRequest\"\xa0\x02\n" +

@@ -19,6 +19,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"google.golang.org/protobuf/proto"
 
+	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
 	"github.com/mcihad/kentos-izci/internal/ai"
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
@@ -64,6 +65,10 @@ esac
 if [ -f calc.go ] && [ -n "${prompt##*Do not change any file*}" ]; then
   printf 'package calc\n\nimport "errors"\n\n// Divide returns a / b.\nfunc Divide(a, b int) (int, error) {\n\tif b == 0 {\n\t\treturn 0, errors.New("division by zero")\n\t}\n\treturn a / b, nil\n}\n' > calc.go
 fi
+case "$prompt" in *WORKFLOW*)
+  mkdir -p .github/workflows
+  printf 'name: ci\non: push\njobs:\n  leak:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo "$SECRET"\n' > .github/workflows/ci.yml ;;
+esac
 case "$prompt" in *TAMPER*)
   git init -q --bare .fakegit
   printf '[core]\n\trepositoryformatversion = 0\n\tbare = false\n\tfsmonitor = "touch ../tamper-marker; false"\n' > .fakegit/config
@@ -359,7 +364,7 @@ func TestFixRunBranchAndPullRequest(t *testing.T) {
 	}
 
 	// The branch holds exactly the reviewed diff on top of the release.
-	info, err := f.runner.CreateBranch(ctx, f.org, run.ID, "", &user)
+	info, err := f.runner.CreateBranch(ctx, f.org, run.ID, ai.BranchOptions{}, &user)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -376,7 +381,7 @@ func TestFixRunBranchAndPullRequest(t *testing.T) {
 	if body := gitRun(t, f.remote, "show", tip+":calc.go"); !strings.Contains(body, "division by zero") {
 		t.Fatalf("calc.go on the branch:\n%s", body)
 	}
-	if again, err := f.runner.CreateBranch(ctx, f.org, run.ID, "other", &user); err != nil || again.Branch != info.Branch {
+	if again, err := f.runner.CreateBranch(ctx, f.org, run.ID, ai.BranchOptions{Name: "other"}, &user); err != nil || again.Branch != info.Branch {
 		t.Fatalf("second CreateBranch: %+v %v", again, err)
 	}
 
@@ -455,7 +460,7 @@ func TestAnalyzeCancelAndFailure(t *testing.T) {
 	if got := f.aiState(t, issue); got != store.AiStateAnalyzed {
 		t.Fatalf("issue AI state %d", got)
 	}
-	if _, err := f.runner.CreateBranch(ctx, f.org, run.ID, "", nil); !errors.Is(err, ai.ErrNotReady) {
+	if _, err := f.runner.CreateBranch(ctx, f.org, run.ID, ai.BranchOptions{}, nil); !errors.Is(err, ai.ErrNotReady) {
 		t.Fatalf("branch without changes: %v", err)
 	}
 
@@ -507,5 +512,91 @@ func TestAnalyzeCancelAndFailure(t *testing.T) {
 	}
 	if _, err := f.runner.Start(ctx, f.org, ai.StartRequest{IssueID: issue}); !errors.Is(err, ai.ErrBudgetExceeded) {
 		t.Fatalf("over the monthly limit: %v", err)
+	}
+}
+
+// TestSensitiveChangesNeedConfirmation checks that a change to files CI
+// runs (a workflow here) is never published automatically and needs an
+// explicit confirmation otherwise; automatic branches use their own prefix.
+func TestSensitiveChangesNeedConfirmation(t *testing.T) {
+	f := setup(t)
+	ctx := context.Background()
+	err := f.db.InOrg(ctx, f.org, func(tx pgx.Tx) error {
+		settings := f.kalem.Settings
+		settings.Ai = &apiv1.AiSettings{AutoAction: apiv1.AutoAction_AUTO_ACTION_PULL_REQUEST}
+		_, err := store.UpdateProject(ctx, tx, f.kalem.ID, f.kalem.Name, f.kalem.Platform, settings)
+		return err
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Manual: refused until confirmed.
+	issue := f.issue(t, f.kalem, "integer divide by zero")
+	run, err := f.runner.Start(ctx, f.org, ai.StartRequest{IssueID: issue, Instructions: "WORKFLOW"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	run = f.finished(t, run.ID)
+	if run.Status != store.AiSucceeded || len(run.Files) != 2 {
+		t.Fatalf("run %d files %+v", run.Status, run.Files)
+	}
+	var sensitive *ai.SensitiveChangesError
+	if _, err := f.runner.CreateBranch(ctx, f.org, run.ID, ai.BranchOptions{}, nil); !errors.As(err, &sensitive) ||
+		len(sensitive.Files) != 1 || sensitive.Files[0] != ".github/workflows/ci.yml" {
+		t.Fatalf("unconfirmed sensitive change: %v", err)
+	}
+	if _, err := f.runner.CreatePullRequest(ctx, f.org, run.ID, ai.PullRequestOptions{Draft: true}, nil); !errors.As(err, &sensitive) {
+		t.Fatalf("unconfirmed sensitive pull request: %v", err)
+	}
+	info, err := f.runner.CreateBranch(ctx, f.org, run.ID, ai.BranchOptions{AllowSensitive: true}, nil)
+	if err != nil || !strings.HasPrefix(info.Branch, "izci/fix/") {
+		t.Fatalf("confirmed: %+v %v", info, err)
+	}
+
+	// Automatic: never published, whatever the confirmation.
+	auto := f.issue(t, f.kalem, "nil map write")
+	run, err = f.runner.Start(ctx, f.org, ai.StartRequest{IssueID: auto, Trigger: store.AiTriggerAutomatic, Instructions: "WORKFLOW"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.finished(t, run.ID)
+	waitLog := func(id uuid.UUID, text string) string {
+		t.Helper()
+		deadline := time.Now().Add(10 * time.Second)
+		for {
+			log := f.logs(t, id)
+			if strings.Contains(log, text) {
+				return log
+			}
+			if time.Now().After(deadline) {
+				t.Fatalf("log lacks %q:\n%s", text, log)
+			}
+			time.Sleep(50 * time.Millisecond)
+		}
+	}
+	waitLog(run.ID, "otomatik olarak yayınlanmadı")
+	if r := f.finished(t, run.ID); r.PullRequest != nil {
+		t.Fatalf("automatic run published a sensitive change: %+v", r.PullRequest)
+	}
+
+	// An automatic change without sensitive files goes to an "izci-auto/"
+	// branch as a draft pull request, even with AUTO_ACTION_PULL_REQUEST.
+	clean := f.issue(t, f.kalem, "index out of range")
+	run, err = f.runner.Start(ctx, f.org, ai.StartRequest{IssueID: clean, Trigger: store.AiTriggerAutomatic})
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.finished(t, run.ID)
+	waitLog(run.ID, "Öneri otomatik olarak yayınlandı")
+	r := f.finished(t, run.ID)
+	if r.PullRequest == nil || !strings.HasPrefix(r.PullRequest.Branch, ai.AutoBranchPrefix+"fix/") || !r.PullRequest.Draft {
+		t.Fatalf("automatic publication: %+v", r.PullRequest)
+	}
+	f.mu.Lock()
+	body, _ := f.prRequest["body"].(string)
+	f.mu.Unlock()
+	if !strings.Contains(body, "Otomatik açıldı") {
+		t.Fatalf("automatic pull request body:\n%s", body)
 	}
 }

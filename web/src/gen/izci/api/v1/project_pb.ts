@@ -2001,21 +2001,23 @@ export enum AutoAction {
   NONE = 1,
 
   /**
-   * Push the proposed fix to a branch.
+   * Push the proposed fix to a branch under "izci-auto/".
    *
    * @generated from enum value: AUTO_ACTION_BRANCH = 2;
    */
   BRANCH = 2,
 
   /**
-   * Push the fix and open a draft pull request.
+   * Push the fix to a branch under "izci-auto/" and open a draft pull
+   * request.
    *
    * @generated from enum value: AUTO_ACTION_DRAFT_PULL_REQUEST = 3;
    */
   DRAFT_PULL_REQUEST = 3,
 
   /**
-   * Push the fix and open a ready-for-review pull request.
+   * Legacy value kept for stored settings: automatic pull requests are
+   * always drafts, so this is treated as AUTO_ACTION_DRAFT_PULL_REQUEST.
    *
    * @generated from enum value: AUTO_ACTION_PULL_REQUEST = 4;
    */

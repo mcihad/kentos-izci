@@ -29,7 +29,11 @@ var _ apiv1connect.AiServiceHandler = (*AiServer)(nil)
 // aiError maps errors of the AI runner to API errors.
 func (s *AiServer) aiError(ctx context.Context, op string, err error) error {
 	var publish *ai.PublishError
+	var sensitive *ai.SensitiveChangesError
 	switch {
+	case errors.As(err, &sensitive):
+		return apiError(connect.CodeFailedPrecondition, apiv1.ErrorReason_ERROR_REASON_AI_SENSITIVE_CHANGES, sensitive.Error(),
+			"files", strings.Join(sensitive.Files, ","))
 	case errors.Is(err, ai.ErrDisabled):
 		return apiError(connect.CodeFailedPrecondition, apiv1.ErrorReason_ERROR_REASON_AI_DISABLED, "AI analysis is disabled on this server")
 	case errors.Is(err, ai.ErrBudgetExceeded):
@@ -111,10 +115,13 @@ func toAiRun(r *store.AiRun, refs *runRefs, full bool) *apiv1.AiRun {
 	if r.RequestedBy != nil {
 		out.RequestedBy = refs.users[*r.RequestedBy]
 	}
+	paths := make([]string, 0, len(r.Files))
 	for _, f := range r.Files {
 		out.Files = append(out.Files, &apiv1.ChangedFile{Path: f.Path, Additions: uint32(max(f.Additions, 0)),
 			Deletions: uint32(max(f.Deletions, 0)), Status: f.Status})
+		paths = append(paths, f.Path)
 	}
+	out.SensitiveFiles = ai.SensitiveFiles(paths)
 	if pr := r.PullRequest; pr != nil {
 		out.PullRequest = &apiv1.PullRequestRef{Number: uint32(max(pr.Number, 0)), Url: pr.URL, Title: pr.Title, Branch: pr.Branch,
 			Draft: pr.Draft, State: pr.State, AiRunId: r.ID.String()}
@@ -359,7 +366,8 @@ func (s *AiServer) CreateBranch(ctx context.Context, req *connect.Request[apiv1.
 		return nil, s.aiError(ctx, "CreateBranch", ai.ErrDisabled)
 	}
 	user := auth.PrincipalFrom(ctx).User.ID
-	if _, err := s.ai.CreateBranch(ctx, auth.TenantFrom(ctx).OrgID(), id, req.Msg.GetBranch(), &user); err != nil {
+	if _, err := s.ai.CreateBranch(ctx, auth.TenantFrom(ctx).OrgID(), id,
+		ai.BranchOptions{Name: req.Msg.GetBranch(), AllowSensitive: req.Msg.GetAllowSensitiveChanges()}, &user); err != nil {
 		return nil, s.aiError(ctx, "CreateBranch", err)
 	}
 	_, out, err := s.loadRun(ctx, id, false)
@@ -381,7 +389,8 @@ func (s *AiServer) CreatePullRequest(ctx context.Context, req *connect.Request[a
 	}
 	user := auth.PrincipalFrom(ctx).User.ID
 	if _, err := s.ai.CreatePullRequest(ctx, auth.TenantFrom(ctx).OrgID(), id,
-		ai.PullRequestOptions{Draft: m.GetDraft(), Title: m.GetTitle(), Base: m.GetBaseBranch()}, &user); err != nil {
+		ai.PullRequestOptions{Draft: m.GetDraft(), Title: m.GetTitle(), Base: m.GetBaseBranch(),
+			AllowSensitive: m.GetAllowSensitiveChanges()}, &user); err != nil {
 		return nil, s.aiError(ctx, "CreatePullRequest", err)
 	}
 	_, out, err := s.loadRun(ctx, id, false)

@@ -947,7 +947,8 @@ func (s *server) registerTools(m *mcpsdk.Server) {
 		s.startAnalysis)
 	mcpsdk.AddTool(m, &mcpsdk.Tool{Name: "create_fix_pull_request", Annotations: publishesPR,
 		Description: "Push the change proposed by a succeeded AI run to a new branch and open a pull request on GitHub (a draft unless ready_for_review). " +
-			"Calling it again returns the existing pull request. Requires the ai scope and a repository linked through a GitHub integration."},
+			"Calling it again returns the existing pull request. Requires the ai scope and a repository linked through a GitHub integration. " +
+			"Changes to files CI, build tools or git run (workflows, build scripts, dependency manifests) are refused here; a person reviews and publishes them in izci."},
 		s.createPullRequest)
 }
 

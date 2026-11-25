@@ -328,11 +328,13 @@ enum AutoAction {
   AUTO_ACTION_UNSPECIFIED = 0;
   // Keep the result for review in the UI.
   AUTO_ACTION_NONE = 1;
-  // Push the proposed fix to a branch.
+  // Push the proposed fix to a branch under "izci-auto/".
   AUTO_ACTION_BRANCH = 2;
-  // Push the fix and open a draft pull request.
+  // Push the fix to a branch under "izci-auto/" and open a draft pull
+  // request.
   AUTO_ACTION_DRAFT_PULL_REQUEST = 3;
-  // Push the fix and open a ready-for-review pull request.
+  // Legacy value kept for stored settings: automatic pull requests are
+  // always drafts, so this is treated as AUTO_ACTION_DRAFT_PULL_REQUEST.
   AUTO_ACTION_PULL_REQUEST = 4;
 }
 

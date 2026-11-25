@@ -120,6 +120,14 @@ message AiRun {
 
   // When the run finished.
   google.protobuf.Timestamp finished_at = 21;
+
+  // Changed files that CI, build tools, package managers or git act on
+  // (workflows, build scripts, dependency manifests and lockfiles,
+  // repository settings). A change there runs code with the repository's
+  // secrets once CI builds the branch: automatic publishing never pushes
+  // it, and CreateBranch and CreatePullRequest need
+  // allow_sensitive_changes.
+  repeated string sensitive_files = 22;
 }
 
 // AiRunStatus is the lifecycle state of a run.
@@ -365,6 +373,10 @@ message CreateBranchRequest {
 
   // Branch name; defaults to "izci/fix/<short-id>-<slug>".
   string branch = 2 [(buf.validate.field).string.max_len = 200];
+
+  // Confirms that the person reviewed the changes to AiRun.sensitive_files;
+  // without it such a run fails with ERROR_REASON_AI_SENSITIVE_CHANGES.
+  bool allow_sensitive_changes = 3;
 }
 
 // CreateBranchResponse returns the pushed branch.
@@ -386,6 +398,10 @@ message CreatePullRequestRequest {
 
   // Target branch; defaults to the repository's default branch.
   string base_branch = 4 [(buf.validate.field).string.max_len = 200];
+
+  // Confirms that the person reviewed the changes to AiRun.sensitive_files;
+  // without it such a run fails with ERROR_REASON_AI_SENSITIVE_CHANGES.
+  bool allow_sensitive_changes = 5;
 }
 
 // CreatePullRequestResponse returns the pull request.
