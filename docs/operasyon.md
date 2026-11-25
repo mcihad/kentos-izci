@@ -157,6 +157,8 @@ server {
 
 **Canlı akış** sayfası ve yapay zekâ günlüğü uzun süreli akış bağlantıları kullanır. Vekildeki okuma zaman aşımını en az birkaç dakika tutun ve yanıt tamponlamayı kapatın.
 
+İzci, istek gövdesini çok yavaş gönderen istemcileri keser: bir gövde için 30 saniye ile gövdenin saniyede 64 KiB hızla gelmesi için gereken süre tanınır (en çok 32 MiB'lık gövdeye göre, yaklaşık 9 dakika). Gövde okunduktan sonra süre sınırı kalkar; uzun süren işlemler ve akış yanıtları etkilenmez. Vekil önde olsa da olmasa da yavaş gövdeyle bağlantıları tüketme saldırısı bu yüzden sınırlıdır.
+
 ## Veritabanı
 
 - PostgreSQL 18 gerekir. İzci'nin rolü süper kullanıcı olmamalıdır (bkz. [Kurulum](kurulum.md#2-veritabanını-hazırlayın)).

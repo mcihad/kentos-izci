@@ -25,8 +25,8 @@ func RequestID(ctx context.Context) string {
 	return id
 }
 
-// middleware wraps the mux with panic recovery, request ids, metrics and
-// access logs.
+// middleware wraps the mux with panic recovery, request ids, metrics,
+// access logs and a time limit for request bodies.
 func (s *Server) middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
@@ -40,6 +40,7 @@ func (s *Server) middleware(next http.Handler) http.Handler {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		ctx := context.WithValue(r.Context(), requestIDKey, id)
 		r = r.WithContext(ctx)
+		limitBodyTime(w, r, bodyBaseTime, bodyMinRate)
 
 		sw := &statusWriter{ResponseWriter: w}
 		defer func() {
