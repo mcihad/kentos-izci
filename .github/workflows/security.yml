@@ -49,6 +49,32 @@ jobs:
       - name: Audit production dependencies
         run: pnpm -C web audit --prod --audit-level high
 
+  fuzz:
+    name: Fuzz parsers
+    # Weekly and on request: two minutes per parser of untrusted input.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: |
+            go.sum
+            sdk/go/go.sum
+            sdk/go/izcipgx/go.sum
+      - name: Fuzz
+        run: make fuzz FUZZTIME=2m
+      # Failing inputs belong in the package's testdata/fuzz, where every
+      # go test runs them.
+      - name: Keep failing inputs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fuzz-failures
+          path: "**/testdata/fuzz/**"
+
   image:
     name: Container image (Trivy, SBOM)
     runs-on: ubuntu-latest

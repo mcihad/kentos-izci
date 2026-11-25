@@ -283,7 +283,7 @@ func (s *Service) load(ctx context.Context, orgID uuid.UUID, ref *fileRef, parse
 		if err != nil {
 			return nil, err
 		}
-		v, size, err := parse(data)
+		v, size, err := safeParse(parse, data)
 		if err != nil {
 			// Remember unreadable files briefly instead of parsing them
 			// for every event.
@@ -294,6 +294,18 @@ func (s *Service) load(ctx context.Context, orgID uuid.UUID, ref *fileRef, parse
 		return v, nil
 	})
 	return v, err
+}
+
+// safeParse runs a parser of an uploaded file and turns a panic into an
+// error: the file then counts as unreadable instead of failing every event
+// that needs it.
+func safeParse(parse func([]byte) (any, int, error), data []byte) (v any, size int, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			v, size, err = nil, 0, fmt.Errorf("the file cannot be read: %v", r)
+		}
+	}()
+	return parse(data)
 }
 
 // processor carries the state of one event's resolution.

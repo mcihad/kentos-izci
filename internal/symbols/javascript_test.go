@@ -2,6 +2,7 @@ package symbols
 
 import (
 	"slices"
+	"strings"
 	"testing"
 )
 
@@ -36,5 +37,16 @@ func TestSizedCache(t *testing.T) {
 	c.add("huge", 4, 1000) // larger than the cache: not kept
 	if _, ok := c.get("huge"); ok || c.bytes() != 80 {
 		t.Fatal("oversized value kept")
+	}
+}
+
+func TestSafeParse(t *testing.T) {
+	_, _, err := safeParse(func([]byte) (any, int, error) { panic("index out of range") }, nil)
+	if err == nil || !strings.Contains(err.Error(), "index out of range") {
+		t.Fatalf("panic: %v", err)
+	}
+	v, n, err := safeParse(func(b []byte) (any, int, error) { return string(b), len(b), nil }, []byte("ok"))
+	if err != nil || v != "ok" || n != 2 {
+		t.Fatalf("parse: %v %d %v", v, n, err)
 	}
 }

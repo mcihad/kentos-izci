@@ -110,6 +110,7 @@ Ayrıntılar: [GitHub ve yapay zekâ analizi](yapay-zeka.md#güvenlik).
 - Her değişiklikte ve haftada bir CI, Go kodunu `govulncheck` ile (yalnız izci'nin gerçekten çağırdığı koddaki açıklar), arayüzün üretim bağımlılıklarını `pnpm audit` ile ve konteyner imajını Trivy ile tarar; yüksek ya da kritik, düzeltmesi yayımlanmış bir açık derlemeyi durdurur. İmajın yazılım malzeme listesi (SBOM, SPDX) iş akışının çıktısı olarak saklanır.
 - Dependabot Go modüllerini, web paketlerini, GitHub Actions'ı ve Docker taban imajını haftalık günceller; güvenlik güncellemeleri için depo ayarlarından **Dependabot security updates** açılmalıdır.
 - Yerelde `make audit` aynı bağımlılık taramalarını çalıştırır.
+- Dışarıdan gelen veriyi ayrıştıran kod fuzz testleriyle sınanır: Sentry zarfları ve olayları, kaynak eşlemeleri, ELF, Mach-O ve DWARF dosyaları, Dart karıştırma haritaları, arama dili (ve oluşturduğu SQL'e kullanıcı metninin girmediği), sahiplik kuralları ve CODEOWNERS. CI haftada bir her birini iki dakika çalıştırır; yerelde `make fuzz`. Bulunan hatalı girdiler `testdata/fuzz` altında saklanır ve her `go test` ile yeniden denenir.
 
 ## Güvenlik açığı bildirimi
 

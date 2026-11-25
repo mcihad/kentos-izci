@@ -23,7 +23,14 @@ LDFLAGS := -s -w \
 	-X $(PKG)/internal/version.Commit=$(COMMIT) \
 	-X $(PKG)/internal/version.Date=$(DATE)
 
-.PHONY: help help-check setup db-setup db-reset migrate demo gen lint-proto web build docker run dev test test-go test-web lint typecheck check audit clean
+# Fuzz targets (package:function) for the parsers of untrusted input.
+FUZZ_TARGETS := \
+	./internal/ingest/sentry:FuzzEnvelope ./internal/ingest/sentry:FuzzDecodeEvent \
+	./internal/symbols/sourcemap:FuzzParse ./internal/symbols/native:FuzzOpen \
+	./internal/symbols/native:FuzzDartSymbolMap ./internal/search:FuzzParse \
+	./internal/ownership:FuzzRules ./internal/api:FuzzSearchSQL
+
+.PHONY: help help-check setup db-setup db-reset migrate demo gen lint-proto web build docker run dev test test-go test-web lint typecheck check audit fuzz clean
 
 #? Lists every target with a one-line summary. With T=<target> prints that
 #? target's full description, variables and examples.
@@ -178,6 +185,20 @@ check: help-check lint typecheck test ## Run every quality gate
 audit: ## Scan dependencies for known vulnerabilities
 	$(GO) run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
 	$(PNPM) -C web audit --prod --audit-level high
+
+#? Fuzzes the parsers of untrusted input: Sentry envelopes and events,
+#? source maps, ELF, Mach-O, DWARF and Dart obfuscation maps, the search
+#? language and the SQL it becomes, ownership rules and CODEOWNERS. Each
+#? target runs FUZZTIME; failing inputs are saved under the package's
+#? testdata/fuzz and run with every `go test` from then on.
+#= FUZZTIME  time per target (default: 30s)
+#> make fuzz
+#> make fuzz FUZZTIME=5m
+fuzz: ## Fuzz the parsers of untrusted input
+	@for t in $(FUZZ_TARGETS); do \
+		echo "fuzz $$t"; \
+		$(GO) test $${t%%:*} -run '^$$' -fuzz "^$${t##*:}$$" -fuzztime $(or $(FUZZTIME),30s); \
+	done
 
 #? Removes build outputs (bin/, web/dist contents).
 #> make clean
