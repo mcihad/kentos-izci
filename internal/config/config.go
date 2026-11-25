@@ -298,6 +298,11 @@ type OIDCProvider struct {
 	AllowedDomains []string `env:"ALLOWED_DOMAINS" envSeparator:","`
 	DefaultOrg     string   `env:"DEFAULT_ORG"`
 	DefaultRole    string   `env:"DEFAULT_ROLE" envDefault:"member"`
+	// TrustEmail vouches for the provider's e-mail addresses: one without
+	// an email_verified claim counts as verified, and a first sign-in links
+	// to an existing account with the same address. Only for providers that
+	// never let users set an unverified address (a company directory).
+	TrustEmail bool `env:"TRUST_EMAIL"`
 }
 
 // Load reads the env file (if any) and parses the environment.

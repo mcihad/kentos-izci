@@ -99,6 +99,10 @@ type oidcState struct {
 	Verifier string `json:"v"`
 	Next     string `json:"x"`
 	Expires  int64  `json:"e"`
+	// LinkSession is set when a signed-in user links the identity to
+	// their account: the session that started the flow, which must still
+	// be the caller's when it returns.
+	LinkSession string `json:"l,omitempty"`
 }
 
 func (s *Service) oidcStart(w http.ResponseWriter, r *http.Request) {
@@ -112,6 +116,16 @@ func (s *Service) oidcStart(w http.ResponseWriter, r *http.Request) {
 	st := oidcState{
 		Provider: id, State: secret.Random(32), Nonce: secret.Random(32), Verifier: oauth2.GenerateVerifier(),
 		Next: safeNext(r.URL.Query().Get("next")), Expires: time.Now().Add(stateTTL).Unix(),
+	}
+	// ?link=1 links the identity to the signed-in account instead of
+	// signing in.
+	if r.URL.Query().Get("link") == "1" {
+		pr, err := s.Authenticate(r.Context(), r.Header)
+		if err != nil || pr == nil || pr.Session == nil {
+			http.Redirect(w, r, "/login?redirect="+url.QueryEscape(st.Next), http.StatusFound)
+			return
+		}
+		st.LinkSession = pr.Session.ID.String()
 	}
 	payload, _ := json.Marshal(st)
 	value := base64.RawURLEncoding.EncodeToString(payload)
@@ -191,7 +205,14 @@ func (s *Service) oidcCallback(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	claims.Email = strings.ToLower(strings.TrimSpace(claims.Email))
-	if claims.Email == "" {
+	if st.LinkSession != "" {
+		s.linkIdentity(w, r, st, id, claims.Subject, claims.Email)
+		return
+	}
+	// The address decides account creation, linking and organization
+	// membership, so it counts only when the provider vouches for it.
+	trusted := claims.Email != "" && trustedEmail(claims.EmailVerified, p.cfg.TrustEmail)
+	if claims.Email == "" || (len(p.cfg.AllowedDomains) > 0 && !trusted) {
 		loginRedirect(w, r, "oidc_email")
 		return
 	}
@@ -211,13 +232,18 @@ func (s *Service) oidcCallback(w http.ResponseWriter, r *http.Request) {
 			user = u
 		case !errors.Is(err, store.ErrNotFound):
 			return err
+		case !trusted:
+			return errUnverifiedEmail
 		default:
 			existing, err := store.GetUserByEmail(ctx, tx, claims.Email)
 			switch {
-			case err == nil && (claims.EmailVerified == nil || *claims.EmailVerified):
+			case err == nil && p.cfg.TrustEmail:
 				user = existing
 			case err == nil:
-				return errUnverifiedEmail
+				// Linking by address would hand the account to whoever
+				// controls the address at this provider; the owner links
+				// it from their profile instead.
+				return errLinkRequired
 			case !errors.Is(err, store.ErrNotFound):
 				return err
 			case !p.cfg.AutoCreate:
@@ -230,6 +256,9 @@ func (s *Service) oidcCallback(w http.ResponseWriter, r *http.Request) {
 		}
 		if err := store.LinkIdentity(ctx, tx, id, claims.Subject, user.ID, claims.Email); err != nil {
 			return err
+		}
+		if !trusted {
+			return nil
 		}
 		if p.cfg.DefaultOrg != "" {
 			if org, err := store.GetOrganizationBySlug(ctx, tx, p.cfg.DefaultOrg); err == nil {
@@ -247,7 +276,14 @@ func (s *Service) oidcCallback(w http.ResponseWriter, r *http.Request) {
 		loginRedirect(w, r, "oidc_no_account")
 		return
 	case errors.Is(err, errUnverifiedEmail):
+		if claims.EmailVerified == nil {
+			s.log.Warn("oidc provider sent no email_verified claim; set OIDC_<ID>_TRUST_EMAIL=true if it only issues verified addresses",
+				slog.String("provider", id))
+		}
 		loginRedirect(w, r, "oidc_email")
+		return
+	case errors.Is(err, errLinkRequired):
+		loginRedirect(w, r, "oidc_link_required")
 		return
 	case err != nil:
 		s.log.Error("oidc sign-in failed", slog.String("provider", id), slog.Any("err", err))
@@ -289,7 +325,61 @@ func (s *Service) oidcCallback(w http.ResponseWriter, r *http.Request) {
 var (
 	errNoAccount       = errors.New("no account for this identity")
 	errUnverifiedEmail = errors.New("email not verified by the provider")
+	errLinkRequired    = errors.New("an account with this email exists; link the identity from it")
+	errIdentityTaken   = errors.New("the identity is linked to another account")
 )
+
+// trustedEmail reports whether the provider vouches for the e-mail
+// address: email_verified is true, or the claim is missing and the
+// operator trusts the provider (OIDC_<ID>_TRUST_EMAIL).
+func trustedEmail(verified *bool, trust bool) bool {
+	if verified != nil {
+		return *verified
+	}
+	return trust
+}
+
+// linkIdentity finishes the link flow: the identity joins the account of
+// the session that started it, which must still be signed in.
+func (s *Service) linkIdentity(w http.ResponseWriter, r *http.Request, st *oidcState, provider, subject, email string) {
+	ctx := r.Context()
+	pr, err := s.Authenticate(ctx, r.Header)
+	if err != nil || pr == nil || pr.Session == nil || pr.Session.ID.String() != st.LinkSession {
+		http.Redirect(w, r, withQuery(st.Next, "oidc_error", "oidc_link_session"), http.StatusFound)
+		return
+	}
+	err = s.db.InSystem(ctx, func(tx pgx.Tx) error {
+		u, err := store.UserByIdentity(ctx, tx, provider, subject)
+		switch {
+		case err == nil && u.ID != pr.User.ID:
+			return errIdentityTaken
+		case err != nil && !errors.Is(err, store.ErrNotFound):
+			return err
+		}
+		return store.LinkIdentity(ctx, tx, provider, subject, pr.User.ID, email)
+	})
+	switch {
+	case errors.Is(err, errIdentityTaken):
+		http.Redirect(w, r, withQuery(st.Next, "oidc_error", "oidc_identity_taken"), http.StatusFound)
+	case err != nil:
+		s.log.Error("oidc link failed", slog.String("provider", provider), slog.Any("err", err))
+		http.Redirect(w, r, withQuery(st.Next, "oidc_error", "oidc_internal"), http.StatusFound)
+	default:
+		http.Redirect(w, r, withQuery(st.Next, "oidc_linked", provider), http.StatusFound)
+	}
+}
+
+// withQuery adds a query parameter to a same-site path.
+func withQuery(path, key, value string) string {
+	u, err := url.Parse(path)
+	if err != nil {
+		return "/"
+	}
+	q := u.Query()
+	q.Set(key, value)
+	u.RawQuery = q.Encode()
+	return u.String()
+}
 
 func (s *Service) readState(r *http.Request) (*oidcState, bool) {
 	c, err := r.Cookie(stateCookie)

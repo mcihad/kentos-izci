@@ -102,7 +102,12 @@ export function isNotFound(err: unknown): boolean {
 export const oidcErrors: Record<string, string> = {
   oidc_denied: "Kimlik sağlayıcısında giriş iptal edildi.",
   oidc_domain: "E-posta alan adınız bu sunucuda giriş için izinli değil.",
-  oidc_email: "Kimlik sağlayıcısı doğrulanmış bir e-posta adresi göndermedi.",
+  oidc_email:
+    "Kimlik sağlayıcısı e-posta adresinizin doğrulandığını bildirmedi. Sağlayıcıda adresinizi doğrulayın ya da sunucu yöneticisine başvurun.",
+  oidc_link_required:
+    "Bu e-posta adresiyle açılmış bir İzci hesabı var. Önce o hesapla giriş yapın, sonra Hesabım › Profil bölümünden kimlik sağlayıcısını bağlayın.",
+  oidc_identity_taken: "Bu kimlik sağlayıcısı hesabı başka bir İzci hesabına bağlı.",
+  oidc_link_session: "Bağlama tamamlanmadan oturumunuz değişti. Yeniden giriş yapıp tekrar deneyin.",
   oidc_exchange: "Kimlik sağlayıcısıyla oturum açılamadı. Yeniden deneyin.",
   oidc_internal: "Giriş sırasında beklenmeyen bir hata oluştu. Yeniden deneyin.",
   oidc_no_account: "Bu e-posta adresiyle bir İzci hesabı yok. Bir yöneticiden davet isteyin.",

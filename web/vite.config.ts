@@ -20,7 +20,8 @@ function keepGitkeep(): Plugin {
 }
 
 // Paths served by the Go server during development (Vite runs on :5301).
-const backend = "http://localhost:5300";
+// IZCI_BACKEND points a second dev server at another izci instance.
+const backend = process.env.IZCI_BACKEND || "http://localhost:5300";
 const proxied = [
   "/izci.",
   "/grpc.",

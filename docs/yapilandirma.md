@@ -82,6 +82,9 @@ Hatalı bir değer sunucunun açılmasını engeller; hata mesajı hangi değiş
 | `OIDC_<ID>_ALLOWED_DOMAINS` | (boş) | Yalnız bu e-posta alan adlarına izin verir, ör. `kentos.com.tr`. Boşsa hepsi. |
 | `OIDC_<ID>_DEFAULT_ORG` | (boş) | İlk girişte katılınacak organizasyon (kısa ad). |
 | `OIDC_<ID>_DEFAULT_ROLE` | `member` | O organizasyondaki rol: `viewer`, `member`, `admin` ya da `owner`. |
+| `OIDC_<ID>_TRUST_EMAIL` | `false` | Sağlayıcının e-posta adreslerine güvenir: `email_verified` göndermeyen bir adres doğrulanmış sayılır ve ilk giriş, aynı e-postalı mevcut İzci hesabına kendiliğinden bağlanır. Yalnız kullanıcıların adreslerini kendilerinin değiştiremediği kurum dizinleri (KentOS.Kimlik, şirket Keycloak'u) için açın; Google gibi herkese açık ya da çok kiracılı (Entra ID) sağlayıcılarda kapalı tutun. |
+
+**E-posta adresleri ve hesap bağlama.** Bir kimlik ilk kez giriş yaptığında İzci, sağlayıcının e-postayı doğruladığını (`email_verified=true`) görmeden hesap açmaz, organizasyona katmaz ve `ALLOWED_DOMAINS` denetimini geçmiş saymaz. Aynı e-postalı bir İzci hesabı zaten varsa (ör. davetle parolayla açılmış), kimlik o hesaba kendiliğinden bağlanmaz: kullanıcı önce hesabına girer, **Hesabım › Profil › Giriş yöntemleri** bölümünden sağlayıcıyı bağlar. Böylece e-posta adresini başka birinin adresiyle değiştirebilen bir sağlayıcı hesabı (ör. Entra ID'deki "nOAuth" sorunu) bir İzci hesabını ele geçiremez. `TRUST_EMAIL=true` bu iki kuralı o sağlayıcı için gevşetir.
 
 Örnek (KentOS.Kimlik):
 
@@ -93,6 +96,7 @@ OIDC_KIMLIK_CLIENT_ID=izci
 OIDC_KIMLIK_CLIENT_SECRET=…
 OIDC_KIMLIK_ALLOWED_DOMAINS=kentos.com.tr
 OIDC_KIMLIK_DEFAULT_ORG=kentos
+OIDC_KIMLIK_TRUST_EMAIL=true   # kurum dizini: adresleri yalnız yöneticiler değiştirir
 ```
 
 ## Telegram

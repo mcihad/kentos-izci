@@ -41,6 +41,8 @@ type fakeIdP struct {
 	sub    string
 	email  string
 	logins int
+	// verified is the email_verified claim; nil leaves it out.
+	verified *bool
 }
 
 type codeInfo struct{ nonce, challenge, redirect string }
@@ -48,7 +50,8 @@ type codeInfo struct{ nonce, challenge, redirect string }
 func newFakeIdP(t *testing.T) *fakeIdP {
 	t.Helper()
 	key, _ := rsa.GenerateKey(rand.Reader, 2048)
-	p := &fakeIdP{key: key, codes: map[string]codeInfo{}, sub: "kimlik-user-42", email: "Zeynep@Kentos.com.tr"}
+	yes := true
+	p := &fakeIdP{key: key, codes: map[string]codeInfo{}, sub: "kimlik-user-42", email: "Zeynep@Kentos.com.tr", verified: &yes}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /.well-known/openid-configuration", func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]any{
@@ -86,10 +89,16 @@ func newFakeIdP(t *testing.T) *fakeIdP {
 			return
 		}
 		signer, _ := jose.NewSigner(jose.SigningKey{Algorithm: jose.RS256, Key: jose.JSONWebKey{Key: key, KeyID: "k1"}}, (&jose.SignerOptions{}).WithType("JWT"))
-		claims, _ := json.Marshal(map[string]any{
-			"iss": p.srv.URL, "aud": "izci", "sub": p.sub, "email": p.email, "email_verified": true,
+		p.mu.Lock()
+		c := map[string]any{
+			"iss": p.srv.URL, "aud": "izci", "sub": p.sub, "email": p.email,
 			"name": "Zeynep Kaya", "nonce": info.nonce, "iat": time.Now().Unix(), "exp": time.Now().Add(time.Hour).Unix(),
-		})
+		}
+		if p.verified != nil {
+			c["email_verified"] = *p.verified
+		}
+		p.mu.Unlock()
+		claims, _ := json.Marshal(c)
 		jws, _ := signer.Sign(claims)
 		idToken, _ := jws.CompactSerialize()
 		w.Header().Set("Content-Type", "application/json")
@@ -213,5 +222,141 @@ func TestOIDCLoginFlow(t *testing.T) {
 	res.Body.Close()
 	if !strings.Contains(res.Request.URL.RawQuery, "error=oidc_domain") {
 		t.Fatalf("foreign domain ended at %s", res.Request.URL)
+	}
+}
+
+// set changes who the provider signs in.
+func (p *fakeIdP) set(sub, email string, verified *bool) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.sub, p.email, p.verified = sub, email, verified
+}
+
+func boolPtr(v bool) *bool { return &v }
+
+// TestOIDCAccountLinking covers who an identity may sign in as: an
+// address the provider does not vouch for never creates, links or joins
+// anything, and an existing account is linked only by its signed-in owner
+// (or by address at a provider the operator trusts).
+func TestOIDCAccountLinking(t *testing.T) {
+	idp := newFakeIdP(t)
+	database := testutil.NewDB(t)
+	ctx := context.Background()
+	hash, _ := auth.HashPassword("ayşenin uzun parolası")
+	err := database.InSystem(ctx, func(tx pgx.Tx) error {
+		org, err := store.CreateOrganization(ctx, tx, "kentos", "KentOS")
+		if err != nil {
+			return err
+		}
+		if _, err := tx.Exec(ctx, `UPDATE organizations SET settings = settings || '{"auto_join_domains": ["kentos.com.tr"]}' WHERE id = $1`, org.ID); err != nil {
+			return err
+		}
+		_, err = store.CreateUser(ctx, tx, store.NewUserInput{Email: "ayse@kentos.com.tr", Name: "Ayşe", PasswordHash: &hash})
+		return err
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	mux := http.NewServeMux()
+	izci := httptest.NewServer(mux)
+	defer izci.Close()
+	provider := func(id string, trust bool) config.OIDCProvider {
+		return config.OIDCProvider{ID: id, Name: id, Issuer: idp.srv.URL, ClientID: "izci", ClientSecret: "s3cret",
+			Scopes: []string{"openid", "email"}, AutoCreate: true, TrustEmail: trust}
+	}
+	cfg := &config.Config{
+		Env: config.EnvTest, PublicURL: izci.URL,
+		Auth: config.AuthConfig{Signup: "invite", SessionTTL: time.Hour, PasswordLogin: true},
+		OIDC: []config.OIDCProvider{provider("kimlik", false), provider("kurum", true)},
+	}
+	box, _ := secret.NewBox(make([]byte, 32))
+	svc := auth.NewService(database, cfg, box, slog.New(slog.DiscardHandler))
+	svc.RegisterRoutes(mux.Handle)
+	if _, err := api.Mount(mux.Handle, api.Deps{DB: database, Auth: svc, Config: cfg, Log: slog.New(slog.DiscardHandler)}); err != nil {
+		t.Fatal(err)
+	}
+	for _, path := range []string{"/login", "/o/kentos", "/o/kentos/account"} {
+		mux.HandleFunc("GET "+path, func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("page")) })
+	}
+	browser := func() *http.Client {
+		jar, _ := cookiejar.New(nil)
+		return &http.Client{Jar: jar}
+	}
+	visit := func(c *http.Client, path string) *url.URL {
+		t.Helper()
+		res, err := c.Get(izci.URL + path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		res.Body.Close()
+		return res.Request.URL
+	}
+	users := func() int {
+		var n int
+		database.Pool.QueryRow(ctx, `SELECT count(*) FROM users`).Scan(&n)
+		return n
+	}
+
+	// Without a vouched-for address nothing is created.
+	for _, v := range []*bool{boolPtr(false), nil} {
+		idp.set("stranger", "yeni@kentos.com.tr", v)
+		if u := visit(browser(), "/auth/oidc/kimlik/start"); u.Path != "/login" || u.Query().Get("error") != "oidc_email" {
+			t.Fatalf("email_verified=%v ended at %s", v, u)
+		}
+	}
+	if n := users(); n != 1 {
+		t.Fatalf("users after unverified sign-ins: %d", n)
+	}
+
+	// A verified address of an existing account is not enough: its owner
+	// links the identity while signed in.
+	idp.set("ayse-at-kimlik", "Ayse@Kentos.com.tr", boolPtr(true))
+	if u := visit(browser(), "/auth/oidc/kimlik/start"); u.Query().Get("error") != "oidc_link_required" {
+		t.Fatalf("existing account ended at %s", u)
+	}
+	if u := visit(browser(), "/auth/oidc/kimlik/start?link=1&next=/o/kentos/account"); u.Path != "/login" || u.Query().Get("redirect") != "/o/kentos/account" {
+		t.Fatalf("link without a session ended at %s", u)
+	}
+	ayse := browser()
+	authc := apiv1connect.NewAuthServiceClient(ayse, izci.URL)
+	if _, err := authc.Login(ctx, connect.NewRequest(&apiv1.LoginRequest{Email: "ayse@kentos.com.tr", Password: "ayşenin uzun parolası"})); err != nil {
+		t.Fatal(err)
+	}
+	if u := visit(ayse, "/auth/oidc/kimlik/start?link=1&next=/o/kentos/account"); u.Path != "/o/kentos/account" || u.Query().Get("oidc_linked") != "kimlik" {
+		t.Fatalf("link ended at %s", u)
+	}
+	phone := browser()
+	if u := visit(phone, "/auth/oidc/kimlik/start?next=/o/kentos"); u.Path != "/o/kentos" {
+		t.Fatalf("sign-in with the linked identity ended at %s", u)
+	}
+	sess, err := apiv1connect.NewAuthServiceClient(phone, izci.URL).GetSession(ctx, connect.NewRequest(&apiv1.GetSessionRequest{}))
+	if err != nil || sess.Msg.GetSession().GetUser().GetEmail() != "ayse@kentos.com.tr" {
+		t.Fatalf("session: %v %v", sess, err)
+	}
+	if len(sess.Msg.GetSession().GetMemberships()) != 1 {
+		t.Fatalf("auto-join by the verified domain: %v", sess.Msg.GetSession().GetMemberships())
+	}
+
+	// The identity belongs to Ayşe now; nobody else can link it.
+	idp.set("mehmet-at-kurum", "mehmet@kentos.com.tr", nil)
+	mehmet := browser()
+	if u := visit(mehmet, "/auth/oidc/kurum/start"); u.Path != "/" {
+		t.Fatalf("trusted provider without email_verified ended at %s", u)
+	}
+	idp.set("ayse-at-kimlik", "mehmet@kentos.com.tr", boolPtr(true))
+	if u := visit(mehmet, "/auth/oidc/kimlik/start?link=1&next=/o/kentos/account"); u.Query().Get("oidc_error") != "oidc_identity_taken" {
+		t.Fatalf("linking someone else's identity ended at %s", u)
+	}
+
+	// At a trusted provider a verified address links the existing account.
+	idp.set("ayse-at-kurum", "ayse@kentos.com.tr", boolPtr(true))
+	if u := visit(browser(), "/auth/oidc/kurum/start?next=/o/kentos"); u.Path != "/o/kentos" {
+		t.Fatalf("trusted provider ended at %s", u)
+	}
+	var identities int
+	database.Pool.QueryRow(ctx, `SELECT count(*) FROM oidc_identities i JOIN users u ON u.id = i.user_id WHERE u.email = 'ayse@kentos.com.tr'`).Scan(&identities)
+	if identities != 2 || users() != 2 {
+		t.Fatalf("identities %d, users %d", identities, users())
 	}
 }

@@ -1,5 +1,6 @@
-import { useMutation } from "@connectrpc/connect-query";
+import { useMutation, useQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
+import { KeyRoundIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Field, FormError } from "@/components/common/field";
@@ -9,6 +10,7 @@ import { AuthService } from "@/gen/izci/api/v1/auth_pb";
 import { UserService } from "@/gen/izci/api/v1/user_pb";
 import { baseTransport } from "@/lib/api";
 import { errorField, errorMessage } from "@/lib/errors";
+import { useOrg } from "@/lib/org";
 import { sessionQuery, useSession } from "@/lib/session";
 
 export function Profile() {
@@ -47,14 +49,7 @@ export function Profile() {
         <Field label="Ad soyad" htmlFor="me-name">
           <Input id="me-name" required value={name} onChange={(e) => setName(e.target.value)} />
         </Field>
-        <Field
-          label="E-posta"
-          hint={
-            user.linkedProviders.length
-              ? `Bağlı giriş yöntemleri: ${user.linkedProviders.join(", ")}`
-              : undefined
-          }
-        >
+        <Field label="E-posta">
           <Input value={user.email} disabled />
         </Field>
         <div>
@@ -63,6 +58,7 @@ export function Profile() {
           </Button>
         </div>
       </form>
+      <SignInMethods linked={user.linkedProviders} />
       {user.hasPassword ? (
         <form
           className="grid gap-5"
@@ -121,5 +117,48 @@ export function Profile() {
         </p>
       )}
     </div>
+  );
+}
+
+/**
+ * Identity providers the account can sign in with. Linking happens while
+ * signed in, so that a provider never takes over an account just because
+ * it reports the same e-mail address.
+ */
+function SignInMethods({ linked }: { linked: string[] }) {
+  const org = useOrg();
+  const providers = useQuery(AuthService.method.listAuthProviders, {}, { transport: baseTransport });
+  const list = providers.data?.providers ?? [];
+  if (list.length === 0) return null;
+  const back = `/o/${org.slug}/account?tab=profile`;
+  return (
+    <section className="grid gap-3">
+      <div>
+        <h2 className="font-semibold text-lg">Giriş yöntemleri</h2>
+        <p className="mt-0.5 text-sm text-muted-foreground leading-relaxed">
+          Bağladığınız kimlik sağlayıcısıyla da bu hesaba giriş yaparsınız.
+        </p>
+      </div>
+      <ul className="divide-y rounded-lg border">
+        {list.map((p) => {
+          const on = linked.includes(p.id);
+          return (
+            <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+              <span className="flex min-w-0 items-center gap-2.5 text-md">
+                <KeyRoundIcon className="size-4 shrink-0 text-muted-foreground" />
+                <span className="truncate">{p.displayName}</span>
+              </span>
+              {on ? (
+                <span className="text-sm text-muted-foreground">Bağlı</span>
+              ) : (
+                <Button asChild variant="outline" size="sm">
+                  <a href={`${p.loginUrl}?link=1&next=${encodeURIComponent(back)}`}>Bağla</a>
+                </Button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }
