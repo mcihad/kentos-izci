@@ -365,8 +365,14 @@ type Session struct {
 	// Reauthenticate); unset for access tokens. Sensitive changes need it
 	// within 10 minutes.
 	ReauthenticatedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=reauthenticated_at,json=reauthenticatedAt,proto3" json:"reauthenticated_at,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// The user is an instance administrator, the server requires
+	// two-factor authentication for them (AUTH_REQUIRE_2FA_SUPERADMIN) and
+	// they have not turned it on. Until they do, AdminService calls and
+	// organizations they are not a member of fail with
+	// ERROR_REASON_TWO_FACTOR_REQUIRED.
+	SuperadminNeedsTwoFactor bool `protobuf:"varint,5,opt,name=superadmin_needs_two_factor,json=superadminNeedsTwoFactor,proto3" json:"superadmin_needs_two_factor,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *Session) Reset() {
@@ -425,6 +431,13 @@ func (x *Session) GetReauthenticatedAt() *timestamppb.Timestamp {
 		return x.ReauthenticatedAt
 	}
 	return nil
+}
+
+func (x *Session) GetSuperadminNeedsTwoFactor() bool {
+	if x != nil {
+		return x.SuperadminNeedsTwoFactor
+	}
+	return false
 }
 
 // AuthProvider is an OpenID Connect identity provider.
@@ -1915,13 +1928,14 @@ const file_izci_api_v1_auth_proto_rawDesc = "" +
 	"Membership\x12@\n" +
 	"\forganization\x18\x01 \x01(\v2\x1c.izci.api.v1.OrganizationRefR\forganization\x12%\n" +
 	"\x04role\x18\x02 \x01(\x0e2\x11.izci.api.v1.RoleR\x04role\x12.\n" +
-	"\x13requires_two_factor\x18\x03 \x01(\bR\x11requiresTwoFactor\"\xf1\x01\n" +
+	"\x13requires_two_factor\x18\x03 \x01(\bR\x11requiresTwoFactor\"\xb0\x02\n" +
 	"\aSession\x12%\n" +
 	"\x04user\x18\x01 \x01(\v2\x11.izci.api.v1.UserR\x04user\x129\n" +
 	"\vmemberships\x18\x02 \x03(\v2\x17.izci.api.v1.MembershipR\vmemberships\x129\n" +
 	"\n" +
 	"expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12I\n" +
-	"\x12reauthenticated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x11reauthenticatedAt\"r\n" +
+	"\x12reauthenticated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x11reauthenticatedAt\x12=\n" +
+	"\x1bsuperadmin_needs_two_factor\x18\x05 \x01(\bR\x18superadminNeedsTwoFactor\"r\n" +
 	"\fAuthProvider\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
 	"\fdisplay_name\x18\x02 \x01(\tR\vdisplayName\x12\x12\n" +

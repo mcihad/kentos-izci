@@ -67,6 +67,7 @@ Hatalı bir değer sunucunun açılmasını engeller; hata mesajı hangi değiş
 | `AUTH_SESSION_MAX_AGE` | `720h` | Oturumun girişten itibaren en uzun ömrü. Ne kadar kullanılırsa kullanılsın bu süre dolunca yeniden giriş istenir; çalınan bir oturum çerezi süresiz kullanılamaz. |
 | `AUTH_PASSWORD_LOGIN` | `true` | E-posta ve parolayla giriş. Kapatılırsa yalnız OpenID Connect ile girilir. |
 | `AUTH_INVITATION_TTL` | `168h` | Davet bağlantısının geçerlilik süresi. |
+| `AUTH_REQUIRE_2FA_SUPERADMIN` | `auto` | Sunucu yöneticilerinden [iki adımlı doğrulama](iki-adimli-dogrulama.md#sunucu-yöneticileri) ister: `auto` (yalnız `IZCI_ENV=production` iken), `true` ya da `false`. Açmamış bir yönetici hesabını ve üyeliklerini kullanır, sunucu yönetimini kullanamaz. |
 
 ### OpenID Connect
 

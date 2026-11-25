@@ -32,6 +32,7 @@ const (
 // Two-factor authentication errors.
 var (
 	ErrTwoFactorRequired     = errors.New("the organization requires two-factor authentication")
+	ErrSuperadminTwoFactor   = errors.New("instance administrators need two-factor authentication on this server")
 	ErrInvalidSecondFactor   = errors.New("invalid two-factor code")
 	ErrTwoFactorOn           = errors.New("two-factor authentication is already on")
 	ErrTwoFactorOff          = errors.New("two-factor authentication is off")

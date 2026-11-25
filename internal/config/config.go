@@ -151,6 +151,10 @@ type AuthConfig struct {
 	PasswordLogin bool `env:"AUTH_PASSWORD_LOGIN" envDefault:"true"`
 	// InvitationTTL is how long invitation links stay valid.
 	InvitationTTL time.Duration `env:"AUTH_INVITATION_TTL" envDefault:"168h"`
+	// RequireTwoFactorSuperadmin is "auto" (only in production), "true" or
+	// "false": instance administrators without two-factor authentication
+	// keep their account but cannot use their administrator rights.
+	RequireTwoFactorSuperadmin string `env:"AUTH_REQUIRE_2FA_SUPERADMIN" envDefault:"auto"`
 	// SetupToken is the code the first-run setup screen asks for. Empty:
 	// one is derived from IZCI_SECRET_KEY and printed in the log while no
 	// user exists.
@@ -405,6 +409,11 @@ func (c *Config) finalize() error {
 	default:
 		errs = append(errs, fmt.Errorf("AUTH_SIGNUP must be invite, open or closed (got %q)", c.Auth.Signup))
 	}
+	switch c.Auth.RequireTwoFactorSuperadmin {
+	case "auto", "true", "false":
+	default:
+		errs = append(errs, fmt.Errorf("AUTH_REQUIRE_2FA_SUPERADMIN must be auto, true or false (got %q)", c.Auth.RequireTwoFactorSuperadmin))
+	}
 	if c.Auth.SessionTTL < time.Minute || c.Auth.SessionMaxAge < time.Minute {
 		errs = append(errs, fmt.Errorf("AUTH_SESSION_TTL and AUTH_SESSION_MAX_AGE must be at least 1m (got %s and %s)",
 			c.Auth.SessionTTL, c.Auth.SessionMaxAge))
@@ -529,6 +538,18 @@ func (c *Config) finalize() error {
 
 // IsProduction reports whether izci runs in production mode.
 func (c *Config) IsProduction() bool { return c.Env == EnvProduction }
+
+// SuperadminTwoFactor reports whether instance administrators need
+// two-factor authentication to use their rights (AUTH_REQUIRE_2FA_SUPERADMIN).
+func (c *Config) SuperadminTwoFactor() bool {
+	switch c.Auth.RequireTwoFactorSuperadmin {
+	case "true":
+		return true
+	case "auto":
+		return c.IsProduction()
+	}
+	return false
+}
 
 // SecretGenerated reports whether an ephemeral secret key is in use.
 func (c *Config) SecretGenerated() bool { return c.secretGenerated }

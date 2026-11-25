@@ -155,6 +155,9 @@ func (h *Handler) authenticate(r *http.Request, orgSlug string) (*caller, *apiEr
 		if errors.Is(err, auth.ErrTwoFactorRequired) {
 			return nil, &apiError{http.StatusForbidden, "the organization requires two-factor authentication; turn it on for your izci account"}
 		}
+		if errors.Is(err, auth.ErrSuperadminTwoFactor) {
+			return nil, &apiError{http.StatusForbidden, "instance administrators need two-factor authentication on this server; turn it on for your izci account"}
+		}
 		if err != nil {
 			return nil, &apiError{http.StatusNotFound, "organization not found"}
 		}

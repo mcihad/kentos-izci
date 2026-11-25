@@ -188,6 +188,13 @@ message Session {
   // Reauthenticate); unset for access tokens. Sensitive changes need it
   // within 10 minutes.
   google.protobuf.Timestamp reauthenticated_at = 4;
+
+  // The user is an instance administrator, the server requires
+  // two-factor authentication for them (AUTH_REQUIRE_2FA_SUPERADMIN) and
+  // they have not turned it on. Until they do, AdminService calls and
+  // organizations they are not a member of fail with
+  // ERROR_REASON_TWO_FACTOR_REQUIRED.
+  bool superadmin_needs_two_factor = 5;
 }
 
 // AuthProvider is an OpenID Connect identity provider.

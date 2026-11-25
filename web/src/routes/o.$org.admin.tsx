@@ -1,7 +1,8 @@
 import { create } from "@bufbuild/protobuf";
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ShieldAlertIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { gutter, PageHeader } from "@/components/app/page";
@@ -48,9 +49,29 @@ export const Route = createFileRoute("/o/$org/admin")({
 
 function AdminPage() {
   const tab = Route.useSearch().tab ?? "instance";
+  const { org } = Route.useParams();
   const session = useSession();
   if (!session?.user?.superadmin) {
     return <EmptyState title="Bu sayfa sunucu yöneticileri içindir" className="py-24" />;
+  }
+  if (session.superadminNeedsTwoFactor) {
+    return (
+      <EmptyState
+        icon={ShieldAlertIcon}
+        title="Sunucu yönetimi için iki adımlı doğrulama gerekiyor"
+        className="py-24"
+        action={
+          <Button asChild>
+            <Link to="/o/$org/account" params={{ org }} search={{ tab: "two-factor" }}>
+              İki adımlı doğrulamayı aç
+            </Link>
+          </Button>
+        }
+      >
+        Bu sunucu, yöneticilerinden iki adımlı doğrulama istiyor. Hesabınızda açtığınızda sunucu yönetimine
+        erişirsiniz.
+      </EmptyState>
+    );
   }
   return (
     <div className="pb-12">

@@ -11,6 +11,7 @@ import (
 
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
 	"github.com/mcihad/kentos-izci/internal/auth"
+	"github.com/mcihad/kentos-izci/internal/store"
 )
 
 // authenticator is the test's authenticator app.
@@ -290,5 +291,66 @@ func TestTwoFactorAuthentication(t *testing.T) {
 	})
 	if err != nil || audited != 4 {
 		t.Fatalf("audit entries: %d %v", audited, err)
+	}
+}
+
+// TestSuperadminTwoFactor checks AUTH_REQUIRE_2FA_SUPERADMIN: an instance
+// administrator without two-factor authentication keeps their account and
+// memberships, but not their administrator rights.
+func TestSuperadminTwoFactor(t *testing.T) {
+	e := newEnv(t)
+	e.cfg.Auth.RequireTwoFactorSuperadmin = "true"
+	ctx := context.Background()
+	admin := e.client(map[string]string{"Izci-Org": "kentos"})
+	if _, err := admin.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{SetupToken: testSetupToken, Name: "Ayşe", Email: "ayse@example.com",
+		Password: "uzun ve güçlü parola", OrganizationName: "KentOS", OrganizationSlug: "kentos", ProjectName: "Kalem"})); err != nil {
+		t.Fatal(err)
+	}
+	err := e.db.InSystem(ctx, func(tx pgx.Tx) error {
+		_, err := store.CreateOrganization(ctx, tx, "diger", "Diğer")
+		return err
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	needs := func() bool {
+		t.Helper()
+		s, err := admin.auth.GetSession(ctx, req(&apiv1.GetSessionRequest{}))
+		if err != nil {
+			t.Fatal(err)
+		}
+		return s.Msg.GetSession().GetSuperadminNeedsTwoFactor()
+	}
+	if !needs() {
+		t.Fatal("session must report the missing second factor")
+	}
+	if _, err := admin.org.GetOrganization(ctx, req(&apiv1.GetOrganizationRequest{})); err != nil {
+		t.Fatalf("own organization: %v", err)
+	}
+	if _, err := admin.admin.ListUsers(ctx, req(&apiv1.ListUsersRequest{})); reason(err) != apiv1.ErrorReason_ERROR_REASON_TWO_FACTOR_REQUIRED {
+		t.Fatalf("server administration without 2FA: %v", err)
+	}
+	admin.hdr["Izci-Org"] = "diger"
+	if _, err := admin.org.GetOrganization(ctx, req(&apiv1.GetOrganizationRequest{})); reason(err) != apiv1.ErrorReason_ERROR_REASON_TWO_FACTOR_REQUIRED {
+		t.Fatalf("someone else's organization without 2FA: %v", err)
+	}
+
+	// Two-factor authentication gives the rights back.
+	setup, err := admin.user.BeginTwoFactorSetup(ctx, req(&apiv1.BeginTwoFactorSetupRequest{}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	app := newAuthenticator(t, setup.Msg.GetSecret())
+	if _, err := admin.user.EnableTwoFactor(ctx, req(&apiv1.EnableTwoFactorRequest{Code: app.code(-1)})); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := admin.org.GetOrganization(ctx, req(&apiv1.GetOrganizationRequest{})); err != nil {
+		t.Fatalf("someone else's organization with 2FA: %v", err)
+	}
+	if _, err := admin.admin.ListUsers(ctx, req(&apiv1.ListUsersRequest{})); err != nil {
+		t.Fatalf("server administration with 2FA: %v", err)
+	}
+	if needs() {
+		t.Fatal("session still reports a missing second factor")
 	}
 }

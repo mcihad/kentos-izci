@@ -22,8 +22,17 @@ func tenantError(ctx context.Context, log *slog.Logger, err error) error {
 	case errors.Is(err, auth.ErrTwoFactorRequired):
 		return apiError(connect.CodeFailedPrecondition, apiv1.ErrorReason_ERROR_REASON_TWO_FACTOR_REQUIRED,
 			"the organization requires two-factor authentication; turn it on for your account")
+	case errors.Is(err, auth.ErrSuperadminTwoFactor):
+		return errSuperadminTwoFactor()
 	}
 	return internal(ctx, log, "resolve organization", err)
+}
+
+// errSuperadminTwoFactor turns away an instance administrator without
+// two-factor authentication (AUTH_REQUIRE_2FA_SUPERADMIN).
+func errSuperadminTwoFactor() error {
+	return apiError(connect.CodeFailedPrecondition, apiv1.ErrorReason_ERROR_REASON_TWO_FACTOR_REQUIRED,
+		"instance administrators need two-factor authentication on this server; turn it on for your account")
 }
 
 func tooManyAttempts(e *auth.TooManyAttemptsError) error {

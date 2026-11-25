@@ -138,3 +138,26 @@ func TestMetricsAndSelfMonitoring(t *testing.T) {
 		t.Fatalf("a URL without scheme must fail, got %v", err)
 	}
 }
+
+func TestSuperadminTwoFactor(t *testing.T) {
+	for _, c := range []struct {
+		env   Environment
+		value string
+		want  bool
+	}{
+		{EnvProduction, "auto", true},
+		{EnvDevelopment, "auto", false},
+		{EnvDevelopment, "true", true},
+		{EnvProduction, "false", false},
+	} {
+		cfg := &Config{Env: c.env, Auth: AuthConfig{RequireTwoFactorSuperadmin: c.value}}
+		if got := cfg.SuperadminTwoFactor(); got != c.want {
+			t.Errorf("%s with %s: %v, want %v", c.env, c.value, got, c.want)
+		}
+	}
+	t.Setenv("IZCI_ENV", "development")
+	t.Setenv("AUTH_REQUIRE_2FA_SUPERADMIN", "sometimes")
+	if _, err := Load(""); err == nil || !strings.Contains(err.Error(), "AUTH_REQUIRE_2FA_SUPERADMIN") {
+		t.Fatalf("unknown value must fail, got %v", err)
+	}
+}

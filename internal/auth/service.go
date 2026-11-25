@@ -238,11 +238,19 @@ func (s *Service) EndSession(ctx context.Context, p *Principal) error {
 	return err
 }
 
+// SuperadminNeedsTwoFactor reports whether u is an instance administrator
+// whose rights wait until they turn on two-factor authentication
+// (AUTH_REQUIRE_2FA_SUPERADMIN).
+func (s *Service) SuperadminNeedsTwoFactor(u *store.User) bool {
+	return u.Superadmin && !u.TwoFactor() && s.cfg.SuperadminTwoFactor()
+}
+
 // ResolveTenant returns the organization named by slug and the caller's
-// role in it. Superadmins act as owners of every organization; tokens bound
-// to an organization cannot reach others. Organizations requiring
-// two-factor authentication turn away users without it
-// (ErrTwoFactorRequired).
+// role in it. Superadmins act as owners of every organization (once they
+// have two-factor authentication where the server asks for it,
+// ErrSuperadminTwoFactor); tokens bound to an organization cannot reach
+// others. Organizations requiring two-factor authentication turn away
+// users without it (ErrTwoFactorRequired).
 func (s *Service) ResolveTenant(ctx context.Context, p *Principal, slug string) (*Tenant, error) {
 	org, err := store.GetOrganizationBySlug(ctx, s.db.Pool, strings.ToLower(strings.TrimSpace(slug)))
 	if errors.Is(err, store.ErrNotFound) {
@@ -257,6 +265,9 @@ func (s *Service) ResolveTenant(ctx context.Context, p *Principal, slug string) 
 	role, err := store.MemberRole(ctx, s.db.Pool, org.ID, p.User.ID)
 	switch {
 	case errors.Is(err, store.ErrNotFound) && p.User.Superadmin:
+		if s.SuperadminNeedsTwoFactor(p.User) {
+			return nil, ErrSuperadminTwoFactor
+		}
 		role = apiv1.Role_ROLE_OWNER
 	case errors.Is(err, store.ErrNotFound):
 		return nil, ErrOrgNotFound

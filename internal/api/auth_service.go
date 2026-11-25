@@ -224,7 +224,7 @@ func (s *AuthServer) session(ctx context.Context, u *store.User, sess *store.Ses
 	if err != nil {
 		return nil, err
 	}
-	out := &apiv1.Session{User: toUser(u, providers)}
+	out := &apiv1.Session{User: toUser(u, providers), SuperadminNeedsTwoFactor: s.auth.SuperadminNeedsTwoFactor(u)}
 	if sess != nil {
 		out.ReauthenticatedAt = ts(sess.ReauthenticatedAt)
 	}

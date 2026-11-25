@@ -59,6 +59,18 @@ Proje anahtarları (`izk_`) bir kişiye bağlı değildir; olay gönderme ve CI'
 
 **Organizasyon ayarları › Üyeler** listesinde iki adımlı doğrulaması açık olanların adının yanında kalkan simgesi görünür; zorunluluk açıkken açmamış olanlar işaretlenir. Açma, kapatma ve kurtarma kodu yenileme, kişinin üye olduğu her organizasyonun **denetim kaydına** yazılır.
 
+## Sunucu yöneticileri
+
+Sunucu yöneticisi bütün organizasyonlara ve kullanıcılara erişir; parolası ele geçen bir yönetici hesabı bütün sunucuyu açar. Bu yüzden `IZCI_ENV=production` olan sunucular yöneticilerden iki adımlı doğrulama ister (`AUTH_REQUIRE_2FA_SUPERADMIN`, bkz. [Yapılandırma](yapilandirma.md#oturum-açma)).
+
+Açmamış bir yönetici:
+
+- hesabına girer, üyesi olduğu organizasyonları her zamanki gibi kullanır,
+- **Sunucu yönetimi** sayfası yerine iki adımlı doğrulamayı açma çağrısını görür; API'de `AdminService` çağrıları `FAILED_PRECONDITION` ve `ERROR_REASON_TWO_FACTOR_REQUIRED` döner,
+- üyesi olmadığı organizasyonlara yönetici olarak (API, `sentry-cli`) erişemez ve açık kayıt kapalıyken yeni organizasyon oluşturamaz.
+
+Açtığı anda yönetici hakları geri gelir. Komut satırı (`izci user …`, `izci token create`) sunucuda çalıştığı için bu kuraldan etkilenmez; yöneticinin telefonu kaybolursa başka bir yönetici ya da `izci user reset-2fa` sıfırlar. `AuthService.GetSession` bu durumu `superadmin_needs_two_factor` alanıyla bildirir.
+
 ## API ile giriş
 
 Kendi istemcinizi yazıyorsanız:

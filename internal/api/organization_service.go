@@ -74,6 +74,9 @@ func (s *OrganizationServer) CreateOrganization(ctx context.Context, req *connec
 	if !p.User.Superadmin && s.cfg.Auth.Signup != "open" {
 		return nil, errPermission("only instance administrators can create organizations")
 	}
+	if s.auth.SuperadminNeedsTwoFactor(p.User) && s.cfg.Auth.Signup != "open" {
+		return nil, errSuperadminTwoFactor()
+	}
 	var org *store.Organization
 	err := s.db.InSystem(ctx, func(tx pgx.Tx) error {
 		var err error

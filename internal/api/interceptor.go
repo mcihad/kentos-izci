@@ -138,6 +138,9 @@ func (i *Interceptor) authorize(ctx context.Context, procedure string, h http.He
 	if r.superadmin && !p.User.Superadmin {
 		return ctx, errPermission("instance administrators only")
 	}
+	if r.superadmin && i.auth.SuperadminNeedsTwoFactor(p.User) {
+		return ctx, errSuperadminTwoFactor()
+	}
 	if !r.org {
 		return ctx, nil
 	}

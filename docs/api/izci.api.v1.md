@@ -4805,6 +4805,7 @@ Session describes the signed-in user.
 | `memberships` | repeated [Membership](#izci-api-v1-membership) | Organizations the user belongs to, ordered by name. |
 | `expires_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the session expires unless it is used again. Use extends it by AUTH_SESSION_TTL, but never past AUTH_SESSION_MAX_AGE after sign-in. |
 | `reauthenticated_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the session last proved its user's identity (sign-in or Reauthenticate); unset for access tokens. Sensitive changes need it within 10 minutes. |
+| `superadmin_needs_two_factor` | `bool` | The user is an instance administrator, the server requires two-factor authentication for them (AUTH_REQUIRE_2FA_SUPERADMIN) and they have not turned it on. Until they do, AdminService calls and organizations they are not a member of fail with ERROR_REASON_TWO_FACTOR_REQUIRED. |
 
 <a id="izci-api-v1-sessioninfo"></a>
 
