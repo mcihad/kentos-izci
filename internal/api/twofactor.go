@@ -53,7 +53,7 @@ func secondFactorError(ctx context.Context, log *slog.Logger, op string, err err
 
 // VerifyTwoFactor implements AuthService.VerifyTwoFactor.
 func (s *AuthServer) VerifyTwoFactor(ctx context.Context, req *connect.Request[apiv1.VerifyTwoFactorRequest]) (*connect.Response[apiv1.VerifyTwoFactorResponse], error) {
-	if err := s.auth.ThrottlePublic(infoFrom(ctx).IP); err != nil {
+	if err := s.auth.ThrottlePublic(ctx, infoFrom(ctx).IP); err != nil {
 		return nil, throttled(err)
 	}
 	u, err := s.auth.CompleteChallenge(ctx, req.Header(), req.Msg.GetCode())

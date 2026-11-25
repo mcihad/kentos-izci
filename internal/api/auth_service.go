@@ -76,7 +76,7 @@ func (s *AuthServer) CompleteSetup(ctx context.Context, req *connect.Request[api
 	if !required {
 		return nil, apiError(connect.CodeFailedPrecondition, apiv1.ErrorReason_ERROR_REASON_SETUP_COMPLETED, "setup was already completed")
 	}
-	if err := s.auth.ThrottlePublic(infoFrom(ctx).IP); err != nil {
+	if err := s.auth.ThrottlePublic(ctx, infoFrom(ctx).IP); err != nil {
 		return nil, throttled(err)
 	}
 	if !s.auth.SetupTokenValid(m.GetSetupToken()) {
@@ -296,7 +296,7 @@ func (s *AuthServer) SignUp(ctx context.Context, req *connect.Request[apiv1.Sign
 	if s.cfg.Auth.Signup != "open" {
 		return nil, apiError(connect.CodePermissionDenied, apiv1.ErrorReason_ERROR_REASON_SIGNUP_DISABLED, "self sign-up is disabled")
 	}
-	if err := s.auth.ThrottlePublic(infoFrom(ctx).IP); err != nil {
+	if err := s.auth.ThrottlePublic(ctx, infoFrom(ctx).IP); err != nil {
 		return nil, throttled(err)
 	}
 	m := req.Msg
@@ -374,7 +374,7 @@ func (s *AuthServer) AcceptInvitation(ctx context.Context, req *connect.Request[
 	var created bool
 	var hash string
 	if p == nil {
-		if err := s.auth.ThrottlePublic(infoFrom(ctx).IP); err != nil {
+		if err := s.auth.ThrottlePublic(ctx, infoFrom(ctx).IP); err != nil {
 			return nil, throttled(err)
 		}
 		// A new account: check the invitation before the expensive

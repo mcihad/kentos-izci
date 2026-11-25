@@ -9,13 +9,10 @@ import (
 	"net/http"
 	"net/netip"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/hashicorp/golang-lru/v2/expirable"
 	"github.com/jackc/pgx/v5"
-	"golang.org/x/time/rate"
 
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
 	"github.com/mcihad/kentos-izci/internal/config"
@@ -49,17 +46,13 @@ type Service struct {
 	box  *secret.Box
 	log  *slog.Logger
 	oidc map[string]*oidcProvider
-
-	mu       sync.Mutex
-	attempts *expirable.LRU[string, *rate.Limiter]
 }
 
 // NewService creates the authentication service.
 func NewService(database *db.DB, cfg *config.Config, box *secret.Box, log *slog.Logger) *Service {
 	s := &Service{
 		db: database, cfg: cfg, box: box, log: log,
-		oidc:     map[string]*oidcProvider{},
-		attempts: expirable.NewLRU[string, *rate.Limiter](50000, nil, time.Hour),
+		oidc: map[string]*oidcProvider{},
 	}
 	for _, p := range cfg.OIDC {
 		s.oidc[p.ID] = &oidcProvider{cfg: p}
@@ -141,81 +134,63 @@ func (s *Service) VerifyAccessToken(ctx context.Context, token string) error {
 	return nil
 }
 
-// Login verifies email and password with per-account and per-address
-// throttling.
+// Login verifies email and password. Failures are limited per account and
+// client address, per account overall and per address (see throttle.go);
+// only failures count, and a success clears its account and address.
 func (s *Service) Login(ctx context.Context, email, password string, ip netip.Addr) (*store.User, error) {
 	if !s.cfg.Auth.PasswordLogin {
 		return nil, ErrPasswordLoginOff
 	}
 	email = strings.ToLower(strings.TrimSpace(email))
-	if d := s.throttle("email:"+email, 10); d > 0 {
-		return nil, &TooManyAttemptsError{RetryAfter: d}
-	}
+	limits := map[string]int{"email:" + email: loginEmailLimit}
+	pair := "login:" + email
 	if ip.IsValid() {
-		if d := s.throttle("ip:"+ip.String(), 30); d > 0 {
-			return nil, &TooManyAttemptsError{RetryAfter: d}
+		addr := addressKey(ip)
+		pair += "|" + addr
+		limits["ip:"+addr] = loginIPLimit
+	}
+	limits[pair] = loginPairLimit
+	wait, err := s.limited(ctx, limits)
+	if err != nil {
+		return nil, err
+	}
+	if wait > 0 {
+		return nil, &TooManyAttemptsError{RetryAfter: wait}
+	}
+	fail := func() (*store.User, error) {
+		keys := make([]string, 0, len(limits))
+		for k := range limits {
+			keys = append(keys, k)
 		}
+		if err := s.count(ctx, keys...); err != nil {
+			s.log.Warn("count failed sign-in", slog.Any("err", err))
+		}
+		return nil, ErrInvalidCredentials
 	}
 	u, err := store.GetUserByEmail(ctx, s.db.Pool, email)
 	if errors.Is(err, store.ErrNotFound) || (err == nil && u.PasswordHash == nil) {
 		_, _ = VerifyPassword(dummyHash, password) // equalize timing
-		return nil, ErrInvalidCredentials
+		return fail()
 	}
 	if err != nil {
 		return nil, err
 	}
 	ok, err := VerifyPassword(*u.PasswordHash, password)
 	if err != nil || !ok {
-		return nil, ErrInvalidCredentials
+		return fail()
 	}
 	if u.Disabled {
 		return nil, ErrAccountDisabled
 	}
-	s.resetThrottle("email:" + email)
+	if err := s.forget(ctx, pair); err != nil {
+		s.log.Warn("clear sign-in failures", slog.Any("err", err))
+	}
 	// With two-factor authentication the sign-in completes in
 	// CompleteChallenge.
 	if !u.TwoFactor() {
 		_ = store.MarkUserLogin(ctx, s.db.Pool, u.ID)
 	}
 	return u, nil
-}
-
-// ThrottlePublic limits unauthenticated requests that are expensive or
-// guess secrets (sign-up, accepting invitations, setup, second steps) per
-// client address.
-func (s *Service) ThrottlePublic(ip netip.Addr) error {
-	if !ip.IsValid() {
-		return nil
-	}
-	if d := s.throttle("public:"+ip.String(), 30); d > 0 {
-		return &TooManyAttemptsError{RetryAfter: d}
-	}
-	return nil
-}
-
-// throttle consumes one attempt from a bucket refilling burst attempts per
-// 15 minutes and returns the wait time when exhausted.
-func (s *Service) throttle(key string, burst int) time.Duration {
-	s.mu.Lock()
-	lim, ok := s.attempts.Get(key)
-	if !ok {
-		lim = rate.NewLimiter(rate.Every(15*time.Minute/time.Duration(burst)), burst)
-		s.attempts.Add(key, lim)
-	}
-	s.mu.Unlock()
-	now := time.Now()
-	res := lim.ReserveN(now, 1)
-	if d := res.DelayFrom(now); d > 0 {
-		res.CancelAt(now)
-		return d
-	}
-	return 0
-}
-
-func (s *Service) resetThrottle(key string) {
-	s.mu.Lock()
-	s.attempts.Remove(key)
-	s.mu.Unlock()
 }
 
 // StartSession creates a session for the user and returns its cookie.
