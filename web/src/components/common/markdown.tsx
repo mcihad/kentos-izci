@@ -4,6 +4,7 @@ import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CodeLines } from "@/components/common/code-block";
+import { localImage } from "@/lib/images";
 import { cn } from "@/lib/utils";
 
 const languageAlias: Record<string, string> = {
@@ -146,6 +147,26 @@ function components(
       </td>
     ),
     hr: () => <hr className="my-6" />,
+    // Images from other sites become links: loading one would tell that
+    // site who opened the report.
+    img: ({ src, alt }) => {
+      const local = localImage(typeof src === "string" ? src : undefined, window.location.origin);
+      if (local)
+        return (
+          <img src={local} alt={alt ?? ""} loading="lazy" className="my-3 max-w-full rounded-md border" />
+        );
+      if (typeof src !== "string" || src === "") return null;
+      return (
+        <a
+          href={src}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="text-link underline-offset-2 hover:underline"
+        >
+          {alt ? `Görsel: ${alt}` : "Görsel"}
+        </a>
+      );
+    },
     input: ({ checked }) => (
       <input type="checkbox" checked={checked} readOnly className="mr-1.5 translate-y-px accent-primary" />
     ),
@@ -179,7 +200,8 @@ function components(
 /**
  * Renders Markdown: AI analysis reports ("report") and the embedded guides
  * ("doc"). Raw HTML is not rendered (react-markdown escapes it), so a report
- * cannot inject markup into the page.
+ * cannot inject markup into the page, and only images of izci itself are
+ * loaded.
  */
 export default function Markdown({
   text,
