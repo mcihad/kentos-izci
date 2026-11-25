@@ -62,6 +62,7 @@ docker compose up -d
 - **Kapanış:** İzci kapanırken ingest kuyruğunu `IZCI_SHUTDOWN_TIMEOUT` (varsayılan 20 saniye) boyunca boşaltır. Docker'ın varsayılan bekleme süresi 10 saniyedir; `stop_grace_period` değerini bundan uzun tutun.
 - **Komutlar:** İmajın giriş noktası `izci`'dir: `docker compose exec izci izci user list`, `docker compose run --rm izci migrate status`.
 - **opencode:** `WITH_OPENCODE=true` ile derlenen imajda sağlayıcı girişi için `docker compose exec izci opencode auth login` çalıştırın; oturum bilgisi veri biriminde saklanır. Sağlayıcı anahtarları ortam değişkeniyle de verilebilir (ör. `ANTHROPIC_API_KEY`); analiz süreci yalnız bu tür bilinen değişkenleri görür.
+- **Ajan yalıtımı:** Bu imajda bubblewrap da vardır. `AI_SANDBOX=bwrap` için konteynerin ad alanı açmasına izin verin: `security_opt: ["seccomp=unconfined", "apparmor=unconfined"]`. `docker compose exec izci izci ai doctor` çıktısındaki **sandbox** satırı yalıtımın çalıştığını gösterir. Ajana komut çalıştırma izni (`AI_ALLOWED_COMMANDS`) yalnız yalıtım çalışırken verin.
 
 **Dokploy:** Uygulamayı bu depodan "Dockerfile" türüyle oluşturun, ortam değişkenlerini Dokploy'a girin ve `/var/lib/izci` için kalıcı bir birim ekleyin. Alan adını bağlarken hizmet portu 5300'dür. Native gRPC istemcileri için Traefik'in İzci'ye h2c ile bağlanması gerekir (aşağıdaki etiketlere bakın).
 

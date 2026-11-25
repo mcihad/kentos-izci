@@ -1,10 +1,12 @@
 import { clone, create } from "@bufbuild/protobuf";
+import { useQuery } from "@connectrpc/connect-query";
 import { useState } from "react";
 import { Field } from "@/components/common/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { AiService } from "@/gen/izci/api/v1/ai_pb";
 import {
   AiSettingsSchema,
   AutoAction,
@@ -40,6 +42,10 @@ export function ProjectAi({ project }: { project: Project }) {
   const [model, setModel] = useState(ai?.model ?? "");
   const [commands, setCommands] = useState(ai?.allowedCommands.join("\n") ?? "");
   const [instructions, setInstructions] = useState(ai?.instructions ?? "");
+  // The server decides which commands an agent may run at all.
+  const status = useQuery(AiService.method.getAiStatus, {}, { staleTime: 60_000 });
+  const serverCommands = status.data?.allowedCommands ?? [];
+  const refused = lines(commands).filter((c) => !permitted(c, serverCommands));
 
   return (
     <form
@@ -152,15 +158,24 @@ export function ProjectAi({ project }: { project: Project }) {
       <Field
         label="Çalıştırılabilecek komutlar"
         htmlFor="ai-commands"
-        hint="Ajanın düzeltmeyi doğrulamak için çalıştırabileceği komutlar, her satıra bir tane. Bu komutlar deponun kodunu sunucuda çalıştırır; yalnız güvendiğiniz depolar için ekleyin. Boş bırakılırsa ajan hiçbir komut çalıştıramaz."
+        error={
+          refused.length
+            ? `Sunucu şu komutlara izin vermiyor: ${refused.join(", ")}. Sunucu yöneticisinden AI_ALLOWED_COMMANDS listesine eklemesini isteyin.`
+            : undefined
+        }
+        hint={
+          serverCommands.length
+            ? `Ajanın düzeltmeyi doğrulamak için çalıştırabileceği komutlar, her satıra bir tane. Sunucunun izin verdikleri: ${serverCommands.join(", ")} (argüman eklenebilir).${status.data?.sandbox === "bwrap" ? " Komutlar yalıtılmış bir ortamda çalışır." : " Komutlar deponun kodunu sunucuda, yalıtılmadan çalıştırır; yalnız güvendiğiniz depolar için ekleyin."}`
+            : "Bu sunucuda ajan hiçbir komut çalıştıramaz; sunucu yöneticisi AI_ALLOWED_COMMANDS ile izin verebilir."
+        }
       >
         <Textarea
           id="ai-commands"
           value={commands}
           onChange={(e) => setCommands(e.target.value)}
-          disabled={!admin}
+          disabled={!admin || (serverCommands.length === 0 && commands.trim() === "")}
           className="min-h-20 font-mono text-sm"
-          placeholder={"dotnet build\ndotnet test"}
+          placeholder={serverCommands.length ? serverCommands.join("\n") : undefined}
         />
       </Field>
       <Field
@@ -185,4 +200,13 @@ export function ProjectAi({ project }: { project: Project }) {
       ) : null}
     </form>
   );
+}
+
+/** Whether the server's allowlist covers a project command ("go test ./..." under "go test"). */
+function permitted(cmd: string, server: string[]): boolean {
+  const c = cmd.trim().split(/\s+/).join(" ");
+  return server.some((s) => {
+    const p = s.trim().split(/\s+/).join(" ");
+    return p !== "" && (c === p || c.startsWith(`${p} `));
+  });
 }

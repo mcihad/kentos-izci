@@ -94,6 +94,8 @@ func (r *Runner) Doctor(ctx context.Context) []Check {
 		add(Check{Name: "data directory", OK: true, Detail: r.ws.root})
 	}
 
+	add(r.sandboxCheck(ctx))
+
 	switch {
 	case r.opts.GitHub == nil:
 		add(Check{Name: "GitHub", Optional: true, Detail: "not configured; analyses run without repositories"})
@@ -146,4 +148,34 @@ func writable(dir string) error {
 	name := f.Name()
 	_ = f.Close()
 	return os.Remove(filepath.Clean(name))
+}
+
+// sandboxCheck runs a trivial command in the configured sandbox.
+func (r *Runner) sandboxCheck(ctx context.Context) Check {
+	cfg := r.opts.Config
+	if cfg.Sandbox != SandboxBwrap {
+		if len(cfg.AllowedCommands) > 0 {
+			return Check{Name: "sandbox", Optional: true, Detail: "none: the commands in AI_ALLOWED_COMMANDS run as the server user " +
+				"and can read its files; set AI_SANDBOX=bwrap (Linux) or run analyses on a dedicated server"}
+		}
+		return Check{Name: "sandbox", OK: true, Optional: true, Detail: "none (the agent runs no commands)"}
+	}
+	version, err := r.command(ctx, 10*time.Second, "bwrap", "--version")
+	if err != nil {
+		return Check{Name: "sandbox", Detail: "bwrap cannot be run (" + clip(err.Error(), 200) + "); install bubblewrap"}
+	}
+	root := filepath.Join(r.ws.root, "sandbox", "doctor")
+	defer os.RemoveAll(root)
+	p := sandboxPaths{dir: filepath.Join(root, "work"), state: filepath.Join(root, "state")}
+	if err := os.MkdirAll(p.dir, 0o700); err != nil {
+		return Check{Name: "sandbox", Detail: err.Error()}
+	}
+	if err := prepareSandbox(p.state); err != nil {
+		return Check{Name: "sandbox", Detail: err.Error()}
+	}
+	if _, err := r.command(ctx, 20*time.Second, "bwrap", bwrapArgs(r.agent, p, "true", nil, sandboxEnv(baseEnv(), p.state))...); err != nil {
+		return Check{Name: "sandbox", Detail: "bwrap cannot create a sandbox here (" + clip(err.Error(), 300) +
+			"); in containers allow user namespaces or run analyses on a dedicated server"}
+	}
+	return Check{Name: "sandbox", OK: true, Detail: strings.TrimSpace(version)}
 }

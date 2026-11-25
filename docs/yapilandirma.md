@@ -149,6 +149,8 @@ Organizasyonlar App olmadan da ince ayarlı erişim anahtarıyla bağlanabilir. 
 | `AI_TIMEOUT` | `20m` | Bir analizin en uzun süresi (en az `1m`). |
 | `AI_OUTPUT_LANGUAGE` | `Turkish` | İnsanlar için yazılan raporun dili. Kod ve kod yorumları her zaman İngilizcedir. |
 | `AI_GIT_AUTHOR_NAME`, `AI_GIT_AUTHOR_EMAIL` | `izci-bot`, `izci-bot@users.noreply.github.com` | Düzeltme commit'lerinin yazarı. |
+| `AI_ALLOWED_COMMANDS` | (boş) | Projelerin ajana çalıştırtabileceği kabuk komutları, virgülle: ör. `dotnet test,go test`. Proje ayarındaki bir komut bunlardan birine eşit olmalı ya da ona argüman eklemeli (`go test ./internal/...`). Boşsa ajan hiçbir komut çalıştırmaz. Test ve derleme komutları, ajanın değiştirebildiği kodu çalıştırır: yalnız `AI_SANDBOX=bwrap` ile ya da analizlere ayrılmış bir sunucuda izin verin. |
+| `AI_SANDBOX` | `none` | `bwrap` (yalnız Linux, [bubblewrap](https://github.com/containers/bubblewrap)): ajan kendi süreç ad alanında, sistem klasörleri salt okunur, yalnız koşunun klasörünü ve deposunu görerek çalışır; başka projelerin depoları, İzci'nin verisi, ayarları ve süreci görünmez. Ağ açık kalır (model sağlayıcısı için). `izci ai doctor` yalıtımın çalıştığını denetler. |
 
 Kurulumu `izci ai doctor` denetler; bu komut modele istek göndermez.
 

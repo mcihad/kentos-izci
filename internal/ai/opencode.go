@@ -38,6 +38,8 @@ type agent struct {
 	// config is an optional opencode config file of the instance (for
 	// example custom providers), set with AI_OPENCODE_CONFIG.
 	config string
+	// sandbox is AI_SANDBOX ("none" or "bwrap").
+	sandbox string
 }
 
 // agentOutcome is what the agent process reported.
@@ -50,14 +52,13 @@ type agentOutcome struct {
 // run starts opencode in dir and streams its events to emit until it
 // exits or ctx ends. The process runs in its own process group, which is
 // killed as a whole when ctx ends.
-func (a agent) run(ctx context.Context, dir, prompt, title string, allowed []string, emit func(kind int16, tool, msg string)) (agentOutcome, error) {
+func (a agent) run(ctx context.Context, sp sandboxPaths, prompt, title string, allowed []string, emit func(kind int16, tool, msg string)) (agentOutcome, error) {
+	dir := sp.dir
 	args := []string{"run", "--format", "json", "--pure", "--auto", "--dir", dir, "--title", title}
 	if a.model != "" {
 		args = append(args, "--model", a.model)
 	}
-	cmd := exec.CommandContext(ctx, a.bin, append(args, prompt)...)
-	cmd.Dir = dir
-	cmd.Env = append(baseEnv(),
+	env := append(baseEnv(),
 		"XDG_CONFIG_HOME="+a.home,
 		"OPENCODE_CONFIG_CONTENT="+opencodeConfig(allowed),
 		"OPENCODE_DISABLE_PROJECT_CONFIG=1",
@@ -71,8 +72,21 @@ func (a agent) run(ctx context.Context, dir, prompt, title string, allowed []str
 		"GIT_TERMINAL_PROMPT=0",
 	)
 	if a.config != "" {
-		cmd.Env = append(cmd.Env, "OPENCODE_CONFIG="+a.config)
+		env = append(env, "OPENCODE_CONFIG="+a.config)
 	}
+	var cmd *exec.Cmd
+	if a.sandbox == SandboxBwrap {
+		if err := prepareSandbox(sp.state); err != nil {
+			return agentOutcome{}, fmt.Errorf("prepare sandbox: %w", err)
+		}
+		env = sandboxEnv(env, sp.state)
+		cmd = exec.CommandContext(ctx, "bwrap", bwrapArgs(a, sp, a.bin, append(args, prompt), env)...)
+		cmd.Env = baseEnv()
+	} else {
+		cmd = exec.CommandContext(ctx, a.bin, append(args, prompt)...)
+		cmd.Env = env
+	}
+	cmd.Dir = dir
 	setProcessGroup(cmd)
 	cmd.WaitDelay = 15 * time.Second
 

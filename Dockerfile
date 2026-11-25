@@ -66,6 +66,10 @@ RUN apt-get update \
 COPY --from=build /out/izci /usr/local/bin/izci
 
 FROM runtime-false AS runtime-true
+# bubblewrap isolates the agent (AI_SANDBOX=bwrap).
+RUN apt-get update \
+ && apt-get install --yes --no-install-recommends bubblewrap \
+ && rm -rf /var/lib/apt/lists/*
 COPY --from=opencode /opencode /usr/local/bin/opencode
 
 FROM runtime-${WITH_OPENCODE}

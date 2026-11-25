@@ -106,7 +106,7 @@ Analiz sırasında log canlı akar: deponun hazırlanması, ajanın okuduğu ve 
 | Analizden sonra | Yalnız analiz, düzeltmeyi bir dala gönder ya da taslak çekme isteği aç. Otomatik değişiklikler `izci-auto/` ile başlayan dallara gider, çekme istekleri hep taslaktır ve CI ya da derleme dosyalarına dokunan değişiklikler otomatik gönderilmez (koşunun günlüğünde nedeni yazar; inceleyip el ile gönderebilirsiniz). |
 | Günlük analiz sınırı | Projenin günde başlatabileceği otomatik analiz; 0 ise otomatik analiz başlamaz. |
 | Model | Projeye özel model; boşsa sunucu varsayılanı. |
-| Çalıştırılabilecek komutlar | Ajanın düzeltmeyi doğrulamak için çalıştırabileceği komutlar (ör. `dotnet test`). Aşağıdaki uyarıya bakın. |
+| Çalıştırılabilecek komutlar | Ajanın düzeltmeyi doğrulamak için çalıştırabileceği komutlar (ör. `dotnet test`). Yalnız sunucunun izin verdikleri (`AI_ALLOWED_COMMANDS`) ya da onlara argüman eklenmiş hâlleri seçilebilir. Aşağıdaki uyarıya bakın. |
 | Proje talimatları | Her analize eklenen kurallar: kod stili, dokunulmaması gereken yerler… |
 
 Organizasyonun aylık analiz sınırı (plan) aşıldığında yeni analizler başlamaz.
@@ -131,7 +131,12 @@ Ajan, son kullanıcıların etkileyebildiği hata verileriyle (mesajlar, istek g
 - **Sonuçlar güvenle okunur.** Ajanın klasörü, ajan çalıştıktan sonra güvenilmez sayılır. Sembolik bağlantılar klasör dışına çıkamaz; git hiçbir zaman ajanın yazabileceği bir yapılandırmayı okumaz.
 - **Kişisel veri gönderilmez.** Olaydaki e-posta, IP, ad, çerez ve yönlendirme başlıkları model sağlayıcısına gitmeden çıkarılır.
 
-**Çalıştırılabilecek komutlar kod çalıştırma yetkisidir.** `dotnet test` ya da `npm test`, deponun kodunu İzci sunucusunda çalıştırır; ajan da bu kodu değiştirebilir. Bu ayarı yalnız güvendiğiniz depolar için kullanın. İzci'yi ayrı bir işletim sistemi kullanıcısıyla ya da konteynerde çalıştırın (bkz. [İşletim](operasyon.md)).
+**Çalıştırılabilecek komutlar kod çalıştırma yetkisidir.** `dotnet test` ya da `npm test`, deponun kodunu İzci sunucusunda çalıştırır; ajan da bu kodu değiştirebilir ve hata kayıtlarındaki metin onu buna yönlendirmeye çalışabilir. Bu yüzden:
+
+- Hangi komutların çalışabileceğine sunucu yöneticisi karar verir (`AI_ALLOWED_COMMANDS`, varsayılan: hiçbiri). Proje yöneticileri yalnız bu listeden seçer; listede olmayan bir komutu kaydetmek reddedilir, eski ayarlarda kalanlar çalıştırılmaz ve koşunun günlüğünde yazılır.
+- Linux'ta `AI_SANDBOX=bwrap` ile ajan [bubblewrap](https://github.com/containers/bubblewrap) yalıtımında çalışır: kendi süreç ad alanı, salt okunur sistem klasörleri, özel `/tmp`; yalnız koşunun klasörü ve projenin deposu yazılabilir. Başka projelerin depoları, İzci'nin veri klasörü, `.env` dosyası ve süreci görünmez. Model sağlayıcısına ulaşmak için ağ açık kalır. Konteynerde bubblewrap'ın ad alanı açabilmesi gerekir (ör. Docker'da `--security-opt seccomp=unconfined --security-opt apparmor=unconfined`); `izci ai doctor` yalıtımın çalıştığını denetler.
+- Linux'ta İzci süreci, aynı kullanıcıyla çalışan başka süreçlerin ortam değişkenlerini ve belleğini okumasını engeller (`/proc/<pid>/environ`).
+- Yalıtım yoksa komut izni vermeyin ya da analizleri ayrı bir sunucuda çalıştırın (bkz. [İşletim](operasyon.md)).
 
 Analizler model sağlayıcısında maliyet oluşturur. Her koşunun token ve maliyet bilgisi **Günlük** sekmesinde, toplamlar **Yapay zekâ** sayfasındadır.
 

@@ -19,6 +19,7 @@ import (
 	"net/netip"
 	"net/url"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
@@ -238,6 +239,16 @@ type AIConfig struct {
 	// Git identity of commits made for AI fixes.
 	GitAuthorName  string `env:"AI_GIT_AUTHOR_NAME" envDefault:"izci-bot"`
 	GitAuthorEmail string `env:"AI_GIT_AUTHOR_EMAIL" envDefault:"izci-bot@users.noreply.github.com"`
+	// AllowedCommands are the shell commands projects may let the agent run
+	// (e.g. "go test", "dotnet test"); a project entry must equal one of
+	// them or add arguments. Empty: the agent runs no commands. A test or
+	// build command runs code the agent can change, so allow them only
+	// with AI_SANDBOX=bwrap or on a server dedicated to analyses.
+	AllowedCommands []string `env:"AI_ALLOWED_COMMANDS" envSeparator:","`
+	// Sandbox isolates the agent: "bwrap" (Linux, bubblewrap) shows it only
+	// the run's checkout and repository, system directories read-only, in
+	// its own process namespace; "none" runs it as the server user.
+	Sandbox string `env:"AI_SANDBOX" envDefault:"none"`
 }
 
 // MCPConfig configures the Model Context Protocol endpoint.
@@ -433,6 +444,22 @@ func (c *Config) finalize() error {
 	if c.AI.MaxConcurrent < 1 || c.AI.MaxConcurrent > 32 {
 		errs = append(errs, fmt.Errorf("AI_MAX_CONCURRENT must be between 1 and 32 (got %d)", c.AI.MaxConcurrent))
 	}
+	switch c.AI.Sandbox {
+	case "none":
+	case "bwrap":
+		if runtime.GOOS != "linux" {
+			errs = append(errs, fmt.Errorf("AI_SANDBOX=bwrap needs Linux (this is %s)", runtime.GOOS))
+		}
+	default:
+		errs = append(errs, fmt.Errorf("AI_SANDBOX must be none or bwrap (got %q)", c.AI.Sandbox))
+	}
+	var commands []string
+	for _, cmd := range c.AI.AllowedCommands {
+		if cmd = strings.Join(strings.Fields(cmd), " "); cmd != "" {
+			commands = append(commands, cmd)
+		}
+	}
+	c.AI.AllowedCommands = commands
 	if c.AI.Timeout < time.Minute {
 		errs = append(errs, fmt.Errorf("AI_TIMEOUT must be at least 1m (got %s)", c.AI.Timeout))
 	}

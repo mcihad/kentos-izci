@@ -1772,7 +1772,13 @@ type GetAiStatusResponse struct {
 	// Runs started this month by the organization.
 	MonthlyRuns uint32 `protobuf:"varint,7,opt,name=monthly_runs,json=monthlyRuns,proto3" json:"monthly_runs,omitempty"`
 	// Monthly limit of the organization (0 = unlimited).
-	MonthlyLimit  uint32 `protobuf:"varint,8,opt,name=monthly_limit,json=monthlyLimit,proto3" json:"monthly_limit,omitempty"`
+	MonthlyLimit uint32 `protobuf:"varint,8,opt,name=monthly_limit,json=monthlyLimit,proto3" json:"monthly_limit,omitempty"`
+	// Shell commands projects may let the agent run (AI_ALLOWED_COMMANDS);
+	// a project entry must equal one of them or add arguments. Empty: the
+	// agent runs no commands.
+	AllowedCommands []string `protobuf:"bytes,9,rep,name=allowed_commands,json=allowedCommands,proto3" json:"allowed_commands,omitempty"`
+	// How the agent is isolated (AI_SANDBOX): "bwrap" or "none".
+	Sandbox       string `protobuf:"bytes,10,opt,name=sandbox,proto3" json:"sandbox,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1861,6 +1867,20 @@ func (x *GetAiStatusResponse) GetMonthlyLimit() uint32 {
 		return x.MonthlyLimit
 	}
 	return 0
+}
+
+func (x *GetAiStatusResponse) GetAllowedCommands() []string {
+	if x != nil {
+		return x.AllowedCommands
+	}
+	return nil
+}
+
+func (x *GetAiStatusResponse) GetSandbox() string {
+	if x != nil {
+		return x.Sandbox
+	}
+	return ""
 }
 
 var File_izci_api_v1_ai_proto protoreflect.FileDescriptor
@@ -1973,7 +1993,7 @@ const file_izci_api_v1_ai_proto_rawDesc = "" +
 	"\x17allow_sensitive_changes\x18\x05 \x01(\bR\x15allowSensitiveChanges\"[\n" +
 	"\x19CreatePullRequestResponse\x12>\n" +
 	"\fpull_request\x18\x01 \x01(\v2\x1b.izci.api.v1.PullRequestRefR\vpullRequest\"\x14\n" +
-	"\x12GetAiStatusRequest\"\xa0\x02\n" +
+	"\x12GetAiStatusRequest\"\xe5\x02\n" +
 	"\x13GetAiStatusResponse\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x12)\n" +
 	"\x10opencode_version\x18\x02 \x01(\tR\x0fopencodeVersion\x12#\n" +
@@ -1982,7 +2002,10 @@ const file_izci_api_v1_ai_proto_rawDesc = "" +
 	"\x06queued\x18\x05 \x01(\rR\x06queued\x12\x18\n" +
 	"\arunning\x18\x06 \x01(\rR\arunning\x12!\n" +
 	"\fmonthly_runs\x18\a \x01(\rR\vmonthlyRuns\x12#\n" +
-	"\rmonthly_limit\x18\b \x01(\rR\fmonthlyLimit*\xd2\x01\n" +
+	"\rmonthly_limit\x18\b \x01(\rR\fmonthlyLimit\x12)\n" +
+	"\x10allowed_commands\x18\t \x03(\tR\x0fallowedCommands\x12\x18\n" +
+	"\asandbox\x18\n" +
+	" \x01(\tR\asandbox*\xd2\x01\n" +
 	"\vAiRunStatus\x12\x1d\n" +
 	"\x19AI_RUN_STATUS_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14AI_RUN_STATUS_QUEUED\x10\x01\x12\x1b\n" +

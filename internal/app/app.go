@@ -389,6 +389,9 @@ func Prepare(ctx context.Context, cfg *config.Config, log *slog.Logger, database
 // Run starts background work and serves until ctx is cancelled, then shuts
 // down in order: stop accepting requests, drain the ingest queue, stop jobs.
 func (a *App) Run(ctx context.Context) error {
+	if err := protectProcess(); err != nil {
+		a.Log.Warn("cannot hide the process environment from other processes", slog.Any("err", err))
+	}
 	a.Pipeline.Start()
 	jobCtx, stopJobs := context.WithCancel(context.Background())
 	a.jobs.Start(jobCtx)

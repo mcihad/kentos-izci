@@ -406,6 +406,7 @@ func (s *AiServer) GetAiStatus(ctx context.Context, _ *connect.Request[apiv1.Get
 	if s.ai != nil && s.ai.Enabled() {
 		cfg := s.ai.Config()
 		out.Enabled, out.DefaultModel, out.MaxConcurrent = true, cfg.Model, uint32(max(cfg.MaxConcurrent, 0))
+		out.AllowedCommands, out.Sandbox = cfg.AllowedCommands, cfg.Sandbox
 		out.OpencodeVersion = s.ai.Version(ctx)
 	}
 	err := s.inOrg(ctx, func(tx pgx.Tx, t *auth.Tenant) error {

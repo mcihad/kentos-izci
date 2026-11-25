@@ -2747,6 +2747,8 @@ GetAiStatusResponse describes AI availability.
 | `running` | `uint32` | Runs in progress. |
 | `monthly_runs` | `uint32` | Runs started this month by the organization. |
 | `monthly_limit` | `uint32` | Monthly limit of the organization (0 = unlimited). |
+| `allowed_commands` | repeated `string` | Shell commands projects may let the agent run (AI_ALLOWED_COMMANDS); a project entry must equal one of them or add arguments. Empty: the agent runs no commands. |
+| `sandbox` | `string` | How the agent is isolated (AI_SANDBOX): "bwrap" or "none". |
 
 <a id="izci-api-v1-getcustomerrequest"></a>
 

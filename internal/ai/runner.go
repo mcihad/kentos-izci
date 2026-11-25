@@ -106,11 +106,12 @@ func New(database *db.DB, log *slog.Logger, opts Options) *Runner {
 		opts.Worker = host + ":" + hex.EncodeToString(sum[:4])
 	}
 	return &Runner{
-		db:       database,
-		log:      log.With(slog.String("component", "ai")),
-		opts:     opts,
-		ws:       workspace{root: root},
-		agent:    agent{bin: opts.Config.OpencodeBin, home: filepath.Join(root, "opencode"), config: opts.Config.OpencodeConfig},
+		db:   database,
+		log:  log.With(slog.String("component", "ai")),
+		opts: opts,
+		ws:   workspace{root: root},
+		agent: agent{bin: opts.Config.OpencodeBin, home: filepath.Join(root, "opencode"), config: opts.Config.OpencodeConfig,
+			sandbox: opts.Config.Sandbox},
 		wake:     make(chan struct{}, 1),
 		pending:  make(chan candidate, 256),
 		active:   map[uuid.UUID]context.CancelCauseFunc{},
@@ -538,7 +539,7 @@ func (r *Runner) work(ctx context.Context, run *store.AiRun, lg *runLog) (*check
 		return nil, err
 	}
 	model := firstNonEmpty(run.Model, ic.Settings.GetAi().GetModel(), r.opts.Config.Model)
-	allowed := cleanCommands(ic.Settings.GetAi().GetAllowedCommands())
+	allowed, refused := permittedCommands(ic.Settings.GetAi().GetAllowedCommands(), r.opts.Config.AllowedCommands)
 
 	var (
 		co       *checkout
@@ -608,10 +609,19 @@ func (r *Runner) work(ctx context.Context, run *store.AiRun, lg *runLog) (*check
 	if label == "" {
 		label = "opencode varsayılan modeli"
 	}
+	if len(refused) > 0 {
+		lg.add(LogSystem, "", "Sunucu izin vermediği için şu komutlar çalıştırılamaz: "+clip(strings.Join(refused, ", "), 300)+
+			" (AI_ALLOWED_COMMANDS)")
+	}
 	lg.add(LogSystem, "", "Ajan başladı · "+label)
 	a := r.agent
 	a.model = model
-	out, agentErr := a.run(ctx, dir, prompt(ic, run, co != nil, allowed, r.opts.Config.OutputLanguage), "izci "+ic.ShortID, allowed, lg.add)
+	sp := sandboxPaths{dir: dir, state: filepath.Join(r.ws.root, "sandbox", run.ID.String())}
+	if co != nil {
+		sp.mirror = co.mirror
+	}
+	defer os.RemoveAll(sp.state)
+	out, agentErr := a.run(ctx, sp, prompt(ic, run, co != nil, allowed, r.opts.Config.OutputLanguage), "izci "+ic.ShortID, allowed, lg.add)
 	run.Usage = out.usage
 	if ctx.Err() != nil {
 		return co, context.Cause(ctx)

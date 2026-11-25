@@ -600,3 +600,29 @@ func TestSensitiveChangesNeedConfirmation(t *testing.T) {
 		t.Fatalf("automatic pull request body:\n%s", body)
 	}
 }
+
+// TestServerDecidesCommands checks that a project cannot let the agent run
+// commands the server does not allow (AI_ALLOWED_COMMANDS is empty here).
+func TestServerDecidesCommands(t *testing.T) {
+	f := setup(t)
+	ctx := context.Background()
+	err := f.db.InOrg(ctx, f.org, func(tx pgx.Tx) error {
+		settings := f.kalem.Settings
+		settings.Ai = &apiv1.AiSettings{AllowedCommands: []string{"go test ./...", "sh"}}
+		_, err := store.UpdateProject(ctx, tx, f.kalem.ID, f.kalem.Name, f.kalem.Platform, settings)
+		return err
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	issue := f.issue(t, f.kalem, "integer divide by zero")
+	run, err := f.runner.Start(ctx, f.org, ai.StartRequest{IssueID: issue})
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.finished(t, run.ID)
+	log := f.logs(t, run.ID)
+	if !strings.Contains(log, "Sunucu izin vermediği için şu komutlar çalıştırılamaz: go test ./..., sh") || !strings.Contains(log, "perm=locked") {
+		t.Fatalf("log:\n%s", log)
+	}
+}

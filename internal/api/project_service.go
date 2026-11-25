@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math/rand/v2"
 	"net/http"
 	"net/url"
@@ -18,6 +19,7 @@ import (
 
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
 	"github.com/mcihad/kentos-izci/gen/izci/api/v1/apiv1connect"
+	"github.com/mcihad/kentos-izci/internal/ai"
 	"github.com/mcihad/kentos-izci/internal/auth"
 	"github.com/mcihad/kentos-izci/internal/github"
 	"github.com/mcihad/kentos-izci/internal/ingest"
@@ -260,6 +262,13 @@ func (s *ProjectServer) UpdateProject(ctx context.Context, req *connect.Request[
 			settings = normalizeProjectSettings(m.GetSettings())
 			if err := validateFilters(settings.GetFilters()); err != nil {
 				return err
+			}
+			// Commands an agent may run are the server operator's call.
+			for _, c := range settings.GetAi().GetAllowedCommands() {
+				if strings.TrimSpace(c) != "" && !ai.CommandPermitted(c, s.cfg.AI.AllowedCommands) {
+					return apiError(connect.CodeInvalidArgument, apiv1.ErrorReason_ERROR_REASON_INVALID_ARGUMENT,
+						fmt.Sprintf("command %q is not allowed on this server (AI_ALLOWED_COMMANDS)", c), "command", c)
+				}
 			}
 		}
 		p, err = store.UpdateProject(ctx, tx, p.ID, name, platform, settings)

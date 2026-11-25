@@ -438,4 +438,12 @@ message GetAiStatusResponse {
 
   // Monthly limit of the organization (0 = unlimited).
   uint32 monthly_limit = 8;
+
+  // Shell commands projects may let the agent run (AI_ALLOWED_COMMANDS);
+  // a project entry must equal one of them or add arguments. Empty: the
+  // agent runs no commands.
+  repeated string allowed_commands = 9;
+
+  // How the agent is isolated (AI_SANDBOX): "bwrap" or "none".
+  string sandbox = 10;
 }
