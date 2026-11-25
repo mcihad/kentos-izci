@@ -8,6 +8,7 @@ import { Field, FormError } from "@/components/common/field";
 import { RelativeTime } from "@/components/common/relative-time";
 import { UserAvatar } from "@/components/common/user-avatar";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Invitation } from "@/gen/izci/api/v1/auth_pb";
@@ -240,10 +242,13 @@ function InviteDialog({
   const invalidate = useInvalidateOrg();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState(Role.MEMBER);
+  const [sendEmail, setSendEmail] = useState(true);
   const [created, setCreated] = useState<Invitation>();
+  const [mailed, setMailed] = useState(false);
   const invite = useMutation(OrganizationService.method.inviteMember, {
     onSuccess: (res) => {
       setCreated(res.invitation);
+      setMailed(res.emailSent);
       void invalidate();
     },
   });
@@ -263,8 +268,12 @@ function InviteDialog({
             <DialogHeader>
               <DialogTitle>Davet hazır</DialogTitle>
               <DialogDescription>
-                Bağlantıyı {created.email} ile paylaşın. Bağlantı <RelativeTime value={created.expiresAt} />{" "}
-                geçersiz olur.
+                {mailed
+                  ? `Davet ${created.email} adresine e-postayla gönderildi; bağlantıyı ayrıca paylaşabilirsiniz.`
+                  : sendEmail
+                    ? `E-posta gönderilemedi (sunucuda e-posta ayarlı değil ya da bu adrese kısa sürede çok davet gitti); bağlantıyı ${created.email} ile paylaşın.`
+                    : `Bağlantıyı ${created.email} ile paylaşın.`}{" "}
+                Bağlantı <RelativeTime value={created.expiresAt} /> geçersiz olur.
               </DialogDescription>
             </DialogHeader>
             <SecretValue value={created.url} />
@@ -284,7 +293,7 @@ function InviteDialog({
               className="grid gap-4"
               onSubmit={(e) => {
                 e.preventDefault();
-                invite.mutate({ email, role });
+                invite.mutate({ email, role, sendEmail });
               }}
             >
               <Field label="E-posta" htmlFor="invite-email">
@@ -313,6 +322,16 @@ function InviteDialog({
                   </SelectContent>
                 </Select>
               </Field>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="invite-mail"
+                  checked={sendEmail}
+                  onCheckedChange={(v) => setSendEmail(v === true)}
+                />
+                <Label htmlFor="invite-mail" className="font-normal text-sm">
+                  Bağlantıyı e-postayla da gönder
+                </Label>
+              </div>
               <FormError message={invite.error ? errorMessage(invite.error) : undefined} />
               <DialogFooter>
                 <Button type="button" variant="ghost" onClick={() => close(false)}>

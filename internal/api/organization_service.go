@@ -1,9 +1,11 @@
 package api
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
 	"time"
@@ -224,6 +226,8 @@ func (s *OrganizationServer) InviteMember(ctx context.Context, req *connect.Requ
 	}
 	email := strings.ToLower(strings.TrimSpace(req.Msg.GetEmail()))
 	var out apiv1.InviteMemberResponse
+	var invitedBy string
+	var expires time.Time
 	err := s.inOrg(ctx, func(tx pgx.Tx, t *auth.Tenant) error {
 		if u, err := store.GetUserByEmail(ctx, tx, email); err == nil {
 			if _, err := store.MemberRole(ctx, tx, t.OrgID(), u.ID); err == nil {
@@ -245,6 +249,7 @@ func (s *OrganizationServer) InviteMember(ctx context.Context, req *connect.Requ
 			return err
 		}
 		out.Invitation = toInvitation(inv, t.Org, p.User, s.cfg.PublicURL+"/invite/"+token)
+		invitedBy, expires = cmp.Or(p.User.Name, p.User.Email), inv.ExpiresAt
 		return s.audit(ctx, tx, "invitation.create", "invitation", inv.ID.String(), email, map[string]string{"role": inv.Role.String()})
 	})
 	switch {
@@ -255,7 +260,38 @@ func (s *OrganizationServer) InviteMember(ctx context.Context, req *connect.Requ
 	case err != nil:
 		return nil, internal(ctx, s.log, "invite member", err)
 	}
+	if req.Msg.GetSendEmail() && s.account.Available() {
+		out.EmailSent = s.mailInvitation(ctx, t, email, invitedBy, req.Msg.GetRole(), out.Invitation.GetUrl(), expires)
+	}
 	return connect.NewResponse(&out), nil
+}
+
+// mailInvitation e-mails an invitation link within the limits per address,
+// organization and inviter; it reports whether the e-mail went out.
+func (s *OrganizationServer) mailInvitation(ctx context.Context, t *auth.Tenant, email, invitedBy string, role apiv1.Role,
+	link string, expires time.Time) bool {
+	inviter := auth.PrincipalFrom(ctx).User.ID.String()
+	if s.auth.ThrottleEmail(ctx, "invite", email) != nil || s.auth.ThrottleInvitations(ctx, t.OrgID().String(), inviter) != nil {
+		return false
+	}
+	if err := s.account.Invitation(ctx, email, invitedBy, t.Org.Name, roleName(role), link, expires); err != nil {
+		s.log.WarnContext(ctx, "invitation e-mail not sent", slog.Any("err", err))
+		return false
+	}
+	return true
+}
+
+// roleName is a role as people read it (Turkish).
+func roleName(r apiv1.Role) string {
+	switch r {
+	case apiv1.Role_ROLE_VIEWER:
+		return "izleyici"
+	case apiv1.Role_ROLE_ADMIN:
+		return "yönetici"
+	case apiv1.Role_ROLE_OWNER:
+		return "sahip"
+	}
+	return "üye"
 }
 
 var (

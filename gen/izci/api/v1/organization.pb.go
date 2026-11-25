@@ -1005,7 +1005,9 @@ type InviteMemberRequest struct {
 	// Email address to invite.
 	Email string `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
 	// Role granted on acceptance.
-	Role          Role `protobuf:"varint,2,opt,name=role,proto3,enum=izci.api.v1.Role" json:"role,omitempty"`
+	Role Role `protobuf:"varint,2,opt,name=role,proto3,enum=izci.api.v1.Role" json:"role,omitempty"`
+	// Also e-mail the link to the address, when the server sends e-mail.
+	SendEmail     bool `protobuf:"varint,3,opt,name=send_email,json=sendEmail,proto3" json:"send_email,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1054,11 +1056,20 @@ func (x *InviteMemberRequest) GetRole() Role {
 	return Role_ROLE_UNSPECIFIED
 }
 
+func (x *InviteMemberRequest) GetSendEmail() bool {
+	if x != nil {
+		return x.SendEmail
+	}
+	return false
+}
+
 // InviteMemberResponse returns the invitation with its link.
 type InviteMemberResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The invitation; url holds the link to share.
-	Invitation    *Invitation `protobuf:"bytes,1,opt,name=invitation,proto3" json:"invitation,omitempty"`
+	Invitation *Invitation `protobuf:"bytes,1,opt,name=invitation,proto3" json:"invitation,omitempty"`
+	// The link was e-mailed to the address.
+	EmailSent     bool `protobuf:"varint,2,opt,name=email_sent,json=emailSent,proto3" json:"email_sent,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1098,6 +1109,13 @@ func (x *InviteMemberResponse) GetInvitation() *Invitation {
 		return x.Invitation
 	}
 	return nil
+}
+
+func (x *InviteMemberResponse) GetEmailSent() bool {
+	if x != nil {
+		return x.EmailSent
+	}
+	return false
 }
 
 // RevokeInvitationRequest identifies an invitation.
@@ -1702,15 +1720,19 @@ const file_izci_api_v1_organization_proto_rawDesc = "" +
 	"\x12ListMembersRequest\"\x7f\n" +
 	"\x13ListMembersResponse\x12-\n" +
 	"\amembers\x18\x01 \x03(\v2\x13.izci.api.v1.MemberR\amembers\x129\n" +
-	"\vinvitations\x18\x02 \x03(\v2\x17.izci.api.v1.InvitationR\vinvitations\"g\n" +
+	"\vinvitations\x18\x02 \x03(\v2\x17.izci.api.v1.InvitationR\vinvitations\"\x86\x01\n" +
 	"\x13InviteMemberRequest\x12\x1d\n" +
 	"\x05email\x18\x01 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x121\n" +
 	"\x04role\x18\x02 \x01(\x0e2\x11.izci.api.v1.RoleB\n" +
-	"\xbaH\a\x82\x01\x04\x10\x01 \x00R\x04role\"O\n" +
+	"\xbaH\a\x82\x01\x04\x10\x01 \x00R\x04role\x12\x1d\n" +
+	"\n" +
+	"send_email\x18\x03 \x01(\bR\tsendEmail\"n\n" +
 	"\x14InviteMemberResponse\x127\n" +
 	"\n" +
 	"invitation\x18\x01 \x01(\v2\x17.izci.api.v1.InvitationR\n" +
-	"invitation\"H\n" +
+	"invitation\x12\x1d\n" +
+	"\n" +
+	"email_sent\x18\x02 \x01(\bR\temailSent\"H\n" +
 	"\x17RevokeInvitationRequest\x12-\n" +
 	"\rinvitation_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\finvitationId\"\x1a\n" +
 	"\x18RevokeInvitationResponse\"k\n" +

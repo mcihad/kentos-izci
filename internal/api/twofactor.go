@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"strconv"
+	"time"
 
 	"connectrpc.com/connect"
 	"github.com/jackc/pgx/v5"
@@ -130,6 +131,7 @@ func (s *UserServer) DisableTwoFactor(ctx context.Context, req *connect.Request[
 		return nil, secondFactorError(ctx, s.log, "disable two-factor", err)
 	}
 	s.userAudit(ctx, p.User, "user.two_factor.disable")
+	s.account.TwoFactorDisabled(ctx, p.User.Email, false, time.Now())
 	return connect.NewResponse(&apiv1.DisableTwoFactorResponse{}), nil
 }
 

@@ -120,7 +120,7 @@ Ayrıntılar: [Telegram bildirimleri](telegram.md).
 
 | Değişken | Varsayılan | Açıklama |
 |---|---|---|
-| `SMTP_HOST` | (boş) | E-posta kanallarının ve açık kayıt bağlantılarının kullandığı SMTP sunucusu. Boşsa e-posta kanalı eklenemez ve production'da açık kayıt kullanılamaz. |
+| `SMTP_HOST` | (boş) | E-posta kanallarının, kişisel bildirimlerin ve hesap e-postalarının (açık kayıt ve davet bağlantıları, parola sıfırlama, güvenlik bildirimleri) kullandığı SMTP sunucusu. Boşsa e-posta kanalı eklenemez, **Parolamı unuttum** görünmez, davet bağlantıları elle iletilir ve production'da açık kayıt kullanılamaz. |
 | `SMTP_PORT` | `587` | STARTTLS için 587, doğrudan TLS için 465. |
 | `SMTP_USERNAME`, `SMTP_PASSWORD` | (boş) | Verilirse PLAIN ile kimlik doğrulanır (yalnız şifreli bağlantıda). |
 | `SMTP_FROM` | (boş) | Gönderen adres, ör. `İzci <izci@example.com>`. `SMTP_HOST` verilince zorunludur. |

@@ -24,6 +24,8 @@ const (
 	// Sign-up links sent to one e-mail address: nobody floods someone's
 	// mailbox through izci.
 	signupAddressLimit = 3
+	// Invitation e-mails one organization, and one inviter, sends.
+	invitationLimit = 30
 )
 
 // addressKey groups client addresses as one party: IPv6 clients usually
@@ -95,7 +97,28 @@ func (s *Service) ThrottlePublic(ctx context.Context, ip netip.Addr) error {
 // ThrottleSignup limits the sign-up links sent to one e-mail address.
 // Every call counts.
 func (s *Service) ThrottleSignup(ctx context.Context, email string) error {
-	return s.throttle(ctx, "signup:"+email, signupAddressLimit)
+	return s.ThrottleEmail(ctx, "signup", email)
+}
+
+// ThrottleEmail limits the e-mails of one purpose (sign-up, reset,
+// invite) sent to one address. Every call counts.
+func (s *Service) ThrottleEmail(ctx context.Context, purpose, email string) error {
+	return s.throttle(ctx, purpose+":"+email, signupAddressLimit)
+}
+
+// ThrottleInvitations limits the invitation e-mails one organization and
+// one inviter send, so that open sign-up (which lets anyone own a few
+// organizations) cannot be used to mail large numbers of addresses.
+func (s *Service) ThrottleInvitations(ctx context.Context, orgID, inviterID string) error {
+	keys := []string{"invitations:" + orgID, "inviter:" + inviterID}
+	wait, err := s.limited(ctx, map[string]int{keys[0]: invitationLimit, keys[1]: invitationLimit})
+	if err != nil {
+		return err
+	}
+	if wait > 0 {
+		return &TooManyAttemptsError{RetryAfter: wait}
+	}
+	return s.count(ctx, keys...)
 }
 
 // throttle counts a call under key and fails with TooManyAttemptsError

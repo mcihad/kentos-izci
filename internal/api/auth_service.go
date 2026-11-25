@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
@@ -14,6 +15,7 @@ import (
 
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
 	"github.com/mcihad/kentos-izci/gen/izci/api/v1/apiv1connect"
+	"github.com/mcihad/kentos-izci/internal/accountmail"
 	"github.com/mcihad/kentos-izci/internal/ai"
 	"github.com/mcihad/kentos-izci/internal/alert"
 	"github.com/mcihad/kentos-izci/internal/auth"
@@ -48,6 +50,8 @@ type base struct {
 	email    *notify.Email
 	mailer   Mailer
 	inbox    *inbox.Service
+	// account sends invitations, password resets and security notices.
+	account *accountmail.Sender
 }
 
 // AuthServer implements izci.api.v1.AuthService.
@@ -157,7 +161,8 @@ func weakPassword() error {
 
 // ListAuthProviders implements AuthService.ListAuthProviders.
 func (s *AuthServer) ListAuthProviders(context.Context, *connect.Request[apiv1.ListAuthProvidersRequest]) (*connect.Response[apiv1.ListAuthProvidersResponse], error) {
-	out := &apiv1.ListAuthProvidersResponse{PasswordLoginEnabled: s.cfg.Auth.PasswordLogin, SignupMode: signupMode(s.cfg.Auth.Signup)}
+	out := &apiv1.ListAuthProvidersResponse{PasswordLoginEnabled: s.cfg.Auth.PasswordLogin, SignupMode: signupMode(s.cfg.Auth.Signup),
+		PasswordResetAvailable: s.cfg.Auth.PasswordLogin && s.account.Available()}
 	for _, p := range s.auth.Providers() {
 		out.Providers = append(out.Providers, &apiv1.AuthProvider{Id: p.ID, DisplayName: p.Name, Icon: p.Icon, LoginUrl: p.LoginURL})
 	}
@@ -300,6 +305,7 @@ func (s *AuthServer) ChangePassword(ctx context.Context, req *connect.Request[ap
 	if _, err := store.DeleteOtherSessions(ctx, s.db.Pool, p.User.ID, keep); err != nil {
 		return nil, internal(ctx, s.log, "end sessions", err)
 	}
+	s.account.PasswordChanged(ctx, p.User.Email, time.Now())
 	return connect.NewResponse(&apiv1.ChangePasswordResponse{}), nil
 }
 

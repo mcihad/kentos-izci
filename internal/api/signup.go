@@ -1,11 +1,9 @@
 package api
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
-	"html/template"
 	"log/slog"
 	"strings"
 	"time"
@@ -183,30 +181,103 @@ func freeSlug(ctx context.Context, tx pgx.Tx, slug string) (string, error) {
 // own text to other people's addresses. Without SMTP (development only)
 // the link goes to the log.
 func (s *AuthServer) sendSignupLink(ctx context.Context, email, link string) error {
-	if s.mailer == nil {
+	if !s.account.Available() {
 		s.log.WarnContext(ctx, "SMTP is not configured: sign-up link written to the log (development only)",
 			slog.String("email", email), slog.String("url", link))
 		return nil
 	}
-	text := "Merhaba,\r\n\r\n" + email + " adresiyle İzci'de hesap açmak istediniz. Hesabınızı ve organizasyonunuzu " +
-		"oluşturmak için bu bağlantıyı açın:\r\n\r\n" + link + "\r\n\r\n" + signupMailFooter + "\r\n"
-	var h bytes.Buffer
-	if err := signupMail.Execute(&h, map[string]string{"Email": email, "Link": link, "Footer": signupMailFooter}); err != nil {
-		return err
-	}
-	return s.mailer.SendMail(ctx, email, "İzci hesabınızı etkinleştirin", text, h.String())
+	return s.account.SignupLink(ctx, email, link)
 }
 
-const signupMailFooter = "Bağlantı 24 saat geçerlidir ve bir kez kullanılır. Bu isteği siz yapmadıysanız e-postayı " +
-	"yok sayın; hesap açılmaz."
+// passwordResetTTL is how long a password reset link works.
+const passwordResetTTL = time.Hour
 
-var signupMail = template.Must(template.New("signup").Parse(`<!doctype html>
-<html lang="tr"><body style="margin:0;padding:24px;background:#f6f7f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1f2328">
-<div style="max-width:520px;margin:0 auto;background:#ffffff;border:1px solid #e3e6ea;border-radius:8px;padding:28px">
-<p style="margin:0 0 16px;font-size:15px;line-height:1.5">Merhaba,</p>
-<p style="margin:0 0 16px;font-size:15px;line-height:1.5">{{.Email}} adresiyle İzci'de hesap açmak istediniz. Hesabınızı ve organizasyonunuzu oluşturmak için düğmeye basın.</p>
-<p style="margin:24px 0"><a href="{{.Link}}" style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;padding:10px 18px;border-radius:6px;font-weight:600;font-size:15px">Hesabımı etkinleştir</a></p>
-<p style="margin:0 0 8px;font-size:13px;line-height:1.5;color:#59636e">{{.Footer}}</p>
-<p style="margin:0;font-size:12px;line-height:1.5;color:#59636e;word-break:break-all">{{.Link}}</p>
-</div></body></html>
-`))
+// RequestPasswordReset implements AuthService.RequestPasswordReset.
+func (s *AuthServer) RequestPasswordReset(ctx context.Context, req *connect.Request[apiv1.RequestPasswordResetRequest]) (*connect.Response[apiv1.RequestPasswordResetResponse], error) {
+	if !s.cfg.Auth.PasswordLogin {
+		return nil, errPermission("password sign-in is disabled on this server")
+	}
+	if !s.account.Available() {
+		return nil, apiError(connect.CodeFailedPrecondition, apiv1.ErrorReason_ERROR_REASON_EMAIL_DELIVERY_FAILED,
+			"this server sends no e-mail; an administrator can set a new password (izci user reset-password)")
+	}
+	if err := s.auth.ThrottlePublic(ctx, infoFrom(ctx).IP); err != nil {
+		return nil, throttled(err)
+	}
+	email := strings.ToLower(strings.TrimSpace(req.Msg.GetEmail()))
+	if err := s.auth.ThrottleEmail(ctx, "reset", email); err != nil {
+		return nil, throttled(err)
+	}
+	u, err := store.GetUserByEmail(ctx, s.db.Pool, email)
+	switch {
+	case errors.Is(err, store.ErrNotFound):
+	case err != nil:
+		return nil, internal(ctx, s.log, "password reset", err)
+	case !u.Disabled:
+		token, err := store.CreatePasswordReset(ctx, s.db.Pool, u.ID, passwordResetTTL)
+		if err != nil {
+			return nil, internal(ctx, s.log, "password reset", err)
+		}
+		// In the background: the answer takes as long whether or not the
+		// address has an account.
+		link := s.cfg.PublicURL + "/reset-password/" + token
+		go func(ctx context.Context) {
+			ctx, cancel := context.WithTimeout(ctx, time.Minute)
+			defer cancel()
+			if err := s.account.PasswordReset(ctx, u.Email, link); err != nil {
+				s.log.Warn("password reset e-mail not sent", slog.Any("err", err))
+			}
+		}(context.WithoutCancel(ctx))
+	}
+	return connect.NewResponse(&apiv1.RequestPasswordResetResponse{}), nil
+}
+
+// ResetPassword implements AuthService.ResetPassword.
+func (s *AuthServer) ResetPassword(ctx context.Context, req *connect.Request[apiv1.ResetPasswordRequest]) (*connect.Response[apiv1.ResetPasswordResponse], error) {
+	if !s.cfg.Auth.PasswordLogin {
+		return nil, errPermission("password sign-in is disabled on this server")
+	}
+	if err := s.auth.ThrottlePublic(ctx, infoFrom(ctx).IP); err != nil {
+		return nil, throttled(err)
+	}
+	if err := auth.ValidatePassword(req.Msg.GetNewPassword()); err != nil {
+		return nil, weakPassword()
+	}
+	linkInvalid := apiError(connect.CodeNotFound, apiv1.ErrorReason_ERROR_REASON_VERIFICATION_LINK_INVALID,
+		"the password reset link is unknown, used or expired; ask for a new one")
+	// The link is checked before the costly password hash.
+	switch ok, err := store.PasswordResetValid(ctx, s.db.Pool, req.Msg.GetToken()); {
+	case err != nil:
+		return nil, internal(ctx, s.log, "reset password", err)
+	case !ok:
+		return nil, linkInvalid
+	}
+	hash, err := auth.HashPassword(req.Msg.GetNewPassword())
+	if err != nil {
+		return nil, internal(ctx, s.log, "hash password", err)
+	}
+	var user *store.User
+	err = s.db.InSystem(ctx, func(tx pgx.Tx) error {
+		id, err := store.TakePasswordReset(ctx, tx, req.Msg.GetToken())
+		if err != nil {
+			return err
+		}
+		if err := store.UpdateUserPassword(ctx, tx, id, hash); err != nil {
+			return err
+		}
+		// Whoever knew the old password is signed out everywhere.
+		if _, err := store.DeleteUserSessions(ctx, tx, id); err != nil {
+			return err
+		}
+		user, err = store.GetUser(ctx, tx, id)
+		return err
+	})
+	switch {
+	case errors.Is(err, store.ErrNotFound):
+		return nil, linkInvalid
+	case err != nil:
+		return nil, internal(ctx, s.log, "reset password", err)
+	}
+	s.account.PasswordChanged(ctx, user.Email, time.Now())
+	return connect.NewResponse(&apiv1.ResetPasswordResponse{}), nil
+}

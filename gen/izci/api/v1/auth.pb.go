@@ -957,9 +957,13 @@ type ListAuthProvidersResponse struct {
 	// Whether email + password sign-in is enabled.
 	PasswordLoginEnabled bool `protobuf:"varint,2,opt,name=password_login_enabled,json=passwordLoginEnabled,proto3" json:"password_login_enabled,omitempty"`
 	// Who may create new accounts.
-	SignupMode    SignupMode `protobuf:"varint,3,opt,name=signup_mode,json=signupMode,proto3,enum=izci.api.v1.SignupMode" json:"signup_mode,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	SignupMode SignupMode `protobuf:"varint,3,opt,name=signup_mode,json=signupMode,proto3,enum=izci.api.v1.SignupMode" json:"signup_mode,omitempty"`
+	// Members can set a new password through an e-mailed link
+	// (RequestPasswordReset): password sign-in is on and the server sends
+	// e-mail.
+	PasswordResetAvailable bool `protobuf:"varint,4,opt,name=password_reset_available,json=passwordResetAvailable,proto3" json:"password_reset_available,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *ListAuthProvidersResponse) Reset() {
@@ -1011,6 +1015,13 @@ func (x *ListAuthProvidersResponse) GetSignupMode() SignupMode {
 		return x.SignupMode
 	}
 	return SignupMode_SIGNUP_MODE_UNSPECIFIED
+}
+
+func (x *ListAuthProvidersResponse) GetPasswordResetAvailable() bool {
+	if x != nil {
+		return x.PasswordResetAvailable
+	}
+	return false
 }
 
 // LoginRequest holds credentials.
@@ -1798,6 +1809,181 @@ func (x *VerifySignupResponse) GetSession() *Session {
 	return nil
 }
 
+// RequestPasswordResetRequest names the account.
+type RequestPasswordResetRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// E-mail address of the account.
+	Email         string `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RequestPasswordResetRequest) Reset() {
+	*x = RequestPasswordResetRequest{}
+	mi := &file_izci_api_v1_auth_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RequestPasswordResetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RequestPasswordResetRequest) ProtoMessage() {}
+
+func (x *RequestPasswordResetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_auth_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RequestPasswordResetRequest.ProtoReflect.Descriptor instead.
+func (*RequestPasswordResetRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_auth_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *RequestPasswordResetRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+// RequestPasswordResetResponse has no fields.
+type RequestPasswordResetResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RequestPasswordResetResponse) Reset() {
+	*x = RequestPasswordResetResponse{}
+	mi := &file_izci_api_v1_auth_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RequestPasswordResetResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RequestPasswordResetResponse) ProtoMessage() {}
+
+func (x *RequestPasswordResetResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_auth_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RequestPasswordResetResponse.ProtoReflect.Descriptor instead.
+func (*RequestPasswordResetResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_auth_proto_rawDescGZIP(), []int{29}
+}
+
+// ResetPasswordRequest carries the link token and the new password.
+type ResetPasswordRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Token from the link, the last path segment of /reset-password/<token>.
+	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	// New password, at least 10 characters.
+	NewPassword   string `protobuf:"bytes,2,opt,name=new_password,json=newPassword,proto3" json:"new_password,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResetPasswordRequest) Reset() {
+	*x = ResetPasswordRequest{}
+	mi := &file_izci_api_v1_auth_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResetPasswordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResetPasswordRequest) ProtoMessage() {}
+
+func (x *ResetPasswordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_auth_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResetPasswordRequest.ProtoReflect.Descriptor instead.
+func (*ResetPasswordRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_auth_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *ResetPasswordRequest) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+func (x *ResetPasswordRequest) GetNewPassword() string {
+	if x != nil {
+		return x.NewPassword
+	}
+	return ""
+}
+
+// ResetPasswordResponse has no fields.
+type ResetPasswordResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResetPasswordResponse) Reset() {
+	*x = ResetPasswordResponse{}
+	mi := &file_izci_api_v1_auth_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResetPasswordResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResetPasswordResponse) ProtoMessage() {}
+
+func (x *ResetPasswordResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_auth_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResetPasswordResponse.ProtoReflect.Descriptor instead.
+func (*ResetPasswordResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_auth_proto_rawDescGZIP(), []int{31}
+}
+
 // GetInvitationRequest identifies an invitation.
 type GetInvitationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1809,7 +1995,7 @@ type GetInvitationRequest struct {
 
 func (x *GetInvitationRequest) Reset() {
 	*x = GetInvitationRequest{}
-	mi := &file_izci_api_v1_auth_proto_msgTypes[28]
+	mi := &file_izci_api_v1_auth_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1821,7 +2007,7 @@ func (x *GetInvitationRequest) String() string {
 func (*GetInvitationRequest) ProtoMessage() {}
 
 func (x *GetInvitationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_auth_proto_msgTypes[28]
+	mi := &file_izci_api_v1_auth_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1834,7 +2020,7 @@ func (x *GetInvitationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInvitationRequest.ProtoReflect.Descriptor instead.
 func (*GetInvitationRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_auth_proto_rawDescGZIP(), []int{28}
+	return file_izci_api_v1_auth_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GetInvitationRequest) GetToken() string {
@@ -1858,7 +2044,7 @@ type GetInvitationResponse struct {
 
 func (x *GetInvitationResponse) Reset() {
 	*x = GetInvitationResponse{}
-	mi := &file_izci_api_v1_auth_proto_msgTypes[29]
+	mi := &file_izci_api_v1_auth_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1870,7 +2056,7 @@ func (x *GetInvitationResponse) String() string {
 func (*GetInvitationResponse) ProtoMessage() {}
 
 func (x *GetInvitationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_auth_proto_msgTypes[29]
+	mi := &file_izci_api_v1_auth_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1883,7 +2069,7 @@ func (x *GetInvitationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInvitationResponse.ProtoReflect.Descriptor instead.
 func (*GetInvitationResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_auth_proto_rawDescGZIP(), []int{29}
+	return file_izci_api_v1_auth_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *GetInvitationResponse) GetInvitation() *Invitation {
@@ -1916,7 +2102,7 @@ type AcceptInvitationRequest struct {
 
 func (x *AcceptInvitationRequest) Reset() {
 	*x = AcceptInvitationRequest{}
-	mi := &file_izci_api_v1_auth_proto_msgTypes[30]
+	mi := &file_izci_api_v1_auth_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1928,7 +2114,7 @@ func (x *AcceptInvitationRequest) String() string {
 func (*AcceptInvitationRequest) ProtoMessage() {}
 
 func (x *AcceptInvitationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_auth_proto_msgTypes[30]
+	mi := &file_izci_api_v1_auth_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1941,7 +2127,7 @@ func (x *AcceptInvitationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AcceptInvitationRequest.ProtoReflect.Descriptor instead.
 func (*AcceptInvitationRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_auth_proto_rawDescGZIP(), []int{30}
+	return file_izci_api_v1_auth_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *AcceptInvitationRequest) GetToken() string {
@@ -1976,7 +2162,7 @@ type AcceptInvitationResponse struct {
 
 func (x *AcceptInvitationResponse) Reset() {
 	*x = AcceptInvitationResponse{}
-	mi := &file_izci_api_v1_auth_proto_msgTypes[31]
+	mi := &file_izci_api_v1_auth_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1988,7 +2174,7 @@ func (x *AcceptInvitationResponse) String() string {
 func (*AcceptInvitationResponse) ProtoMessage() {}
 
 func (x *AcceptInvitationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_auth_proto_msgTypes[31]
+	mi := &file_izci_api_v1_auth_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2001,7 +2187,7 @@ func (x *AcceptInvitationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AcceptInvitationResponse.ProtoReflect.Descriptor instead.
 func (*AcceptInvitationResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_auth_proto_rawDescGZIP(), []int{31}
+	return file_izci_api_v1_auth_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *AcceptInvitationResponse) GetSession() *Session {
@@ -2091,12 +2277,13 @@ const file_izci_api_v1_auth_proto_rawDesc = "" +
 	"\asession\x18\x01 \x01(\v2\x14.izci.api.v1.SessionR\asession\x12!\n" +
 	"\fproject_slug\x18\x02 \x01(\tR\vprojectSlug\x12\x17\n" +
 	"\aapi_key\x18\x03 \x01(\tR\x06apiKey\"\x1a\n" +
-	"\x18ListAuthProvidersRequest\"\xc4\x01\n" +
+	"\x18ListAuthProvidersRequest\"\xfe\x01\n" +
 	"\x19ListAuthProvidersResponse\x127\n" +
 	"\tproviders\x18\x01 \x03(\v2\x19.izci.api.v1.AuthProviderR\tproviders\x124\n" +
 	"\x16password_login_enabled\x18\x02 \x01(\bR\x14passwordLoginEnabled\x128\n" +
 	"\vsignup_mode\x18\x03 \x01(\x0e2\x17.izci.api.v1.SignupModeR\n" +
-	"signupMode\"X\n" +
+	"signupMode\x128\n" +
+	"\x18password_reset_available\x18\x04 \x01(\bR\x16passwordResetAvailable\"X\n" +
 	"\fLoginRequest\x12 \n" +
 	"\x05email\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x03\x18\xc0\x02R\x05email\x12&\n" +
@@ -2141,7 +2328,17 @@ const file_izci_api_v1_auth_proto_rawDesc = "" +
 	"\x05token\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x10\x18\x80\x01R\x05token\"F\n" +
 	"\x14VerifySignupResponse\x12.\n" +
-	"\asession\x18\x01 \x01(\v2\x14.izci.api.v1.SessionR\asession\"8\n" +
+	"\asession\x18\x01 \x01(\v2\x14.izci.api.v1.SessionR\asession\"<\n" +
+	"\x1bRequestPasswordResetRequest\x12\x1d\n" +
+	"\x05email\x18\x01 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\"\x1e\n" +
+	"\x1cRequestPasswordResetResponse\"g\n" +
+	"\x14ResetPasswordRequest\x12 \n" +
+	"\x05token\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x10\x18\x80\x01R\x05token\x12-\n" +
+	"\fnew_password\x18\x02 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\n" +
+	"\x18\xc8\x01R\vnewPassword\"\x17\n" +
+	"\x15ResetPasswordResponse\"8\n" +
 	"\x14GetInvitationRequest\x12 \n" +
 	"\x05token\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x10\x18\x80\x01R\x05token\"w\n" +
@@ -2162,7 +2359,8 @@ const file_izci_api_v1_auth_proto_rawDesc = "" +
 	"\x17SIGNUP_MODE_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12SIGNUP_MODE_INVITE\x10\x01\x12\x14\n" +
 	"\x10SIGNUP_MODE_OPEN\x10\x02\x12\x16\n" +
-	"\x12SIGNUP_MODE_CLOSED\x10\x032\xec\b\n" +
+	"\x12SIGNUP_MODE_CLOSED\x10\x032\xb1\n" +
+	"\n" +
 	"\vAuthService\x12[\n" +
 	"\rGetSetupState\x12!.izci.api.v1.GetSetupStateRequest\x1a\".izci.api.v1.GetSetupStateResponse\"\x03\x90\x02\x01\x12V\n" +
 	"\rCompleteSetup\x12!.izci.api.v1.CompleteSetupRequest\x1a\".izci.api.v1.CompleteSetupResponse\x12g\n" +
@@ -2175,7 +2373,9 @@ const file_izci_api_v1_auth_proto_rawDesc = "" +
 	"\x0eChangePassword\x12\".izci.api.v1.ChangePasswordRequest\x1a#.izci.api.v1.ChangePasswordResponse\x12Y\n" +
 	"\x0eReauthenticate\x12\".izci.api.v1.ReauthenticateRequest\x1a#.izci.api.v1.ReauthenticateResponse\x12A\n" +
 	"\x06SignUp\x12\x1a.izci.api.v1.SignUpRequest\x1a\x1b.izci.api.v1.SignUpResponse\x12S\n" +
-	"\fVerifySignup\x12 .izci.api.v1.VerifySignupRequest\x1a!.izci.api.v1.VerifySignupResponse\x12[\n" +
+	"\fVerifySignup\x12 .izci.api.v1.VerifySignupRequest\x1a!.izci.api.v1.VerifySignupResponse\x12k\n" +
+	"\x14RequestPasswordReset\x12(.izci.api.v1.RequestPasswordResetRequest\x1a).izci.api.v1.RequestPasswordResetResponse\x12V\n" +
+	"\rResetPassword\x12!.izci.api.v1.ResetPasswordRequest\x1a\".izci.api.v1.ResetPasswordResponse\x12[\n" +
 	"\rGetInvitation\x12!.izci.api.v1.GetInvitationRequest\x1a\".izci.api.v1.GetInvitationResponse\"\x03\x90\x02\x01\x12_\n" +
 	"\x10AcceptInvitation\x12$.izci.api.v1.AcceptInvitationRequest\x1a%.izci.api.v1.AcceptInvitationResponseB\x9f\x01\n" +
 	"\x0fcom.izci.api.v1B\tAuthProtoP\x01Z3github.com/mcihad/kentos-izci/gen/izci/api/v1;apiv1\xa2\x02\x03IAX\xaa\x02\vIzci.Api.V1\xca\x02\vIzci\\Api\\V1\xe2\x02\x17Izci\\Api\\V1\\GPBMetadata\xea\x02\rIzci::Api::V1b\x06proto3"
@@ -2193,68 +2393,72 @@ func file_izci_api_v1_auth_proto_rawDescGZIP() []byte {
 }
 
 var file_izci_api_v1_auth_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_izci_api_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
+var file_izci_api_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 36)
 var file_izci_api_v1_auth_proto_goTypes = []any{
-	(SignupMode)(0),                   // 0: izci.api.v1.SignupMode
-	(*User)(nil),                      // 1: izci.api.v1.User
-	(*TelegramAccount)(nil),           // 2: izci.api.v1.TelegramAccount
-	(*Membership)(nil),                // 3: izci.api.v1.Membership
-	(*Session)(nil),                   // 4: izci.api.v1.Session
-	(*AuthProvider)(nil),              // 5: izci.api.v1.AuthProvider
-	(*Invitation)(nil),                // 6: izci.api.v1.Invitation
-	(*GetSetupStateRequest)(nil),      // 7: izci.api.v1.GetSetupStateRequest
-	(*GetSetupStateResponse)(nil),     // 8: izci.api.v1.GetSetupStateResponse
-	(*CompleteSetupRequest)(nil),      // 9: izci.api.v1.CompleteSetupRequest
-	(*CompleteSetupResponse)(nil),     // 10: izci.api.v1.CompleteSetupResponse
-	(*ListAuthProvidersRequest)(nil),  // 11: izci.api.v1.ListAuthProvidersRequest
-	(*ListAuthProvidersResponse)(nil), // 12: izci.api.v1.ListAuthProvidersResponse
-	(*LoginRequest)(nil),              // 13: izci.api.v1.LoginRequest
-	(*LoginResponse)(nil),             // 14: izci.api.v1.LoginResponse
-	(*VerifyTwoFactorRequest)(nil),    // 15: izci.api.v1.VerifyTwoFactorRequest
-	(*VerifyTwoFactorResponse)(nil),   // 16: izci.api.v1.VerifyTwoFactorResponse
-	(*LogoutRequest)(nil),             // 17: izci.api.v1.LogoutRequest
-	(*LogoutResponse)(nil),            // 18: izci.api.v1.LogoutResponse
-	(*GetSessionRequest)(nil),         // 19: izci.api.v1.GetSessionRequest
-	(*GetSessionResponse)(nil),        // 20: izci.api.v1.GetSessionResponse
-	(*ReauthenticateRequest)(nil),     // 21: izci.api.v1.ReauthenticateRequest
-	(*ReauthenticateResponse)(nil),    // 22: izci.api.v1.ReauthenticateResponse
-	(*ChangePasswordRequest)(nil),     // 23: izci.api.v1.ChangePasswordRequest
-	(*ChangePasswordResponse)(nil),    // 24: izci.api.v1.ChangePasswordResponse
-	(*SignUpRequest)(nil),             // 25: izci.api.v1.SignUpRequest
-	(*SignUpResponse)(nil),            // 26: izci.api.v1.SignUpResponse
-	(*VerifySignupRequest)(nil),       // 27: izci.api.v1.VerifySignupRequest
-	(*VerifySignupResponse)(nil),      // 28: izci.api.v1.VerifySignupResponse
-	(*GetInvitationRequest)(nil),      // 29: izci.api.v1.GetInvitationRequest
-	(*GetInvitationResponse)(nil),     // 30: izci.api.v1.GetInvitationResponse
-	(*AcceptInvitationRequest)(nil),   // 31: izci.api.v1.AcceptInvitationRequest
-	(*AcceptInvitationResponse)(nil),  // 32: izci.api.v1.AcceptInvitationResponse
-	(*timestamppb.Timestamp)(nil),     // 33: google.protobuf.Timestamp
-	(*OrganizationRef)(nil),           // 34: izci.api.v1.OrganizationRef
-	(Role)(0),                         // 35: izci.api.v1.Role
-	(*UserRef)(nil),                   // 36: izci.api.v1.UserRef
+	(SignupMode)(0),                      // 0: izci.api.v1.SignupMode
+	(*User)(nil),                         // 1: izci.api.v1.User
+	(*TelegramAccount)(nil),              // 2: izci.api.v1.TelegramAccount
+	(*Membership)(nil),                   // 3: izci.api.v1.Membership
+	(*Session)(nil),                      // 4: izci.api.v1.Session
+	(*AuthProvider)(nil),                 // 5: izci.api.v1.AuthProvider
+	(*Invitation)(nil),                   // 6: izci.api.v1.Invitation
+	(*GetSetupStateRequest)(nil),         // 7: izci.api.v1.GetSetupStateRequest
+	(*GetSetupStateResponse)(nil),        // 8: izci.api.v1.GetSetupStateResponse
+	(*CompleteSetupRequest)(nil),         // 9: izci.api.v1.CompleteSetupRequest
+	(*CompleteSetupResponse)(nil),        // 10: izci.api.v1.CompleteSetupResponse
+	(*ListAuthProvidersRequest)(nil),     // 11: izci.api.v1.ListAuthProvidersRequest
+	(*ListAuthProvidersResponse)(nil),    // 12: izci.api.v1.ListAuthProvidersResponse
+	(*LoginRequest)(nil),                 // 13: izci.api.v1.LoginRequest
+	(*LoginResponse)(nil),                // 14: izci.api.v1.LoginResponse
+	(*VerifyTwoFactorRequest)(nil),       // 15: izci.api.v1.VerifyTwoFactorRequest
+	(*VerifyTwoFactorResponse)(nil),      // 16: izci.api.v1.VerifyTwoFactorResponse
+	(*LogoutRequest)(nil),                // 17: izci.api.v1.LogoutRequest
+	(*LogoutResponse)(nil),               // 18: izci.api.v1.LogoutResponse
+	(*GetSessionRequest)(nil),            // 19: izci.api.v1.GetSessionRequest
+	(*GetSessionResponse)(nil),           // 20: izci.api.v1.GetSessionResponse
+	(*ReauthenticateRequest)(nil),        // 21: izci.api.v1.ReauthenticateRequest
+	(*ReauthenticateResponse)(nil),       // 22: izci.api.v1.ReauthenticateResponse
+	(*ChangePasswordRequest)(nil),        // 23: izci.api.v1.ChangePasswordRequest
+	(*ChangePasswordResponse)(nil),       // 24: izci.api.v1.ChangePasswordResponse
+	(*SignUpRequest)(nil),                // 25: izci.api.v1.SignUpRequest
+	(*SignUpResponse)(nil),               // 26: izci.api.v1.SignUpResponse
+	(*VerifySignupRequest)(nil),          // 27: izci.api.v1.VerifySignupRequest
+	(*VerifySignupResponse)(nil),         // 28: izci.api.v1.VerifySignupResponse
+	(*RequestPasswordResetRequest)(nil),  // 29: izci.api.v1.RequestPasswordResetRequest
+	(*RequestPasswordResetResponse)(nil), // 30: izci.api.v1.RequestPasswordResetResponse
+	(*ResetPasswordRequest)(nil),         // 31: izci.api.v1.ResetPasswordRequest
+	(*ResetPasswordResponse)(nil),        // 32: izci.api.v1.ResetPasswordResponse
+	(*GetInvitationRequest)(nil),         // 33: izci.api.v1.GetInvitationRequest
+	(*GetInvitationResponse)(nil),        // 34: izci.api.v1.GetInvitationResponse
+	(*AcceptInvitationRequest)(nil),      // 35: izci.api.v1.AcceptInvitationRequest
+	(*AcceptInvitationResponse)(nil),     // 36: izci.api.v1.AcceptInvitationResponse
+	(*timestamppb.Timestamp)(nil),        // 37: google.protobuf.Timestamp
+	(*OrganizationRef)(nil),              // 38: izci.api.v1.OrganizationRef
+	(Role)(0),                            // 39: izci.api.v1.Role
+	(*UserRef)(nil),                      // 40: izci.api.v1.UserRef
 }
 var file_izci_api_v1_auth_proto_depIdxs = []int32{
 	2,  // 0: izci.api.v1.User.telegram:type_name -> izci.api.v1.TelegramAccount
-	33, // 1: izci.api.v1.User.created_at:type_name -> google.protobuf.Timestamp
-	33, // 2: izci.api.v1.TelegramAccount.linked_at:type_name -> google.protobuf.Timestamp
-	34, // 3: izci.api.v1.Membership.organization:type_name -> izci.api.v1.OrganizationRef
-	35, // 4: izci.api.v1.Membership.role:type_name -> izci.api.v1.Role
+	37, // 1: izci.api.v1.User.created_at:type_name -> google.protobuf.Timestamp
+	37, // 2: izci.api.v1.TelegramAccount.linked_at:type_name -> google.protobuf.Timestamp
+	38, // 3: izci.api.v1.Membership.organization:type_name -> izci.api.v1.OrganizationRef
+	39, // 4: izci.api.v1.Membership.role:type_name -> izci.api.v1.Role
 	1,  // 5: izci.api.v1.Session.user:type_name -> izci.api.v1.User
 	3,  // 6: izci.api.v1.Session.memberships:type_name -> izci.api.v1.Membership
-	33, // 7: izci.api.v1.Session.expires_at:type_name -> google.protobuf.Timestamp
-	33, // 8: izci.api.v1.Session.reauthenticated_at:type_name -> google.protobuf.Timestamp
-	34, // 9: izci.api.v1.Invitation.organization:type_name -> izci.api.v1.OrganizationRef
-	35, // 10: izci.api.v1.Invitation.role:type_name -> izci.api.v1.Role
-	36, // 11: izci.api.v1.Invitation.invited_by:type_name -> izci.api.v1.UserRef
-	33, // 12: izci.api.v1.Invitation.created_at:type_name -> google.protobuf.Timestamp
-	33, // 13: izci.api.v1.Invitation.expires_at:type_name -> google.protobuf.Timestamp
+	37, // 7: izci.api.v1.Session.expires_at:type_name -> google.protobuf.Timestamp
+	37, // 8: izci.api.v1.Session.reauthenticated_at:type_name -> google.protobuf.Timestamp
+	38, // 9: izci.api.v1.Invitation.organization:type_name -> izci.api.v1.OrganizationRef
+	39, // 10: izci.api.v1.Invitation.role:type_name -> izci.api.v1.Role
+	40, // 11: izci.api.v1.Invitation.invited_by:type_name -> izci.api.v1.UserRef
+	37, // 12: izci.api.v1.Invitation.created_at:type_name -> google.protobuf.Timestamp
+	37, // 13: izci.api.v1.Invitation.expires_at:type_name -> google.protobuf.Timestamp
 	4,  // 14: izci.api.v1.CompleteSetupResponse.session:type_name -> izci.api.v1.Session
 	5,  // 15: izci.api.v1.ListAuthProvidersResponse.providers:type_name -> izci.api.v1.AuthProvider
 	0,  // 16: izci.api.v1.ListAuthProvidersResponse.signup_mode:type_name -> izci.api.v1.SignupMode
 	4,  // 17: izci.api.v1.LoginResponse.session:type_name -> izci.api.v1.Session
 	4,  // 18: izci.api.v1.VerifyTwoFactorResponse.session:type_name -> izci.api.v1.Session
 	4,  // 19: izci.api.v1.GetSessionResponse.session:type_name -> izci.api.v1.Session
-	33, // 20: izci.api.v1.ReauthenticateResponse.reauthenticated_at:type_name -> google.protobuf.Timestamp
+	37, // 20: izci.api.v1.ReauthenticateResponse.reauthenticated_at:type_name -> google.protobuf.Timestamp
 	4,  // 21: izci.api.v1.SignUpResponse.session:type_name -> izci.api.v1.Session
 	4,  // 22: izci.api.v1.VerifySignupResponse.session:type_name -> izci.api.v1.Session
 	6,  // 23: izci.api.v1.GetInvitationResponse.invitation:type_name -> izci.api.v1.Invitation
@@ -2270,23 +2474,27 @@ var file_izci_api_v1_auth_proto_depIdxs = []int32{
 	21, // 33: izci.api.v1.AuthService.Reauthenticate:input_type -> izci.api.v1.ReauthenticateRequest
 	25, // 34: izci.api.v1.AuthService.SignUp:input_type -> izci.api.v1.SignUpRequest
 	27, // 35: izci.api.v1.AuthService.VerifySignup:input_type -> izci.api.v1.VerifySignupRequest
-	29, // 36: izci.api.v1.AuthService.GetInvitation:input_type -> izci.api.v1.GetInvitationRequest
-	31, // 37: izci.api.v1.AuthService.AcceptInvitation:input_type -> izci.api.v1.AcceptInvitationRequest
-	8,  // 38: izci.api.v1.AuthService.GetSetupState:output_type -> izci.api.v1.GetSetupStateResponse
-	10, // 39: izci.api.v1.AuthService.CompleteSetup:output_type -> izci.api.v1.CompleteSetupResponse
-	12, // 40: izci.api.v1.AuthService.ListAuthProviders:output_type -> izci.api.v1.ListAuthProvidersResponse
-	14, // 41: izci.api.v1.AuthService.Login:output_type -> izci.api.v1.LoginResponse
-	16, // 42: izci.api.v1.AuthService.VerifyTwoFactor:output_type -> izci.api.v1.VerifyTwoFactorResponse
-	18, // 43: izci.api.v1.AuthService.Logout:output_type -> izci.api.v1.LogoutResponse
-	20, // 44: izci.api.v1.AuthService.GetSession:output_type -> izci.api.v1.GetSessionResponse
-	24, // 45: izci.api.v1.AuthService.ChangePassword:output_type -> izci.api.v1.ChangePasswordResponse
-	22, // 46: izci.api.v1.AuthService.Reauthenticate:output_type -> izci.api.v1.ReauthenticateResponse
-	26, // 47: izci.api.v1.AuthService.SignUp:output_type -> izci.api.v1.SignUpResponse
-	28, // 48: izci.api.v1.AuthService.VerifySignup:output_type -> izci.api.v1.VerifySignupResponse
-	30, // 49: izci.api.v1.AuthService.GetInvitation:output_type -> izci.api.v1.GetInvitationResponse
-	32, // 50: izci.api.v1.AuthService.AcceptInvitation:output_type -> izci.api.v1.AcceptInvitationResponse
-	38, // [38:51] is the sub-list for method output_type
-	25, // [25:38] is the sub-list for method input_type
+	29, // 36: izci.api.v1.AuthService.RequestPasswordReset:input_type -> izci.api.v1.RequestPasswordResetRequest
+	31, // 37: izci.api.v1.AuthService.ResetPassword:input_type -> izci.api.v1.ResetPasswordRequest
+	33, // 38: izci.api.v1.AuthService.GetInvitation:input_type -> izci.api.v1.GetInvitationRequest
+	35, // 39: izci.api.v1.AuthService.AcceptInvitation:input_type -> izci.api.v1.AcceptInvitationRequest
+	8,  // 40: izci.api.v1.AuthService.GetSetupState:output_type -> izci.api.v1.GetSetupStateResponse
+	10, // 41: izci.api.v1.AuthService.CompleteSetup:output_type -> izci.api.v1.CompleteSetupResponse
+	12, // 42: izci.api.v1.AuthService.ListAuthProviders:output_type -> izci.api.v1.ListAuthProvidersResponse
+	14, // 43: izci.api.v1.AuthService.Login:output_type -> izci.api.v1.LoginResponse
+	16, // 44: izci.api.v1.AuthService.VerifyTwoFactor:output_type -> izci.api.v1.VerifyTwoFactorResponse
+	18, // 45: izci.api.v1.AuthService.Logout:output_type -> izci.api.v1.LogoutResponse
+	20, // 46: izci.api.v1.AuthService.GetSession:output_type -> izci.api.v1.GetSessionResponse
+	24, // 47: izci.api.v1.AuthService.ChangePassword:output_type -> izci.api.v1.ChangePasswordResponse
+	22, // 48: izci.api.v1.AuthService.Reauthenticate:output_type -> izci.api.v1.ReauthenticateResponse
+	26, // 49: izci.api.v1.AuthService.SignUp:output_type -> izci.api.v1.SignUpResponse
+	28, // 50: izci.api.v1.AuthService.VerifySignup:output_type -> izci.api.v1.VerifySignupResponse
+	30, // 51: izci.api.v1.AuthService.RequestPasswordReset:output_type -> izci.api.v1.RequestPasswordResetResponse
+	32, // 52: izci.api.v1.AuthService.ResetPassword:output_type -> izci.api.v1.ResetPasswordResponse
+	34, // 53: izci.api.v1.AuthService.GetInvitation:output_type -> izci.api.v1.GetInvitationResponse
+	36, // 54: izci.api.v1.AuthService.AcceptInvitation:output_type -> izci.api.v1.AcceptInvitationResponse
+	40, // [40:55] is the sub-list for method output_type
+	25, // [25:40] is the sub-list for method input_type
 	25, // [25:25] is the sub-list for extension type_name
 	25, // [25:25] is the sub-list for extension extendee
 	0,  // [0:25] is the sub-list for field type_name
@@ -2304,7 +2512,7 @@ func file_izci_api_v1_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_api_v1_auth_proto_rawDesc), len(file_izci_api_v1_auth_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   32,
+			NumMessages:   36,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

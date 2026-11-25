@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"connectrpc.com/connect"
@@ -103,6 +104,7 @@ func (s *UserServer) CreateAccessToken(ctx context.Context, req *connect.Request
 	if err != nil {
 		return nil, internal(ctx, s.log, "create token", err)
 	}
+	s.account.TokenCreated(ctx, p.User.Email, tok.Name, scopeNames(tok.Scopes), tok.ExpiresAt)
 	return connect.NewResponse(&apiv1.CreateAccessTokenResponse{Token: toAccessToken(tok, org), Secret: secret}), nil
 }
 
@@ -175,4 +177,17 @@ func (s *UserServer) UnlinkTelegramAccount(ctx context.Context, _ *connect.Reque
 		return nil, internal(ctx, s.log, "unlink telegram", err)
 	}
 	return connect.NewResponse(&apiv1.UnlinkTelegramAccountResponse{}), nil
+}
+
+// scopeNames lists token scopes as people read them (Turkish).
+func scopeNames(scopes []apiv1.TokenScope) string {
+	names := map[apiv1.TokenScope]string{apiv1.TokenScope_TOKEN_SCOPE_READ: "okuma", apiv1.TokenScope_TOKEN_SCOPE_WRITE: "yazma",
+		apiv1.TokenScope_TOKEN_SCOPE_AI: "yapay zekâ"}
+	var out []string
+	for _, s := range scopes {
+		if n, ok := names[s]; ok {
+			out = append(out, n)
+		}
+	}
+	return strings.Join(out, " + ")
 }

@@ -191,6 +191,7 @@ func (s *AdminServer) UpdateUser(ctx context.Context, req *connect.Request[apiv1
 			"you cannot remove your own superadmin rights or disable yourself")
 	}
 	var out apiv1.UpdateUserResponse
+	resetEmail := ""
 	err := s.db.InSystem(ctx, func(tx pgx.Tx) error {
 		// Serialize superadmin changes so two admins cannot demote each
 		// other concurrently and leave the instance without one.
@@ -238,6 +239,9 @@ func (s *AdminServer) UpdateUser(ctx context.Context, req *connect.Request[apiv1
 		if err != nil {
 			return err
 		}
+		if m.GetResetTwoFactor() {
+			resetEmail = u.User.Email
+		}
 		out.User = toAdminUser(u)
 		meta := map[string]string{}
 		if m.Superadmin != nil {
@@ -253,6 +257,9 @@ func (s *AdminServer) UpdateUser(ctx context.Context, req *connect.Request[apiv1
 	})
 	if err != nil {
 		return nil, internal(ctx, s.log, "admin update user", err)
+	}
+	if resetEmail != "" {
+		s.account.TwoFactorDisabled(ctx, resetEmail, true, time.Now())
 	}
 	return connect.NewResponse(&out), nil
 }

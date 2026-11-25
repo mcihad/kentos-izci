@@ -17,6 +17,7 @@ import (
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
+	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/secret"
 	"github.com/mcihad/kentos-izci/internal/store"
 )
@@ -61,6 +62,8 @@ type Service struct {
 	box  *secret.Box
 	log  *slog.Logger
 	oidc map[string]*oidcProvider
+	// notifier hears about sign-ins from new devices; nil reports none.
+	notifier SignInNotifier
 }
 
 // NewService creates the authentication service.
@@ -208,16 +211,48 @@ func (s *Service) Login(ctx context.Context, email, password string, ip netip.Ad
 	return u, nil
 }
 
-// StartSession creates a session for the user and returns its cookie.
+// SignInNotifier hears about sign-ins from a device (browser and
+// operating system) a member had not used before (accountmail.Sender).
+type SignInNotifier interface {
+	NewSignIn(ctx context.Context, to, device string, ip netip.Addr, at time.Time)
+}
+
+// SetSignInNotifier sets who hears about sign-ins from new devices.
+func (s *Service) SetSignInNotifier(n SignInNotifier) { s.notifier = n }
+
+// StartSession creates a session for the user and returns its cookie. A
+// sign-in from a device the member had not used is reported to them
+// (except their very first sign-in).
 func (s *Service) StartSession(ctx context.Context, userID uuid.UUID, ip netip.Addr, userAgent string) (*http.Cookie, *store.Session, error) {
 	maxAge := s.sessionMaxAge()
 	sess, token, err := store.CreateSession(ctx, s.db.Pool, userID, ip, userAgent, min(s.cfg.Auth.SessionTTL, maxAge))
 	if err != nil {
 		return nil, nil, err
 	}
+	s.seenDevice(ctx, userID, ip, userAgent)
 	// The browser keeps the cookie until the session's last possible
 	// moment; the server ends it earlier when it goes unused.
 	return s.sessionCookie(token, sess.CreatedAt.Add(maxAge)), sess, nil
+}
+
+// seenDevice records the device of a sign-in and reports new ones.
+func (s *Service) seenDevice(ctx context.Context, userID uuid.UUID, ip netip.Addr, userAgent string) {
+	ua := ingest.ParseUserAgent(userAgent)
+	key, label := ua.Browser+"|"+ua.OS, strings.TrimSpace(ua.BrowserLabel()+" · "+ua.OSLabel())
+	if ua.Browser == "" && ua.OS == "" {
+		key, label = "unknown", "tanınmayan bir istemci"
+	}
+	isNew, had, err := store.SeenDevice(ctx, s.db.Pool, userID, key)
+	if err != nil {
+		s.log.Warn("record sign-in device", slog.Any("err", err))
+		return
+	}
+	if !isNew || !had || s.notifier == nil {
+		return
+	}
+	if u, err := store.GetUser(ctx, s.db.Pool, userID); err == nil {
+		s.notifier.NewSignIn(ctx, u.Email, strings.Trim(label, " ·"), ip, time.Now())
+	}
 }
 
 // sessionMaxAge is AUTH_SESSION_MAX_AGE (configurations built in code may

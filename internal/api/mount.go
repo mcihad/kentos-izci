@@ -7,6 +7,7 @@ import (
 	"connectrpc.com/connect"
 
 	"github.com/mcihad/kentos-izci/gen/izci/api/v1/apiv1connect"
+	"github.com/mcihad/kentos-izci/internal/accountmail"
 	"github.com/mcihad/kentos-izci/internal/ai"
 	"github.com/mcihad/kentos-izci/internal/alert"
 	"github.com/mcihad/kentos-izci/internal/auth"
@@ -119,7 +120,9 @@ func Mount(handle func(string, http.Handler), d Deps) (*Servers, error) {
 	}
 	b := &base{db: d.DB, auth: d.Auth, cfg: d.Config, log: d.Log, hub: d.Hub, pipeline: d.Pipeline, keys: d.Keys, done: d.StreamsDone,
 		notifier: d.Notifier, alerts: d.Alerts, ai: d.AI, github: d.GitHub, delivery: d.Delivery, jira: d.Jira, email: d.Email,
-		mailer: d.Mailer, inbox: d.Inbox}
+		mailer: d.Mailer, inbox: d.Inbox, account: accountmail.New(d.Mailer, d.Config.PublicURL, d.Log)}
+	// Sign-ins from a new device are reported by e-mail.
+	d.Auth.SetSignInNotifier(b.account)
 	if b.jira == nil {
 		b.jira = notify.NewJira(d.Auth.Box(), notify.NewHTTPClient(d.Config.Notify.AllowPrivateNetworks))
 	}

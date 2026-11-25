@@ -28,6 +28,7 @@ const (
 	PrefixSession       = "izs_" // browser session cookie value
 	PrefixInvitation    = "izi_" // invitation link token
 	PrefixSignup        = "izv_" // sign-up e-mail verification link token
+	PrefixPasswordReset = "izr_" // password reset link token
 	apiKeyRandomLen     = 32
 	accessTokenRandLen  = 40
 	sessionRandomLen    = 43
@@ -66,6 +67,9 @@ func NewInvitationToken() string { return PrefixInvitation + Random(invitationRa
 
 // NewSignupToken returns a fresh token for a sign-up verification link.
 func NewSignupToken() string { return PrefixSignup + Random(invitationRandomLen) }
+
+// NewPasswordResetToken returns a fresh token for a password reset link.
+func NewPasswordResetToken() string { return PrefixPasswordReset + Random(invitationRandomLen) }
 
 // Hash returns the SHA-256 digest used to store and look up a token. Tokens
 // are high-entropy random strings, so a fast unsalted hash is appropriate

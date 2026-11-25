@@ -40,19 +40,21 @@ func orgRule(role apiv1.Role, scope apiv1.TokenScope) rule {
 // when a procedure is missing, so new RPCs cannot ship unauthorized.
 var rules = map[string]rule{
 	// AuthService
-	c.AuthServiceGetSetupStateProcedure:     {public: true},
-	c.AuthServiceCompleteSetupProcedure:     {public: true},
-	c.AuthServiceListAuthProvidersProcedure: {public: true},
-	c.AuthServiceLoginProcedure:             {public: true},
-	c.AuthServiceVerifyTwoFactorProcedure:   {public: true},
-	c.AuthServiceLogoutProcedure:            {optional: true},
-	c.AuthServiceGetSessionProcedure:        {scope: read},
-	c.AuthServiceChangePasswordProcedure:    {scope: write},
-	c.AuthServiceReauthenticateProcedure:    {scope: write}, // browser sessions only (checked in the handler)
-	c.AuthServiceSignUpProcedure:            {public: true},
-	c.AuthServiceVerifySignupProcedure:      {public: true},
-	c.AuthServiceGetInvitationProcedure:     {public: true},
-	c.AuthServiceAcceptInvitationProcedure:  {optional: true},
+	c.AuthServiceGetSetupStateProcedure:        {public: true},
+	c.AuthServiceCompleteSetupProcedure:        {public: true},
+	c.AuthServiceListAuthProvidersProcedure:    {public: true},
+	c.AuthServiceLoginProcedure:                {public: true},
+	c.AuthServiceVerifyTwoFactorProcedure:      {public: true},
+	c.AuthServiceLogoutProcedure:               {optional: true},
+	c.AuthServiceGetSessionProcedure:           {scope: read},
+	c.AuthServiceChangePasswordProcedure:       {scope: write},
+	c.AuthServiceReauthenticateProcedure:       {scope: write}, // browser sessions only (checked in the handler)
+	c.AuthServiceSignUpProcedure:               {public: true},
+	c.AuthServiceVerifySignupProcedure:         {public: true},
+	c.AuthServiceRequestPasswordResetProcedure: {public: true},
+	c.AuthServiceResetPasswordProcedure:        {public: true},
+	c.AuthServiceGetInvitationProcedure:        {public: true},
+	c.AuthServiceAcceptInvitationProcedure:     {optional: true},
 
 	// OrganizationService
 	c.OrganizationServiceGetOrganizationProcedure:    orgRule(viewer, read),

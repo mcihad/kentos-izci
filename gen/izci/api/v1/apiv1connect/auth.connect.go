@@ -62,6 +62,12 @@ const (
 	// AuthServiceVerifySignupProcedure is the fully-qualified name of the AuthService's VerifySignup
 	// RPC.
 	AuthServiceVerifySignupProcedure = "/izci.api.v1.AuthService/VerifySignup"
+	// AuthServiceRequestPasswordResetProcedure is the fully-qualified name of the AuthService's
+	// RequestPasswordReset RPC.
+	AuthServiceRequestPasswordResetProcedure = "/izci.api.v1.AuthService/RequestPasswordReset"
+	// AuthServiceResetPasswordProcedure is the fully-qualified name of the AuthService's ResetPassword
+	// RPC.
+	AuthServiceResetPasswordProcedure = "/izci.api.v1.AuthService/ResetPassword"
 	// AuthServiceGetInvitationProcedure is the fully-qualified name of the AuthService's GetInvitation
 	// RPC.
 	AuthServiceGetInvitationProcedure = "/izci.api.v1.AuthService/GetInvitation"
@@ -130,6 +136,18 @@ type AuthServiceClient interface {
 	// slug when the chosen one was taken meanwhile) and signs the user in.
 	// Other sign-ups waiting for the same address are dropped.
 	VerifySignup(context.Context, *connect.Request[v1.VerifySignupRequest]) (*connect.Response[v1.VerifySignupResponse], error)
+	// RequestPasswordReset e-mails a link that sets a new password to the
+	// address, when it belongs to an active account. The answer is the same
+	// either way, so it tells nobody which addresses have accounts. Needs
+	// password sign-in and SMTP (ListAuthProvidersResponse
+	// .password_reset_available); links are valid for an hour.
+	RequestPasswordReset(context.Context, *connect.Request[v1.RequestPasswordResetRequest]) (*connect.Response[v1.RequestPasswordResetResponse], error)
+	// ResetPassword sets a new password with the token of a reset link and
+	// ends every session of the account; the user then signs in (with their
+	// second step when two-factor authentication is on). Fails with
+	// ERROR_REASON_VERIFICATION_LINK_INVALID for unknown, used or expired
+	// links.
+	ResetPassword(context.Context, *connect.Request[v1.ResetPasswordRequest]) (*connect.Response[v1.ResetPasswordResponse], error)
 	// GetInvitation describes a pending invitation by its token. Callable
 	// without authentication so the invitation page can render.
 	GetInvitation(context.Context, *connect.Request[v1.GetInvitationRequest]) (*connect.Response[v1.GetInvitationResponse], error)
@@ -219,6 +237,18 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(authServiceMethods.ByName("VerifySignup")),
 			connect.WithClientOptions(opts...),
 		),
+		requestPasswordReset: connect.NewClient[v1.RequestPasswordResetRequest, v1.RequestPasswordResetResponse](
+			httpClient,
+			baseURL+AuthServiceRequestPasswordResetProcedure,
+			connect.WithSchema(authServiceMethods.ByName("RequestPasswordReset")),
+			connect.WithClientOptions(opts...),
+		),
+		resetPassword: connect.NewClient[v1.ResetPasswordRequest, v1.ResetPasswordResponse](
+			httpClient,
+			baseURL+AuthServiceResetPasswordProcedure,
+			connect.WithSchema(authServiceMethods.ByName("ResetPassword")),
+			connect.WithClientOptions(opts...),
+		),
 		getInvitation: connect.NewClient[v1.GetInvitationRequest, v1.GetInvitationResponse](
 			httpClient,
 			baseURL+AuthServiceGetInvitationProcedure,
@@ -237,19 +267,21 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 
 // authServiceClient implements AuthServiceClient.
 type authServiceClient struct {
-	getSetupState     *connect.Client[v1.GetSetupStateRequest, v1.GetSetupStateResponse]
-	completeSetup     *connect.Client[v1.CompleteSetupRequest, v1.CompleteSetupResponse]
-	listAuthProviders *connect.Client[v1.ListAuthProvidersRequest, v1.ListAuthProvidersResponse]
-	login             *connect.Client[v1.LoginRequest, v1.LoginResponse]
-	verifyTwoFactor   *connect.Client[v1.VerifyTwoFactorRequest, v1.VerifyTwoFactorResponse]
-	logout            *connect.Client[v1.LogoutRequest, v1.LogoutResponse]
-	getSession        *connect.Client[v1.GetSessionRequest, v1.GetSessionResponse]
-	changePassword    *connect.Client[v1.ChangePasswordRequest, v1.ChangePasswordResponse]
-	reauthenticate    *connect.Client[v1.ReauthenticateRequest, v1.ReauthenticateResponse]
-	signUp            *connect.Client[v1.SignUpRequest, v1.SignUpResponse]
-	verifySignup      *connect.Client[v1.VerifySignupRequest, v1.VerifySignupResponse]
-	getInvitation     *connect.Client[v1.GetInvitationRequest, v1.GetInvitationResponse]
-	acceptInvitation  *connect.Client[v1.AcceptInvitationRequest, v1.AcceptInvitationResponse]
+	getSetupState        *connect.Client[v1.GetSetupStateRequest, v1.GetSetupStateResponse]
+	completeSetup        *connect.Client[v1.CompleteSetupRequest, v1.CompleteSetupResponse]
+	listAuthProviders    *connect.Client[v1.ListAuthProvidersRequest, v1.ListAuthProvidersResponse]
+	login                *connect.Client[v1.LoginRequest, v1.LoginResponse]
+	verifyTwoFactor      *connect.Client[v1.VerifyTwoFactorRequest, v1.VerifyTwoFactorResponse]
+	logout               *connect.Client[v1.LogoutRequest, v1.LogoutResponse]
+	getSession           *connect.Client[v1.GetSessionRequest, v1.GetSessionResponse]
+	changePassword       *connect.Client[v1.ChangePasswordRequest, v1.ChangePasswordResponse]
+	reauthenticate       *connect.Client[v1.ReauthenticateRequest, v1.ReauthenticateResponse]
+	signUp               *connect.Client[v1.SignUpRequest, v1.SignUpResponse]
+	verifySignup         *connect.Client[v1.VerifySignupRequest, v1.VerifySignupResponse]
+	requestPasswordReset *connect.Client[v1.RequestPasswordResetRequest, v1.RequestPasswordResetResponse]
+	resetPassword        *connect.Client[v1.ResetPasswordRequest, v1.ResetPasswordResponse]
+	getInvitation        *connect.Client[v1.GetInvitationRequest, v1.GetInvitationResponse]
+	acceptInvitation     *connect.Client[v1.AcceptInvitationRequest, v1.AcceptInvitationResponse]
 }
 
 // GetSetupState calls izci.api.v1.AuthService.GetSetupState.
@@ -305,6 +337,16 @@ func (c *authServiceClient) SignUp(ctx context.Context, req *connect.Request[v1.
 // VerifySignup calls izci.api.v1.AuthService.VerifySignup.
 func (c *authServiceClient) VerifySignup(ctx context.Context, req *connect.Request[v1.VerifySignupRequest]) (*connect.Response[v1.VerifySignupResponse], error) {
 	return c.verifySignup.CallUnary(ctx, req)
+}
+
+// RequestPasswordReset calls izci.api.v1.AuthService.RequestPasswordReset.
+func (c *authServiceClient) RequestPasswordReset(ctx context.Context, req *connect.Request[v1.RequestPasswordResetRequest]) (*connect.Response[v1.RequestPasswordResetResponse], error) {
+	return c.requestPasswordReset.CallUnary(ctx, req)
+}
+
+// ResetPassword calls izci.api.v1.AuthService.ResetPassword.
+func (c *authServiceClient) ResetPassword(ctx context.Context, req *connect.Request[v1.ResetPasswordRequest]) (*connect.Response[v1.ResetPasswordResponse], error) {
+	return c.resetPassword.CallUnary(ctx, req)
 }
 
 // GetInvitation calls izci.api.v1.AuthService.GetInvitation.
@@ -377,6 +419,18 @@ type AuthServiceHandler interface {
 	// slug when the chosen one was taken meanwhile) and signs the user in.
 	// Other sign-ups waiting for the same address are dropped.
 	VerifySignup(context.Context, *connect.Request[v1.VerifySignupRequest]) (*connect.Response[v1.VerifySignupResponse], error)
+	// RequestPasswordReset e-mails a link that sets a new password to the
+	// address, when it belongs to an active account. The answer is the same
+	// either way, so it tells nobody which addresses have accounts. Needs
+	// password sign-in and SMTP (ListAuthProvidersResponse
+	// .password_reset_available); links are valid for an hour.
+	RequestPasswordReset(context.Context, *connect.Request[v1.RequestPasswordResetRequest]) (*connect.Response[v1.RequestPasswordResetResponse], error)
+	// ResetPassword sets a new password with the token of a reset link and
+	// ends every session of the account; the user then signs in (with their
+	// second step when two-factor authentication is on). Fails with
+	// ERROR_REASON_VERIFICATION_LINK_INVALID for unknown, used or expired
+	// links.
+	ResetPassword(context.Context, *connect.Request[v1.ResetPasswordRequest]) (*connect.Response[v1.ResetPasswordResponse], error)
 	// GetInvitation describes a pending invitation by its token. Callable
 	// without authentication so the invitation page can render.
 	GetInvitation(context.Context, *connect.Request[v1.GetInvitationRequest]) (*connect.Response[v1.GetInvitationResponse], error)
@@ -462,6 +516,18 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(authServiceMethods.ByName("VerifySignup")),
 		connect.WithHandlerOptions(opts...),
 	)
+	authServiceRequestPasswordResetHandler := connect.NewUnaryHandler(
+		AuthServiceRequestPasswordResetProcedure,
+		svc.RequestPasswordReset,
+		connect.WithSchema(authServiceMethods.ByName("RequestPasswordReset")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceResetPasswordHandler := connect.NewUnaryHandler(
+		AuthServiceResetPasswordProcedure,
+		svc.ResetPassword,
+		connect.WithSchema(authServiceMethods.ByName("ResetPassword")),
+		connect.WithHandlerOptions(opts...),
+	)
 	authServiceGetInvitationHandler := connect.NewUnaryHandler(
 		AuthServiceGetInvitationProcedure,
 		svc.GetInvitation,
@@ -499,6 +565,10 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 			authServiceSignUpHandler.ServeHTTP(w, r)
 		case AuthServiceVerifySignupProcedure:
 			authServiceVerifySignupHandler.ServeHTTP(w, r)
+		case AuthServiceRequestPasswordResetProcedure:
+			authServiceRequestPasswordResetHandler.ServeHTTP(w, r)
+		case AuthServiceResetPasswordProcedure:
+			authServiceResetPasswordHandler.ServeHTTP(w, r)
 		case AuthServiceGetInvitationProcedure:
 			authServiceGetInvitationHandler.ServeHTTP(w, r)
 		case AuthServiceAcceptInvitationProcedure:
@@ -554,6 +624,14 @@ func (UnimplementedAuthServiceHandler) SignUp(context.Context, *connect.Request[
 
 func (UnimplementedAuthServiceHandler) VerifySignup(context.Context, *connect.Request[v1.VerifySignupRequest]) (*connect.Response[v1.VerifySignupResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.AuthService.VerifySignup is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) RequestPasswordReset(context.Context, *connect.Request[v1.RequestPasswordResetRequest]) (*connect.Response[v1.RequestPasswordResetResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.AuthService.RequestPasswordReset is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) ResetPassword(context.Context, *connect.Request[v1.ResetPasswordRequest]) (*connect.Response[v1.ResetPasswordResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.AuthService.ResetPassword is not implemented"))
 }
 
 func (UnimplementedAuthServiceHandler) GetInvitation(context.Context, *connect.Request[v1.GetInvitationRequest]) (*connect.Response[v1.GetInvitationResponse], error) {

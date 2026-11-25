@@ -142,7 +142,20 @@ function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </Field>
-            <Field label="Parola" htmlFor="password">
+            <Field
+              label="Parola"
+              htmlFor="password"
+              hint={
+                providers.data?.passwordResetAvailable ? (
+                  <Link
+                    to="/forgot-password"
+                    className="underline-offset-4 hover:text-foreground hover:underline"
+                  >
+                    Parolamı unuttum
+                  </Link>
+                ) : undefined
+              }
+            >
               <Input
                 id="password"
                 type="password"

@@ -91,6 +91,20 @@ service AuthService {
   // Other sign-ups waiting for the same address are dropped.
   rpc VerifySignup(VerifySignupRequest) returns (VerifySignupResponse);
 
+  // RequestPasswordReset e-mails a link that sets a new password to the
+  // address, when it belongs to an active account. The answer is the same
+  // either way, so it tells nobody which addresses have accounts. Needs
+  // password sign-in and SMTP (ListAuthProvidersResponse
+  // .password_reset_available); links are valid for an hour.
+  rpc RequestPasswordReset(RequestPasswordResetRequest) returns (RequestPasswordResetResponse);
+
+  // ResetPassword sets a new password with the token of a reset link and
+  // ends every session of the account; the user then signs in (with their
+  // second step when two-factor authentication is on). Fails with
+  // ERROR_REASON_VERIFICATION_LINK_INVALID for unknown, used or expired
+  // links.
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
+
   // GetInvitation describes a pending invitation by its token. Callable
   // without authentication so the invitation page can render.
   rpc GetInvitation(GetInvitationRequest) returns (GetInvitationResponse) {
@@ -338,6 +352,11 @@ message ListAuthProvidersResponse {
 
   // Who may create new accounts.
   SignupMode signup_mode = 3;
+
+  // Members can set a new password through an e-mailed link
+  // (RequestPasswordReset): password sign-in is on and the server sends
+  // e-mail.
+  bool password_reset_available = 4;
 }
 
 // LoginRequest holds credentials.
@@ -478,6 +497,33 @@ message VerifySignupResponse {
   // Session of the new user, owner of the new organization.
   Session session = 1;
 }
+
+// RequestPasswordResetRequest names the account.
+message RequestPasswordResetRequest {
+  // E-mail address of the account.
+  string email = 1 [(buf.validate.field).string.email = true];
+}
+
+// RequestPasswordResetResponse has no fields.
+message RequestPasswordResetResponse {}
+
+// ResetPasswordRequest carries the link token and the new password.
+message ResetPasswordRequest {
+  // Token from the link, the last path segment of /reset-password/<token>.
+  string token = 1 [(buf.validate.field).string = {
+    min_len: 16
+    max_len: 128
+  }];
+
+  // New password, at least 10 characters.
+  string new_password = 2 [(buf.validate.field).string = {
+    min_len: 10
+    max_len: 200
+  }];
+}
+
+// ResetPasswordResponse has no fields.
+message ResetPasswordResponse {}
 
 // GetInvitationRequest identifies an invitation.
 message GetInvitationRequest {

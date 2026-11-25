@@ -284,12 +284,18 @@ message InviteMemberRequest {
     defined_only: true
     not_in: [0]
   }];
+
+  // Also e-mail the link to the address, when the server sends e-mail.
+  bool send_email = 3;
 }
 
 // InviteMemberResponse returns the invitation with its link.
 message InviteMemberResponse {
   // The invitation; url holds the link to share.
   Invitation invitation = 1;
+
+  // The link was e-mailed to the address.
+  bool email_sent = 2;
 }
 
 // RevokeInvitationRequest identifies an invitation.

@@ -43,7 +43,7 @@ Telefon değiştirirken eski telefon elinizdeyken kapatıp yeni telefonla yenide
   izci user reset-2fa ayse@kentos.com.tr
   ```
 
-Sıfırlama kişinin bütün oturumlarını kapatır (yönetici kendi hesabını sıfırlıyorsa o anki oturumu açık kalır). Sıfırlanan hesap yalnız parolayla girer ve iki adımlı doğrulamayı yeniden açabilir. `izci user list` hangi hesaplarda açık olduğunu gösterir.
+Sıfırlama kişinin bütün oturumlarını kapatır (yönetici kendi hesabını sıfırlıyorsa o anki oturumu açık kalır). Sıfırlanan hesap yalnız parolayla girer ve iki adımlı doğrulamayı yeniden açabilir. Sunucuda SMTP ayarlıysa iki adımlı doğrulama kapatıldığında (kişinin kendisi ya da yönetici kapatsın) kişiye e-postayla haber verilir; böylece hesabını ele geçiren biri korumayı sessizce kaldıramaz. `izci user list` hangi hesaplarda açık olduğunu gösterir.
 
 ## Organizasyonda zorunlu tutma
 
