@@ -7,6 +7,7 @@ import { TabbedCard, TabStrip, tabActiveOptions, tabClass } from "@/components/c
 import { ProjectAi } from "@/components/project/ai";
 import { ProjectFilters } from "@/components/project/filters";
 import { ProjectGeneral } from "@/components/project/general";
+import { ProjectGrouping } from "@/components/project/grouping";
 import { ProjectKeys } from "@/components/project/keys";
 import { ProjectOwnership } from "@/components/project/ownership";
 import { ProjectPrivacy } from "@/components/project/privacy";
@@ -30,6 +31,7 @@ const tabs = [
   { id: "repository", label: "Depo" },
   { id: "ownership", label: "Sahiplik" },
   { id: "filters", label: "Filtreler" },
+  { id: "grouping", label: "Gruplama" },
   { id: "privacy", label: "Gizlilik" },
   { id: "ai", label: "Yapay zekâ" },
 ] as const;
@@ -118,6 +120,7 @@ function ProjectPage() {
           {tab === "repository" ? <ProjectRepository project={project} /> : null}
           {tab === "ownership" ? <ProjectOwnership project={project} /> : null}
           {tab === "filters" ? <ProjectFilters project={project} /> : null}
+          {tab === "grouping" ? <ProjectGrouping key={project.id} project={project} /> : null}
           {tab === "privacy" ? <ProjectPrivacy project={project} /> : null}
           {tab === "ai" ? <ProjectAi project={project} /> : null}
         </TabbedCard>

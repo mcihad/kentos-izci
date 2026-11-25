@@ -27,7 +27,56 @@ type issueKey struct {
 }
 
 func issueKeyOf(p *Processed) issueKey {
+	if p.Remapped {
+		return issueKey{project: p.ProjectID, fingerprint: p.IssueHash}
+	}
 	return issueKey{project: p.ProjectID, fingerprint: p.Grouping.Hash}
+}
+
+// remapMerged points events whose fingerprint was merged into another
+// issue (merged_hashes) at that issue.
+func remapMerged(ctx context.Context, tx pgx.Tx, jobs []*job) error {
+	seen := map[issueKey]bool{}
+	var proj []uuid.UUID
+	var hashes [][]byte
+	for _, j := range jobs {
+		j.p.Remapped = false
+		k := issueKey{j.p.ProjectID, j.p.Grouping.Hash}
+		if !seen[k] {
+			seen[k] = true
+			proj, hashes = append(proj, k.project), append(hashes, k.fingerprint[:])
+		}
+	}
+	rows, err := tx.Query(ctx, `
+		SELECT m.project_id, m.hash, i.fingerprint
+		FROM unnest($1::uuid[], $2::bytea[]) AS t(p, h)
+		JOIN merged_hashes m ON m.project_id = t.p AND m.hash = t.h
+		JOIN issues i ON i.id = m.issue_id`, proj, hashes)
+	if err != nil {
+		return fmt.Errorf("merged fingerprints: %w", err)
+	}
+	defer rows.Close()
+	target := map[issueKey][16]byte{}
+	for rows.Next() {
+		var k issueKey
+		var h, fp []byte
+		if err := rows.Scan(&k.project, &h, &fp); err != nil {
+			return err
+		}
+		copy(k.fingerprint[:], h)
+		var t [16]byte
+		copy(t[:], fp)
+		target[k] = t
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+	for _, j := range jobs {
+		if t, ok := target[issueKey{j.p.ProjectID, j.p.Grouping.Hash}]; ok {
+			j.p.Remapped, j.p.IssueHash = true, t
+		}
+	}
+	return nil
 }
 
 // IssueOutcome describes what a batch did to one issue.
@@ -75,31 +124,12 @@ type Batch struct {
 
 // writeBatch persists one batch in a single system-scoped transaction.
 func (pl *Pipeline) writeBatch(ctx context.Context, jobs []*job) (*Batch, error) {
-	b := &Batch{Issues: map[issueKey]*IssueOutcome{}}
-	for _, j := range jobs {
-		p := j.p
-		b.Events = append(b.Events, p)
-		k := issueKeyOf(p)
-		o, ok := b.Issues[k]
-		if !ok {
-			o = &IssueOutcome{OrgID: p.OrgID, OrgSlug: p.OrgSlug, ProjectID: p.ProjectID, ProjectSlug: p.ProjectSlug}
-			b.Issues[k] = o
-			b.Order = append(b.Order, k)
-		}
-		o.Events = append(o.Events, p)
-	}
-	// Consistent lock order across writers and instances prevents deadlocks.
-	slices.SortFunc(b.Order, func(a, c issueKey) int {
-		if r := bytes.Compare(a.project[:], c.project[:]); r != 0 {
-			return r
-		}
-		return bytes.Compare(a.fingerprint[:], c.fingerprint[:])
-	})
-	for _, o := range b.Issues {
-		slices.SortStableFunc(o.Events, func(a, c *Processed) int { return a.OccurredAt.Compare(c.OccurredAt) })
-	}
-
+	var b *Batch
 	err := pl.db.InSystem(ctx, func(tx pgx.Tx) error {
+		if err := remapMerged(ctx, tx, jobs); err != nil {
+			return err
+		}
+		b = newBatch(jobs)
 		releases, err := upsertDimensions(ctx, tx, b)
 		if err != nil {
 			return err
@@ -128,6 +158,34 @@ func (pl *Pipeline) writeBatch(ctx context.Context, jobs []*job) (*Batch, error)
 		return nil, err
 	}
 	return b, nil
+}
+
+// newBatch groups events by issue, in lock order.
+func newBatch(jobs []*job) *Batch {
+	b := &Batch{Issues: map[issueKey]*IssueOutcome{}}
+	for _, j := range jobs {
+		p := j.p
+		b.Events = append(b.Events, p)
+		k := issueKeyOf(p)
+		o, ok := b.Issues[k]
+		if !ok {
+			o = &IssueOutcome{OrgID: p.OrgID, OrgSlug: p.OrgSlug, ProjectID: p.ProjectID, ProjectSlug: p.ProjectSlug}
+			b.Issues[k] = o
+			b.Order = append(b.Order, k)
+		}
+		o.Events = append(o.Events, p)
+	}
+	// Consistent lock order across writers and instances prevents deadlocks.
+	slices.SortFunc(b.Order, func(a, c issueKey) int {
+		if r := bytes.Compare(a.project[:], c.project[:]); r != 0 {
+			return r
+		}
+		return bytes.Compare(a.fingerprint[:], c.fingerprint[:])
+	})
+	for _, o := range b.Issues {
+		slices.SortStableFunc(o.Events, func(a, c *Processed) int { return a.OccurredAt.Compare(c.OccurredAt) })
+	}
+	return b
 }
 
 // upsertDimensions records environments, releases and customers, and
@@ -272,9 +330,13 @@ func upsertIssues(ctx context.Context, tx pgx.Tx, b *Batch) error {
 		oldest, newest := o.Events[0], o.Latest()
 		org[i], proj[i], lastEvent[i] = o.OrgID, o.ProjectID, newest.ID
 		fp[i] = k.fingerprint[:]
-		g, _ := json.Marshal(map[string]any{
+		gm := map[string]any{
 			"version": GroupingVersion, "strategy": newest.Grouping.Strategy, "components": newest.Grouping.Components,
-		})
+		}
+		if newest.Grouping.Rule != "" {
+			gm["rule"] = newest.Grouping.Rule
+		}
+		g, _ := json.Marshal(gm)
 		grouping[i] = string(g)
 		m, _ := json.Marshal(newest.Location)
 		meta[i] = string(m)
@@ -572,6 +634,7 @@ func insertEvents(ctx context.Context, tx pgx.Tx, b *Batch) error {
 		txn, url, browser, osName, title, warn, body = make([]string, n), make([]string, n), make([]string, n), make([]string, n), make([]string, n), make([]string, n), make([]string, n)
 		unhandled                                    = make([]bool, n)
 		size                                         = make([]int32, n)
+		grouping                                     = make([][]byte, n)
 	)
 	for i, p := range b.Events {
 		id[i], org[i], proj[i], eventID[i] = p.ID, p.OrgID, p.ProjectID, p.EventID
@@ -593,21 +656,25 @@ func insertEvents(ctx context.Context, tx pgx.Tx, b *Batch) error {
 		body[i] = string(p.Payload)
 		unhandled[i] = p.Unhandled
 		size[i] = int32(len(p.Payload))
+		// Only events in an issue of another fingerprint keep their own.
+		if p.Remapped {
+			grouping[i] = p.Grouping.Hash[:]
+		}
 	}
 	_, err := tx.Exec(ctx, `
 		INSERT INTO events (id, received_at, org_id, project_id, issue_id, event_id, occurred_at, level,
 		                    environment, release, customer_key, tenant_key, user_label, client_ip, platform,
 		                    server_name, transaction, url, browser, os, title, score, unhandled, size_bytes,
-		                    warnings, payload)
+		                    warnings, payload, grouping_hash)
 		SELECT id, ra, o, p, i, e, oa, lv, en, rl, cu, te, us, nullif(ip, '')::inet, pl, sv, tx, ur, br, os, ti,
-		       sc, un, sz, wa::jsonb, pa::jsonb
+		       sc, un, sz, wa::jsonb, pa::jsonb, gh
 		FROM unnest($1::uuid[], $2::timestamptz[], $3::uuid[], $4::uuid[], $5::uuid[], $6::uuid[], $7::timestamptz[],
 		            $8::smallint[], $9::text[], $10::text[], $11::text[], $12::text[], $13::text[], $14::text[],
 		            $15::text[], $16::text[], $17::text[], $18::text[], $19::text[], $20::text[], $21::text[],
-		            $22::smallint[], $23::bool[], $24::int[], $25::text[], $26::text[])
-		     AS t(id, ra, o, p, i, e, oa, lv, en, rl, cu, te, us, ip, pl, sv, tx, ur, br, os, ti, sc, un, sz, wa, pa)`,
+		            $22::smallint[], $23::bool[], $24::int[], $25::text[], $26::text[], $27::bytea[])
+		     AS t(id, ra, o, p, i, e, oa, lv, en, rl, cu, te, us, ip, pl, sv, tx, ur, br, os, ti, sc, un, sz, wa, pa, gh)`,
 		id, received, org, proj, issue, eventID, occurred, level, env, rel, cust, tenant, user, ip, plt,
-		srv, txn, url, browser, osName, title, score, unhandled, size, warn, body)
+		srv, txn, url, browser, osName, title, score, unhandled, size, warn, body, grouping)
 	if err != nil {
 		return fmt.Errorf("insert events: %w", err)
 	}

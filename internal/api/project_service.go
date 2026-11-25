@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,6 +17,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"google.golang.org/protobuf/encoding/protojson"
 
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
 	"github.com/mcihad/kentos-izci/gen/izci/api/v1/apiv1connect"
@@ -262,6 +264,11 @@ func (s *ProjectServer) UpdateProject(ctx context.Context, req *connect.Request[
 			settings = normalizeProjectSettings(m.GetSettings())
 			if err := validateFilters(settings.GetFilters()); err != nil {
 				return err
+			}
+			if _, errs := ingest.ParseGroupingRules(settings.GetGrouping().GetFingerprintRules(),
+				settings.GetGrouping().GetStacktraceRules()); len(errs) > 0 {
+				e := errs[0]
+				return fieldError("settings.grouping."+e.Field, fmt.Sprintf("line %d: %s", e.Line, e.Msg))
 			}
 			if err := checkRetention(ctx, "settings.privacy.retention_days", settings.GetPrivacy().GetRetentionDays(),
 				p.Settings.GetPrivacy().GetRetentionDays(), s.orgRetentionDays(t.Org)); err != nil {
@@ -993,4 +1000,64 @@ func (s *ProjectServer) UnlinkRepository(ctx context.Context, req *connect.Reque
 		return nil, internal(ctx, s.log, "unlink repository", err)
 	}
 	return connect.NewResponse(&apiv1.UnlinkRepositoryResponse{}), nil
+}
+
+// TestGroupingRules implements ProjectService.TestGroupingRules.
+func (s *ProjectServer) TestGroupingRules(ctx context.Context, req *connect.Request[apiv1.TestGroupingRulesRequest]) (*connect.Response[apiv1.TestGroupingRulesResponse], error) {
+	m := req.Msg
+	rules, errs := ingest.ParseGroupingRules(m.GetGrouping().GetFingerprintRules(), m.GetGrouping().GetStacktraceRules())
+	out := &apiv1.TestGroupingRulesResponse{}
+	for _, e := range errs {
+		out.Problems = append(out.Problems, &apiv1.GroupingRuleProblem{Field: e.Field, Line: uint32(e.Line), Message: e.Msg,
+			Kind: e.Kind, Value: e.Value})
+	}
+	err := s.inOrg(ctx, func(tx pgx.Tx, t *auth.Tenant) error {
+		p, err := s.project(ctx, tx, t, m.GetProject())
+		if err != nil || m.GetEventId() == "" {
+			return err
+		}
+		where, args, ok := eventByID(m.GetEventId())
+		if !ok {
+			return errNotFound("event")
+		}
+		var payload []byte
+		var platform string
+		var issueID uuid.UUID
+		args = append(args, p.ID)
+		err = tx.QueryRow(ctx, `SELECT e.payload, e.platform, e.issue_id FROM events e WHERE `+where+
+			` AND e.project_id = $`+strconv.Itoa(len(args)), args...).Scan(&payload, &platform, &issueID)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return errNotFound("event")
+		}
+		if err != nil {
+			return err
+		}
+		var ev ingestv1.Event
+		if err := protojson.Unmarshal(payload, &ev); err != nil {
+			return err
+		}
+		g := ingest.RegroupStored(&ev, platform, rules)
+		out.Grouping = &apiv1.Grouping{Version: ingest.GroupingVersion, Strategy: g.Strategy, Components: g.Components,
+			Fingerprint: hex.EncodeToString(g.Hash[:]), Rule: g.Rule}
+		var target uuid.UUID
+		var seq int32
+		err = tx.QueryRow(ctx, `
+			SELECT id, coalesce(short_seq, 0) FROM issues WHERE project_id = $1 AND fingerprint = $2
+			UNION ALL
+			SELECT i.id, coalesce(i.short_seq, 0) FROM merged_hashes m JOIN issues i ON i.id = m.issue_id
+			WHERE m.project_id = $1 AND m.hash = $2
+			LIMIT 1`, p.ID, g.Hash[:]).Scan(&target, &seq)
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			return nil
+		case err != nil:
+			return err
+		}
+		out.IssueShortId, out.SameIssue = ingest.ShortID(p.Slug, seq), target == issueID
+		return nil
+	})
+	if err != nil {
+		return nil, internal(ctx, s.log, "test grouping rules", err)
+	}
+	return connect.NewResponse(out), nil
 }

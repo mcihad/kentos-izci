@@ -9,6 +9,8 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Series, StatsPeriod, UserRef } from "./common_pb";
 import { file_izci_api_v1_common } from "./common_pb";
+import type { Grouping } from "./issue_pb";
+import { file_izci_api_v1_issue } from "./issue_pb";
 import type { Level } from "../../ingest/v1/event_pb";
 import { file_izci_ingest_v1_event } from "../../ingest/v1/event_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -17,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file izci/api/v1/project.proto.
  */
 export const file_izci_api_v1_project: GenFile = /*@__PURE__*/
-  fileDesc("ChlpemNpL2FwaS92MS9wcm9qZWN0LnByb3RvEgtpemNpLmFwaS52MSKUAgoHUHJvamVjdBIKCgJpZBgBIAEoCRIMCgRzbHVnGAIgASgJEgwKBG5hbWUYAyABKAkSEAoIcGxhdGZvcm0YBCABKAkSEQoJcHVibGljX2lkGAUgASgEEi4KCHNldHRpbmdzGAYgASgLMhwuaXpjaS5hcGkudjEuUHJvamVjdFNldHRpbmdzEjIKCnJlcG9zaXRvcnkYByABKAsyHi5pemNpLmFwaS52MS5Qcm9qZWN0UmVwb3NpdG9yeRIoCgVzdGF0cxgIIAEoCzIZLml6Y2kuYXBpLnYxLlByb2plY3RTdGF0cxIuCgpjcmVhdGVkX2F0GAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCKZAQoMUHJvamVjdFN0YXRzEhkKEXVucmVzb2x2ZWRfaXNzdWVzGAEgASgNEhIKCmV2ZW50c18yNGgYAiABKAQSJwoKc2VyaWVzXzI0aBgDIAEoCzITLml6Y2kuYXBpLnYxLlNlcmllcxIxCg1sYXN0X2V2ZW50X2F0GAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCKDAgoPUHJvamVjdFNldHRpbmdzEi0KB3ByaXZhY3kYASABKAsyHC5pemNpLmFwaS52MS5Qcml2YWN5U2V0dGluZ3MSJwoGaW5fYXBwGAIgASgLMhcuaXpjaS5hcGkudjEuSW5BcHBSdWxlcxIdChVyYXRlX2xpbWl0X3Blcl9taW51dGUYAyABKA0SJgoUaWdub3JlZF9lbnZpcm9ubWVudHMYBCADKAlCCLpIBZIBAhAUEiMKAmFpGAUgASgLMhcuaXpjaS5hcGkudjEuQWlTZXR0aW5ncxIsCgdmaWx0ZXJzGAYgASgLMhsuaXpjaS5hcGkudjEuSW5ib3VuZEZpbHRlcnMi5gEKDkluYm91bmRGaWx0ZXJzEhoKEmJyb3dzZXJfZXh0ZW5zaW9ucxgBIAEoCBIUCgx3ZWJfY3Jhd2xlcnMYAiABKAgSFwoPbGVnYWN5X2Jyb3dzZXJzGAMgASgIEhEKCWxvY2FsaG9zdBgEIAEoCBIpCg5lcnJvcl9tZXNzYWdlcxgFIAMoCUIRukgOkgELEDIiB3IFEAEYyAESJgoMaXBfYWRkcmVzc2VzGAYgAygJQhC6SA2SAQoQMiIGcgQQARgyEiMKCHJlbGVhc2VzGAcgAygJQhG6SA6SAQsQMiIHcgUQARjIASL2AQoPUHJpdmFjeVNldHRpbmdzEioKCmlwX3N0b3JhZ2UYASABKA4yFi5pemNpLmFwaS52MS5JcFN0b3JhZ2USHgoMc2NydWJfZmllbGRzGAIgAygJQgi6SAWSAQIQZBIdCgtzYWZlX2ZpZWxkcxgDIAMoCUIIukgFkgECEGQSGwoTc3RvcmVfY29va2llX3ZhbHVlcxgEIAEoCBIcChRzdG9yZV9yZXF1ZXN0X2JvZGllcxgFIAEoCBIbChNkaXNjYXJkX2F0dGFjaG1lbnRzGAYgASgIEiAKDnJldGVudGlvbl9kYXlzGAcgASgNQgi6SAUqAxjCHCJCCgpJbkFwcFJ1bGVzEhkKB2luY2x1ZGUYASADKAlCCLpIBZIBAhAyEhkKB2V4Y2x1ZGUYAiADKAlCCLpIBZIBAhAyIpECCgpBaVNldHRpbmdzEi4KDGF1dG9fYW5hbHl6ZRgBIAEoDjIYLml6Y2kuYXBpLnYxLkF1dG9BbmFseXplEigKCW1pbl9sZXZlbBgCIAEoDjIVLml6Y2kuaW5nZXN0LnYxLkxldmVsEiwKC2F1dG9fYWN0aW9uGAMgASgOMhcuaXpjaS5hcGkudjEuQXV0b0FjdGlvbhIeCgxkYWlseV9idWRnZXQYBCABKA1CCLpIBSoDGOgHEhcKBW1vZGVsGAUgASgJQgi6SAVyAxiAARIiChBhbGxvd2VkX2NvbW1hbmRzGAYgAygJQgi6SAWSAQIQHhIeCgxpbnN0cnVjdGlvbnMYByABKAlCCLpIBXIDGKAfIt8BChFQcm9qZWN0UmVwb3NpdG9yeRIWCg5pbnRlZ3JhdGlvbl9pZBgBIAEoCRIQCghwcm92aWRlchgCIAEoCRINCgVvd25lchgDIAEoCRIMCgRuYW1lGAQgASgJEgsKA3VybBgFIAEoCRIWCg5kZWZhdWx0X2JyYW5jaBgGIAEoCRIvCg1wYXRoX21hcHBpbmdzGAcgAygLMhguaXpjaS5hcGkudjEuUGF0aE1hcHBpbmcSLQoJbGlua2VkX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJLCgtQYXRoTWFwcGluZxIfCgtmcm9tX3ByZWZpeBgBIAEoCUIKukgHcgUQARiABBIbCgl0b19wcmVmaXgYAiABKAlCCLpIBXIDGIAEIuYCCgZBcGlLZXkSCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIOCgZwcmVmaXgYAyABKAkSKAoGc2NvcGVzGAQgAygOMhguaXpjaS5hcGkudjEuQXBpS2V5U2NvcGUSFwoPYWxsb3dlZF9vcmlnaW5zGAUgAygJEh0KFXJhdGVfbGltaXRfcGVyX21pbnV0ZRgGIAEoDRIPCgdlbmFibGVkGAcgASgIEigKCmNyZWF0ZWRfYnkYCCABKAsyFC5pemNpLmFwaS52MS5Vc2VyUmVmEi4KCmNyZWF0ZWRfYXQYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGxhc3RfdXNlZF9hdBgKIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMwoPYnJvd3Nlcl9zZWVuX2F0GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJ6CgtFbnZpcm9ubWVudBIMCgRuYW1lGAEgASgJEi4KCmZpcnN0X3NlZW4YAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi0KCWxhc3Rfc2VlbhgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAirQIKB1JlbGVhc2USCgoCaWQYASABKAkSDwoHdmVyc2lvbhgCIAEoCRISCgpjb21taXRfc2hhGAMgASgJEhIKCnJlcG9zaXRvcnkYBCABKAkSCwoDcmVmGAUgASgJEgsKA3VybBgGIAEoCRIuCgpmaXJzdF9zZWVuGAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBItCglsYXN0X3NlZW4YCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiQKB2RlcGxveXMYCSADKAsyEy5pemNpLmFwaS52MS5EZXBsb3kSEgoKbmV3X2lzc3VlcxgKIAEoDRIqCgZoZWFsdGgYCyABKAsyGi5pemNpLmFwaS52MS5SZWxlYXNlSGVhbHRoIsgBCg1SZWxlYXNlSGVhbHRoEhAKCHNlc3Npb25zGAEgASgEEhgKEGVycm9yZWRfc2Vzc2lvbnMYAiABKAQSGAoQY3Jhc2hlZF9zZXNzaW9ucxgDIAEoBBIZChFhYm5vcm1hbF9zZXNzaW9ucxgEIAEoBBIbChNjcmFzaF9mcmVlX3Nlc3Npb25zGAUgASgBEg0KBXVzZXJzGAYgASgEEhgKEGNyYXNoX2ZyZWVfdXNlcnMYByABKAESEAoIYWRvcHRpb24YCCABKAEiYwoGRGVwbG95EhMKC2Vudmlyb25tZW50GAEgASgJEi8KC2RlcGxveWVkX2F0GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgtkZXBsb3llZF9ieRgDIAEoCSIVChNMaXN0UHJvamVjdHNSZXF1ZXN0Ij4KFExpc3RQcm9qZWN0c1Jlc3BvbnNlEiYKCHByb2plY3RzGAEgAygLMhQuaXpjaS5hcGkudjEuUHJvamVjdCIsChFHZXRQcm9qZWN0UmVxdWVzdBIXCgRzbHVnGAEgASgJQgm6SAZyBBABGDIiOwoSR2V0UHJvamVjdFJlc3BvbnNlEiUKB3Byb2plY3QYASABKAsyFC5pemNpLmFwaS52MS5Qcm9qZWN0IoIBChRDcmVhdGVQcm9qZWN0UmVxdWVzdBIXCgRuYW1lGAEgASgJQgm6SAZyBBABGGQSNgoEc2x1ZxgCIAEoCUIoukglciMyIV4kfF5bYS16XVthLXowLTktXXswLDQ4fVthLXowLTldJBIZCghwbGF0Zm9ybRgDIAEoCUIHukgEcgIYICJ8ChVDcmVhdGVQcm9qZWN0UmVzcG9uc2USJQoHcHJvamVjdBgBIAEoCzIULml6Y2kuYXBpLnYxLlByb2plY3QSJAoHYXBpX2tleRgCIAEoCzITLml6Y2kuYXBpLnYxLkFwaUtleRIWCg5hcGlfa2V5X3NlY3JldBgDIAEoCSKRAQoUVXBkYXRlUHJvamVjdFJlcXVlc3QSFwoEc2x1ZxgBIAEoCUIJukgGcgQQARgyEhUKBG5hbWUYAiABKAlCB7pIBHICGGQSGQoIcGxhdGZvcm0YAyABKAlCB7pIBHICGCASLgoIc2V0dGluZ3MYBCABKAsyHC5pemNpLmFwaS52MS5Qcm9qZWN0U2V0dGluZ3MiPgoVVXBkYXRlUHJvamVjdFJlc3BvbnNlEiUKB3Byb2plY3QYASABKAsyFC5pemNpLmFwaS52MS5Qcm9qZWN0IkUKFERlbGV0ZVByb2plY3RSZXF1ZXN0EhcKBHNsdWcYASABKAlCCbpIBnIEEAEYMhIUCgxjb25maXJtX3NsdWcYAiABKAkiFwoVRGVsZXRlUHJvamVjdFJlc3BvbnNlIkkKEkxpc3RBcGlLZXlzUmVxdWVzdBIaCgdwcm9qZWN0GAEgASgJQgm6SAZyBBABGDISFwoPaW5jbHVkZV9yZXZva2VkGAIgASgIIjgKE0xpc3RBcGlLZXlzUmVzcG9uc2USIQoEa2V5cxgBIAMoCzITLml6Y2kuYXBpLnYxLkFwaUtleSK9AQoTQ3JlYXRlQXBpS2V5UmVxdWVzdBIaCgdwcm9qZWN0GAEgASgJQgm6SAZyBBABGDISFwoEbmFtZRgCIAEoCUIJukgGcgQQARhkEigKBnNjb3BlcxgDIAMoDjIYLml6Y2kuYXBpLnYxLkFwaUtleVNjb3BlEigKD2FsbG93ZWRfb3JpZ2lucxgEIAMoCUIPukgMkgEJEBQiBXIDiAEBEh0KFXJhdGVfbGltaXRfcGVyX21pbnV0ZRgFIAEoDSJcChRDcmVhdGVBcGlLZXlSZXNwb25zZRIgCgNrZXkYASABKAsyEy5pemNpLmFwaS52MS5BcGlLZXkSDgoGc2VjcmV0GAIgASgJEhIKCnNlbnRyeV9kc24YAyABKAkitQEKE1VwZGF0ZUFwaUtleVJlcXVlc3QSGgoHcHJvamVjdBgBIAEoCUIJukgGcgQQARgyEhgKBmtleV9pZBgCIAEoCUIIukgFcgOwAQESFQoEbmFtZRgDIAEoCUIHukgEcgIYZBIhCg9hbGxvd2VkX29yaWdpbnMYBCADKAlCCLpIBZIBAhAUEh0KFXJhdGVfbGltaXRfcGVyX21pbnV0ZRgFIAEoDRIPCgdlbmFibGVkGAYgASgIIjgKFFVwZGF0ZUFwaUtleVJlc3BvbnNlEiAKA2tleRgBIAEoCzITLml6Y2kuYXBpLnYxLkFwaUtleSJLChNSZXZva2VBcGlLZXlSZXF1ZXN0EhoKB3Byb2plY3QYASABKAlCCbpIBnIEEAEYMhIYCgZrZXlfaWQYAiABKAlCCLpIBXIDsAEBIhYKFFJldm9rZUFwaUtleVJlc3BvbnNlIjcKGUdldEluZ2VzdEVuZHBvaW50c1JlcXVlc3QSGgoHcHJvamVjdBgBIAEoCUIJukgGcgQQARgyIoUBChpHZXRJbmdlc3RFbmRwb2ludHNSZXNwb25zZRIQCghiYXNlX3VybBgBIAEoCRITCgtncnBjX3RhcmdldBgCIAEoCRIQCghncnBjX3RscxgDIAEoCBIbChNzZW50cnlfZHNuX3RlbXBsYXRlGAQgASgJEhEKCXB1YmxpY19pZBgFIAEoBCIyChRTZW5kVGVzdEV2ZW50UmVxdWVzdBIaCgdwcm9qZWN0GAEgASgJQgm6SAZyBBABGDIiUwoVU2VuZFRlc3RFdmVudFJlc3BvbnNlEhAKCGV2ZW50X2lkGAEgASgJEhAKCGlzc3VlX2lkGAIgASgJEhYKDmlzc3VlX3Nob3J0X2lkGAMgASgJIjMKF0xpc3RFbnZpcm9ubWVudHNSZXF1ZXN0EhgKB3Byb2plY3QYASABKAlCB7pIBHICGDIiSgoYTGlzdEVudmlyb25tZW50c1Jlc3BvbnNlEi4KDGVudmlyb25tZW50cxgBIAMoCzIYLml6Y2kuYXBpLnYxLkVudmlyb25tZW50IpIBChNMaXN0UmVsZWFzZXNSZXF1ZXN0EhoKB3Byb2plY3QYASABKAlCCbpIBnIEEAEYMhIaCglwYWdlX3NpemUYAiABKA1CB7pIBCoCGGQSEgoKcGFnZV90b2tlbhgDIAEoCRIvCg1oZWFsdGhfcGVyaW9kGAQgASgOMhguaXpjaS5hcGkudjEuU3RhdHNQZXJpb2QiVwoUTGlzdFJlbGVhc2VzUmVzcG9uc2USJgoIcmVsZWFzZXMYASADKAsyFC5pemNpLmFwaS52MS5SZWxlYXNlEhcKD25leHRfcGFnZV90b2tlbhgCIAEoCSLIAQoVTGlua1JlcG9zaXRvcnlSZXF1ZXN0EhoKB3Byb2plY3QYASABKAlCCbpIBnIEEAEYMhIWCg5pbnRlZ3JhdGlvbl9pZBgCIAEoCRIeCgpyZXBvc2l0b3J5GAMgASgJQgq6SAdyBRADGKwCEiAKDmRlZmF1bHRfYnJhbmNoGAQgASgJQgi6SAVyAxjIARI5Cg1wYXRoX21hcHBpbmdzGAUgAygLMhguaXpjaS5hcGkudjEuUGF0aE1hcHBpbmdCCLpIBZIBAhAUIkwKFkxpbmtSZXBvc2l0b3J5UmVzcG9uc2USMgoKcmVwb3NpdG9yeRgBIAEoCzIeLml6Y2kuYXBpLnYxLlByb2plY3RSZXBvc2l0b3J5IjUKF1VubGlua1JlcG9zaXRvcnlSZXF1ZXN0EhoKB3Byb2plY3QYASABKAlCCbpIBnIEEAEYMiIaChhVbmxpbmtSZXBvc2l0b3J5UmVzcG9uc2UiMwoVR2V0RmlsdGVyU3RhdHNSZXF1ZXN0EhoKB3Byb2plY3QYASABKAlCCbpIBnIEEAEYMiJ3ChZHZXRGaWx0ZXJTdGF0c1Jlc3BvbnNlEigKB3JlYXNvbnMYASADKAsyFy5pemNpLmFwaS52MS5GaWx0ZXJTdGF0EiQKBGRheXMYAiADKAsyFi5pemNpLmFwaS52MS5GaWx0ZXJEYXkSDQoFdG90YWwYAyABKAQiRgoKRmlsdGVyU3RhdBIpCgZyZWFzb24YASABKA4yGS5pemNpLmFwaS52MS5GaWx0ZXJSZWFzb24SDQoFY291bnQYAiABKAQiJwoJRmlsdGVyRGF5EgsKA2RheRgBIAEoCRINCgVjb3VudBgCIAEoBCqpAgoMRmlsdGVyUmVhc29uEh0KGUZJTFRFUl9SRUFTT05fVU5TUEVDSUZJRUQQABIdChlGSUxURVJfUkVBU09OX0VOVklST05NRU5UEAESIwofRklMVEVSX1JFQVNPTl9CUk9XU0VSX0VYVEVOU0lPThACEh0KGUZJTFRFUl9SRUFTT05fV0VCX0NSQVdMRVIQAxIgChxGSUxURVJfUkVBU09OX0xFR0FDWV9CUk9XU0VSEAQSGwoXRklMVEVSX1JFQVNPTl9MT0NBTEhPU1QQBRIfChtGSUxURVJfUkVBU09OX0VSUk9SX01FU1NBR0UQBhIcChhGSUxURVJfUkVBU09OX0lQX0FERFJFU1MQBxIZChVGSUxURVJfUkVBU09OX1JFTEVBU0UQCCpsCglJcFN0b3JhZ2USGgoWSVBfU1RPUkFHRV9VTlNQRUNJRklFRBAAEhMKD0lQX1NUT1JBR0VfRlVMTBABEhkKFUlQX1NUT1JBR0VfQU5PTllNSVpFRBACEhMKD0lQX1NUT1JBR0VfTk9ORRADKl4KC0F1dG9BbmFseXplEhwKGEFVVE9fQU5BTFlaRV9VTlNQRUNJRklFRBAAEhQKEEFVVE9fQU5BTFlaRV9PRkYQARIbChdBVVRPX0FOQUxZWkVfTkVXX0lTU1VFUxACKpkBCgpBdXRvQWN0aW9uEhsKF0FVVE9fQUNUSU9OX1VOU1BFQ0lGSUVEEAASFAoQQVVUT19BQ1RJT05fTk9ORRABEhYKEkFVVE9fQUNUSU9OX0JSQU5DSBACEiIKHkFVVE9fQUNUSU9OX0RSQUZUX1BVTExfUkVRVUVTVBADEhwKGEFVVE9fQUNUSU9OX1BVTExfUkVRVUVTVBAEKmIKC0FwaUtleVNjb3BlEh0KGUFQSV9LRVlfU0NPUEVfVU5TUEVDSUZJRUQQABIYChRBUElfS0VZX1NDT1BFX0lOR0VTVBABEhoKFkFQSV9LRVlfU0NPUEVfUkVMRUFTRVMQAjK8CwoOUHJvamVjdFNlcnZpY2USWAoMTGlzdFByb2plY3RzEiAuaXpjaS5hcGkudjEuTGlzdFByb2plY3RzUmVxdWVzdBohLml6Y2kuYXBpLnYxLkxpc3RQcm9qZWN0c1Jlc3BvbnNlIgOQAgESUgoKR2V0UHJvamVjdBIeLml6Y2kuYXBpLnYxLkdldFByb2plY3RSZXF1ZXN0Gh8uaXpjaS5hcGkudjEuR2V0UHJvamVjdFJlc3BvbnNlIgOQAgESVgoNQ3JlYXRlUHJvamVjdBIhLml6Y2kuYXBpLnYxLkNyZWF0ZVByb2plY3RSZXF1ZXN0GiIuaXpjaS5hcGkudjEuQ3JlYXRlUHJvamVjdFJlc3BvbnNlElYKDVVwZGF0ZVByb2plY3QSIS5pemNpLmFwaS52MS5VcGRhdGVQcm9qZWN0UmVxdWVzdBoiLml6Y2kuYXBpLnYxLlVwZGF0ZVByb2plY3RSZXNwb25zZRJWCg1EZWxldGVQcm9qZWN0EiEuaXpjaS5hcGkudjEuRGVsZXRlUHJvamVjdFJlcXVlc3QaIi5pemNpLmFwaS52MS5EZWxldGVQcm9qZWN0UmVzcG9uc2USVQoLTGlzdEFwaUtleXMSHy5pemNpLmFwaS52MS5MaXN0QXBpS2V5c1JlcXVlc3QaIC5pemNpLmFwaS52MS5MaXN0QXBpS2V5c1Jlc3BvbnNlIgOQAgESUwoMQ3JlYXRlQXBpS2V5EiAuaXpjaS5hcGkudjEuQ3JlYXRlQXBpS2V5UmVxdWVzdBohLml6Y2kuYXBpLnYxLkNyZWF0ZUFwaUtleVJlc3BvbnNlElMKDFVwZGF0ZUFwaUtleRIgLml6Y2kuYXBpLnYxLlVwZGF0ZUFwaUtleVJlcXVlc3QaIS5pemNpLmFwaS52MS5VcGRhdGVBcGlLZXlSZXNwb25zZRJTCgxSZXZva2VBcGlLZXkSIC5pemNpLmFwaS52MS5SZXZva2VBcGlLZXlSZXF1ZXN0GiEuaXpjaS5hcGkudjEuUmV2b2tlQXBpS2V5UmVzcG9uc2USagoSR2V0SW5nZXN0RW5kcG9pbnRzEiYuaXpjaS5hcGkudjEuR2V0SW5nZXN0RW5kcG9pbnRzUmVxdWVzdBonLml6Y2kuYXBpLnYxLkdldEluZ2VzdEVuZHBvaW50c1Jlc3BvbnNlIgOQAgESXgoOR2V0RmlsdGVyU3RhdHMSIi5pemNpLmFwaS52MS5HZXRGaWx0ZXJTdGF0c1JlcXVlc3QaIy5pemNpLmFwaS52MS5HZXRGaWx0ZXJTdGF0c1Jlc3BvbnNlIgOQAgESVgoNU2VuZFRlc3RFdmVudBIhLml6Y2kuYXBpLnYxLlNlbmRUZXN0RXZlbnRSZXF1ZXN0GiIuaXpjaS5hcGkudjEuU2VuZFRlc3RFdmVudFJlc3BvbnNlEmQKEExpc3RFbnZpcm9ubWVudHMSJC5pemNpLmFwaS52MS5MaXN0RW52aXJvbm1lbnRzUmVxdWVzdBolLml6Y2kuYXBpLnYxLkxpc3RFbnZpcm9ubWVudHNSZXNwb25zZSIDkAIBElgKDExpc3RSZWxlYXNlcxIgLml6Y2kuYXBpLnYxLkxpc3RSZWxlYXNlc1JlcXVlc3QaIS5pemNpLmFwaS52MS5MaXN0UmVsZWFzZXNSZXNwb25zZSIDkAIBElkKDkxpbmtSZXBvc2l0b3J5EiIuaXpjaS5hcGkudjEuTGlua1JlcG9zaXRvcnlSZXF1ZXN0GiMuaXpjaS5hcGkudjEuTGlua1JlcG9zaXRvcnlSZXNwb25zZRJfChBVbmxpbmtSZXBvc2l0b3J5EiQuaXpjaS5hcGkudjEuVW5saW5rUmVwb3NpdG9yeVJlcXVlc3QaJS5pemNpLmFwaS52MS5VbmxpbmtSZXBvc2l0b3J5UmVzcG9uc2VCogEKD2NvbS5pemNpLmFwaS52MUIMUHJvamVjdFByb3RvUAFaM2dpdGh1Yi5jb20vbWNpaGFkL2tlbnRvcy1pemNpL2dlbi9pemNpL2FwaS92MTthcGl2MaICA0lBWKoCC0l6Y2kuQXBpLlYxygILSXpjaVxBcGlcVjHiAhdJemNpXEFwaVxWMVxHUEJNZXRhZGF0YeoCDUl6Y2k6OkFwaTo6VjFiBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_timestamp, file_izci_api_v1_common, file_izci_ingest_v1_event]);
+  fileDesc("ChlpemNpL2FwaS92MS9wcm9qZWN0LnByb3RvEgtpemNpLmFwaS52MSKUAgoHUHJvamVjdBIKCgJpZBgBIAEoCRIMCgRzbHVnGAIgASgJEgwKBG5hbWUYAyABKAkSEAoIcGxhdGZvcm0YBCABKAkSEQoJcHVibGljX2lkGAUgASgEEi4KCHNldHRpbmdzGAYgASgLMhwuaXpjaS5hcGkudjEuUHJvamVjdFNldHRpbmdzEjIKCnJlcG9zaXRvcnkYByABKAsyHi5pemNpLmFwaS52MS5Qcm9qZWN0UmVwb3NpdG9yeRIoCgVzdGF0cxgIIAEoCzIZLml6Y2kuYXBpLnYxLlByb2plY3RTdGF0cxIuCgpjcmVhdGVkX2F0GAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCKZAQoMUHJvamVjdFN0YXRzEhkKEXVucmVzb2x2ZWRfaXNzdWVzGAEgASgNEhIKCmV2ZW50c18yNGgYAiABKAQSJwoKc2VyaWVzXzI0aBgDIAEoCzITLml6Y2kuYXBpLnYxLlNlcmllcxIxCg1sYXN0X2V2ZW50X2F0GAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCK0AgoPUHJvamVjdFNldHRpbmdzEi0KB3ByaXZhY3kYASABKAsyHC5pemNpLmFwaS52MS5Qcml2YWN5U2V0dGluZ3MSJwoGaW5fYXBwGAIgASgLMhcuaXpjaS5hcGkudjEuSW5BcHBSdWxlcxIdChVyYXRlX2xpbWl0X3Blcl9taW51dGUYAyABKA0SJgoUaWdub3JlZF9lbnZpcm9ubWVudHMYBCADKAlCCLpIBZIBAhAUEiMKAmFpGAUgASgLMhcuaXpjaS5hcGkudjEuQWlTZXR0aW5ncxIsCgdmaWx0ZXJzGAYgASgLMhsuaXpjaS5hcGkudjEuSW5ib3VuZEZpbHRlcnMSLwoIZ3JvdXBpbmcYByABKAsyHS5pemNpLmFwaS52MS5Hcm91cGluZ1NldHRpbmdzIl0KEEdyb3VwaW5nU2V0dGluZ3MSJAoRZmluZ2VycHJpbnRfcnVsZXMYASABKAlCCbpIBnIEGICABBIjChBzdGFja3RyYWNlX3J1bGVzGAIgASgJQgm6SAZyBBiAgAQihgEKE0dyb3VwaW5nUnVsZVByb2JsZW0SDQoFZmllbGQYASABKAkSDAoEbGluZRgCIAEoDRIPCgdtZXNzYWdlGAMgASgJEjIKBGtpbmQYBCABKA4yJC5pemNpLmFwaS52MS5Hcm91cGluZ1J1bGVQcm9ibGVtS2luZBINCgV2YWx1ZRgFIAEoCSLmAQoOSW5ib3VuZEZpbHRlcnMSGgoSYnJvd3Nlcl9leHRlbnNpb25zGAEgASgIEhQKDHdlYl9jcmF3bGVycxgCIAEoCBIXCg9sZWdhY3lfYnJvd3NlcnMYAyABKAgSEQoJbG9jYWxob3N0GAQgASgIEikKDmVycm9yX21lc3NhZ2VzGAUgAygJQhG6SA6SAQsQMiIHcgUQARjIARImCgxpcF9hZGRyZXNzZXMYBiADKAlCELpIDZIBChAyIgZyBBABGDISIwoIcmVsZWFzZXMYByADKAlCEbpIDpIBCxAyIgdyBRABGMgBIvYBCg9Qcml2YWN5U2V0dGluZ3MSKgoKaXBfc3RvcmFnZRgBIAEoDjIWLml6Y2kuYXBpLnYxLklwU3RvcmFnZRIeCgxzY3J1Yl9maWVsZHMYAiADKAlCCLpIBZIBAhBkEh0KC3NhZmVfZmllbGRzGAMgAygJQgi6SAWSAQIQZBIbChNzdG9yZV9jb29raWVfdmFsdWVzGAQgASgIEhwKFHN0b3JlX3JlcXVlc3RfYm9kaWVzGAUgASgIEhsKE2Rpc2NhcmRfYXR0YWNobWVudHMYBiABKAgSIAoOcmV0ZW50aW9uX2RheXMYByABKA1CCLpIBSoDGMIcIkIKCkluQXBwUnVsZXMSGQoHaW5jbHVkZRgBIAMoCUIIukgFkgECEDISGQoHZXhjbHVkZRgCIAMoCUIIukgFkgECEDIikQIKCkFpU2V0dGluZ3MSLgoMYXV0b19hbmFseXplGAEgASgOMhguaXpjaS5hcGkudjEuQXV0b0FuYWx5emUSKAoJbWluX2xldmVsGAIgASgOMhUuaXpjaS5pbmdlc3QudjEuTGV2ZWwSLAoLYXV0b19hY3Rpb24YAyABKA4yFy5pemNpLmFwaS52MS5BdXRvQWN0aW9uEh4KDGRhaWx5X2J1ZGdldBgEIAEoDUIIukgFKgMY6AcSFwoFbW9kZWwYBSABKAlCCLpIBXIDGIABEiIKEGFsbG93ZWRfY29tbWFuZHMYBiADKAlCCLpIBZIBAhAeEh4KDGluc3RydWN0aW9ucxgHIAEoCUIIukgFcgMYoB8i3wEKEVByb2plY3RSZXBvc2l0b3J5EhYKDmludGVncmF0aW9uX2lkGAEgASgJEhAKCHByb3ZpZGVyGAIgASgJEg0KBW93bmVyGAMgASgJEgwKBG5hbWUYBCABKAkSCwoDdXJsGAUgASgJEhYKDmRlZmF1bHRfYnJhbmNoGAYgASgJEi8KDXBhdGhfbWFwcGluZ3MYByADKAsyGC5pemNpLmFwaS52MS5QYXRoTWFwcGluZxItCglsaW5rZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIksKC1BhdGhNYXBwaW5nEh8KC2Zyb21fcHJlZml4GAEgASgJQgq6SAdyBRABGIAEEhsKCXRvX3ByZWZpeBgCIAEoCUIIukgFcgMYgAQi5gIKBkFwaUtleRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg4KBnByZWZpeBgDIAEoCRIoCgZzY29wZXMYBCADKA4yGC5pemNpLmFwaS52MS5BcGlLZXlTY29wZRIXCg9hbGxvd2VkX29yaWdpbnMYBSADKAkSHQoVcmF0ZV9saW1pdF9wZXJfbWludXRlGAYgASgNEg8KB2VuYWJsZWQYByABKAgSKAoKY3JlYXRlZF9ieRgIIAEoCzIULml6Y2kuYXBpLnYxLlVzZXJSZWYSLgoKY3JlYXRlZF9hdBgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMbGFzdF91c2VkX2F0GAogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIzCg9icm93c2VyX3NlZW5fYXQYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wInoKC0Vudmlyb25tZW50EgwKBG5hbWUYASABKAkSLgoKZmlyc3Rfc2VlbhgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLQoJbGFzdF9zZWVuGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCKtAgoHUmVsZWFzZRIKCgJpZBgBIAEoCRIPCgd2ZXJzaW9uGAIgASgJEhIKCmNvbW1pdF9zaGEYAyABKAkSEgoKcmVwb3NpdG9yeRgEIAEoCRILCgNyZWYYBSABKAkSCwoDdXJsGAYgASgJEi4KCmZpcnN0X3NlZW4YByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi0KCWxhc3Rfc2VlbhgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASJAoHZGVwbG95cxgJIAMoCzITLml6Y2kuYXBpLnYxLkRlcGxveRISCgpuZXdfaXNzdWVzGAogASgNEioKBmhlYWx0aBgLIAEoCzIaLml6Y2kuYXBpLnYxLlJlbGVhc2VIZWFsdGgiyAEKDVJlbGVhc2VIZWFsdGgSEAoIc2Vzc2lvbnMYASABKAQSGAoQZXJyb3JlZF9zZXNzaW9ucxgCIAEoBBIYChBjcmFzaGVkX3Nlc3Npb25zGAMgASgEEhkKEWFibm9ybWFsX3Nlc3Npb25zGAQgASgEEhsKE2NyYXNoX2ZyZWVfc2Vzc2lvbnMYBSABKAESDQoFdXNlcnMYBiABKAQSGAoQY3Jhc2hfZnJlZV91c2VycxgHIAEoARIQCghhZG9wdGlvbhgIIAEoASJjCgZEZXBsb3kSEwoLZW52aXJvbm1lbnQYASABKAkSLwoLZGVwbG95ZWRfYXQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKC2RlcGxveWVkX2J5GAMgASgJIhUKE0xpc3RQcm9qZWN0c1JlcXVlc3QiPgoUTGlzdFByb2plY3RzUmVzcG9uc2USJgoIcHJvamVjdHMYASADKAsyFC5pemNpLmFwaS52MS5Qcm9qZWN0IiwKEUdldFByb2plY3RSZXF1ZXN0EhcKBHNsdWcYASABKAlCCbpIBnIEEAEYMiI7ChJHZXRQcm9qZWN0UmVzcG9uc2USJQoHcHJvamVjdBgBIAEoCzIULml6Y2kuYXBpLnYxLlByb2plY3QiggEKFENyZWF0ZVByb2plY3RSZXF1ZXN0EhcKBG5hbWUYASABKAlCCbpIBnIEEAEYZBI2CgRzbHVnGAIgASgJQii6SCVyIzIhXiR8XlthLXpdW2EtejAtOS1dezAsNDh9W2EtejAtOV0kEhkKCHBsYXRmb3JtGAMgASgJQge6SARyAhggInwKFUNyZWF0ZVByb2plY3RSZXNwb25zZRIlCgdwcm9qZWN0GAEgASgLMhQuaXpjaS5hcGkudjEuUHJvamVjdBIkCgdhcGlfa2V5GAIgASgLMhMuaXpjaS5hcGkudjEuQXBpS2V5EhYKDmFwaV9rZXlfc2VjcmV0GAMgASgJIpEBChRVcGRhdGVQcm9qZWN0UmVxdWVzdBIXCgRzbHVnGAEgASgJQgm6SAZyBBABGDISFQoEbmFtZRgCIAEoCUIHukgEcgIYZBIZCghwbGF0Zm9ybRgDIAEoCUIHukgEcgIYIBIuCghzZXR0aW5ncxgEIAEoCzIcLml6Y2kuYXBpLnYxLlByb2plY3RTZXR0aW5ncyI+ChVVcGRhdGVQcm9qZWN0UmVzcG9uc2USJQoHcHJvamVjdBgBIAEoCzIULml6Y2kuYXBpLnYxLlByb2plY3QiRQoURGVsZXRlUHJvamVjdFJlcXVlc3QSFwoEc2x1ZxgBIAEoCUIJukgGcgQQARgyEhQKDGNvbmZpcm1fc2x1ZxgCIAEoCSIXChVEZWxldGVQcm9qZWN0UmVzcG9uc2UiSQoSTGlzdEFwaUtleXNSZXF1ZXN0EhoKB3Byb2plY3QYASABKAlCCbpIBnIEEAEYMhIXCg9pbmNsdWRlX3Jldm9rZWQYAiABKAgiOAoTTGlzdEFwaUtleXNSZXNwb25zZRIhCgRrZXlzGAEgAygLMhMuaXpjaS5hcGkudjEuQXBpS2V5Ir0BChNDcmVhdGVBcGlLZXlSZXF1ZXN0EhoKB3Byb2plY3QYASABKAlCCbpIBnIEEAEYMhIXCgRuYW1lGAIgASgJQgm6SAZyBBABGGQSKAoGc2NvcGVzGAMgAygOMhguaXpjaS5hcGkudjEuQXBpS2V5U2NvcGUSKAoPYWxsb3dlZF9vcmlnaW5zGAQgAygJQg+6SAySAQkQFCIFcgOIAQESHQoVcmF0ZV9saW1pdF9wZXJfbWludXRlGAUgASgNIlwKFENyZWF0ZUFwaUtleVJlc3BvbnNlEiAKA2tleRgBIAEoCzITLml6Y2kuYXBpLnYxLkFwaUtleRIOCgZzZWNyZXQYAiABKAkSEgoKc2VudHJ5X2RzbhgDIAEoCSK1AQoTVXBkYXRlQXBpS2V5UmVxdWVzdBIaCgdwcm9qZWN0GAEgASgJQgm6SAZyBBABGDISGAoGa2V5X2lkGAIgASgJQgi6SAVyA7ABARIVCgRuYW1lGAMgASgJQge6SARyAhhkEiEKD2FsbG93ZWRfb3JpZ2lucxgEIAMoCUIIukgFkgECEBQSHQoVcmF0ZV9saW1pdF9wZXJfbWludXRlGAUgASgNEg8KB2VuYWJsZWQYBiABKAgiOAoUVXBkYXRlQXBpS2V5UmVzcG9uc2USIAoDa2V5GAEgASgLMhMuaXpjaS5hcGkudjEuQXBpS2V5IksKE1Jldm9rZUFwaUtleVJlcXVlc3QSGgoHcHJvamVjdBgBIAEoCUIJukgGcgQQARgyEhgKBmtleV9pZBgCIAEoCUIIukgFcgOwAQEiFgoUUmV2b2tlQXBpS2V5UmVzcG9uc2UiNwoZR2V0SW5nZXN0RW5kcG9pbnRzUmVxdWVzdBIaCgdwcm9qZWN0GAEgASgJQgm6SAZyBBABGDIihQEKGkdldEluZ2VzdEVuZHBvaW50c1Jlc3BvbnNlEhAKCGJhc2VfdXJsGAEgASgJEhMKC2dycGNfdGFyZ2V0GAIgASgJEhAKCGdycGNfdGxzGAMgASgIEhsKE3NlbnRyeV9kc25fdGVtcGxhdGUYBCABKAkSEQoJcHVibGljX2lkGAUgASgEIjIKFFNlbmRUZXN0RXZlbnRSZXF1ZXN0EhoKB3Byb2plY3QYASABKAlCCbpIBnIEEAEYMiJTChVTZW5kVGVzdEV2ZW50UmVzcG9uc2USEAoIZXZlbnRfaWQYASABKAkSEAoIaXNzdWVfaWQYAiABKAkSFgoOaXNzdWVfc2hvcnRfaWQYAyABKAkiMwoXTGlzdEVudmlyb25tZW50c1JlcXVlc3QSGAoHcHJvamVjdBgBIAEoCUIHukgEcgIYMiJKChhMaXN0RW52aXJvbm1lbnRzUmVzcG9uc2USLgoMZW52aXJvbm1lbnRzGAEgAygLMhguaXpjaS5hcGkudjEuRW52aXJvbm1lbnQikgEKE0xpc3RSZWxlYXNlc1JlcXVlc3QSGgoHcHJvamVjdBgBIAEoCUIJukgGcgQQARgyEhoKCXBhZ2Vfc2l6ZRgCIAEoDUIHukgEKgIYZBISCgpwYWdlX3Rva2VuGAMgASgJEi8KDWhlYWx0aF9wZXJpb2QYBCABKA4yGC5pemNpLmFwaS52MS5TdGF0c1BlcmlvZCJXChRMaXN0UmVsZWFzZXNSZXNwb25zZRImCghyZWxlYXNlcxgBIAMoCzIULml6Y2kuYXBpLnYxLlJlbGVhc2USFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIsgBChVMaW5rUmVwb3NpdG9yeVJlcXVlc3QSGgoHcHJvamVjdBgBIAEoCUIJukgGcgQQARgyEhYKDmludGVncmF0aW9uX2lkGAIgASgJEh4KCnJlcG9zaXRvcnkYAyABKAlCCrpIB3IFEAMYrAISIAoOZGVmYXVsdF9icmFuY2gYBCABKAlCCLpIBXIDGMgBEjkKDXBhdGhfbWFwcGluZ3MYBSADKAsyGC5pemNpLmFwaS52MS5QYXRoTWFwcGluZ0IIukgFkgECEBQiTAoWTGlua1JlcG9zaXRvcnlSZXNwb25zZRIyCgpyZXBvc2l0b3J5GAEgASgLMh4uaXpjaS5hcGkudjEuUHJvamVjdFJlcG9zaXRvcnkiNQoXVW5saW5rUmVwb3NpdG9yeVJlcXVlc3QSGgoHcHJvamVjdBgBIAEoCUIJukgGcgQQARgyIhoKGFVubGlua1JlcG9zaXRvcnlSZXNwb25zZSIzChVHZXRGaWx0ZXJTdGF0c1JlcXVlc3QSGgoHcHJvamVjdBgBIAEoCUIJukgGcgQQARgyIncKFkdldEZpbHRlclN0YXRzUmVzcG9uc2USKAoHcmVhc29ucxgBIAMoCzIXLml6Y2kuYXBpLnYxLkZpbHRlclN0YXQSJAoEZGF5cxgCIAMoCzIWLml6Y2kuYXBpLnYxLkZpbHRlckRheRINCgV0b3RhbBgDIAEoBCJGCgpGaWx0ZXJTdGF0EikKBnJlYXNvbhgBIAEoDjIZLml6Y2kuYXBpLnYxLkZpbHRlclJlYXNvbhINCgVjb3VudBgCIAEoBCInCglGaWx0ZXJEYXkSCwoDZGF5GAEgASgJEg0KBWNvdW50GAIgASgEIooBChhUZXN0R3JvdXBpbmdSdWxlc1JlcXVlc3QSGgoHcHJvamVjdBgBIAEoCUIJukgGcgQQARgyEjcKCGdyb3VwaW5nGAIgASgLMh0uaXpjaS5hcGkudjEuR3JvdXBpbmdTZXR0aW5nc0IGukgDyAEBEhkKCGV2ZW50X2lkGAMgASgJQge6SARyAhhAIqQBChlUZXN0R3JvdXBpbmdSdWxlc1Jlc3BvbnNlEjIKCHByb2JsZW1zGAEgAygLMiAuaXpjaS5hcGkudjEuR3JvdXBpbmdSdWxlUHJvYmxlbRInCghncm91cGluZxgCIAEoCzIVLml6Y2kuYXBpLnYxLkdyb3VwaW5nEhYKDmlzc3VlX3Nob3J0X2lkGAMgASgJEhIKCnNhbWVfaXNzdWUYBCABKAgqugQKF0dyb3VwaW5nUnVsZVByb2JsZW1LaW5kEioKJkdST1VQSU5HX1JVTEVfUFJPQkxFTV9LSU5EX1VOU1BFQ0lGSUVEEAASJwojR1JPVVBJTkdfUlVMRV9QUk9CTEVNX0tJTkRfTk9fQVJST1cQARIlCiFHUk9VUElOR19SVUxFX1BST0JMRU1fS0lORF9TWU5UQVgQAhIuCipHUk9VUElOR19SVUxFX1BST0JMRU1fS0lORF9VTktOT1dOX01BVENIRVIQAxIvCitHUk9VUElOR19SVUxFX1BST0JMRU1fS0lORF9VTktOT1dOX1ZBUklBQkxFEAQSMAosR1JPVVBJTkdfUlVMRV9QUk9CTEVNX0tJTkRfREVGQVVMVF9OT1RfQUxPTkUQBRIwCixHUk9VUElOR19SVUxFX1BST0JMRU1fS0lORF9FTVBUWV9GSU5HRVJQUklOVBAGEi0KKUdST1VQSU5HX1JVTEVfUFJPQkxFTV9LSU5EX1VOS05PV05fQUNUSU9OEAcSKAokR1JPVVBJTkdfUlVMRV9QUk9CTEVNX0tJTkRfTk9fQUNUSU9OEAgSKQolR1JPVVBJTkdfUlVMRV9QUk9CTEVNX0tJTkRfTk9fTUFUQ0hFUhAJEjEKLUdST1VQSU5HX1JVTEVfUFJPQkxFTV9LSU5EX1VOVEVSTUlOQVRFRF9RVU9URRAKEicKI0dST1VQSU5HX1JVTEVfUFJPQkxFTV9LSU5EX1RPT19NQU5ZEAsqqQIKDEZpbHRlclJlYXNvbhIdChlGSUxURVJfUkVBU09OX1VOU1BFQ0lGSUVEEAASHQoZRklMVEVSX1JFQVNPTl9FTlZJUk9OTUVOVBABEiMKH0ZJTFRFUl9SRUFTT05fQlJPV1NFUl9FWFRFTlNJT04QAhIdChlGSUxURVJfUkVBU09OX1dFQl9DUkFXTEVSEAMSIAocRklMVEVSX1JFQVNPTl9MRUdBQ1lfQlJPV1NFUhAEEhsKF0ZJTFRFUl9SRUFTT05fTE9DQUxIT1NUEAUSHwobRklMVEVSX1JFQVNPTl9FUlJPUl9NRVNTQUdFEAYSHAoYRklMVEVSX1JFQVNPTl9JUF9BRERSRVNTEAcSGQoVRklMVEVSX1JFQVNPTl9SRUxFQVNFEAgqbAoJSXBTdG9yYWdlEhoKFklQX1NUT1JBR0VfVU5TUEVDSUZJRUQQABITCg9JUF9TVE9SQUdFX0ZVTEwQARIZChVJUF9TVE9SQUdFX0FOT05ZTUlaRUQQAhITCg9JUF9TVE9SQUdFX05PTkUQAypeCgtBdXRvQW5hbHl6ZRIcChhBVVRPX0FOQUxZWkVfVU5TUEVDSUZJRUQQABIUChBBVVRPX0FOQUxZWkVfT0ZGEAESGwoXQVVUT19BTkFMWVpFX05FV19JU1NVRVMQAiqZAQoKQXV0b0FjdGlvbhIbChdBVVRPX0FDVElPTl9VTlNQRUNJRklFRBAAEhQKEEFVVE9fQUNUSU9OX05PTkUQARIWChJBVVRPX0FDVElPTl9CUkFOQ0gQAhIiCh5BVVRPX0FDVElPTl9EUkFGVF9QVUxMX1JFUVVFU1QQAxIcChhBVVRPX0FDVElPTl9QVUxMX1JFUVVFU1QQBCpiCgtBcGlLZXlTY29wZRIdChlBUElfS0VZX1NDT1BFX1VOU1BFQ0lGSUVEEAASGAoUQVBJX0tFWV9TQ09QRV9JTkdFU1QQARIaChZBUElfS0VZX1NDT1BFX1JFTEVBU0VTEAIypQwKDlByb2plY3RTZXJ2aWNlElgKDExpc3RQcm9qZWN0cxIgLml6Y2kuYXBpLnYxLkxpc3RQcm9qZWN0c1JlcXVlc3QaIS5pemNpLmFwaS52MS5MaXN0UHJvamVjdHNSZXNwb25zZSIDkAIBElIKCkdldFByb2plY3QSHi5pemNpLmFwaS52MS5HZXRQcm9qZWN0UmVxdWVzdBofLml6Y2kuYXBpLnYxLkdldFByb2plY3RSZXNwb25zZSIDkAIBElYKDUNyZWF0ZVByb2plY3QSIS5pemNpLmFwaS52MS5DcmVhdGVQcm9qZWN0UmVxdWVzdBoiLml6Y2kuYXBpLnYxLkNyZWF0ZVByb2plY3RSZXNwb25zZRJWCg1VcGRhdGVQcm9qZWN0EiEuaXpjaS5hcGkudjEuVXBkYXRlUHJvamVjdFJlcXVlc3QaIi5pemNpLmFwaS52MS5VcGRhdGVQcm9qZWN0UmVzcG9uc2USVgoNRGVsZXRlUHJvamVjdBIhLml6Y2kuYXBpLnYxLkRlbGV0ZVByb2plY3RSZXF1ZXN0GiIuaXpjaS5hcGkudjEuRGVsZXRlUHJvamVjdFJlc3BvbnNlElUKC0xpc3RBcGlLZXlzEh8uaXpjaS5hcGkudjEuTGlzdEFwaUtleXNSZXF1ZXN0GiAuaXpjaS5hcGkudjEuTGlzdEFwaUtleXNSZXNwb25zZSIDkAIBElMKDENyZWF0ZUFwaUtleRIgLml6Y2kuYXBpLnYxLkNyZWF0ZUFwaUtleVJlcXVlc3QaIS5pemNpLmFwaS52MS5DcmVhdGVBcGlLZXlSZXNwb25zZRJTCgxVcGRhdGVBcGlLZXkSIC5pemNpLmFwaS52MS5VcGRhdGVBcGlLZXlSZXF1ZXN0GiEuaXpjaS5hcGkudjEuVXBkYXRlQXBpS2V5UmVzcG9uc2USUwoMUmV2b2tlQXBpS2V5EiAuaXpjaS5hcGkudjEuUmV2b2tlQXBpS2V5UmVxdWVzdBohLml6Y2kuYXBpLnYxLlJldm9rZUFwaUtleVJlc3BvbnNlEmoKEkdldEluZ2VzdEVuZHBvaW50cxImLml6Y2kuYXBpLnYxLkdldEluZ2VzdEVuZHBvaW50c1JlcXVlc3QaJy5pemNpLmFwaS52MS5HZXRJbmdlc3RFbmRwb2ludHNSZXNwb25zZSIDkAIBEl4KDkdldEZpbHRlclN0YXRzEiIuaXpjaS5hcGkudjEuR2V0RmlsdGVyU3RhdHNSZXF1ZXN0GiMuaXpjaS5hcGkudjEuR2V0RmlsdGVyU3RhdHNSZXNwb25zZSIDkAIBElYKDVNlbmRUZXN0RXZlbnQSIS5pemNpLmFwaS52MS5TZW5kVGVzdEV2ZW50UmVxdWVzdBoiLml6Y2kuYXBpLnYxLlNlbmRUZXN0RXZlbnRSZXNwb25zZRJnChFUZXN0R3JvdXBpbmdSdWxlcxIlLml6Y2kuYXBpLnYxLlRlc3RHcm91cGluZ1J1bGVzUmVxdWVzdBomLml6Y2kuYXBpLnYxLlRlc3RHcm91cGluZ1J1bGVzUmVzcG9uc2UiA5ACARJkChBMaXN0RW52aXJvbm1lbnRzEiQuaXpjaS5hcGkudjEuTGlzdEVudmlyb25tZW50c1JlcXVlc3QaJS5pemNpLmFwaS52MS5MaXN0RW52aXJvbm1lbnRzUmVzcG9uc2UiA5ACARJYCgxMaXN0UmVsZWFzZXMSIC5pemNpLmFwaS52MS5MaXN0UmVsZWFzZXNSZXF1ZXN0GiEuaXpjaS5hcGkudjEuTGlzdFJlbGVhc2VzUmVzcG9uc2UiA5ACARJZCg5MaW5rUmVwb3NpdG9yeRIiLml6Y2kuYXBpLnYxLkxpbmtSZXBvc2l0b3J5UmVxdWVzdBojLml6Y2kuYXBpLnYxLkxpbmtSZXBvc2l0b3J5UmVzcG9uc2USXwoQVW5saW5rUmVwb3NpdG9yeRIkLml6Y2kuYXBpLnYxLlVubGlua1JlcG9zaXRvcnlSZXF1ZXN0GiUuaXpjaS5hcGkudjEuVW5saW5rUmVwb3NpdG9yeVJlc3BvbnNlQqIBCg9jb20uaXpjaS5hcGkudjFCDFByb2plY3RQcm90b1ABWjNnaXRodWIuY29tL21jaWhhZC9rZW50b3MtaXpjaS9nZW4vaXpjaS9hcGkvdjE7YXBpdjGiAgNJQViqAgtJemNpLkFwaS5WMcoCC0l6Y2lcQXBpXFYx4gIXSXpjaVxBcGlcVjFcR1BCTWV0YWRhdGHqAg1JemNpOjpBcGk6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_timestamp, file_izci_api_v1_common, file_izci_api_v1_issue, file_izci_ingest_v1_event]);
 
 /**
  * Project is one monitored application.
@@ -186,6 +188,13 @@ export type ProjectSettings = Message<"izci.api.v1.ProjectSettings"> & {
    * @generated from field: izci.api.v1.InboundFilters filters = 6;
    */
   filters?: InboundFilters | undefined;
+
+  /**
+   * Fingerprint and stack trace rules that change how new events group.
+   *
+   * @generated from field: izci.api.v1.GroupingSettings grouping = 7;
+   */
+  grouping?: GroupingSettings | undefined;
 };
 
 /**
@@ -194,6 +203,87 @@ export type ProjectSettings = Message<"izci.api.v1.ProjectSettings"> & {
  */
 export const ProjectSettingsSchema: GenMessage<ProjectSettings> = /*@__PURE__*/
   messageDesc(file_izci_api_v1_project, 2);
+
+/**
+ * GroupingSettings are a project's grouping rules (docs/gruplama.md). They
+ * apply to new events; existing issues keep their fingerprints.
+ *
+ * @generated from message izci.api.v1.GroupingSettings
+ */
+export type GroupingSettings = Message<"izci.api.v1.GroupingSettings"> & {
+  /**
+   * Fingerprint rules, one per line: matchers, "->", fingerprint parts,
+   * e.g. "error.type:TimeoutException -> zaman-asimi". The first matching
+   * rule wins over the default grouping and the SDK's fingerprint.
+   *
+   * @generated from field: string fingerprint_rules = 1;
+   */
+  fingerprintRules: string;
+
+  /**
+   * Stack trace rules, one per line: frame matchers and actions, e.g.
+   * "stack.function:*Logger* -group" or "stack.module:Kalem.* +app".
+   *
+   * @generated from field: string stacktrace_rules = 2;
+   */
+  stacktraceRules: string;
+};
+
+/**
+ * Describes the message izci.api.v1.GroupingSettings.
+ * Use `create(GroupingSettingsSchema)` to create a new message.
+ */
+export const GroupingSettingsSchema: GenMessage<GroupingSettings> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_project, 3);
+
+/**
+ * GroupingRuleProblem is an invalid line of grouping rules.
+ *
+ * @generated from message izci.api.v1.GroupingRuleProblem
+ */
+export type GroupingRuleProblem = Message<"izci.api.v1.GroupingRuleProblem"> & {
+  /**
+   * "fingerprint_rules" or "stacktrace_rules".
+   *
+   * @generated from field: string field = 1;
+   */
+  field: string;
+
+  /**
+   * Line number, 1-based.
+   *
+   * @generated from field: uint32 line = 2;
+   */
+  line: number;
+
+  /**
+   * What is wrong, in English.
+   *
+   * @generated from field: string message = 3;
+   */
+  message: string;
+
+  /**
+   * What is wrong, for clients to describe in their language.
+   *
+   * @generated from field: izci.api.v1.GroupingRuleProblemKind kind = 4;
+   */
+  kind: GroupingRuleProblemKind;
+
+  /**
+   * The offending matcher, variable, action or token, when any.
+   *
+   * @generated from field: string value = 5;
+   */
+  value: string;
+};
+
+/**
+ * Describes the message izci.api.v1.GroupingRuleProblem.
+ * Use `create(GroupingRuleProblemSchema)` to create a new message.
+ */
+export const GroupingRuleProblemSchema: GenMessage<GroupingRuleProblem> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_project, 4);
 
 /**
  * InboundFilters drop events at ingest, before rate limits and quotas: a
@@ -268,7 +358,7 @@ export type InboundFilters = Message<"izci.api.v1.InboundFilters"> & {
  * Use `create(InboundFiltersSchema)` to create a new message.
  */
 export const InboundFiltersSchema: GenMessage<InboundFilters> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 3);
+  messageDesc(file_izci_api_v1_project, 5);
 
 /**
  * PrivacySettings control what personal data is stored.
@@ -336,7 +426,7 @@ export type PrivacySettings = Message<"izci.api.v1.PrivacySettings"> & {
  * Use `create(PrivacySettingsSchema)` to create a new message.
  */
 export const PrivacySettingsSchema: GenMessage<PrivacySettings> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 4);
+  messageDesc(file_izci_api_v1_project, 6);
 
 /**
  * InAppRules classify stack frames as application code.
@@ -366,7 +456,7 @@ export type InAppRules = Message<"izci.api.v1.InAppRules"> & {
  * Use `create(InAppRulesSchema)` to create a new message.
  */
 export const InAppRulesSchema: GenMessage<InAppRules> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 5);
+  messageDesc(file_izci_api_v1_project, 7);
 
 /**
  * AiSettings configure automatic AI analysis for the project.
@@ -432,7 +522,7 @@ export type AiSettings = Message<"izci.api.v1.AiSettings"> & {
  * Use `create(AiSettingsSchema)` to create a new message.
  */
 export const AiSettingsSchema: GenMessage<AiSettings> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 6);
+  messageDesc(file_izci_api_v1_project, 8);
 
 /**
  * ProjectRepository links a project to a source repository.
@@ -504,7 +594,7 @@ export type ProjectRepository = Message<"izci.api.v1.ProjectRepository"> & {
  * Use `create(ProjectRepositorySchema)` to create a new message.
  */
 export const ProjectRepositorySchema: GenMessage<ProjectRepository> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 7);
+  messageDesc(file_izci_api_v1_project, 9);
 
 /**
  * PathMapping rewrites a stack frame path prefix to a repository path
@@ -535,7 +625,7 @@ export type PathMapping = Message<"izci.api.v1.PathMapping"> & {
  * Use `create(PathMappingSchema)` to create a new message.
  */
 export const PathMappingSchema: GenMessage<PathMapping> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 8);
+  messageDesc(file_izci_api_v1_project, 10);
 
 /**
  * ApiKey is an ingest API key of a project.
@@ -631,7 +721,7 @@ export type ApiKey = Message<"izci.api.v1.ApiKey"> & {
  * Use `create(ApiKeySchema)` to create a new message.
  */
 export const ApiKeySchema: GenMessage<ApiKey> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 9);
+  messageDesc(file_izci_api_v1_project, 11);
 
 /**
  * Environment is a deployment environment seen in events.
@@ -666,7 +756,7 @@ export type Environment = Message<"izci.api.v1.Environment"> & {
  * Use `create(EnvironmentSchema)` to create a new message.
  */
 export const EnvironmentSchema: GenMessage<Environment> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 10);
+  messageDesc(file_izci_api_v1_project, 12);
 
 /**
  * Release is a version of the project's application.
@@ -758,7 +848,7 @@ export type Release = Message<"izci.api.v1.Release"> & {
  * Use `create(ReleaseSchema)` to create a new message.
  */
 export const ReleaseSchema: GenMessage<Release> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 11);
+  messageDesc(file_izci_api_v1_project, 13);
 
 /**
  * ReleaseHealth summarizes the sessions Sentry SDKs report for a release
@@ -833,7 +923,7 @@ export type ReleaseHealth = Message<"izci.api.v1.ReleaseHealth"> & {
  * Use `create(ReleaseHealthSchema)` to create a new message.
  */
 export const ReleaseHealthSchema: GenMessage<ReleaseHealth> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 12);
+  messageDesc(file_izci_api_v1_project, 14);
 
 /**
  * Deploy is a deployment of a release to an environment.
@@ -868,7 +958,7 @@ export type Deploy = Message<"izci.api.v1.Deploy"> & {
  * Use `create(DeploySchema)` to create a new message.
  */
 export const DeploySchema: GenMessage<Deploy> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 13);
+  messageDesc(file_izci_api_v1_project, 15);
 
 /**
  * ListProjectsRequest has no fields.
@@ -883,7 +973,7 @@ export type ListProjectsRequest = Message<"izci.api.v1.ListProjectsRequest"> & {
  * Use `create(ListProjectsRequestSchema)` to create a new message.
  */
 export const ListProjectsRequestSchema: GenMessage<ListProjectsRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 14);
+  messageDesc(file_izci_api_v1_project, 16);
 
 /**
  * ListProjectsResponse lists projects.
@@ -904,7 +994,7 @@ export type ListProjectsResponse = Message<"izci.api.v1.ListProjectsResponse"> &
  * Use `create(ListProjectsResponseSchema)` to create a new message.
  */
 export const ListProjectsResponseSchema: GenMessage<ListProjectsResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 15);
+  messageDesc(file_izci_api_v1_project, 17);
 
 /**
  * GetProjectRequest identifies a project.
@@ -925,7 +1015,7 @@ export type GetProjectRequest = Message<"izci.api.v1.GetProjectRequest"> & {
  * Use `create(GetProjectRequestSchema)` to create a new message.
  */
 export const GetProjectRequestSchema: GenMessage<GetProjectRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 16);
+  messageDesc(file_izci_api_v1_project, 18);
 
 /**
  * GetProjectResponse returns the project.
@@ -946,7 +1036,7 @@ export type GetProjectResponse = Message<"izci.api.v1.GetProjectResponse"> & {
  * Use `create(GetProjectResponseSchema)` to create a new message.
  */
 export const GetProjectResponseSchema: GenMessage<GetProjectResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 17);
+  messageDesc(file_izci_api_v1_project, 19);
 
 /**
  * CreateProjectRequest describes the new project.
@@ -982,7 +1072,7 @@ export type CreateProjectRequest = Message<"izci.api.v1.CreateProjectRequest"> &
  * Use `create(CreateProjectRequestSchema)` to create a new message.
  */
 export const CreateProjectRequestSchema: GenMessage<CreateProjectRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 18);
+  messageDesc(file_izci_api_v1_project, 20);
 
 /**
  * CreateProjectResponse returns the project and its first key.
@@ -1017,7 +1107,7 @@ export type CreateProjectResponse = Message<"izci.api.v1.CreateProjectResponse">
  * Use `create(CreateProjectResponseSchema)` to create a new message.
  */
 export const CreateProjectResponseSchema: GenMessage<CreateProjectResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 19);
+  messageDesc(file_izci_api_v1_project, 21);
 
 /**
  * UpdateProjectRequest changes a project.
@@ -1059,7 +1149,7 @@ export type UpdateProjectRequest = Message<"izci.api.v1.UpdateProjectRequest"> &
  * Use `create(UpdateProjectRequestSchema)` to create a new message.
  */
 export const UpdateProjectRequestSchema: GenMessage<UpdateProjectRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 20);
+  messageDesc(file_izci_api_v1_project, 22);
 
 /**
  * UpdateProjectResponse returns the updated project.
@@ -1080,7 +1170,7 @@ export type UpdateProjectResponse = Message<"izci.api.v1.UpdateProjectResponse">
  * Use `create(UpdateProjectResponseSchema)` to create a new message.
  */
 export const UpdateProjectResponseSchema: GenMessage<UpdateProjectResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 21);
+  messageDesc(file_izci_api_v1_project, 23);
 
 /**
  * DeleteProjectRequest identifies the project to delete.
@@ -1108,7 +1198,7 @@ export type DeleteProjectRequest = Message<"izci.api.v1.DeleteProjectRequest"> &
  * Use `create(DeleteProjectRequestSchema)` to create a new message.
  */
 export const DeleteProjectRequestSchema: GenMessage<DeleteProjectRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 22);
+  messageDesc(file_izci_api_v1_project, 24);
 
 /**
  * DeleteProjectResponse has no fields.
@@ -1123,7 +1213,7 @@ export type DeleteProjectResponse = Message<"izci.api.v1.DeleteProjectResponse">
  * Use `create(DeleteProjectResponseSchema)` to create a new message.
  */
 export const DeleteProjectResponseSchema: GenMessage<DeleteProjectResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 23);
+  messageDesc(file_izci_api_v1_project, 25);
 
 /**
  * ListApiKeysRequest identifies the project.
@@ -1151,7 +1241,7 @@ export type ListApiKeysRequest = Message<"izci.api.v1.ListApiKeysRequest"> & {
  * Use `create(ListApiKeysRequestSchema)` to create a new message.
  */
 export const ListApiKeysRequestSchema: GenMessage<ListApiKeysRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 24);
+  messageDesc(file_izci_api_v1_project, 26);
 
 /**
  * ListApiKeysResponse lists API keys.
@@ -1172,7 +1262,7 @@ export type ListApiKeysResponse = Message<"izci.api.v1.ListApiKeysResponse"> & {
  * Use `create(ListApiKeysResponseSchema)` to create a new message.
  */
 export const ListApiKeysResponseSchema: GenMessage<ListApiKeysResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 25);
+  messageDesc(file_izci_api_v1_project, 27);
 
 /**
  * CreateApiKeyRequest describes the new key.
@@ -1221,7 +1311,7 @@ export type CreateApiKeyRequest = Message<"izci.api.v1.CreateApiKeyRequest"> & {
  * Use `create(CreateApiKeyRequestSchema)` to create a new message.
  */
 export const CreateApiKeyRequestSchema: GenMessage<CreateApiKeyRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 26);
+  messageDesc(file_izci_api_v1_project, 28);
 
 /**
  * CreateApiKeyResponse returns the key and its secret.
@@ -1256,7 +1346,7 @@ export type CreateApiKeyResponse = Message<"izci.api.v1.CreateApiKeyResponse"> &
  * Use `create(CreateApiKeyResponseSchema)` to create a new message.
  */
 export const CreateApiKeyResponseSchema: GenMessage<CreateApiKeyResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 27);
+  messageDesc(file_izci_api_v1_project, 29);
 
 /**
  * UpdateApiKeyRequest changes a key.
@@ -1312,7 +1402,7 @@ export type UpdateApiKeyRequest = Message<"izci.api.v1.UpdateApiKeyRequest"> & {
  * Use `create(UpdateApiKeyRequestSchema)` to create a new message.
  */
 export const UpdateApiKeyRequestSchema: GenMessage<UpdateApiKeyRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 28);
+  messageDesc(file_izci_api_v1_project, 30);
 
 /**
  * UpdateApiKeyResponse returns the updated key.
@@ -1333,7 +1423,7 @@ export type UpdateApiKeyResponse = Message<"izci.api.v1.UpdateApiKeyResponse"> &
  * Use `create(UpdateApiKeyResponseSchema)` to create a new message.
  */
 export const UpdateApiKeyResponseSchema: GenMessage<UpdateApiKeyResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 29);
+  messageDesc(file_izci_api_v1_project, 31);
 
 /**
  * RevokeApiKeyRequest identifies the key to revoke.
@@ -1361,7 +1451,7 @@ export type RevokeApiKeyRequest = Message<"izci.api.v1.RevokeApiKeyRequest"> & {
  * Use `create(RevokeApiKeyRequestSchema)` to create a new message.
  */
 export const RevokeApiKeyRequestSchema: GenMessage<RevokeApiKeyRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 30);
+  messageDesc(file_izci_api_v1_project, 32);
 
 /**
  * RevokeApiKeyResponse has no fields.
@@ -1376,7 +1466,7 @@ export type RevokeApiKeyResponse = Message<"izci.api.v1.RevokeApiKeyResponse"> &
  * Use `create(RevokeApiKeyResponseSchema)` to create a new message.
  */
 export const RevokeApiKeyResponseSchema: GenMessage<RevokeApiKeyResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 31);
+  messageDesc(file_izci_api_v1_project, 33);
 
 /**
  * GetIngestEndpointsRequest identifies the project.
@@ -1397,7 +1487,7 @@ export type GetIngestEndpointsRequest = Message<"izci.api.v1.GetIngestEndpointsR
  * Use `create(GetIngestEndpointsRequestSchema)` to create a new message.
  */
 export const GetIngestEndpointsRequestSchema: GenMessage<GetIngestEndpointsRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 32);
+  messageDesc(file_izci_api_v1_project, 34);
 
 /**
  * GetIngestEndpointsResponse lists ingest addresses.
@@ -1448,7 +1538,7 @@ export type GetIngestEndpointsResponse = Message<"izci.api.v1.GetIngestEndpoints
  * Use `create(GetIngestEndpointsResponseSchema)` to create a new message.
  */
 export const GetIngestEndpointsResponseSchema: GenMessage<GetIngestEndpointsResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 33);
+  messageDesc(file_izci_api_v1_project, 35);
 
 /**
  * SendTestEventRequest identifies the project.
@@ -1469,7 +1559,7 @@ export type SendTestEventRequest = Message<"izci.api.v1.SendTestEventRequest"> &
  * Use `create(SendTestEventRequestSchema)` to create a new message.
  */
 export const SendTestEventRequestSchema: GenMessage<SendTestEventRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 34);
+  messageDesc(file_izci_api_v1_project, 36);
 
 /**
  * SendTestEventResponse points at the created test issue.
@@ -1504,7 +1594,7 @@ export type SendTestEventResponse = Message<"izci.api.v1.SendTestEventResponse">
  * Use `create(SendTestEventResponseSchema)` to create a new message.
  */
 export const SendTestEventResponseSchema: GenMessage<SendTestEventResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 35);
+  messageDesc(file_izci_api_v1_project, 37);
 
 /**
  * ListEnvironmentsRequest identifies the project.
@@ -1525,7 +1615,7 @@ export type ListEnvironmentsRequest = Message<"izci.api.v1.ListEnvironmentsReque
  * Use `create(ListEnvironmentsRequestSchema)` to create a new message.
  */
 export const ListEnvironmentsRequestSchema: GenMessage<ListEnvironmentsRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 36);
+  messageDesc(file_izci_api_v1_project, 38);
 
 /**
  * ListEnvironmentsResponse lists environments.
@@ -1546,7 +1636,7 @@ export type ListEnvironmentsResponse = Message<"izci.api.v1.ListEnvironmentsResp
  * Use `create(ListEnvironmentsResponseSchema)` to create a new message.
  */
 export const ListEnvironmentsResponseSchema: GenMessage<ListEnvironmentsResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 37);
+  messageDesc(file_izci_api_v1_project, 39);
 
 /**
  * ListReleasesRequest pages through releases.
@@ -1588,7 +1678,7 @@ export type ListReleasesRequest = Message<"izci.api.v1.ListReleasesRequest"> & {
  * Use `create(ListReleasesRequestSchema)` to create a new message.
  */
 export const ListReleasesRequestSchema: GenMessage<ListReleasesRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 38);
+  messageDesc(file_izci_api_v1_project, 40);
 
 /**
  * ListReleasesResponse is a page of releases.
@@ -1616,7 +1706,7 @@ export type ListReleasesResponse = Message<"izci.api.v1.ListReleasesResponse"> &
  * Use `create(ListReleasesResponseSchema)` to create a new message.
  */
 export const ListReleasesResponseSchema: GenMessage<ListReleasesResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 39);
+  messageDesc(file_izci_api_v1_project, 41);
 
 /**
  * LinkRepositoryRequest links a repository.
@@ -1666,7 +1756,7 @@ export type LinkRepositoryRequest = Message<"izci.api.v1.LinkRepositoryRequest">
  * Use `create(LinkRepositoryRequestSchema)` to create a new message.
  */
 export const LinkRepositoryRequestSchema: GenMessage<LinkRepositoryRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 40);
+  messageDesc(file_izci_api_v1_project, 42);
 
 /**
  * LinkRepositoryResponse returns the link.
@@ -1687,7 +1777,7 @@ export type LinkRepositoryResponse = Message<"izci.api.v1.LinkRepositoryResponse
  * Use `create(LinkRepositoryResponseSchema)` to create a new message.
  */
 export const LinkRepositoryResponseSchema: GenMessage<LinkRepositoryResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 41);
+  messageDesc(file_izci_api_v1_project, 43);
 
 /**
  * UnlinkRepositoryRequest identifies the project.
@@ -1708,7 +1798,7 @@ export type UnlinkRepositoryRequest = Message<"izci.api.v1.UnlinkRepositoryReque
  * Use `create(UnlinkRepositoryRequestSchema)` to create a new message.
  */
 export const UnlinkRepositoryRequestSchema: GenMessage<UnlinkRepositoryRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 42);
+  messageDesc(file_izci_api_v1_project, 44);
 
 /**
  * UnlinkRepositoryResponse has no fields.
@@ -1723,7 +1813,7 @@ export type UnlinkRepositoryResponse = Message<"izci.api.v1.UnlinkRepositoryResp
  * Use `create(UnlinkRepositoryResponseSchema)` to create a new message.
  */
 export const UnlinkRepositoryResponseSchema: GenMessage<UnlinkRepositoryResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 43);
+  messageDesc(file_izci_api_v1_project, 45);
 
 /**
  * GetFilterStatsRequest names a project.
@@ -1744,7 +1834,7 @@ export type GetFilterStatsRequest = Message<"izci.api.v1.GetFilterStatsRequest">
  * Use `create(GetFilterStatsRequestSchema)` to create a new message.
  */
 export const GetFilterStatsRequestSchema: GenMessage<GetFilterStatsRequest> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 44);
+  messageDesc(file_izci_api_v1_project, 46);
 
 /**
  * GetFilterStatsResponse counts filtered events.
@@ -1780,7 +1870,7 @@ export type GetFilterStatsResponse = Message<"izci.api.v1.GetFilterStatsResponse
  * Use `create(GetFilterStatsResponseSchema)` to create a new message.
  */
 export const GetFilterStatsResponseSchema: GenMessage<GetFilterStatsResponse> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 45);
+  messageDesc(file_izci_api_v1_project, 47);
 
 /**
  * FilterStat is a count per reason.
@@ -1808,7 +1898,7 @@ export type FilterStat = Message<"izci.api.v1.FilterStat"> & {
  * Use `create(FilterStatSchema)` to create a new message.
  */
 export const FilterStatSchema: GenMessage<FilterStat> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 46);
+  messageDesc(file_izci_api_v1_project, 48);
 
 /**
  * FilterDay is a count per day.
@@ -1836,7 +1926,183 @@ export type FilterDay = Message<"izci.api.v1.FilterDay"> & {
  * Use `create(FilterDaySchema)` to create a new message.
  */
 export const FilterDaySchema: GenMessage<FilterDay> = /*@__PURE__*/
-  messageDesc(file_izci_api_v1_project, 47);
+  messageDesc(file_izci_api_v1_project, 49);
+
+/**
+ * TestGroupingRulesRequest carries rules to check and an optional event.
+ *
+ * @generated from message izci.api.v1.TestGroupingRulesRequest
+ */
+export type TestGroupingRulesRequest = Message<"izci.api.v1.TestGroupingRulesRequest"> & {
+  /**
+   * Project slug.
+   *
+   * @generated from field: string project = 1;
+   */
+  project: string;
+
+  /**
+   * The rules to check.
+   *
+   * @generated from field: izci.api.v1.GroupingSettings grouping = 2;
+   */
+  grouping?: GroupingSettings | undefined;
+
+  /**
+   * Server-side id of a stored event of the project (EventSummary.id) to
+   * group with the rules; empty to only check the rules.
+   *
+   * @generated from field: string event_id = 3;
+   */
+  eventId: string;
+};
+
+/**
+ * Describes the message izci.api.v1.TestGroupingRulesRequest.
+ * Use `create(TestGroupingRulesRequestSchema)` to create a new message.
+ */
+export const TestGroupingRulesRequestSchema: GenMessage<TestGroupingRulesRequest> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_project, 50);
+
+/**
+ * TestGroupingRulesResponse reports the check.
+ *
+ * @generated from message izci.api.v1.TestGroupingRulesResponse
+ */
+export type TestGroupingRulesResponse = Message<"izci.api.v1.TestGroupingRulesResponse"> & {
+  /**
+   * Invalid lines; the rules can be saved only without any.
+   *
+   * @generated from field: repeated izci.api.v1.GroupingRuleProblem problems = 1;
+   */
+  problems: GroupingRuleProblem[];
+
+  /**
+   * The grouping the event would get (when event_id was given).
+   *
+   * @generated from field: izci.api.v1.Grouping grouping = 2;
+   */
+  grouping?: Grouping | undefined;
+
+  /**
+   * Short id of the issue events with that fingerprint join; empty when
+   * they would open a new issue.
+   *
+   * @generated from field: string issue_short_id = 3;
+   */
+  issueShortId: string;
+
+  /**
+   * Whether that is the issue the event is in now.
+   *
+   * @generated from field: bool same_issue = 4;
+   */
+  sameIssue: boolean;
+};
+
+/**
+ * Describes the message izci.api.v1.TestGroupingRulesResponse.
+ * Use `create(TestGroupingRulesResponseSchema)` to create a new message.
+ */
+export const TestGroupingRulesResponseSchema: GenMessage<TestGroupingRulesResponse> = /*@__PURE__*/
+  messageDesc(file_izci_api_v1_project, 51);
+
+/**
+ * GroupingRuleProblemKind is what is wrong with a line of grouping rules.
+ *
+ * @generated from enum izci.api.v1.GroupingRuleProblemKind
+ */
+export enum GroupingRuleProblemKind {
+  /**
+   * Not set.
+   *
+   * @generated from enum value: GROUPING_RULE_PROBLEM_KIND_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * A fingerprint rule without "->".
+   *
+   * @generated from enum value: GROUPING_RULE_PROBLEM_KIND_NO_ARROW = 1;
+   */
+  NO_ARROW = 1,
+
+  /**
+   * A matcher that is not "key:value".
+   *
+   * @generated from enum value: GROUPING_RULE_PROBLEM_KIND_SYNTAX = 2;
+   */
+  SYNTAX = 2,
+
+  /**
+   * An unknown matcher key (value).
+   *
+   * @generated from enum value: GROUPING_RULE_PROBLEM_KIND_UNKNOWN_MATCHER = 3;
+   */
+  UNKNOWN_MATCHER = 3,
+
+  /**
+   * An unknown fingerprint variable (value).
+   *
+   * @generated from enum value: GROUPING_RULE_PROBLEM_KIND_UNKNOWN_VARIABLE = 4;
+   */
+  UNKNOWN_VARIABLE = 4,
+
+  /**
+   * "{{ default }}" combined with other text in one fingerprint part.
+   *
+   * @generated from enum value: GROUPING_RULE_PROBLEM_KIND_DEFAULT_NOT_ALONE = 5;
+   */
+  DEFAULT_NOT_ALONE = 5,
+
+  /**
+   * A fingerprint rule without fingerprint parts.
+   *
+   * @generated from enum value: GROUPING_RULE_PROBLEM_KIND_EMPTY_FINGERPRINT = 6;
+   */
+  EMPTY_FINGERPRINT = 6,
+
+  /**
+   * A stack trace rule with an unknown action (value).
+   *
+   * @generated from enum value: GROUPING_RULE_PROBLEM_KIND_UNKNOWN_ACTION = 7;
+   */
+  UNKNOWN_ACTION = 7,
+
+  /**
+   * A stack trace rule without an action.
+   *
+   * @generated from enum value: GROUPING_RULE_PROBLEM_KIND_NO_ACTION = 8;
+   */
+  NO_ACTION = 8,
+
+  /**
+   * A rule without matchers.
+   *
+   * @generated from enum value: GROUPING_RULE_PROBLEM_KIND_NO_MATCHER = 9;
+   */
+  NO_MATCHER = 9,
+
+  /**
+   * A quoted value without its closing quote (value).
+   *
+   * @generated from enum value: GROUPING_RULE_PROBLEM_KIND_UNTERMINATED_QUOTE = 10;
+   */
+  UNTERMINATED_QUOTE = 10,
+
+  /**
+   * Too many rules, matchers or fingerprint parts.
+   *
+   * @generated from enum value: GROUPING_RULE_PROBLEM_KIND_TOO_MANY = 11;
+   */
+  TOO_MANY = 11,
+}
+
+/**
+ * Describes the enum izci.api.v1.GroupingRuleProblemKind.
+ */
+export const GroupingRuleProblemKindSchema: GenEnum<GroupingRuleProblemKind> = /*@__PURE__*/
+  enumDesc(file_izci_api_v1_project, 0);
 
 /**
  * FilterReason is why an event was filtered at ingest.
@@ -1912,7 +2178,7 @@ export enum FilterReason {
  * Describes the enum izci.api.v1.FilterReason.
  */
 export const FilterReasonSchema: GenEnum<FilterReason> = /*@__PURE__*/
-  enumDesc(file_izci_api_v1_project, 0);
+  enumDesc(file_izci_api_v1_project, 1);
 
 /**
  * IpStorage selects how IP addresses are stored.
@@ -1953,7 +2219,7 @@ export enum IpStorage {
  * Describes the enum izci.api.v1.IpStorage.
  */
 export const IpStorageSchema: GenEnum<IpStorage> = /*@__PURE__*/
-  enumDesc(file_izci_api_v1_project, 1);
+  enumDesc(file_izci_api_v1_project, 2);
 
 /**
  * AutoAnalyze selects when AI analyses start automatically.
@@ -1987,7 +2253,7 @@ export enum AutoAnalyze {
  * Describes the enum izci.api.v1.AutoAnalyze.
  */
 export const AutoAnalyzeSchema: GenEnum<AutoAnalyze> = /*@__PURE__*/
-  enumDesc(file_izci_api_v1_project, 2);
+  enumDesc(file_izci_api_v1_project, 3);
 
 /**
  * AutoAction selects what happens after a successful automatic analysis.
@@ -2037,7 +2303,7 @@ export enum AutoAction {
  * Describes the enum izci.api.v1.AutoAction.
  */
 export const AutoActionSchema: GenEnum<AutoAction> = /*@__PURE__*/
-  enumDesc(file_izci_api_v1_project, 3);
+  enumDesc(file_izci_api_v1_project, 4);
 
 /**
  * ApiKeyScope is a permission of an API key.
@@ -2076,7 +2342,7 @@ export enum ApiKeyScope {
  * Describes the enum izci.api.v1.ApiKeyScope.
  */
 export const ApiKeyScopeSchema: GenEnum<ApiKeyScope> = /*@__PURE__*/
-  enumDesc(file_izci_api_v1_project, 4);
+  enumDesc(file_izci_api_v1_project, 5);
 
 /**
  * ProjectService manages projects of the current organization, their ingest
@@ -2218,6 +2484,18 @@ export const ProjectService: GenService<{
     methodKind: "unary";
     input: typeof SendTestEventRequestSchema;
     output: typeof SendTestEventResponseSchema;
+  },
+  /**
+   * TestGroupingRules checks grouping rules without saving them: it reports
+   * invalid lines and, for a stored event, the grouping the rules would
+   * give it. Requires ROLE_VIEWER.
+   *
+   * @generated from rpc izci.api.v1.ProjectService.TestGroupingRules
+   */
+  testGroupingRules: {
+    methodKind: "unary";
+    input: typeof TestGroupingRulesRequestSchema;
+    output: typeof TestGroupingRulesResponseSchema;
   },
   /**
    * ListEnvironments lists the environments seen in the project. Requires

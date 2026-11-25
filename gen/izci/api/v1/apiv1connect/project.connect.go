@@ -69,6 +69,9 @@ const (
 	// ProjectServiceSendTestEventProcedure is the fully-qualified name of the ProjectService's
 	// SendTestEvent RPC.
 	ProjectServiceSendTestEventProcedure = "/izci.api.v1.ProjectService/SendTestEvent"
+	// ProjectServiceTestGroupingRulesProcedure is the fully-qualified name of the ProjectService's
+	// TestGroupingRules RPC.
+	ProjectServiceTestGroupingRulesProcedure = "/izci.api.v1.ProjectService/TestGroupingRules"
 	// ProjectServiceListEnvironmentsProcedure is the fully-qualified name of the ProjectService's
 	// ListEnvironments RPC.
 	ProjectServiceListEnvironmentsProcedure = "/izci.api.v1.ProjectService/ListEnvironments"
@@ -119,6 +122,10 @@ type ProjectServiceClient interface {
 	// SendTestEvent sends a sample event through the full ingest pipeline so
 	// the setup can be verified end to end. Requires ROLE_MEMBER.
 	SendTestEvent(context.Context, *connect.Request[v1.SendTestEventRequest]) (*connect.Response[v1.SendTestEventResponse], error)
+	// TestGroupingRules checks grouping rules without saving them: it reports
+	// invalid lines and, for a stored event, the grouping the rules would
+	// give it. Requires ROLE_VIEWER.
+	TestGroupingRules(context.Context, *connect.Request[v1.TestGroupingRulesRequest]) (*connect.Response[v1.TestGroupingRulesResponse], error)
 	// ListEnvironments lists the environments seen in the project. Requires
 	// ROLE_VIEWER.
 	ListEnvironments(context.Context, *connect.Request[v1.ListEnvironmentsRequest]) (*connect.Response[v1.ListEnvironmentsResponse], error)
@@ -219,6 +226,13 @@ func NewProjectServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(projectServiceMethods.ByName("SendTestEvent")),
 			connect.WithClientOptions(opts...),
 		),
+		testGroupingRules: connect.NewClient[v1.TestGroupingRulesRequest, v1.TestGroupingRulesResponse](
+			httpClient,
+			baseURL+ProjectServiceTestGroupingRulesProcedure,
+			connect.WithSchema(projectServiceMethods.ByName("TestGroupingRules")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		listEnvironments: connect.NewClient[v1.ListEnvironmentsRequest, v1.ListEnvironmentsResponse](
 			httpClient,
 			baseURL+ProjectServiceListEnvironmentsProcedure,
@@ -262,6 +276,7 @@ type projectServiceClient struct {
 	getIngestEndpoints *connect.Client[v1.GetIngestEndpointsRequest, v1.GetIngestEndpointsResponse]
 	getFilterStats     *connect.Client[v1.GetFilterStatsRequest, v1.GetFilterStatsResponse]
 	sendTestEvent      *connect.Client[v1.SendTestEventRequest, v1.SendTestEventResponse]
+	testGroupingRules  *connect.Client[v1.TestGroupingRulesRequest, v1.TestGroupingRulesResponse]
 	listEnvironments   *connect.Client[v1.ListEnvironmentsRequest, v1.ListEnvironmentsResponse]
 	listReleases       *connect.Client[v1.ListReleasesRequest, v1.ListReleasesResponse]
 	linkRepository     *connect.Client[v1.LinkRepositoryRequest, v1.LinkRepositoryResponse]
@@ -328,6 +343,11 @@ func (c *projectServiceClient) SendTestEvent(ctx context.Context, req *connect.R
 	return c.sendTestEvent.CallUnary(ctx, req)
 }
 
+// TestGroupingRules calls izci.api.v1.ProjectService.TestGroupingRules.
+func (c *projectServiceClient) TestGroupingRules(ctx context.Context, req *connect.Request[v1.TestGroupingRulesRequest]) (*connect.Response[v1.TestGroupingRulesResponse], error) {
+	return c.testGroupingRules.CallUnary(ctx, req)
+}
+
 // ListEnvironments calls izci.api.v1.ProjectService.ListEnvironments.
 func (c *projectServiceClient) ListEnvironments(ctx context.Context, req *connect.Request[v1.ListEnvironmentsRequest]) (*connect.Response[v1.ListEnvironmentsResponse], error) {
 	return c.listEnvironments.CallUnary(ctx, req)
@@ -384,6 +404,10 @@ type ProjectServiceHandler interface {
 	// SendTestEvent sends a sample event through the full ingest pipeline so
 	// the setup can be verified end to end. Requires ROLE_MEMBER.
 	SendTestEvent(context.Context, *connect.Request[v1.SendTestEventRequest]) (*connect.Response[v1.SendTestEventResponse], error)
+	// TestGroupingRules checks grouping rules without saving them: it reports
+	// invalid lines and, for a stored event, the grouping the rules would
+	// give it. Requires ROLE_VIEWER.
+	TestGroupingRules(context.Context, *connect.Request[v1.TestGroupingRulesRequest]) (*connect.Response[v1.TestGroupingRulesResponse], error)
 	// ListEnvironments lists the environments seen in the project. Requires
 	// ROLE_VIEWER.
 	ListEnvironments(context.Context, *connect.Request[v1.ListEnvironmentsRequest]) (*connect.Response[v1.ListEnvironmentsResponse], error)
@@ -480,6 +504,13 @@ func NewProjectServiceHandler(svc ProjectServiceHandler, opts ...connect.Handler
 		connect.WithSchema(projectServiceMethods.ByName("SendTestEvent")),
 		connect.WithHandlerOptions(opts...),
 	)
+	projectServiceTestGroupingRulesHandler := connect.NewUnaryHandler(
+		ProjectServiceTestGroupingRulesProcedure,
+		svc.TestGroupingRules,
+		connect.WithSchema(projectServiceMethods.ByName("TestGroupingRules")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	projectServiceListEnvironmentsHandler := connect.NewUnaryHandler(
 		ProjectServiceListEnvironmentsProcedure,
 		svc.ListEnvironments,
@@ -532,6 +563,8 @@ func NewProjectServiceHandler(svc ProjectServiceHandler, opts ...connect.Handler
 			projectServiceGetFilterStatsHandler.ServeHTTP(w, r)
 		case ProjectServiceSendTestEventProcedure:
 			projectServiceSendTestEventHandler.ServeHTTP(w, r)
+		case ProjectServiceTestGroupingRulesProcedure:
+			projectServiceTestGroupingRulesHandler.ServeHTTP(w, r)
 		case ProjectServiceListEnvironmentsProcedure:
 			projectServiceListEnvironmentsHandler.ServeHTTP(w, r)
 		case ProjectServiceListReleasesProcedure:
@@ -595,6 +628,10 @@ func (UnimplementedProjectServiceHandler) GetFilterStats(context.Context, *conne
 
 func (UnimplementedProjectServiceHandler) SendTestEvent(context.Context, *connect.Request[v1.SendTestEventRequest]) (*connect.Response[v1.SendTestEventResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.ProjectService.SendTestEvent is not implemented"))
+}
+
+func (UnimplementedProjectServiceHandler) TestGroupingRules(context.Context, *connect.Request[v1.TestGroupingRulesRequest]) (*connect.Response[v1.TestGroupingRulesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.ProjectService.TestGroupingRules is not implemented"))
 }
 
 func (UnimplementedProjectServiceHandler) ListEnvironments(context.Context, *connect.Request[v1.ListEnvironmentsRequest]) (*connect.Response[v1.ListEnvironmentsResponse], error) {

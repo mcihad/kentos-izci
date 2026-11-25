@@ -334,6 +334,11 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 			return err
 		}},
 		jobs.Task{Name: "issue-purge", Interval: time.Minute, Run: func(ctx context.Context) error {
+			// Events of merged and unmerged issues move first, so that a
+			// deletion right after a merge finds them.
+			if _, err := ingest.ProcessIssueMoves(ctx, database, 20); err != nil {
+				return err
+			}
 			_, err := database.PurgeDeletedIssues(ctx, 20)
 			return err
 		}},

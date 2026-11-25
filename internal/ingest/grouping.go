@@ -19,6 +19,7 @@ const GroupingVersion = 1
 // Grouping strategies, from most to least specific.
 const (
 	StrategyCustom     = "custom"
+	StrategyRule       = "rule"
 	StrategyStacktrace = "stacktrace"
 	StrategyException  = "exception"
 	StrategyMessage    = "message"
@@ -30,6 +31,8 @@ type Grouping struct {
 	Strategy   string
 	Components []string
 	Hash       [16]byte
+	// Rule is the fingerprint rule that matched (StrategyRule), as written.
+	Rule string
 }
 
 // maxGroupingFrames is how many crash-side frames take part in grouping.
@@ -49,7 +52,20 @@ const maxGroupingFrames = 30
 // Normalization replaces volatile tokens (numbers, UUIDs, hex, IPs, emails,
 // URLs, dates, closure/lambda suffixes, bundle hashes) with placeholders.
 func ComputeGrouping(ev *ingestv1.Event, platform string) Grouping {
-	strategy, def := defaultComponents(ev, platform)
+	return ComputeGroupingWith(ev, platform, nil)
+}
+
+// ComputeGroupingWith is ComputeGrouping with a project's grouping rules:
+// the first matching fingerprint rule wins over the SDK's fingerprint, and
+// stack trace rules choose the frames that count.
+func ComputeGroupingWith(ev *ingestv1.Event, platform string, rules *GroupingRules) Grouping {
+	strategy, def := defaultComponents(ev, platform, rules)
+	facts := eventFacts{ev: ev, platform: platform}
+	if rule := rules.match(facts); rule != nil {
+		g := finalize(StrategyRule, rule.expand(facts, def))
+		g.Rule = rule.Text
+		return g
+	}
 	if fp := ev.GetFingerprint(); len(fp) > 0 {
 		var comps []string
 		for _, f := range fp {
@@ -82,7 +98,7 @@ func finalize(strategy string, comps []string) Grouping {
 	return g
 }
 
-func defaultComponents(ev *ingestv1.Event, platform string) (string, []string) {
+func defaultComponents(ev *ingestv1.Event, platform string, rules *GroupingRules) (string, []string) {
 	excs := ev.GetExceptions()
 	if len(excs) > 0 {
 		start := max(0, len(excs)-3)
@@ -108,7 +124,7 @@ func defaultComponents(ev *ingestv1.Event, platform string) (string, []string) {
 				}
 				continue
 			}
-			for _, f := range groupingFrames(frames) {
+			for _, f := range groupingFrames(frames, rules) {
 				if c := frameComponent(f, platform); c != "" {
 					comps = append(comps, "frame:"+c)
 				}
@@ -126,7 +142,7 @@ func defaultComponents(ev *ingestv1.Event, platform string) (string, []string) {
 	for _, th := range ev.GetThreads() {
 		if th.GetCrashed() && len(th.GetStacktrace().GetFrames()) > 0 {
 			var comps []string
-			for _, f := range groupingFrames(th.GetStacktrace().GetFrames()) {
+			for _, f := range groupingFrames(th.GetStacktrace().GetFrames(), rules) {
 				if c := frameComponent(f, platform); c != "" {
 					comps = append(comps, "frame:"+c)
 				}
@@ -149,16 +165,22 @@ func defaultComponents(ev *ingestv1.Event, platform string) (string, []string) {
 }
 
 // groupingFrames selects the crash-side frames that take part in grouping:
-// in-app frames when any exist, otherwise all frames; at most
+// in-app frames (and frames stack trace rules mark +group) when any exist,
+// otherwise all frames, never those marked -group; at most
 // maxGroupingFrames, newest last.
-func groupingFrames(frames []*ingestv1.Frame) []*ingestv1.Frame {
-	var inApp []*ingestv1.Frame
+func groupingFrames(frames []*ingestv1.Frame, rules *GroupingRules) []*ingestv1.Frame {
+	var all, inApp []*ingestv1.Frame
 	for _, f := range frames {
-		if f.GetInApp() {
+		g := rules.frameGroup(f)
+		if g < 0 {
+			continue
+		}
+		all = append(all, f)
+		if f.GetInApp() || g > 0 {
 			inApp = append(inApp, f)
 		}
 	}
-	sel := frames
+	sel := all
 	if len(inApp) > 0 {
 		sel = inApp
 	}

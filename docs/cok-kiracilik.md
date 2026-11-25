@@ -18,11 +18,11 @@ Bir kullanıcı birden fazla organizasyonun üyesi olabilir; organizasyonlar ara
 | Yetki | viewer | member | admin | owner |
 |---|:---:|:---:|:---:|:---:|
 | Hataları, olayları, müşterileri, panoyu görme | ✓ | ✓ | ✓ | ✓ |
-| Çözme, yoksayma, atama, öncelik, yorum | | ✓ | ✓ | ✓ |
+| Çözme, yoksayma, atama, öncelik, yorum, hataları birleştirme ve ayırma | | ✓ | ✓ | ✓ |
 | Müşteri adını ve notlarını düzenleme | | ✓ | ✓ | ✓ |
 | Test olayı gönderme | | ✓ | ✓ | ✓ |
 | Yapay zekâ analizi, dal ve çekme isteği | | ✓ | ✓ | ✓ |
-| Proje oluşturma ve ayarları, ingest anahtarları, depo bağlama | | | ✓ | ✓ |
+| Proje oluşturma ve ayarları (gruplama kuralları dahil), ingest anahtarları, depo bağlama | | | ✓ | ✓ |
 | Uyarı kuralları ve Telegram sohbetleri | | | ✓ | ✓ |
 | GitHub bağlantıları | | | ✓ | ✓ |
 | Üye davet etme ve rol değiştirme, denetim kaydı | | | ✓ | ✓ |

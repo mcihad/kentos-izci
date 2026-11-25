@@ -5,6 +5,7 @@ package izci.api.v1;
 import "buf/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
 import "izci/api/v1/common.proto";
+import "izci/api/v1/issue.proto";
 import "izci/ingest/v1/event.proto";
 
 // ProjectService manages projects of the current organization, their ingest
@@ -69,6 +70,13 @@ service ProjectService {
   // SendTestEvent sends a sample event through the full ingest pipeline so
   // the setup can be verified end to end. Requires ROLE_MEMBER.
   rpc SendTestEvent(SendTestEventRequest) returns (SendTestEventResponse);
+
+  // TestGroupingRules checks grouping rules without saving them: it reports
+  // invalid lines and, for a stored event, the grouping the rules would
+  // give it. Requires ROLE_VIEWER.
+  rpc TestGroupingRules(TestGroupingRulesRequest) returns (TestGroupingRulesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
 
   // ListEnvironments lists the environments seen in the project. Requires
   // ROLE_VIEWER.
@@ -154,6 +162,68 @@ message ProjectSettings {
 
   // Inbound filters that drop unwanted events before they are stored.
   InboundFilters filters = 6;
+
+  // Fingerprint and stack trace rules that change how new events group.
+  GroupingSettings grouping = 7;
+}
+
+// GroupingSettings are a project's grouping rules (docs/gruplama.md). They
+// apply to new events; existing issues keep their fingerprints.
+message GroupingSettings {
+  // Fingerprint rules, one per line: matchers, "->", fingerprint parts,
+  // e.g. "error.type:TimeoutException -> zaman-asimi". The first matching
+  // rule wins over the default grouping and the SDK's fingerprint.
+  string fingerprint_rules = 1 [(buf.validate.field).string.max_len = 65536];
+
+  // Stack trace rules, one per line: frame matchers and actions, e.g.
+  // "stack.function:*Logger* -group" or "stack.module:Kalem.* +app".
+  string stacktrace_rules = 2 [(buf.validate.field).string.max_len = 65536];
+}
+
+// GroupingRuleProblem is an invalid line of grouping rules.
+message GroupingRuleProblem {
+  // "fingerprint_rules" or "stacktrace_rules".
+  string field = 1;
+
+  // Line number, 1-based.
+  uint32 line = 2;
+
+  // What is wrong, in English.
+  string message = 3;
+
+  // What is wrong, for clients to describe in their language.
+  GroupingRuleProblemKind kind = 4;
+
+  // The offending matcher, variable, action or token, when any.
+  string value = 5;
+}
+
+// GroupingRuleProblemKind is what is wrong with a line of grouping rules.
+enum GroupingRuleProblemKind {
+  // Not set.
+  GROUPING_RULE_PROBLEM_KIND_UNSPECIFIED = 0;
+  // A fingerprint rule without "->".
+  GROUPING_RULE_PROBLEM_KIND_NO_ARROW = 1;
+  // A matcher that is not "key:value".
+  GROUPING_RULE_PROBLEM_KIND_SYNTAX = 2;
+  // An unknown matcher key (value).
+  GROUPING_RULE_PROBLEM_KIND_UNKNOWN_MATCHER = 3;
+  // An unknown fingerprint variable (value).
+  GROUPING_RULE_PROBLEM_KIND_UNKNOWN_VARIABLE = 4;
+  // "{{ default }}" combined with other text in one fingerprint part.
+  GROUPING_RULE_PROBLEM_KIND_DEFAULT_NOT_ALONE = 5;
+  // A fingerprint rule without fingerprint parts.
+  GROUPING_RULE_PROBLEM_KIND_EMPTY_FINGERPRINT = 6;
+  // A stack trace rule with an unknown action (value).
+  GROUPING_RULE_PROBLEM_KIND_UNKNOWN_ACTION = 7;
+  // A stack trace rule without an action.
+  GROUPING_RULE_PROBLEM_KIND_NO_ACTION = 8;
+  // A rule without matchers.
+  GROUPING_RULE_PROBLEM_KIND_NO_MATCHER = 9;
+  // A quoted value without its closing quote (value).
+  GROUPING_RULE_PROBLEM_KIND_UNTERMINATED_QUOTE = 10;
+  // Too many rules, matchers or fingerprint parts.
+  GROUPING_RULE_PROBLEM_KIND_TOO_MANY = 11;
 }
 
 // InboundFilters drop events at ingest, before rate limits and quotas: a
@@ -899,4 +969,36 @@ message FilterDay {
 
   // Events dropped that day.
   uint64 count = 2;
+}
+
+// TestGroupingRulesRequest carries rules to check and an optional event.
+message TestGroupingRulesRequest {
+  // Project slug.
+  string project = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 50
+  }];
+
+  // The rules to check.
+  GroupingSettings grouping = 2 [(buf.validate.field).required = true];
+
+  // Server-side id of a stored event of the project (EventSummary.id) to
+  // group with the rules; empty to only check the rules.
+  string event_id = 3 [(buf.validate.field).string.max_len = 64];
+}
+
+// TestGroupingRulesResponse reports the check.
+message TestGroupingRulesResponse {
+  // Invalid lines; the rules can be saved only without any.
+  repeated GroupingRuleProblem problems = 1;
+
+  // The grouping the event would get (when event_id was given).
+  Grouping grouping = 2;
+
+  // Short id of the issue events with that fingerprint join; empty when
+  // they would open a new issue.
+  string issue_short_id = 3;
+
+  // Whether that is the issue the event is in now.
+  bool same_issue = 4;
 }

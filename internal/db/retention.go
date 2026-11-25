@@ -128,6 +128,7 @@ func (d *DB) PurgeDeletedProjects(ctx context.Context, limit int) ([]string, err
 				`DELETE FROM issue_subjects s USING issues i WHERE i.id = s.issue_id AND i.project_id = $1`,
 				`DELETE FROM notification_threads t USING issues i WHERE i.id = t.issue_id AND i.project_id = $1`,
 				`DELETE FROM deleted_issues WHERE project_id = $1`,
+				`DELETE FROM issue_moves WHERE project_id = $1`,
 				`DELETE FROM projects WHERE id = $1`,
 			} {
 				if _, err := tx.Exec(ctx, sql, v.id); err != nil {
@@ -238,6 +239,7 @@ func (d *DB) PurgeDeletedOrganizations(ctx context.Context, limit int) ([]uuid.U
 				`DELETE FROM upload_chunks WHERE org_id = $1`,
 				`DELETE FROM owner_aliases WHERE org_id = $1`,
 				`DELETE FROM deleted_issues WHERE org_id = $1`,
+				`DELETE FROM issue_moves WHERE org_id = $1`,
 				`DELETE FROM organizations WHERE id = $1`,
 			} {
 				if _, err := tx.Exec(ctx, sql, id); err != nil {

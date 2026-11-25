@@ -8,11 +8,13 @@ import { formatCompact, formatDateTime, formatNumber } from "@/lib/format";
 import { levels } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
 import { seriesPoints, seriesStep } from "@/lib/series";
+import { MergedIssues } from "./merge";
 import { IssueOwners } from "./owners";
 import { IssueTickets } from "./tickets";
 
 const strategyLabels: Record<string, string> = {
-  fingerprint: "uygulamanın gönderdiği parmak izi",
+  custom: "uygulamanın gönderdiği parmak izi",
+  rule: "projenin parmak izi kuralı",
   stacktrace: "yığın izindeki uygulama çerçeveleri",
   exception: "istisna türü ve normalize edilmiş mesaj",
   message: "mesaj şablonu",
@@ -160,6 +162,11 @@ export function IssueAside({
             Bu olaylar {strategyLabels[issue.grouping.strategy] ?? issue.grouping.strategy} aynı olduğu için
             tek bir hatada toplandı.
           </p>
+          {issue.grouping.rule ? (
+            <p className="mt-1.5 rounded-md bg-(--surface-muted) px-2 py-1 font-mono text-xs [overflow-wrap:anywhere]">
+              {issue.grouping.rule}
+            </p>
+          ) : null}
           {issue.grouping.components.length ? (
             <ul className="mt-2 grid gap-1 font-mono text-sm text-muted-foreground">
               {issue.grouping.components.slice(0, 12).map((c) => (
@@ -174,6 +181,7 @@ export function IssueAside({
           </p>
         </div>
       ) : null}
+      {issue.merged.length > 0 ? <MergedIssues issue={issue} writable={writable} /> : null}
     </div>
   );
 }

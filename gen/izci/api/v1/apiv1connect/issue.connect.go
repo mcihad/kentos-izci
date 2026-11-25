@@ -40,6 +40,12 @@ const (
 	// IssueServiceUpdateIssuesProcedure is the fully-qualified name of the IssueService's UpdateIssues
 	// RPC.
 	IssueServiceUpdateIssuesProcedure = "/izci.api.v1.IssueService/UpdateIssues"
+	// IssueServiceMergeIssuesProcedure is the fully-qualified name of the IssueService's MergeIssues
+	// RPC.
+	IssueServiceMergeIssuesProcedure = "/izci.api.v1.IssueService/MergeIssues"
+	// IssueServiceUnmergeIssueProcedure is the fully-qualified name of the IssueService's UnmergeIssue
+	// RPC.
+	IssueServiceUnmergeIssueProcedure = "/izci.api.v1.IssueService/UnmergeIssue"
 	// IssueServiceListIssueEventsProcedure is the fully-qualified name of the IssueService's
 	// ListIssueEvents RPC.
 	IssueServiceListIssueEventsProcedure = "/izci.api.v1.IssueService/ListIssueEvents"
@@ -78,6 +84,16 @@ type IssueServiceClient interface {
 	// UpdateIssues changes status, assignee or priority of up to 100 issues at
 	// once. Requires ROLE_MEMBER.
 	UpdateIssues(context.Context, *connect.Request[v1.UpdateIssuesRequest]) (*connect.Response[v1.UpdateIssuesResponse], error)
+	// MergeIssues merges issues of one project into a target issue: their
+	// counters, facets, comments, feedback and followers join the target, and
+	// new events with their fingerprints go to it. Their events move in the
+	// background; their short ids lead to the target. Undo with UnmergeIssue.
+	// Requires ROLE_MEMBER.
+	MergeIssues(context.Context, *connect.Request[v1.MergeIssuesRequest]) (*connect.Response[v1.MergeIssuesResponse], error)
+	// UnmergeIssue moves one fingerprint merged into an issue out again, into
+	// a new issue with its events; counters of both are recomputed in the
+	// background. Requires ROLE_MEMBER.
+	UnmergeIssue(context.Context, *connect.Request[v1.UnmergeIssueRequest]) (*connect.Response[v1.UnmergeIssueResponse], error)
 	// ListIssueEvents pages through the events of an issue, newest first.
 	// Requires ROLE_VIEWER.
 	ListIssueEvents(context.Context, *connect.Request[v1.ListIssueEventsRequest]) (*connect.Response[v1.ListIssueEventsResponse], error)
@@ -144,6 +160,18 @@ func NewIssueServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			httpClient,
 			baseURL+IssueServiceUpdateIssuesProcedure,
 			connect.WithSchema(issueServiceMethods.ByName("UpdateIssues")),
+			connect.WithClientOptions(opts...),
+		),
+		mergeIssues: connect.NewClient[v1.MergeIssuesRequest, v1.MergeIssuesResponse](
+			httpClient,
+			baseURL+IssueServiceMergeIssuesProcedure,
+			connect.WithSchema(issueServiceMethods.ByName("MergeIssues")),
+			connect.WithClientOptions(opts...),
+		),
+		unmergeIssue: connect.NewClient[v1.UnmergeIssueRequest, v1.UnmergeIssueResponse](
+			httpClient,
+			baseURL+IssueServiceUnmergeIssueProcedure,
+			connect.WithSchema(issueServiceMethods.ByName("UnmergeIssue")),
 			connect.WithClientOptions(opts...),
 		),
 		listIssueEvents: connect.NewClient[v1.ListIssueEventsRequest, v1.ListIssueEventsResponse](
@@ -213,6 +241,8 @@ type issueServiceClient struct {
 	listIssues        *connect.Client[v1.ListIssuesRequest, v1.ListIssuesResponse]
 	getIssue          *connect.Client[v1.GetIssueRequest, v1.GetIssueResponse]
 	updateIssues      *connect.Client[v1.UpdateIssuesRequest, v1.UpdateIssuesResponse]
+	mergeIssues       *connect.Client[v1.MergeIssuesRequest, v1.MergeIssuesResponse]
+	unmergeIssue      *connect.Client[v1.UnmergeIssueRequest, v1.UnmergeIssueResponse]
 	listIssueEvents   *connect.Client[v1.ListIssueEventsRequest, v1.ListIssueEventsResponse]
 	getIssueStats     *connect.Client[v1.GetIssueStatsRequest, v1.GetIssueStatsResponse]
 	getIssueTagFacets *connect.Client[v1.GetIssueTagFacetsRequest, v1.GetIssueTagFacetsResponse]
@@ -237,6 +267,16 @@ func (c *issueServiceClient) GetIssue(ctx context.Context, req *connect.Request[
 // UpdateIssues calls izci.api.v1.IssueService.UpdateIssues.
 func (c *issueServiceClient) UpdateIssues(ctx context.Context, req *connect.Request[v1.UpdateIssuesRequest]) (*connect.Response[v1.UpdateIssuesResponse], error) {
 	return c.updateIssues.CallUnary(ctx, req)
+}
+
+// MergeIssues calls izci.api.v1.IssueService.MergeIssues.
+func (c *issueServiceClient) MergeIssues(ctx context.Context, req *connect.Request[v1.MergeIssuesRequest]) (*connect.Response[v1.MergeIssuesResponse], error) {
+	return c.mergeIssues.CallUnary(ctx, req)
+}
+
+// UnmergeIssue calls izci.api.v1.IssueService.UnmergeIssue.
+func (c *issueServiceClient) UnmergeIssue(ctx context.Context, req *connect.Request[v1.UnmergeIssueRequest]) (*connect.Response[v1.UnmergeIssueResponse], error) {
+	return c.unmergeIssue.CallUnary(ctx, req)
 }
 
 // ListIssueEvents calls izci.api.v1.IssueService.ListIssueEvents.
@@ -293,6 +333,16 @@ type IssueServiceHandler interface {
 	// UpdateIssues changes status, assignee or priority of up to 100 issues at
 	// once. Requires ROLE_MEMBER.
 	UpdateIssues(context.Context, *connect.Request[v1.UpdateIssuesRequest]) (*connect.Response[v1.UpdateIssuesResponse], error)
+	// MergeIssues merges issues of one project into a target issue: their
+	// counters, facets, comments, feedback and followers join the target, and
+	// new events with their fingerprints go to it. Their events move in the
+	// background; their short ids lead to the target. Undo with UnmergeIssue.
+	// Requires ROLE_MEMBER.
+	MergeIssues(context.Context, *connect.Request[v1.MergeIssuesRequest]) (*connect.Response[v1.MergeIssuesResponse], error)
+	// UnmergeIssue moves one fingerprint merged into an issue out again, into
+	// a new issue with its events; counters of both are recomputed in the
+	// background. Requires ROLE_MEMBER.
+	UnmergeIssue(context.Context, *connect.Request[v1.UnmergeIssueRequest]) (*connect.Response[v1.UnmergeIssueResponse], error)
 	// ListIssueEvents pages through the events of an issue, newest first.
 	// Requires ROLE_VIEWER.
 	ListIssueEvents(context.Context, *connect.Request[v1.ListIssueEventsRequest]) (*connect.Response[v1.ListIssueEventsResponse], error)
@@ -355,6 +405,18 @@ func NewIssueServiceHandler(svc IssueServiceHandler, opts ...connect.HandlerOpti
 		IssueServiceUpdateIssuesProcedure,
 		svc.UpdateIssues,
 		connect.WithSchema(issueServiceMethods.ByName("UpdateIssues")),
+		connect.WithHandlerOptions(opts...),
+	)
+	issueServiceMergeIssuesHandler := connect.NewUnaryHandler(
+		IssueServiceMergeIssuesProcedure,
+		svc.MergeIssues,
+		connect.WithSchema(issueServiceMethods.ByName("MergeIssues")),
+		connect.WithHandlerOptions(opts...),
+	)
+	issueServiceUnmergeIssueHandler := connect.NewUnaryHandler(
+		IssueServiceUnmergeIssueProcedure,
+		svc.UnmergeIssue,
+		connect.WithSchema(issueServiceMethods.ByName("UnmergeIssue")),
 		connect.WithHandlerOptions(opts...),
 	)
 	issueServiceListIssueEventsHandler := connect.NewUnaryHandler(
@@ -424,6 +486,10 @@ func NewIssueServiceHandler(svc IssueServiceHandler, opts ...connect.HandlerOpti
 			issueServiceGetIssueHandler.ServeHTTP(w, r)
 		case IssueServiceUpdateIssuesProcedure:
 			issueServiceUpdateIssuesHandler.ServeHTTP(w, r)
+		case IssueServiceMergeIssuesProcedure:
+			issueServiceMergeIssuesHandler.ServeHTTP(w, r)
+		case IssueServiceUnmergeIssueProcedure:
+			issueServiceUnmergeIssueHandler.ServeHTTP(w, r)
 		case IssueServiceListIssueEventsProcedure:
 			issueServiceListIssueEventsHandler.ServeHTTP(w, r)
 		case IssueServiceGetIssueStatsProcedure:
@@ -461,6 +527,14 @@ func (UnimplementedIssueServiceHandler) GetIssue(context.Context, *connect.Reque
 
 func (UnimplementedIssueServiceHandler) UpdateIssues(context.Context, *connect.Request[v1.UpdateIssuesRequest]) (*connect.Response[v1.UpdateIssuesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.IssueService.UpdateIssues is not implemented"))
+}
+
+func (UnimplementedIssueServiceHandler) MergeIssues(context.Context, *connect.Request[v1.MergeIssuesRequest]) (*connect.Response[v1.MergeIssuesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.IssueService.MergeIssues is not implemented"))
+}
+
+func (UnimplementedIssueServiceHandler) UnmergeIssue(context.Context, *connect.Request[v1.UnmergeIssueRequest]) (*connect.Response[v1.UnmergeIssueResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.IssueService.UnmergeIssue is not implemented"))
 }
 
 func (UnimplementedIssueServiceHandler) ListIssueEvents(context.Context, *connect.Request[v1.ListIssueEventsRequest]) (*connect.Response[v1.ListIssueEventsResponse], error) {

@@ -109,6 +109,7 @@ var rules = map[string]rule{
 	c.ProjectServiceGetIngestEndpointsProcedure: orgRule(viewer, read),
 	c.ProjectServiceGetFilterStatsProcedure:     orgRule(viewer, read),
 	c.ProjectServiceSendTestEventProcedure:      orgRule(member, write),
+	c.ProjectServiceTestGroupingRulesProcedure:  orgRule(viewer, read),
 	c.ProjectServiceListEnvironmentsProcedure:   orgRule(viewer, read),
 	c.ProjectServiceListReleasesProcedure:       orgRule(viewer, read),
 	c.ProjectServiceLinkRepositoryProcedure:     orgRule(admin, write),
@@ -127,6 +128,8 @@ var rules = map[string]rule{
 	c.IssueServiceCreateTicketProcedure:      orgRule(member, write),
 	c.IssueServiceSuggestSearchProcedure:     orgRule(viewer, read),
 	c.IssueServiceDeleteIssuesProcedure:      orgRule(admin, write),
+	c.IssueServiceMergeIssuesProcedure:       orgRule(member, write),
+	c.IssueServiceUnmergeIssueProcedure:      orgRule(member, write),
 
 	// EventService
 	c.EventServiceGetEventProcedure:    orgRule(viewer, read),

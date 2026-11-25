@@ -1,13 +1,22 @@
 import { useInfiniteQuery, useQuery } from "@connectrpc/connect-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { BugIcon, CheckIcon, EyeOffIcon, SearchXIcon, UserRoundCheckIcon, XIcon } from "lucide-react";
+import {
+  BugIcon,
+  CheckIcon,
+  EyeOffIcon,
+  MergeIcon,
+  SearchXIcon,
+  UserRoundCheckIcon,
+  XIcon,
+} from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PeriodSelect, ProjectFilter, parsePeriod } from "@/components/app/filters";
 import { gutter, PageHeader } from "@/components/app/page";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { TabStrip, tabActiveOptions, tabClass } from "@/components/common/tab-nav";
 import { IssueRow } from "@/components/issue/issue-row";
+import { MergeDialog } from "@/components/issue/merge";
 import { SearchBar, type SearchBarHandle } from "@/components/issue/search-bar";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -82,6 +91,7 @@ function IssuesPage() {
   const total = issues.data?.pages[0]?.totalEstimate ?? 0;
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [merging, setMerging] = useState(false);
   const [focus, setFocus] = useState(-1);
   // A new result set clears selection and keyboard focus.
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset when the filters change
@@ -302,6 +312,12 @@ function IssuesPage() {
               <UserRoundCheckIcon className="size-4" />
               Bana ata
             </Button>
+            {selected.size > 1 ? (
+              <Button size="sm" variant="ghost" disabled={triage.pending} onClick={() => setMerging(true)}>
+                <MergeIcon className="size-4" />
+                Birleştir
+              </Button>
+            ) : null}
             <Button
               size="icon"
               variant="ghost"
@@ -313,6 +329,14 @@ function IssuesPage() {
             </Button>
           </div>
         </div>
+      ) : null}
+      {merging ? (
+        <MergeDialog
+          issues={rows.filter((i) => selected.has(i.id))}
+          open={merging}
+          onOpenChange={setMerging}
+          onMerged={() => setSelected(new Set())}
+        />
       ) : null}
     </div>
   );

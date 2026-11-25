@@ -40,6 +40,18 @@ service IssueService {
   // once. Requires ROLE_MEMBER.
   rpc UpdateIssues(UpdateIssuesRequest) returns (UpdateIssuesResponse);
 
+  // MergeIssues merges issues of one project into a target issue: their
+  // counters, facets, comments, feedback and followers join the target, and
+  // new events with their fingerprints go to it. Their events move in the
+  // background; their short ids lead to the target. Undo with UnmergeIssue.
+  // Requires ROLE_MEMBER.
+  rpc MergeIssues(MergeIssuesRequest) returns (MergeIssuesResponse);
+
+  // UnmergeIssue moves one fingerprint merged into an issue out again, into
+  // a new issue with its events; counters of both are recomputed in the
+  // background. Requires ROLE_MEMBER.
+  rpc UnmergeIssue(UnmergeIssueRequest) returns (UnmergeIssueResponse);
+
   // ListIssueEvents pages through the events of an issue, newest first.
   // Requires ROLE_VIEWER.
   rpc ListIssueEvents(ListIssueEventsRequest) returns (ListIssueEventsResponse) {
@@ -228,6 +240,9 @@ message Issue {
 
   // The caller follows the issue (set by GetIssue).
   bool following = 13;
+
+  // Issues merged into this one (set by GetIssue), newest first.
+  repeated MergedIssue merged = 14;
 }
 
 // TicketRef is a ticket in an external tracker (Jira).
@@ -268,8 +283,9 @@ message Grouping {
   // Algorithm version, e.g. 1.
   uint32 version = 1;
 
-  // Strategy that produced the fingerprint: "custom", "stacktrace",
-  // "exception" or "message".
+  // Strategy that produced the fingerprint: "custom", "rule" (a
+  // fingerprint rule of the project), "stacktrace", "exception" or
+  // "message".
   string strategy = 2;
 
   // Fingerprint as lowercase hexadecimal.
@@ -277,6 +293,9 @@ message Grouping {
 
   // Human-readable inputs that were hashed, in order.
   repeated string components = 4;
+
+  // The fingerprint rule that matched (strategy "rule"), as written.
+  string rule = 5;
 }
 
 // IssueLocation is where the error was raised.
@@ -418,6 +437,12 @@ enum ActivityKind {
   // A ticket was created in an external tracker (Jira); data carries
   // "channel", "key" and "url".
   ACTIVITY_KIND_TICKET_CREATED = 11;
+  // Other issues were merged into this one; data carries "issues" (their
+  // short ids, comma separated).
+  ACTIVITY_KIND_MERGED = 12;
+  // A merged fingerprint was moved out into a new issue; data carries
+  // "issue" (its short id).
+  ACTIVITY_KIND_UNMERGED = 13;
 }
 
 // SearchSuggestion is one completion for the search box.
@@ -743,4 +768,61 @@ message DeleteIssuesRequest {
 message DeleteIssuesResponse {
   // Number of issues deleted; unknown ids are skipped.
   uint32 deleted = 1;
+}
+
+// MergedIssue is an issue merged into another one.
+message MergedIssue {
+  // Fingerprint of the merged issue, as lowercase hexadecimal; pass it to
+  // UnmergeIssue.
+  string fingerprint = 1;
+
+  // Former short id of the merged issue, e.g. "KALEM-1B".
+  string short_id = 2;
+
+  // Its title when it was merged.
+  string title = 3;
+
+  // Who merged it.
+  UserRef merged_by = 4;
+
+  // When.
+  google.protobuf.Timestamp merged_at = 5;
+}
+
+// MergeIssuesRequest names the issues to merge.
+message MergeIssuesRequest {
+  // The issue that stays (UUID).
+  string target_issue_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // Issues merged into it (UUIDs), of the same project.
+  repeated string issue_ids = 2 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 100
+    items: {string: {uuid: true}}
+  }];
+}
+
+// MergeIssuesResponse returns the target issue.
+message MergeIssuesResponse {
+  // The target issue after the merge.
+  IssueSummary issue = 1;
+
+  // Number of issues merged into it.
+  uint32 merged = 2;
+}
+
+// UnmergeIssueRequest names the fingerprint to move out.
+message UnmergeIssueRequest {
+  // The issue the fingerprint was merged into (UUID).
+  string issue_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // MergedIssue.fingerprint.
+  string fingerprint = 2 [(buf.validate.field).string.pattern = "^[0-9a-f]{32}$"];
+}
+
+// UnmergeIssueResponse returns the new issue.
+message UnmergeIssueResponse {
+  // The issue created for the fingerprint; its events arrive in the
+  // background.
+  IssueSummary issue = 1;
 }

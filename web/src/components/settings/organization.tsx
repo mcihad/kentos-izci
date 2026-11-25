@@ -499,6 +499,8 @@ const actionLabels: Record<string, string> = {
   "invitation.create": "Üye davet etti",
   "invitation.revoke": "Daveti geri aldı",
   "issue.delete": "Hatayı sildi",
+  "issue.merge": "Hataları birleştirdi",
+  "issue.unmerge": "Birleştirilen hatayı ayırdı",
   "member.join": "Organizasyona katıldı",
   "member.remove": "Üyeyi çıkardı",
   "member.update": "Üyenin rolünü değiştirdi",

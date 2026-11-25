@@ -70,6 +70,10 @@ function describe(a: IssueActivity): string {
         ? `Jira'da ${a.data.key} iş kaydını açtı${where}`
         : `Jira'da otomatik olarak ${a.data.key} iş kaydı açıldı${where}`;
     }
+    case ActivityKind.MERGED:
+      return `${(a.data.issues ?? "").split(",").join(", ")} hatasını buraya birleştirdi`;
+    case ActivityKind.UNMERGED:
+      return `${a.data.issue} ile bu hatayı birbirinden ayırdı`;
     default:
       return "";
   }

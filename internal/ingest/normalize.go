@@ -79,24 +79,28 @@ type Processed struct {
 	// SubjectHashes identify the person the event is about, for data
 	// subject requests (issue_subjects).
 	SubjectHashes [][]byte
-	ClientIP      netip.Addr
-	ServerName    string
-	Transaction   string
-	URL           string
-	UA            UserAgentInfo
-	Browser       string
-	OS            string
-	Title         string
-	Culprit       string
-	Type          string
-	Value         string
-	Location      Location
-	Grouping      Grouping
-	Unhandled     bool
-	Score         int16
-	Tags          map[string]string
-	Warnings      []string
-	Payload       []byte
+	// Remapped is set when the event's fingerprint was merged into another
+	// issue; IssueHash is then that issue's fingerprint.
+	Remapped    bool
+	IssueHash   [16]byte
+	ClientIP    netip.Addr
+	ServerName  string
+	Transaction string
+	URL         string
+	UA          UserAgentInfo
+	Browser     string
+	OS          string
+	Title       string
+	Culprit     string
+	Type        string
+	Value       string
+	Location    Location
+	Grouping    Grouping
+	Unhandled   bool
+	Score       int16
+	Tags        map[string]string
+	Warnings    []string
+	Payload     []byte
 }
 
 var payloadJSON = protojson.MarshalOptions{UseProtoNames: true}
@@ -176,7 +180,8 @@ func Normalize(ev *ingestv1.Event, opt NormalizeOptions) (*Processed, error) {
 
 	normalizeCustomer(ev, p, w)
 	normalizeMessageField(ev, w, scrub)
-	rules := InAppRules{Include: settings.GetInApp().GetInclude(), Exclude: settings.GetInApp().GetExclude()}
+	grouping := CompileGroupingRules(settings.GetGrouping())
+	rules := InAppRules{Include: settings.GetInApp().GetInclude(), Exclude: settings.GetInApp().GetExclude(), Stack: grouping}
 	normalizeExceptions(ev, p.Platform, rules, w, scrub)
 	normalizeThreads(ev, p.Platform, rules, w, scrub)
 	normalizeBreadcrumbs(ev, w, scrub)
@@ -205,7 +210,7 @@ func Normalize(ev *ingestv1.Event, opt NormalizeOptions) (*Processed, error) {
 	}
 	p.Level = ev.GetLevel()
 
-	p.Grouping = ComputeGrouping(ev, p.Platform)
+	p.Grouping = ComputeGroupingWith(ev, p.Platform, grouping)
 	describe(ev, p)
 	p.UserLabel, p.UserHash = userIdentity(ev.GetUser())
 	p.Browser = p.UA.BrowserLabel()

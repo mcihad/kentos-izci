@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"slices"
@@ -216,19 +217,38 @@ func (s *IssueServer) ListIssues(ctx context.Context, req *connect.Request[apiv1
 // resolveIssueID accepts a UUID or a short id ("KALEM-1A").
 func (s *IssueServer) resolveIssueID(ctx context.Context, tx pgx.Tx, t *auth.Tenant, ref string) (uuid.UUID, error) {
 	if id, err := uuid.Parse(ref); err == nil {
+		var exists bool
+		if err := tx.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM issues WHERE id = $1)`, id).Scan(&exists); err != nil || exists {
+			return id, err
+		}
+		// A merged issue leads to the issue it was merged into.
+		if target, err := store.MergedInto(ctx, tx, &id, nil, 0); err == nil {
+			return target, nil
+		}
 		return id, nil
 	}
 	slug, seq, ok := ingest.ParseShortID(ref)
 	if !ok {
 		return uuid.Nil, errNotFound("issue")
 	}
-	var id uuid.UUID
-	err := tx.QueryRow(ctx, `SELECT i.id FROM issues i JOIN projects p ON p.id = i.project_id
-		WHERE p.org_id = $1 AND p.slug = $2 AND i.short_seq = $3`, t.OrgID(), slug, seq).Scan(&id)
+	var id *uuid.UUID
+	var project uuid.UUID
+	err := tx.QueryRow(ctx, `SELECT p.id, i.id FROM projects p LEFT JOIN issues i ON i.project_id = p.id AND i.short_seq = $3
+		WHERE p.org_id = $1 AND p.slug = $2 AND p.deleted_at IS NULL`, t.OrgID(), slug, seq).Scan(&project, &id)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return uuid.Nil, errNotFound("issue")
 	}
-	return id, err
+	if err != nil {
+		return uuid.Nil, err
+	}
+	if id != nil {
+		return *id, nil
+	}
+	target, err := store.MergedInto(ctx, tx, nil, &project, seq)
+	if err != nil {
+		return uuid.Nil, errNotFound("issue")
+	}
+	return target, nil
 }
 
 // GetIssue implements IssueService.GetIssue.
@@ -289,11 +309,35 @@ func (s *IssueServer) GetIssue(ctx context.Context, req *connect.Request[apiv1.G
 			Version    uint32   `json:"version"`
 			Strategy   string   `json:"strategy"`
 			Components []string `json:"components"`
+			Rule       string   `json:"rule"`
 		}
 		_ = json.Unmarshal(grouping, &g)
 		var fp []byte
 		_ = tx.QueryRow(ctx, `SELECT fingerprint FROM issues WHERE id = $1`, id).Scan(&fp)
-		issue.Grouping = &apiv1.Grouping{Version: g.Version, Strategy: g.Strategy, Components: g.Components, Fingerprint: hexString(fp)}
+		issue.Grouping = &apiv1.Grouping{Version: g.Version, Strategy: g.Strategy, Components: g.Components, Fingerprint: hexString(fp),
+			Rule: g.Rule}
+		merged, err := store.ListMergedIssues(ctx, tx, id)
+		if err != nil {
+			return err
+		}
+		var mergers []uuid.UUID
+		for _, m := range merged {
+			if m.MergedBy != nil {
+				mergers = append(mergers, *m.MergedBy)
+			}
+		}
+		refs, err := userRefs(ctx, tx, mergers)
+		if err != nil {
+			return err
+		}
+		for _, m := range merged {
+			mi := &apiv1.MergedIssue{Fingerprint: hexString(m.Hash), ShortId: ingest.ShortID(issue.Summary.GetProject().GetSlug(), m.ShortSeq),
+				Title: m.Title, MergedAt: ts(m.MergedAt)}
+			if m.MergedBy != nil {
+				mi.MergedBy = refs[*m.MergedBy]
+			}
+			issue.Merged = append(issue.Merged, mi)
+		}
 		var loc ingest.Location
 		_ = json.Unmarshal(meta, &loc)
 		issue.Location = &apiv1.IssueLocation{Filename: loc.Filename, Function: loc.Function, Module: loc.Module, Lineno: loc.Lineno}
@@ -986,4 +1030,109 @@ func (s *IssueServer) DeleteIssues(ctx context.Context, req *connect.Request[api
 		return nil, internal(ctx, s.log, "delete issues", err)
 	}
 	return connect.NewResponse(&apiv1.DeleteIssuesResponse{Deleted: uint32(len(deleted))}), nil
+}
+
+// MergeIssues implements IssueService.MergeIssues.
+func (s *IssueServer) MergeIssues(ctx context.Context, req *connect.Request[apiv1.MergeIssuesRequest]) (*connect.Response[apiv1.MergeIssuesResponse], error) {
+	target, _ := uuid.Parse(req.Msg.GetTargetIssueId())
+	var sources []uuid.UUID
+	for _, raw := range req.Msg.GetIssueIds() {
+		id, _ := uuid.Parse(raw)
+		sources = append(sources, id)
+	}
+	t := auth.TenantFrom(ctx)
+	me := auth.PrincipalFrom(ctx).User.ID
+	var out apiv1.MergeIssuesResponse
+	err := s.inOrg(ctx, func(tx pgx.Tx, t *auth.Tenant) error {
+		var slug string
+		var seq int32
+		if err := tx.QueryRow(ctx, `SELECT p.slug, coalesce(i.short_seq, 0) FROM issues i JOIN projects p ON p.id = i.project_id
+			WHERE i.id = $1`, target).Scan(&slug, &seq); err != nil {
+			return errNotFound("issue")
+		}
+		merged, err := store.MergeIssues(ctx, tx, t.OrgID(), target, sources, me)
+		switch {
+		case errors.Is(err, store.ErrNotFound):
+			return errNotFound("issue")
+		case errors.Is(err, store.ErrMergeProjects):
+			return fieldError("issue_ids", "only issues of the same project can be merged")
+		case errors.Is(err, store.ErrMergeSelf):
+			return fieldError("issue_ids", "an issue cannot be merged into itself")
+		case err != nil:
+			return err
+		}
+		ids := make([]string, len(merged))
+		for i, m := range merged {
+			ids[i] = ingest.ShortID(slug, m.ShortSeq)
+		}
+		if err := store.AddIssueActivity(ctx, tx, t.OrgID(), []uuid.UUID{target}, int16(apiv1.ActivityKind_ACTIVITY_KIND_MERGED), &me,
+			map[string]string{"issues": strings.Join(ids, ",")}); err != nil {
+			return err
+		}
+		if err := s.audit(ctx, tx, "issue.merge", "issue", target.String(), ingest.ShortID(slug, seq),
+			map[string]string{"merged": strings.Join(ids, ",")}); err != nil {
+			return err
+		}
+		out.Merged = uint32(len(merged))
+		w := periodWindow(apiv1.StatsPeriod_STATS_PERIOD_LAST_24_HOURS, time.Now(), orgLocation(t.Org))
+		list, err := s.loadIssues(ctx, tx, t, w, issueSelect+" WHERE i.id = $1 AND i.org_id = $2", target, t.OrgID())
+		if err == nil && len(list) > 0 {
+			out.Issue = list[0]
+		}
+		return err
+	})
+	if err != nil {
+		return nil, internal(ctx, s.log, "merge issues", err)
+	}
+	s.PublishIssueUpdates(ctx, t.OrgID(), []uuid.UUID{target})
+	return connect.NewResponse(&out), nil
+}
+
+// UnmergeIssue implements IssueService.UnmergeIssue.
+func (s *IssueServer) UnmergeIssue(ctx context.Context, req *connect.Request[apiv1.UnmergeIssueRequest]) (*connect.Response[apiv1.UnmergeIssueResponse], error) {
+	issueID, _ := uuid.Parse(req.Msg.GetIssueId())
+	hash, err := hex.DecodeString(req.Msg.GetFingerprint())
+	if err != nil {
+		return nil, fieldError("fingerprint", "not a fingerprint")
+	}
+	t := auth.TenantFrom(ctx)
+	me := auth.PrincipalFrom(ctx).User.ID
+	var out apiv1.UnmergeIssueResponse
+	err = s.inOrg(ctx, func(tx pgx.Tx, t *auth.Tenant) error {
+		created, err := store.UnmergeIssue(ctx, tx, t.OrgID(), issueID, hash)
+		if errors.Is(err, store.ErrNotFound) {
+			return errNotFound("merged fingerprint")
+		}
+		if err != nil {
+			return err
+		}
+		w := periodWindow(apiv1.StatsPeriod_STATS_PERIOD_LAST_24_HOURS, time.Now(), orgLocation(t.Org))
+		list, err := s.loadIssues(ctx, tx, t, w, issueSelect+" WHERE i.id = ANY($1) AND i.org_id = $2", []uuid.UUID{issueID, created}, t.OrgID())
+		if err != nil {
+			return err
+		}
+		short := map[string]string{}
+		for _, is := range list {
+			short[is.GetId()] = is.GetShortId()
+			if is.GetId() == created.String() {
+				out.Issue = is
+			}
+		}
+		kind := int16(apiv1.ActivityKind_ACTIVITY_KIND_UNMERGED)
+		if err := store.AddIssueActivity(ctx, tx, t.OrgID(), []uuid.UUID{issueID}, kind, &me,
+			map[string]string{"issue": short[created.String()]}); err != nil {
+			return err
+		}
+		if err := store.AddIssueActivity(ctx, tx, t.OrgID(), []uuid.UUID{created}, kind, &me,
+			map[string]string{"issue": short[issueID.String()]}); err != nil {
+			return err
+		}
+		return s.audit(ctx, tx, "issue.unmerge", "issue", issueID.String(), short[issueID.String()],
+			map[string]string{"issue": short[created.String()]})
+	})
+	if err != nil {
+		return nil, internal(ctx, s.log, "unmerge issue", err)
+	}
+	s.PublishIssueUpdates(ctx, t.OrgID(), []uuid.UUID{issueID})
+	return connect.NewResponse(&out), nil
 }

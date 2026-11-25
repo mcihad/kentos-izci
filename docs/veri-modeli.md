@@ -49,6 +49,8 @@
 | `issue_users` | Etkilenen tekil kullanıcılar (kimliğin 8 baytlık özeti). |
 | `issue_subjects` | Hatanın olaylarında geçen kişi kimlikleri (kullanıcı kimliği, e-posta, kullanıcı adı, IP; her birinin 8 baytlık özeti). [Kişisel veri talepleri](guvenlik.md#kişisel-veri-talepleri) kişinin hatalarını buradan bulur. |
 | `deleted_issues` | Silinen hatalar; olayları, sayaçları ve etiket dağılımları arka planda temizlenir. |
+| `merged_hashes` | [Birleştirilen](gruplama.md#birleştirme-ve-ayırma) hataların parmak izleri: yeni olayları kalan hataya yönlendirir; eski kimlik ve kısa kimlikleri, ayırmada geri gelecek başlık ve gruplama bilgisini tutar. |
+| `issue_moves` | Birleştirme ve ayırmadan sonra hatalar arasında taşınmayı bekleyen olaylar; arka planda, istek sırasıyla taşınır. |
 | `issue_activity` | Etkinlik akışı: durum değişiklikleri, yorumlar, atamalar (otomatik olanlar kuralı ya da commit'iyle), bildirimler, yapay zekâ, çekme istekleri. |
 | `project_ownership`, `owner_aliases` | [Sahiplik](sahiplik.md) kuralları, CODEOWNERS metni ve otomatik atama; `@ad` ve `#ekip` sahiplerinin üye eşlemeleri. |
 | `issue_suspect_commits` | Hataların şüpheli commit'i (git blame sonucu) ya da neden bulunamadığı. |
@@ -64,6 +66,7 @@
 
 - Bölümler `PARTITION_PREMAKE_DAYS` gün önceden oluşturulur; bakım işi saatte bir kontrol eder.
 - Saklama süresi dolan bölümler `DROP` ile bütünüyle silinir. Satır satır silme ve tablo şişmesi olmaz.
+- Birleştirilmiş bir hatadaki olaylar kendi parmak izini `grouping_hash` sütununda taşır (diğerlerinde boştur, hatanın parmak izi geçerlidir).
 - Olayın tamamı `payload` sütununda protojson olarak durur ve `lz4` ile sıkıştırılır. Filtrelenen alanlar (ortam, sürüm, müşteri, tenant, kullanıcı, tarayıcı, işletim sistemi, URL…) ayrıca sütun olarak tutulur ve indekslenir.
 - Bir hatanın "önerilen olayı", bilgi puanı en yüksek yakın tarihli olaydır: uygulama kodu içeren yığın izi, istek ve kullanıcı bilgisi puanı artırır.
 

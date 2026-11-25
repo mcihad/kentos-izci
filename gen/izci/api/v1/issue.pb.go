@@ -190,6 +190,12 @@ const (
 	// A ticket was created in an external tracker (Jira); data carries
 	// "channel", "key" and "url".
 	ActivityKind_ACTIVITY_KIND_TICKET_CREATED ActivityKind = 11
+	// Other issues were merged into this one; data carries "issues" (their
+	// short ids, comma separated).
+	ActivityKind_ACTIVITY_KIND_MERGED ActivityKind = 12
+	// A merged fingerprint was moved out into a new issue; data carries
+	// "issue" (its short id).
+	ActivityKind_ACTIVITY_KIND_UNMERGED ActivityKind = 13
 )
 
 // Enum value maps for ActivityKind.
@@ -207,6 +213,8 @@ var (
 		9:  "ACTIVITY_KIND_PULL_REQUEST_OPENED",
 		10: "ACTIVITY_KIND_NOTIFIED",
 		11: "ACTIVITY_KIND_TICKET_CREATED",
+		12: "ACTIVITY_KIND_MERGED",
+		13: "ACTIVITY_KIND_UNMERGED",
 	}
 	ActivityKind_value = map[string]int32{
 		"ACTIVITY_KIND_UNSPECIFIED":         0,
@@ -221,6 +229,8 @@ var (
 		"ACTIVITY_KIND_PULL_REQUEST_OPENED": 9,
 		"ACTIVITY_KIND_NOTIFIED":            10,
 		"ACTIVITY_KIND_TICKET_CREATED":      11,
+		"ACTIVITY_KIND_MERGED":              12,
+		"ACTIVITY_KIND_UNMERGED":            13,
 	}
 )
 
@@ -583,7 +593,9 @@ type Issue struct {
 	// Tickets created for this issue in external trackers.
 	Tickets []*TicketRef `protobuf:"bytes,12,rep,name=tickets,proto3" json:"tickets,omitempty"`
 	// The caller follows the issue (set by GetIssue).
-	Following     bool `protobuf:"varint,13,opt,name=following,proto3" json:"following,omitempty"`
+	Following bool `protobuf:"varint,13,opt,name=following,proto3" json:"following,omitempty"`
+	// Issues merged into this one (set by GetIssue), newest first.
+	Merged        []*MergedIssue `protobuf:"bytes,14,rep,name=merged,proto3" json:"merged,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -707,6 +719,13 @@ func (x *Issue) GetFollowing() bool {
 		return x.Following
 	}
 	return false
+}
+
+func (x *Issue) GetMerged() []*MergedIssue {
+	if x != nil {
+		return x.Merged
+	}
+	return nil
 }
 
 // TicketRef is a ticket in an external tracker (Jira).
@@ -869,13 +888,16 @@ type Grouping struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Algorithm version, e.g. 1.
 	Version uint32 `protobuf:"varint,1,opt,name=version,proto3" json:"version,omitempty"`
-	// Strategy that produced the fingerprint: "custom", "stacktrace",
-	// "exception" or "message".
+	// Strategy that produced the fingerprint: "custom", "rule" (a
+	// fingerprint rule of the project), "stacktrace", "exception" or
+	// "message".
 	Strategy string `protobuf:"bytes,2,opt,name=strategy,proto3" json:"strategy,omitempty"`
 	// Fingerprint as lowercase hexadecimal.
 	Fingerprint string `protobuf:"bytes,3,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
 	// Human-readable inputs that were hashed, in order.
-	Components    []string `protobuf:"bytes,4,rep,name=components,proto3" json:"components,omitempty"`
+	Components []string `protobuf:"bytes,4,rep,name=components,proto3" json:"components,omitempty"`
+	// The fingerprint rule that matched (strategy "rule"), as written.
+	Rule          string `protobuf:"bytes,5,opt,name=rule,proto3" json:"rule,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -936,6 +958,13 @@ func (x *Grouping) GetComponents() []string {
 		return x.Components
 	}
 	return nil
+}
+
+func (x *Grouping) GetRule() string {
+	if x != nil {
+		return x.Rule
+	}
+	return ""
 }
 
 // IssueLocation is where the error was raised.
@@ -2986,6 +3015,301 @@ func (x *DeleteIssuesResponse) GetDeleted() uint32 {
 	return 0
 }
 
+// MergedIssue is an issue merged into another one.
+type MergedIssue struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Fingerprint of the merged issue, as lowercase hexadecimal; pass it to
+	// UnmergeIssue.
+	Fingerprint string `protobuf:"bytes,1,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
+	// Former short id of the merged issue, e.g. "KALEM-1B".
+	ShortId string `protobuf:"bytes,2,opt,name=short_id,json=shortId,proto3" json:"short_id,omitempty"`
+	// Its title when it was merged.
+	Title string `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	// Who merged it.
+	MergedBy *UserRef `protobuf:"bytes,4,opt,name=merged_by,json=mergedBy,proto3" json:"merged_by,omitempty"`
+	// When.
+	MergedAt      *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=merged_at,json=mergedAt,proto3" json:"merged_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MergedIssue) Reset() {
+	*x = MergedIssue{}
+	mi := &file_izci_api_v1_issue_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MergedIssue) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MergedIssue) ProtoMessage() {}
+
+func (x *MergedIssue) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_issue_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MergedIssue.ProtoReflect.Descriptor instead.
+func (*MergedIssue) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *MergedIssue) GetFingerprint() string {
+	if x != nil {
+		return x.Fingerprint
+	}
+	return ""
+}
+
+func (x *MergedIssue) GetShortId() string {
+	if x != nil {
+		return x.ShortId
+	}
+	return ""
+}
+
+func (x *MergedIssue) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *MergedIssue) GetMergedBy() *UserRef {
+	if x != nil {
+		return x.MergedBy
+	}
+	return nil
+}
+
+func (x *MergedIssue) GetMergedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.MergedAt
+	}
+	return nil
+}
+
+// MergeIssuesRequest names the issues to merge.
+type MergeIssuesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The issue that stays (UUID).
+	TargetIssueId string `protobuf:"bytes,1,opt,name=target_issue_id,json=targetIssueId,proto3" json:"target_issue_id,omitempty"`
+	// Issues merged into it (UUIDs), of the same project.
+	IssueIds      []string `protobuf:"bytes,2,rep,name=issue_ids,json=issueIds,proto3" json:"issue_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MergeIssuesRequest) Reset() {
+	*x = MergeIssuesRequest{}
+	mi := &file_izci_api_v1_issue_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MergeIssuesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MergeIssuesRequest) ProtoMessage() {}
+
+func (x *MergeIssuesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_issue_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MergeIssuesRequest.ProtoReflect.Descriptor instead.
+func (*MergeIssuesRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *MergeIssuesRequest) GetTargetIssueId() string {
+	if x != nil {
+		return x.TargetIssueId
+	}
+	return ""
+}
+
+func (x *MergeIssuesRequest) GetIssueIds() []string {
+	if x != nil {
+		return x.IssueIds
+	}
+	return nil
+}
+
+// MergeIssuesResponse returns the target issue.
+type MergeIssuesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The target issue after the merge.
+	Issue *IssueSummary `protobuf:"bytes,1,opt,name=issue,proto3" json:"issue,omitempty"`
+	// Number of issues merged into it.
+	Merged        uint32 `protobuf:"varint,2,opt,name=merged,proto3" json:"merged,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MergeIssuesResponse) Reset() {
+	*x = MergeIssuesResponse{}
+	mi := &file_izci_api_v1_issue_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MergeIssuesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MergeIssuesResponse) ProtoMessage() {}
+
+func (x *MergeIssuesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_issue_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MergeIssuesResponse.ProtoReflect.Descriptor instead.
+func (*MergeIssuesResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *MergeIssuesResponse) GetIssue() *IssueSummary {
+	if x != nil {
+		return x.Issue
+	}
+	return nil
+}
+
+func (x *MergeIssuesResponse) GetMerged() uint32 {
+	if x != nil {
+		return x.Merged
+	}
+	return 0
+}
+
+// UnmergeIssueRequest names the fingerprint to move out.
+type UnmergeIssueRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The issue the fingerprint was merged into (UUID).
+	IssueId string `protobuf:"bytes,1,opt,name=issue_id,json=issueId,proto3" json:"issue_id,omitempty"`
+	// MergedIssue.fingerprint.
+	Fingerprint   string `protobuf:"bytes,2,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnmergeIssueRequest) Reset() {
+	*x = UnmergeIssueRequest{}
+	mi := &file_izci_api_v1_issue_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnmergeIssueRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnmergeIssueRequest) ProtoMessage() {}
+
+func (x *UnmergeIssueRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_issue_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnmergeIssueRequest.ProtoReflect.Descriptor instead.
+func (*UnmergeIssueRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *UnmergeIssueRequest) GetIssueId() string {
+	if x != nil {
+		return x.IssueId
+	}
+	return ""
+}
+
+func (x *UnmergeIssueRequest) GetFingerprint() string {
+	if x != nil {
+		return x.Fingerprint
+	}
+	return ""
+}
+
+// UnmergeIssueResponse returns the new issue.
+type UnmergeIssueResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The issue created for the fingerprint; its events arrive in the
+	// background.
+	Issue         *IssueSummary `protobuf:"bytes,1,opt,name=issue,proto3" json:"issue,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnmergeIssueResponse) Reset() {
+	*x = UnmergeIssueResponse{}
+	mi := &file_izci_api_v1_issue_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnmergeIssueResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnmergeIssueResponse) ProtoMessage() {}
+
+func (x *UnmergeIssueResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_issue_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnmergeIssueResponse.ProtoReflect.Descriptor instead.
+func (*UnmergeIssueResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_issue_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *UnmergeIssueResponse) GetIssue() *IssueSummary {
+	if x != nil {
+		return x.Issue
+	}
+	return nil
+}
+
 var File_izci_api_v1_issue_proto protoreflect.FileDescriptor
 
 const file_izci_api_v1_issue_proto_rawDesc = "" +
@@ -3018,7 +3342,7 @@ const file_izci_api_v1_issue_proto_rawDesc = "" +
 	"\bassignee\x18\x14 \x01(\v2\x14.izci.api.v1.UserRefR\bassignee\x12\x1c\n" +
 	"\tunhandled\x18\x15 \x01(\bR\tunhandled\x12/\n" +
 	"\bai_state\x18\x16 \x01(\x0e2\x14.izci.api.v1.AiStateR\aaiState\x12\x1c\n" +
-	"\tpermalink\x18\x17 \x01(\tR\tpermalink\"\xfa\x04\n" +
+	"\tpermalink\x18\x17 \x01(\tR\tpermalink\"\xac\x05\n" +
 	"\x05Issue\x123\n" +
 	"\asummary\x18\x01 \x01(\v2\x19.izci.api.v1.IssueSummaryR\asummary\x12#\n" +
 	"\rfirst_release\x18\x02 \x01(\tR\ffirstRelease\x12!\n" +
@@ -3035,7 +3359,8 @@ const file_izci_api_v1_issue_proto_rawDesc = "" +
 	" \x01(\tR\rlatestEventId\x12@\n" +
 	"\rpull_requests\x18\v \x03(\v2\x1b.izci.api.v1.PullRequestRefR\fpullRequests\x120\n" +
 	"\atickets\x18\f \x03(\v2\x16.izci.api.v1.TicketRefR\atickets\x12\x1c\n" +
-	"\tfollowing\x18\r \x01(\bR\tfollowing\"\xac\x01\n" +
+	"\tfollowing\x18\r \x01(\bR\tfollowing\x120\n" +
+	"\x06merged\x18\x0e \x03(\v2\x18.izci.api.v1.MergedIssueR\x06merged\"\xac\x01\n" +
 	"\tTicketRef\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\x12\x1d\n" +
@@ -3050,14 +3375,15 @@ const file_izci_api_v1_issue_proto_rawDesc = "" +
 	"untilCount\x12\x1f\n" +
 	"\vcount_since\x18\x03 \x01(\x04R\n" +
 	"countSince\x12)\n" +
-	"\x10until_escalating\x18\x04 \x01(\bR\x0funtilEscalating\"\x82\x01\n" +
+	"\x10until_escalating\x18\x04 \x01(\bR\x0funtilEscalating\"\x96\x01\n" +
 	"\bGrouping\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\rR\aversion\x12\x1a\n" +
 	"\bstrategy\x18\x02 \x01(\tR\bstrategy\x12 \n" +
 	"\vfingerprint\x18\x03 \x01(\tR\vfingerprint\x12\x1e\n" +
 	"\n" +
 	"components\x18\x04 \x03(\tR\n" +
-	"components\"w\n" +
+	"components\x12\x12\n" +
+	"\x04rule\x18\x05 \x01(\tR\x04rule\"w\n" +
 	"\rIssueLocation\x12\x1a\n" +
 	"\bfilename\x18\x01 \x01(\tR\bfilename\x12\x1a\n" +
 	"\bfunction\x18\x02 \x01(\tR\bfunction\x12\x16\n" +
@@ -3203,7 +3529,24 @@ const file_izci_api_v1_issue_proto_rawDesc = "" +
 	"\x13DeleteIssuesRequest\x12.\n" +
 	"\tissue_ids\x18\x01 \x03(\tB\x11\xbaH\x0e\x92\x01\v\b\x01\x10d\"\x05r\x03\xb0\x01\x01R\bissueIds\"0\n" +
 	"\x14DeleteIssuesResponse\x12\x18\n" +
-	"\adeleted\x18\x01 \x01(\rR\adeleted*\xae\x01\n" +
+	"\adeleted\x18\x01 \x01(\rR\adeleted\"\xcc\x01\n" +
+	"\vMergedIssue\x12 \n" +
+	"\vfingerprint\x18\x01 \x01(\tR\vfingerprint\x12\x19\n" +
+	"\bshort_id\x18\x02 \x01(\tR\ashortId\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x121\n" +
+	"\tmerged_by\x18\x04 \x01(\v2\x14.izci.api.v1.UserRefR\bmergedBy\x127\n" +
+	"\tmerged_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\bmergedAt\"v\n" +
+	"\x12MergeIssuesRequest\x120\n" +
+	"\x0ftarget_issue_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\rtargetIssueId\x12.\n" +
+	"\tissue_ids\x18\x02 \x03(\tB\x11\xbaH\x0e\x92\x01\v\b\x01\x10d\"\x05r\x03\xb0\x01\x01R\bissueIds\"^\n" +
+	"\x13MergeIssuesResponse\x12/\n" +
+	"\x05issue\x18\x01 \x01(\v2\x19.izci.api.v1.IssueSummaryR\x05issue\x12\x16\n" +
+	"\x06merged\x18\x02 \x01(\rR\x06merged\"s\n" +
+	"\x13UnmergeIssueRequest\x12#\n" +
+	"\bissue_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\aissueId\x127\n" +
+	"\vfingerprint\x18\x02 \x01(\tB\x15\xbaH\x12r\x102\x0e^[0-9a-f]{32}$R\vfingerprint\"G\n" +
+	"\x14UnmergeIssueResponse\x12/\n" +
+	"\x05issue\x18\x01 \x01(\v2\x19.izci.api.v1.IssueSummaryR\x05issue*\xae\x01\n" +
 	"\aAiState\x12\x18\n" +
 	"\x14AI_STATE_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rAI_STATE_NONE\x10\x01\x12\x14\n" +
@@ -3218,7 +3561,7 @@ const file_izci_api_v1_issue_proto_rawDesc = "" +
 	"\x15ISSUE_SORT_FIRST_SEEN\x10\x02\x12\x15\n" +
 	"\x11ISSUE_SORT_EVENTS\x10\x03\x12\x14\n" +
 	"\x10ISSUE_SORT_USERS\x10\x04\x12\x17\n" +
-	"\x13ISSUE_SORT_PRIORITY\x10\x05*\x88\x03\n" +
+	"\x13ISSUE_SORT_PRIORITY\x10\x05*\xbe\x03\n" +
 	"\fActivityKind\x12\x1d\n" +
 	"\x19ACTIVITY_KIND_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15ACTIVITY_KIND_CREATED\x10\x01\x12\x19\n" +
@@ -3232,17 +3575,21 @@ const file_izci_api_v1_issue_proto_rawDesc = "" +
 	"!ACTIVITY_KIND_PULL_REQUEST_OPENED\x10\t\x12\x1a\n" +
 	"\x16ACTIVITY_KIND_NOTIFIED\x10\n" +
 	"\x12 \n" +
-	"\x1cACTIVITY_KIND_TICKET_CREATED\x10\v*\x80\x01\n" +
+	"\x1cACTIVITY_KIND_TICKET_CREATED\x10\v\x12\x18\n" +
+	"\x14ACTIVITY_KIND_MERGED\x10\f\x12\x1a\n" +
+	"\x16ACTIVITY_KIND_UNMERGED\x10\r*\x80\x01\n" +
 	"\x0eSuggestionKind\x12\x1f\n" +
 	"\x1bSUGGESTION_KIND_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13SUGGESTION_KIND_KEY\x10\x01\x12\x19\n" +
 	"\x15SUGGESTION_KIND_VALUE\x10\x02\x12\x19\n" +
-	"\x15SUGGESTION_KIND_QUERY\x10\x032\xce\b\n" +
+	"\x15SUGGESTION_KIND_QUERY\x10\x032\xf5\t\n" +
 	"\fIssueService\x12R\n" +
 	"\n" +
 	"ListIssues\x12\x1e.izci.api.v1.ListIssuesRequest\x1a\x1f.izci.api.v1.ListIssuesResponse\"\x03\x90\x02\x01\x12L\n" +
 	"\bGetIssue\x12\x1c.izci.api.v1.GetIssueRequest\x1a\x1d.izci.api.v1.GetIssueResponse\"\x03\x90\x02\x01\x12S\n" +
-	"\fUpdateIssues\x12 .izci.api.v1.UpdateIssuesRequest\x1a!.izci.api.v1.UpdateIssuesResponse\x12a\n" +
+	"\fUpdateIssues\x12 .izci.api.v1.UpdateIssuesRequest\x1a!.izci.api.v1.UpdateIssuesResponse\x12P\n" +
+	"\vMergeIssues\x12\x1f.izci.api.v1.MergeIssuesRequest\x1a .izci.api.v1.MergeIssuesResponse\x12S\n" +
+	"\fUnmergeIssue\x12 .izci.api.v1.UnmergeIssueRequest\x1a!.izci.api.v1.UnmergeIssueResponse\x12a\n" +
 	"\x0fListIssueEvents\x12#.izci.api.v1.ListIssueEventsRequest\x1a$.izci.api.v1.ListIssueEventsResponse\"\x03\x90\x02\x01\x12[\n" +
 	"\rGetIssueStats\x12!.izci.api.v1.GetIssueStatsRequest\x1a\".izci.api.v1.GetIssueStatsResponse\"\x03\x90\x02\x01\x12g\n" +
 	"\x11GetIssueTagFacets\x12%.izci.api.v1.GetIssueTagFacetsRequest\x1a&.izci.api.v1.GetIssueTagFacetsResponse\"\x03\x90\x02\x01\x12g\n" +
@@ -3268,7 +3615,7 @@ func file_izci_api_v1_issue_proto_rawDescGZIP() []byte {
 }
 
 var file_izci_api_v1_issue_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_izci_api_v1_issue_proto_msgTypes = make([]protoimpl.MessageInfo, 38)
+var file_izci_api_v1_issue_proto_msgTypes = make([]protoimpl.MessageInfo, 43)
 var file_izci_api_v1_issue_proto_goTypes = []any{
 	(AiState)(0),                      // 0: izci.api.v1.AiState
 	(IssueSort)(0),                    // 1: izci.api.v1.IssueSort
@@ -3311,96 +3658,110 @@ var file_izci_api_v1_issue_proto_goTypes = []any{
 	(*SuggestSearchResponse)(nil),     // 38: izci.api.v1.SuggestSearchResponse
 	(*DeleteIssuesRequest)(nil),       // 39: izci.api.v1.DeleteIssuesRequest
 	(*DeleteIssuesResponse)(nil),      // 40: izci.api.v1.DeleteIssuesResponse
-	nil,                               // 41: izci.api.v1.IssueActivity.DataEntry
-	(*ProjectRef)(nil),                // 42: izci.api.v1.ProjectRef
-	(v1.Level)(0),                     // 43: izci.ingest.v1.Level
-	(IssueStatus)(0),                  // 44: izci.api.v1.IssueStatus
-	(IssueSubstatus)(0),               // 45: izci.api.v1.IssueSubstatus
-	(Priority)(0),                     // 46: izci.api.v1.Priority
-	(*timestamppb.Timestamp)(nil),     // 47: google.protobuf.Timestamp
-	(*Series)(nil),                    // 48: izci.api.v1.Series
-	(*UserRef)(nil),                   // 49: izci.api.v1.UserRef
-	(StatsPeriod)(0),                  // 50: izci.api.v1.StatsPeriod
-	(*durationpb.Duration)(nil),       // 51: google.protobuf.Duration
-	(*EventSummary)(nil),              // 52: izci.api.v1.EventSummary
+	(*MergedIssue)(nil),               // 41: izci.api.v1.MergedIssue
+	(*MergeIssuesRequest)(nil),        // 42: izci.api.v1.MergeIssuesRequest
+	(*MergeIssuesResponse)(nil),       // 43: izci.api.v1.MergeIssuesResponse
+	(*UnmergeIssueRequest)(nil),       // 44: izci.api.v1.UnmergeIssueRequest
+	(*UnmergeIssueResponse)(nil),      // 45: izci.api.v1.UnmergeIssueResponse
+	nil,                               // 46: izci.api.v1.IssueActivity.DataEntry
+	(*ProjectRef)(nil),                // 47: izci.api.v1.ProjectRef
+	(v1.Level)(0),                     // 48: izci.ingest.v1.Level
+	(IssueStatus)(0),                  // 49: izci.api.v1.IssueStatus
+	(IssueSubstatus)(0),               // 50: izci.api.v1.IssueSubstatus
+	(Priority)(0),                     // 51: izci.api.v1.Priority
+	(*timestamppb.Timestamp)(nil),     // 52: google.protobuf.Timestamp
+	(*Series)(nil),                    // 53: izci.api.v1.Series
+	(*UserRef)(nil),                   // 54: izci.api.v1.UserRef
+	(StatsPeriod)(0),                  // 55: izci.api.v1.StatsPeriod
+	(*durationpb.Duration)(nil),       // 56: google.protobuf.Duration
+	(*EventSummary)(nil),              // 57: izci.api.v1.EventSummary
 }
 var file_izci_api_v1_issue_proto_depIdxs = []int32{
-	42, // 0: izci.api.v1.IssueSummary.project:type_name -> izci.api.v1.ProjectRef
-	43, // 1: izci.api.v1.IssueSummary.level:type_name -> izci.ingest.v1.Level
-	44, // 2: izci.api.v1.IssueSummary.status:type_name -> izci.api.v1.IssueStatus
-	45, // 3: izci.api.v1.IssueSummary.substatus:type_name -> izci.api.v1.IssueSubstatus
-	46, // 4: izci.api.v1.IssueSummary.priority:type_name -> izci.api.v1.Priority
-	47, // 5: izci.api.v1.IssueSummary.first_seen:type_name -> google.protobuf.Timestamp
-	47, // 6: izci.api.v1.IssueSummary.last_seen:type_name -> google.protobuf.Timestamp
-	48, // 7: izci.api.v1.IssueSummary.series:type_name -> izci.api.v1.Series
-	49, // 8: izci.api.v1.IssueSummary.assignee:type_name -> izci.api.v1.UserRef
+	47, // 0: izci.api.v1.IssueSummary.project:type_name -> izci.api.v1.ProjectRef
+	48, // 1: izci.api.v1.IssueSummary.level:type_name -> izci.ingest.v1.Level
+	49, // 2: izci.api.v1.IssueSummary.status:type_name -> izci.api.v1.IssueStatus
+	50, // 3: izci.api.v1.IssueSummary.substatus:type_name -> izci.api.v1.IssueSubstatus
+	51, // 4: izci.api.v1.IssueSummary.priority:type_name -> izci.api.v1.Priority
+	52, // 5: izci.api.v1.IssueSummary.first_seen:type_name -> google.protobuf.Timestamp
+	52, // 6: izci.api.v1.IssueSummary.last_seen:type_name -> google.protobuf.Timestamp
+	53, // 7: izci.api.v1.IssueSummary.series:type_name -> izci.api.v1.Series
+	54, // 8: izci.api.v1.IssueSummary.assignee:type_name -> izci.api.v1.UserRef
 	0,  // 9: izci.api.v1.IssueSummary.ai_state:type_name -> izci.api.v1.AiState
 	4,  // 10: izci.api.v1.Issue.summary:type_name -> izci.api.v1.IssueSummary
-	47, // 11: izci.api.v1.Issue.resolved_at:type_name -> google.protobuf.Timestamp
-	49, // 12: izci.api.v1.Issue.resolved_by:type_name -> izci.api.v1.UserRef
+	52, // 11: izci.api.v1.Issue.resolved_at:type_name -> google.protobuf.Timestamp
+	54, // 12: izci.api.v1.Issue.resolved_by:type_name -> izci.api.v1.UserRef
 	7,  // 13: izci.api.v1.Issue.snooze:type_name -> izci.api.v1.Snooze
 	8,  // 14: izci.api.v1.Issue.grouping:type_name -> izci.api.v1.Grouping
 	9,  // 15: izci.api.v1.Issue.location:type_name -> izci.api.v1.IssueLocation
 	10, // 16: izci.api.v1.Issue.pull_requests:type_name -> izci.api.v1.PullRequestRef
 	6,  // 17: izci.api.v1.Issue.tickets:type_name -> izci.api.v1.TicketRef
-	47, // 18: izci.api.v1.TicketRef.created_at:type_name -> google.protobuf.Timestamp
-	47, // 19: izci.api.v1.Snooze.until:type_name -> google.protobuf.Timestamp
-	12, // 20: izci.api.v1.TagFacet.values:type_name -> izci.api.v1.TagValueCount
-	47, // 21: izci.api.v1.TagValueCount.first_seen:type_name -> google.protobuf.Timestamp
-	47, // 22: izci.api.v1.TagValueCount.last_seen:type_name -> google.protobuf.Timestamp
-	2,  // 23: izci.api.v1.IssueActivity.kind:type_name -> izci.api.v1.ActivityKind
-	49, // 24: izci.api.v1.IssueActivity.actor:type_name -> izci.api.v1.UserRef
-	41, // 25: izci.api.v1.IssueActivity.data:type_name -> izci.api.v1.IssueActivity.DataEntry
-	47, // 26: izci.api.v1.IssueActivity.created_at:type_name -> google.protobuf.Timestamp
-	3,  // 27: izci.api.v1.SearchSuggestion.kind:type_name -> izci.api.v1.SuggestionKind
-	1,  // 28: izci.api.v1.ListIssuesRequest.sort:type_name -> izci.api.v1.IssueSort
-	50, // 29: izci.api.v1.ListIssuesRequest.stats_period:type_name -> izci.api.v1.StatsPeriod
-	4,  // 30: izci.api.v1.ListIssuesResponse.issues:type_name -> izci.api.v1.IssueSummary
-	50, // 31: izci.api.v1.GetIssueRequest.stats_period:type_name -> izci.api.v1.StatsPeriod
-	5,  // 32: izci.api.v1.GetIssueResponse.issue:type_name -> izci.api.v1.Issue
-	44, // 33: izci.api.v1.UpdateIssuesRequest.status:type_name -> izci.api.v1.IssueStatus
-	20, // 34: izci.api.v1.UpdateIssuesRequest.resolve:type_name -> izci.api.v1.ResolveOptions
-	21, // 35: izci.api.v1.UpdateIssuesRequest.ignore:type_name -> izci.api.v1.IgnoreOptions
-	46, // 36: izci.api.v1.UpdateIssuesRequest.priority:type_name -> izci.api.v1.Priority
-	51, // 37: izci.api.v1.IgnoreOptions.duration:type_name -> google.protobuf.Duration
-	4,  // 38: izci.api.v1.UpdateIssuesResponse.issues:type_name -> izci.api.v1.IssueSummary
-	52, // 39: izci.api.v1.ListIssueEventsResponse.events:type_name -> izci.api.v1.EventSummary
-	50, // 40: izci.api.v1.GetIssueStatsRequest.period:type_name -> izci.api.v1.StatsPeriod
-	48, // 41: izci.api.v1.GetIssueStatsResponse.series:type_name -> izci.api.v1.Series
-	11, // 42: izci.api.v1.GetIssueTagFacetsResponse.facets:type_name -> izci.api.v1.TagFacet
-	13, // 43: izci.api.v1.ListIssueActivityResponse.activities:type_name -> izci.api.v1.IssueActivity
-	13, // 44: izci.api.v1.AddIssueCommentResponse.activity:type_name -> izci.api.v1.IssueActivity
-	6,  // 45: izci.api.v1.CreateTicketResponse.ticket:type_name -> izci.api.v1.TicketRef
-	14, // 46: izci.api.v1.SuggestSearchResponse.suggestions:type_name -> izci.api.v1.SearchSuggestion
-	15, // 47: izci.api.v1.IssueService.ListIssues:input_type -> izci.api.v1.ListIssuesRequest
-	17, // 48: izci.api.v1.IssueService.GetIssue:input_type -> izci.api.v1.GetIssueRequest
-	19, // 49: izci.api.v1.IssueService.UpdateIssues:input_type -> izci.api.v1.UpdateIssuesRequest
-	23, // 50: izci.api.v1.IssueService.ListIssueEvents:input_type -> izci.api.v1.ListIssueEventsRequest
-	25, // 51: izci.api.v1.IssueService.GetIssueStats:input_type -> izci.api.v1.GetIssueStatsRequest
-	27, // 52: izci.api.v1.IssueService.GetIssueTagFacets:input_type -> izci.api.v1.GetIssueTagFacetsRequest
-	29, // 53: izci.api.v1.IssueService.ListIssueActivity:input_type -> izci.api.v1.ListIssueActivityRequest
-	31, // 54: izci.api.v1.IssueService.AddIssueComment:input_type -> izci.api.v1.AddIssueCommentRequest
-	33, // 55: izci.api.v1.IssueService.FollowIssue:input_type -> izci.api.v1.FollowIssueRequest
-	35, // 56: izci.api.v1.IssueService.CreateTicket:input_type -> izci.api.v1.CreateTicketRequest
-	37, // 57: izci.api.v1.IssueService.SuggestSearch:input_type -> izci.api.v1.SuggestSearchRequest
-	39, // 58: izci.api.v1.IssueService.DeleteIssues:input_type -> izci.api.v1.DeleteIssuesRequest
-	16, // 59: izci.api.v1.IssueService.ListIssues:output_type -> izci.api.v1.ListIssuesResponse
-	18, // 60: izci.api.v1.IssueService.GetIssue:output_type -> izci.api.v1.GetIssueResponse
-	22, // 61: izci.api.v1.IssueService.UpdateIssues:output_type -> izci.api.v1.UpdateIssuesResponse
-	24, // 62: izci.api.v1.IssueService.ListIssueEvents:output_type -> izci.api.v1.ListIssueEventsResponse
-	26, // 63: izci.api.v1.IssueService.GetIssueStats:output_type -> izci.api.v1.GetIssueStatsResponse
-	28, // 64: izci.api.v1.IssueService.GetIssueTagFacets:output_type -> izci.api.v1.GetIssueTagFacetsResponse
-	30, // 65: izci.api.v1.IssueService.ListIssueActivity:output_type -> izci.api.v1.ListIssueActivityResponse
-	32, // 66: izci.api.v1.IssueService.AddIssueComment:output_type -> izci.api.v1.AddIssueCommentResponse
-	34, // 67: izci.api.v1.IssueService.FollowIssue:output_type -> izci.api.v1.FollowIssueResponse
-	36, // 68: izci.api.v1.IssueService.CreateTicket:output_type -> izci.api.v1.CreateTicketResponse
-	38, // 69: izci.api.v1.IssueService.SuggestSearch:output_type -> izci.api.v1.SuggestSearchResponse
-	40, // 70: izci.api.v1.IssueService.DeleteIssues:output_type -> izci.api.v1.DeleteIssuesResponse
-	59, // [59:71] is the sub-list for method output_type
-	47, // [47:59] is the sub-list for method input_type
-	47, // [47:47] is the sub-list for extension type_name
-	47, // [47:47] is the sub-list for extension extendee
-	0,  // [0:47] is the sub-list for field type_name
+	41, // 18: izci.api.v1.Issue.merged:type_name -> izci.api.v1.MergedIssue
+	52, // 19: izci.api.v1.TicketRef.created_at:type_name -> google.protobuf.Timestamp
+	52, // 20: izci.api.v1.Snooze.until:type_name -> google.protobuf.Timestamp
+	12, // 21: izci.api.v1.TagFacet.values:type_name -> izci.api.v1.TagValueCount
+	52, // 22: izci.api.v1.TagValueCount.first_seen:type_name -> google.protobuf.Timestamp
+	52, // 23: izci.api.v1.TagValueCount.last_seen:type_name -> google.protobuf.Timestamp
+	2,  // 24: izci.api.v1.IssueActivity.kind:type_name -> izci.api.v1.ActivityKind
+	54, // 25: izci.api.v1.IssueActivity.actor:type_name -> izci.api.v1.UserRef
+	46, // 26: izci.api.v1.IssueActivity.data:type_name -> izci.api.v1.IssueActivity.DataEntry
+	52, // 27: izci.api.v1.IssueActivity.created_at:type_name -> google.protobuf.Timestamp
+	3,  // 28: izci.api.v1.SearchSuggestion.kind:type_name -> izci.api.v1.SuggestionKind
+	1,  // 29: izci.api.v1.ListIssuesRequest.sort:type_name -> izci.api.v1.IssueSort
+	55, // 30: izci.api.v1.ListIssuesRequest.stats_period:type_name -> izci.api.v1.StatsPeriod
+	4,  // 31: izci.api.v1.ListIssuesResponse.issues:type_name -> izci.api.v1.IssueSummary
+	55, // 32: izci.api.v1.GetIssueRequest.stats_period:type_name -> izci.api.v1.StatsPeriod
+	5,  // 33: izci.api.v1.GetIssueResponse.issue:type_name -> izci.api.v1.Issue
+	49, // 34: izci.api.v1.UpdateIssuesRequest.status:type_name -> izci.api.v1.IssueStatus
+	20, // 35: izci.api.v1.UpdateIssuesRequest.resolve:type_name -> izci.api.v1.ResolveOptions
+	21, // 36: izci.api.v1.UpdateIssuesRequest.ignore:type_name -> izci.api.v1.IgnoreOptions
+	51, // 37: izci.api.v1.UpdateIssuesRequest.priority:type_name -> izci.api.v1.Priority
+	56, // 38: izci.api.v1.IgnoreOptions.duration:type_name -> google.protobuf.Duration
+	4,  // 39: izci.api.v1.UpdateIssuesResponse.issues:type_name -> izci.api.v1.IssueSummary
+	57, // 40: izci.api.v1.ListIssueEventsResponse.events:type_name -> izci.api.v1.EventSummary
+	55, // 41: izci.api.v1.GetIssueStatsRequest.period:type_name -> izci.api.v1.StatsPeriod
+	53, // 42: izci.api.v1.GetIssueStatsResponse.series:type_name -> izci.api.v1.Series
+	11, // 43: izci.api.v1.GetIssueTagFacetsResponse.facets:type_name -> izci.api.v1.TagFacet
+	13, // 44: izci.api.v1.ListIssueActivityResponse.activities:type_name -> izci.api.v1.IssueActivity
+	13, // 45: izci.api.v1.AddIssueCommentResponse.activity:type_name -> izci.api.v1.IssueActivity
+	6,  // 46: izci.api.v1.CreateTicketResponse.ticket:type_name -> izci.api.v1.TicketRef
+	14, // 47: izci.api.v1.SuggestSearchResponse.suggestions:type_name -> izci.api.v1.SearchSuggestion
+	54, // 48: izci.api.v1.MergedIssue.merged_by:type_name -> izci.api.v1.UserRef
+	52, // 49: izci.api.v1.MergedIssue.merged_at:type_name -> google.protobuf.Timestamp
+	4,  // 50: izci.api.v1.MergeIssuesResponse.issue:type_name -> izci.api.v1.IssueSummary
+	4,  // 51: izci.api.v1.UnmergeIssueResponse.issue:type_name -> izci.api.v1.IssueSummary
+	15, // 52: izci.api.v1.IssueService.ListIssues:input_type -> izci.api.v1.ListIssuesRequest
+	17, // 53: izci.api.v1.IssueService.GetIssue:input_type -> izci.api.v1.GetIssueRequest
+	19, // 54: izci.api.v1.IssueService.UpdateIssues:input_type -> izci.api.v1.UpdateIssuesRequest
+	42, // 55: izci.api.v1.IssueService.MergeIssues:input_type -> izci.api.v1.MergeIssuesRequest
+	44, // 56: izci.api.v1.IssueService.UnmergeIssue:input_type -> izci.api.v1.UnmergeIssueRequest
+	23, // 57: izci.api.v1.IssueService.ListIssueEvents:input_type -> izci.api.v1.ListIssueEventsRequest
+	25, // 58: izci.api.v1.IssueService.GetIssueStats:input_type -> izci.api.v1.GetIssueStatsRequest
+	27, // 59: izci.api.v1.IssueService.GetIssueTagFacets:input_type -> izci.api.v1.GetIssueTagFacetsRequest
+	29, // 60: izci.api.v1.IssueService.ListIssueActivity:input_type -> izci.api.v1.ListIssueActivityRequest
+	31, // 61: izci.api.v1.IssueService.AddIssueComment:input_type -> izci.api.v1.AddIssueCommentRequest
+	33, // 62: izci.api.v1.IssueService.FollowIssue:input_type -> izci.api.v1.FollowIssueRequest
+	35, // 63: izci.api.v1.IssueService.CreateTicket:input_type -> izci.api.v1.CreateTicketRequest
+	37, // 64: izci.api.v1.IssueService.SuggestSearch:input_type -> izci.api.v1.SuggestSearchRequest
+	39, // 65: izci.api.v1.IssueService.DeleteIssues:input_type -> izci.api.v1.DeleteIssuesRequest
+	16, // 66: izci.api.v1.IssueService.ListIssues:output_type -> izci.api.v1.ListIssuesResponse
+	18, // 67: izci.api.v1.IssueService.GetIssue:output_type -> izci.api.v1.GetIssueResponse
+	22, // 68: izci.api.v1.IssueService.UpdateIssues:output_type -> izci.api.v1.UpdateIssuesResponse
+	43, // 69: izci.api.v1.IssueService.MergeIssues:output_type -> izci.api.v1.MergeIssuesResponse
+	45, // 70: izci.api.v1.IssueService.UnmergeIssue:output_type -> izci.api.v1.UnmergeIssueResponse
+	24, // 71: izci.api.v1.IssueService.ListIssueEvents:output_type -> izci.api.v1.ListIssueEventsResponse
+	26, // 72: izci.api.v1.IssueService.GetIssueStats:output_type -> izci.api.v1.GetIssueStatsResponse
+	28, // 73: izci.api.v1.IssueService.GetIssueTagFacets:output_type -> izci.api.v1.GetIssueTagFacetsResponse
+	30, // 74: izci.api.v1.IssueService.ListIssueActivity:output_type -> izci.api.v1.ListIssueActivityResponse
+	32, // 75: izci.api.v1.IssueService.AddIssueComment:output_type -> izci.api.v1.AddIssueCommentResponse
+	34, // 76: izci.api.v1.IssueService.FollowIssue:output_type -> izci.api.v1.FollowIssueResponse
+	36, // 77: izci.api.v1.IssueService.CreateTicket:output_type -> izci.api.v1.CreateTicketResponse
+	38, // 78: izci.api.v1.IssueService.SuggestSearch:output_type -> izci.api.v1.SuggestSearchResponse
+	40, // 79: izci.api.v1.IssueService.DeleteIssues:output_type -> izci.api.v1.DeleteIssuesResponse
+	66, // [66:80] is the sub-list for method output_type
+	52, // [52:66] is the sub-list for method input_type
+	52, // [52:52] is the sub-list for extension type_name
+	52, // [52:52] is the sub-list for extension extendee
+	0,  // [0:52] is the sub-list for field type_name
 }
 
 func init() { file_izci_api_v1_issue_proto_init() }
@@ -3417,7 +3778,7 @@ func file_izci_api_v1_issue_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_api_v1_issue_proto_rawDesc), len(file_izci_api_v1_issue_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   38,
+			NumMessages:   43,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

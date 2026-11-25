@@ -24,6 +24,95 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// GroupingRuleProblemKind is what is wrong with a line of grouping rules.
+type GroupingRuleProblemKind int32
+
+const (
+	// Not set.
+	GroupingRuleProblemKind_GROUPING_RULE_PROBLEM_KIND_UNSPECIFIED GroupingRuleProblemKind = 0
+	// A fingerprint rule without "->".
+	GroupingRuleProblemKind_GROUPING_RULE_PROBLEM_KIND_NO_ARROW GroupingRuleProblemKind = 1
+	// A matcher that is not "key:value".
+	GroupingRuleProblemKind_GROUPING_RULE_PROBLEM_KIND_SYNTAX GroupingRuleProblemKind = 2
+	// An unknown matcher key (value).
+	GroupingRuleProblemKind_GROUPING_RULE_PROBLEM_KIND_UNKNOWN_MATCHER GroupingRuleProblemKind = 3
+	// An unknown fingerprint variable (value).
+	GroupingRuleProblemKind_GROUPING_RULE_PROBLEM_KIND_UNKNOWN_VARIABLE GroupingRuleProblemKind = 4
+	// "{{ default }}" combined with other text in one fingerprint part.
+	GroupingRuleProblemKind_GROUPING_RULE_PROBLEM_KIND_DEFAULT_NOT_ALONE GroupingRuleProblemKind = 5
+	// A fingerprint rule without fingerprint parts.
+	GroupingRuleProblemKind_GROUPING_RULE_PROBLEM_KIND_EMPTY_FINGERPRINT GroupingRuleProblemKind = 6
+	// A stack trace rule with an unknown action (value).
+	GroupingRuleProblemKind_GROUPING_RULE_PROBLEM_KIND_UNKNOWN_ACTION GroupingRuleProblemKind = 7
+	// A stack trace rule without an action.
+	GroupingRuleProblemKind_GROUPING_RULE_PROBLEM_KIND_NO_ACTION GroupingRuleProblemKind = 8
+	// A rule without matchers.
+	GroupingRuleProblemKind_GROUPING_RULE_PROBLEM_KIND_NO_MATCHER GroupingRuleProblemKind = 9
+	// A quoted value without its closing quote (value).
+	GroupingRuleProblemKind_GROUPING_RULE_PROBLEM_KIND_UNTERMINATED_QUOTE GroupingRuleProblemKind = 10
+	// Too many rules, matchers or fingerprint parts.
+	GroupingRuleProblemKind_GROUPING_RULE_PROBLEM_KIND_TOO_MANY GroupingRuleProblemKind = 11
+)
+
+// Enum value maps for GroupingRuleProblemKind.
+var (
+	GroupingRuleProblemKind_name = map[int32]string{
+		0:  "GROUPING_RULE_PROBLEM_KIND_UNSPECIFIED",
+		1:  "GROUPING_RULE_PROBLEM_KIND_NO_ARROW",
+		2:  "GROUPING_RULE_PROBLEM_KIND_SYNTAX",
+		3:  "GROUPING_RULE_PROBLEM_KIND_UNKNOWN_MATCHER",
+		4:  "GROUPING_RULE_PROBLEM_KIND_UNKNOWN_VARIABLE",
+		5:  "GROUPING_RULE_PROBLEM_KIND_DEFAULT_NOT_ALONE",
+		6:  "GROUPING_RULE_PROBLEM_KIND_EMPTY_FINGERPRINT",
+		7:  "GROUPING_RULE_PROBLEM_KIND_UNKNOWN_ACTION",
+		8:  "GROUPING_RULE_PROBLEM_KIND_NO_ACTION",
+		9:  "GROUPING_RULE_PROBLEM_KIND_NO_MATCHER",
+		10: "GROUPING_RULE_PROBLEM_KIND_UNTERMINATED_QUOTE",
+		11: "GROUPING_RULE_PROBLEM_KIND_TOO_MANY",
+	}
+	GroupingRuleProblemKind_value = map[string]int32{
+		"GROUPING_RULE_PROBLEM_KIND_UNSPECIFIED":        0,
+		"GROUPING_RULE_PROBLEM_KIND_NO_ARROW":           1,
+		"GROUPING_RULE_PROBLEM_KIND_SYNTAX":             2,
+		"GROUPING_RULE_PROBLEM_KIND_UNKNOWN_MATCHER":    3,
+		"GROUPING_RULE_PROBLEM_KIND_UNKNOWN_VARIABLE":   4,
+		"GROUPING_RULE_PROBLEM_KIND_DEFAULT_NOT_ALONE":  5,
+		"GROUPING_RULE_PROBLEM_KIND_EMPTY_FINGERPRINT":  6,
+		"GROUPING_RULE_PROBLEM_KIND_UNKNOWN_ACTION":     7,
+		"GROUPING_RULE_PROBLEM_KIND_NO_ACTION":          8,
+		"GROUPING_RULE_PROBLEM_KIND_NO_MATCHER":         9,
+		"GROUPING_RULE_PROBLEM_KIND_UNTERMINATED_QUOTE": 10,
+		"GROUPING_RULE_PROBLEM_KIND_TOO_MANY":           11,
+	}
+)
+
+func (x GroupingRuleProblemKind) Enum() *GroupingRuleProblemKind {
+	p := new(GroupingRuleProblemKind)
+	*p = x
+	return p
+}
+
+func (x GroupingRuleProblemKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (GroupingRuleProblemKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_izci_api_v1_project_proto_enumTypes[0].Descriptor()
+}
+
+func (GroupingRuleProblemKind) Type() protoreflect.EnumType {
+	return &file_izci_api_v1_project_proto_enumTypes[0]
+}
+
+func (x GroupingRuleProblemKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use GroupingRuleProblemKind.Descriptor instead.
+func (GroupingRuleProblemKind) EnumDescriptor() ([]byte, []int) {
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{0}
+}
+
 // FilterReason is why an event was filtered at ingest.
 type FilterReason int32
 
@@ -85,11 +174,11 @@ func (x FilterReason) String() string {
 }
 
 func (FilterReason) Descriptor() protoreflect.EnumDescriptor {
-	return file_izci_api_v1_project_proto_enumTypes[0].Descriptor()
+	return file_izci_api_v1_project_proto_enumTypes[1].Descriptor()
 }
 
 func (FilterReason) Type() protoreflect.EnumType {
-	return &file_izci_api_v1_project_proto_enumTypes[0]
+	return &file_izci_api_v1_project_proto_enumTypes[1]
 }
 
 func (x FilterReason) Number() protoreflect.EnumNumber {
@@ -98,7 +187,7 @@ func (x FilterReason) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use FilterReason.Descriptor instead.
 func (FilterReason) EnumDescriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{0}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{1}
 }
 
 // IpStorage selects how IP addresses are stored.
@@ -142,11 +231,11 @@ func (x IpStorage) String() string {
 }
 
 func (IpStorage) Descriptor() protoreflect.EnumDescriptor {
-	return file_izci_api_v1_project_proto_enumTypes[1].Descriptor()
+	return file_izci_api_v1_project_proto_enumTypes[2].Descriptor()
 }
 
 func (IpStorage) Type() protoreflect.EnumType {
-	return &file_izci_api_v1_project_proto_enumTypes[1]
+	return &file_izci_api_v1_project_proto_enumTypes[2]
 }
 
 func (x IpStorage) Number() protoreflect.EnumNumber {
@@ -155,7 +244,7 @@ func (x IpStorage) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use IpStorage.Descriptor instead.
 func (IpStorage) EnumDescriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{1}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{2}
 }
 
 // AutoAnalyze selects when AI analyses start automatically.
@@ -195,11 +284,11 @@ func (x AutoAnalyze) String() string {
 }
 
 func (AutoAnalyze) Descriptor() protoreflect.EnumDescriptor {
-	return file_izci_api_v1_project_proto_enumTypes[2].Descriptor()
+	return file_izci_api_v1_project_proto_enumTypes[3].Descriptor()
 }
 
 func (AutoAnalyze) Type() protoreflect.EnumType {
-	return &file_izci_api_v1_project_proto_enumTypes[2]
+	return &file_izci_api_v1_project_proto_enumTypes[3]
 }
 
 func (x AutoAnalyze) Number() protoreflect.EnumNumber {
@@ -208,7 +297,7 @@ func (x AutoAnalyze) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use AutoAnalyze.Descriptor instead.
 func (AutoAnalyze) EnumDescriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{2}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{3}
 }
 
 // AutoAction selects what happens after a successful automatic analysis.
@@ -258,11 +347,11 @@ func (x AutoAction) String() string {
 }
 
 func (AutoAction) Descriptor() protoreflect.EnumDescriptor {
-	return file_izci_api_v1_project_proto_enumTypes[3].Descriptor()
+	return file_izci_api_v1_project_proto_enumTypes[4].Descriptor()
 }
 
 func (AutoAction) Type() protoreflect.EnumType {
-	return &file_izci_api_v1_project_proto_enumTypes[3]
+	return &file_izci_api_v1_project_proto_enumTypes[4]
 }
 
 func (x AutoAction) Number() protoreflect.EnumNumber {
@@ -271,7 +360,7 @@ func (x AutoAction) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use AutoAction.Descriptor instead.
 func (AutoAction) EnumDescriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{3}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{4}
 }
 
 // ApiKeyScope is a permission of an API key.
@@ -316,11 +405,11 @@ func (x ApiKeyScope) String() string {
 }
 
 func (ApiKeyScope) Descriptor() protoreflect.EnumDescriptor {
-	return file_izci_api_v1_project_proto_enumTypes[4].Descriptor()
+	return file_izci_api_v1_project_proto_enumTypes[5].Descriptor()
 }
 
 func (ApiKeyScope) Type() protoreflect.EnumType {
-	return &file_izci_api_v1_project_proto_enumTypes[4]
+	return &file_izci_api_v1_project_proto_enumTypes[5]
 }
 
 func (x ApiKeyScope) Number() protoreflect.EnumNumber {
@@ -329,7 +418,7 @@ func (x ApiKeyScope) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ApiKeyScope.Descriptor instead.
 func (ApiKeyScope) EnumDescriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{4}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{5}
 }
 
 // Project is one monitored application.
@@ -538,7 +627,9 @@ type ProjectSettings struct {
 	// AI analysis automation.
 	Ai *AiSettings `protobuf:"bytes,5,opt,name=ai,proto3" json:"ai,omitempty"`
 	// Inbound filters that drop unwanted events before they are stored.
-	Filters       *InboundFilters `protobuf:"bytes,6,opt,name=filters,proto3" json:"filters,omitempty"`
+	Filters *InboundFilters `protobuf:"bytes,6,opt,name=filters,proto3" json:"filters,omitempty"`
+	// Fingerprint and stack trace rules that change how new events group.
+	Grouping      *GroupingSettings `protobuf:"bytes,7,opt,name=grouping,proto3" json:"grouping,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -615,6 +706,154 @@ func (x *ProjectSettings) GetFilters() *InboundFilters {
 	return nil
 }
 
+func (x *ProjectSettings) GetGrouping() *GroupingSettings {
+	if x != nil {
+		return x.Grouping
+	}
+	return nil
+}
+
+// GroupingSettings are a project's grouping rules (docs/gruplama.md). They
+// apply to new events; existing issues keep their fingerprints.
+type GroupingSettings struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Fingerprint rules, one per line: matchers, "->", fingerprint parts,
+	// e.g. "error.type:TimeoutException -> zaman-asimi". The first matching
+	// rule wins over the default grouping and the SDK's fingerprint.
+	FingerprintRules string `protobuf:"bytes,1,opt,name=fingerprint_rules,json=fingerprintRules,proto3" json:"fingerprint_rules,omitempty"`
+	// Stack trace rules, one per line: frame matchers and actions, e.g.
+	// "stack.function:*Logger* -group" or "stack.module:Kalem.* +app".
+	StacktraceRules string `protobuf:"bytes,2,opt,name=stacktrace_rules,json=stacktraceRules,proto3" json:"stacktrace_rules,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *GroupingSettings) Reset() {
+	*x = GroupingSettings{}
+	mi := &file_izci_api_v1_project_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GroupingSettings) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GroupingSettings) ProtoMessage() {}
+
+func (x *GroupingSettings) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_project_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GroupingSettings.ProtoReflect.Descriptor instead.
+func (*GroupingSettings) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GroupingSettings) GetFingerprintRules() string {
+	if x != nil {
+		return x.FingerprintRules
+	}
+	return ""
+}
+
+func (x *GroupingSettings) GetStacktraceRules() string {
+	if x != nil {
+		return x.StacktraceRules
+	}
+	return ""
+}
+
+// GroupingRuleProblem is an invalid line of grouping rules.
+type GroupingRuleProblem struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// "fingerprint_rules" or "stacktrace_rules".
+	Field string `protobuf:"bytes,1,opt,name=field,proto3" json:"field,omitempty"`
+	// Line number, 1-based.
+	Line uint32 `protobuf:"varint,2,opt,name=line,proto3" json:"line,omitempty"`
+	// What is wrong, in English.
+	Message string `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	// What is wrong, for clients to describe in their language.
+	Kind GroupingRuleProblemKind `protobuf:"varint,4,opt,name=kind,proto3,enum=izci.api.v1.GroupingRuleProblemKind" json:"kind,omitempty"`
+	// The offending matcher, variable, action or token, when any.
+	Value         string `protobuf:"bytes,5,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GroupingRuleProblem) Reset() {
+	*x = GroupingRuleProblem{}
+	mi := &file_izci_api_v1_project_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GroupingRuleProblem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GroupingRuleProblem) ProtoMessage() {}
+
+func (x *GroupingRuleProblem) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_project_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GroupingRuleProblem.ProtoReflect.Descriptor instead.
+func (*GroupingRuleProblem) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GroupingRuleProblem) GetField() string {
+	if x != nil {
+		return x.Field
+	}
+	return ""
+}
+
+func (x *GroupingRuleProblem) GetLine() uint32 {
+	if x != nil {
+		return x.Line
+	}
+	return 0
+}
+
+func (x *GroupingRuleProblem) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *GroupingRuleProblem) GetKind() GroupingRuleProblemKind {
+	if x != nil {
+		return x.Kind
+	}
+	return GroupingRuleProblemKind_GROUPING_RULE_PROBLEM_KIND_UNSPECIFIED
+}
+
+func (x *GroupingRuleProblem) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
 // InboundFilters drop events at ingest, before rate limits and quotas: a
 // filtered event is answered as FILTERED and counts toward nothing but the
 // filter statistics.
@@ -650,7 +889,7 @@ type InboundFilters struct {
 
 func (x *InboundFilters) Reset() {
 	*x = InboundFilters{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[3]
+	mi := &file_izci_api_v1_project_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -662,7 +901,7 @@ func (x *InboundFilters) String() string {
 func (*InboundFilters) ProtoMessage() {}
 
 func (x *InboundFilters) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[3]
+	mi := &file_izci_api_v1_project_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -675,7 +914,7 @@ func (x *InboundFilters) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InboundFilters.ProtoReflect.Descriptor instead.
 func (*InboundFilters) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{3}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *InboundFilters) GetBrowserExtensions() bool {
@@ -755,7 +994,7 @@ type PrivacySettings struct {
 
 func (x *PrivacySettings) Reset() {
 	*x = PrivacySettings{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[4]
+	mi := &file_izci_api_v1_project_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -767,7 +1006,7 @@ func (x *PrivacySettings) String() string {
 func (*PrivacySettings) ProtoMessage() {}
 
 func (x *PrivacySettings) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[4]
+	mi := &file_izci_api_v1_project_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -780,7 +1019,7 @@ func (x *PrivacySettings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PrivacySettings.ProtoReflect.Descriptor instead.
 func (*PrivacySettings) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{4}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *PrivacySettings) GetIpStorage() IpStorage {
@@ -847,7 +1086,7 @@ type InAppRules struct {
 
 func (x *InAppRules) Reset() {
 	*x = InAppRules{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[5]
+	mi := &file_izci_api_v1_project_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -859,7 +1098,7 @@ func (x *InAppRules) String() string {
 func (*InAppRules) ProtoMessage() {}
 
 func (x *InAppRules) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[5]
+	mi := &file_izci_api_v1_project_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -872,7 +1111,7 @@ func (x *InAppRules) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InAppRules.ProtoReflect.Descriptor instead.
 func (*InAppRules) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{5}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *InAppRules) GetInclude() []string {
@@ -915,7 +1154,7 @@ type AiSettings struct {
 
 func (x *AiSettings) Reset() {
 	*x = AiSettings{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[6]
+	mi := &file_izci_api_v1_project_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -927,7 +1166,7 @@ func (x *AiSettings) String() string {
 func (*AiSettings) ProtoMessage() {}
 
 func (x *AiSettings) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[6]
+	mi := &file_izci_api_v1_project_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -940,7 +1179,7 @@ func (x *AiSettings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AiSettings.ProtoReflect.Descriptor instead.
 func (*AiSettings) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{6}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *AiSettings) GetAutoAnalyze() AutoAnalyze {
@@ -1019,7 +1258,7 @@ type ProjectRepository struct {
 
 func (x *ProjectRepository) Reset() {
 	*x = ProjectRepository{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[7]
+	mi := &file_izci_api_v1_project_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1031,7 +1270,7 @@ func (x *ProjectRepository) String() string {
 func (*ProjectRepository) ProtoMessage() {}
 
 func (x *ProjectRepository) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[7]
+	mi := &file_izci_api_v1_project_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1044,7 +1283,7 @@ func (x *ProjectRepository) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectRepository.ProtoReflect.Descriptor instead.
 func (*ProjectRepository) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{7}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ProjectRepository) GetIntegrationId() string {
@@ -1119,7 +1358,7 @@ type PathMapping struct {
 
 func (x *PathMapping) Reset() {
 	*x = PathMapping{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[8]
+	mi := &file_izci_api_v1_project_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1131,7 +1370,7 @@ func (x *PathMapping) String() string {
 func (*PathMapping) ProtoMessage() {}
 
 func (x *PathMapping) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[8]
+	mi := &file_izci_api_v1_project_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1144,7 +1383,7 @@ func (x *PathMapping) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PathMapping.ProtoReflect.Descriptor instead.
 func (*PathMapping) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{8}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *PathMapping) GetFromPrefix() string {
@@ -1197,7 +1436,7 @@ type ApiKey struct {
 
 func (x *ApiKey) Reset() {
 	*x = ApiKey{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[9]
+	mi := &file_izci_api_v1_project_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1209,7 +1448,7 @@ func (x *ApiKey) String() string {
 func (*ApiKey) ProtoMessage() {}
 
 func (x *ApiKey) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[9]
+	mi := &file_izci_api_v1_project_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1222,7 +1461,7 @@ func (x *ApiKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKey.ProtoReflect.Descriptor instead.
 func (*ApiKey) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{9}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ApiKey) GetId() string {
@@ -1317,7 +1556,7 @@ type Environment struct {
 
 func (x *Environment) Reset() {
 	*x = Environment{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[10]
+	mi := &file_izci_api_v1_project_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1329,7 +1568,7 @@ func (x *Environment) String() string {
 func (*Environment) ProtoMessage() {}
 
 func (x *Environment) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[10]
+	mi := &file_izci_api_v1_project_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1342,7 +1581,7 @@ func (x *Environment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Environment.ProtoReflect.Descriptor instead.
 func (*Environment) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{10}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *Environment) GetName() string {
@@ -1398,7 +1637,7 @@ type Release struct {
 
 func (x *Release) Reset() {
 	*x = Release{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[11]
+	mi := &file_izci_api_v1_project_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1410,7 +1649,7 @@ func (x *Release) String() string {
 func (*Release) ProtoMessage() {}
 
 func (x *Release) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[11]
+	mi := &file_izci_api_v1_project_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1423,7 +1662,7 @@ func (x *Release) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Release.ProtoReflect.Descriptor instead.
 func (*Release) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{11}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *Release) GetId() string {
@@ -1533,7 +1772,7 @@ type ReleaseHealth struct {
 
 func (x *ReleaseHealth) Reset() {
 	*x = ReleaseHealth{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[12]
+	mi := &file_izci_api_v1_project_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1545,7 +1784,7 @@ func (x *ReleaseHealth) String() string {
 func (*ReleaseHealth) ProtoMessage() {}
 
 func (x *ReleaseHealth) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[12]
+	mi := &file_izci_api_v1_project_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1558,7 +1797,7 @@ func (x *ReleaseHealth) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReleaseHealth.ProtoReflect.Descriptor instead.
 func (*ReleaseHealth) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{12}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ReleaseHealth) GetSessions() uint64 {
@@ -1632,7 +1871,7 @@ type Deploy struct {
 
 func (x *Deploy) Reset() {
 	*x = Deploy{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[13]
+	mi := &file_izci_api_v1_project_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1644,7 +1883,7 @@ func (x *Deploy) String() string {
 func (*Deploy) ProtoMessage() {}
 
 func (x *Deploy) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[13]
+	mi := &file_izci_api_v1_project_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1657,7 +1896,7 @@ func (x *Deploy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Deploy.ProtoReflect.Descriptor instead.
 func (*Deploy) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{13}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *Deploy) GetEnvironment() string {
@@ -1690,7 +1929,7 @@ type ListProjectsRequest struct {
 
 func (x *ListProjectsRequest) Reset() {
 	*x = ListProjectsRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[14]
+	mi := &file_izci_api_v1_project_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1702,7 +1941,7 @@ func (x *ListProjectsRequest) String() string {
 func (*ListProjectsRequest) ProtoMessage() {}
 
 func (x *ListProjectsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[14]
+	mi := &file_izci_api_v1_project_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1715,7 +1954,7 @@ func (x *ListProjectsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListProjectsRequest.ProtoReflect.Descriptor instead.
 func (*ListProjectsRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{14}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{16}
 }
 
 // ListProjectsResponse lists projects.
@@ -1729,7 +1968,7 @@ type ListProjectsResponse struct {
 
 func (x *ListProjectsResponse) Reset() {
 	*x = ListProjectsResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[15]
+	mi := &file_izci_api_v1_project_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1741,7 +1980,7 @@ func (x *ListProjectsResponse) String() string {
 func (*ListProjectsResponse) ProtoMessage() {}
 
 func (x *ListProjectsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[15]
+	mi := &file_izci_api_v1_project_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1754,7 +1993,7 @@ func (x *ListProjectsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListProjectsResponse.ProtoReflect.Descriptor instead.
 func (*ListProjectsResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{15}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ListProjectsResponse) GetProjects() []*Project {
@@ -1775,7 +2014,7 @@ type GetProjectRequest struct {
 
 func (x *GetProjectRequest) Reset() {
 	*x = GetProjectRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[16]
+	mi := &file_izci_api_v1_project_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1787,7 +2026,7 @@ func (x *GetProjectRequest) String() string {
 func (*GetProjectRequest) ProtoMessage() {}
 
 func (x *GetProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[16]
+	mi := &file_izci_api_v1_project_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1800,7 +2039,7 @@ func (x *GetProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectRequest.ProtoReflect.Descriptor instead.
 func (*GetProjectRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{16}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *GetProjectRequest) GetSlug() string {
@@ -1821,7 +2060,7 @@ type GetProjectResponse struct {
 
 func (x *GetProjectResponse) Reset() {
 	*x = GetProjectResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[17]
+	mi := &file_izci_api_v1_project_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1833,7 +2072,7 @@ func (x *GetProjectResponse) String() string {
 func (*GetProjectResponse) ProtoMessage() {}
 
 func (x *GetProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[17]
+	mi := &file_izci_api_v1_project_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1846,7 +2085,7 @@ func (x *GetProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectResponse.ProtoReflect.Descriptor instead.
 func (*GetProjectResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{17}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetProjectResponse) GetProject() *Project {
@@ -1872,7 +2111,7 @@ type CreateProjectRequest struct {
 
 func (x *CreateProjectRequest) Reset() {
 	*x = CreateProjectRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[18]
+	mi := &file_izci_api_v1_project_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1884,7 +2123,7 @@ func (x *CreateProjectRequest) String() string {
 func (*CreateProjectRequest) ProtoMessage() {}
 
 func (x *CreateProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[18]
+	mi := &file_izci_api_v1_project_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1897,7 +2136,7 @@ func (x *CreateProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateProjectRequest.ProtoReflect.Descriptor instead.
 func (*CreateProjectRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{18}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *CreateProjectRequest) GetName() string {
@@ -1936,7 +2175,7 @@ type CreateProjectResponse struct {
 
 func (x *CreateProjectResponse) Reset() {
 	*x = CreateProjectResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[19]
+	mi := &file_izci_api_v1_project_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1948,7 +2187,7 @@ func (x *CreateProjectResponse) String() string {
 func (*CreateProjectResponse) ProtoMessage() {}
 
 func (x *CreateProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[19]
+	mi := &file_izci_api_v1_project_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1961,7 +2200,7 @@ func (x *CreateProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateProjectResponse.ProtoReflect.Descriptor instead.
 func (*CreateProjectResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{19}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *CreateProjectResponse) GetProject() *Project {
@@ -2002,7 +2241,7 @@ type UpdateProjectRequest struct {
 
 func (x *UpdateProjectRequest) Reset() {
 	*x = UpdateProjectRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[20]
+	mi := &file_izci_api_v1_project_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2014,7 +2253,7 @@ func (x *UpdateProjectRequest) String() string {
 func (*UpdateProjectRequest) ProtoMessage() {}
 
 func (x *UpdateProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[20]
+	mi := &file_izci_api_v1_project_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2027,7 +2266,7 @@ func (x *UpdateProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProjectRequest.ProtoReflect.Descriptor instead.
 func (*UpdateProjectRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{20}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *UpdateProjectRequest) GetSlug() string {
@@ -2069,7 +2308,7 @@ type UpdateProjectResponse struct {
 
 func (x *UpdateProjectResponse) Reset() {
 	*x = UpdateProjectResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[21]
+	mi := &file_izci_api_v1_project_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2081,7 +2320,7 @@ func (x *UpdateProjectResponse) String() string {
 func (*UpdateProjectResponse) ProtoMessage() {}
 
 func (x *UpdateProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[21]
+	mi := &file_izci_api_v1_project_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2094,7 +2333,7 @@ func (x *UpdateProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProjectResponse.ProtoReflect.Descriptor instead.
 func (*UpdateProjectResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{21}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *UpdateProjectResponse) GetProject() *Project {
@@ -2117,7 +2356,7 @@ type DeleteProjectRequest struct {
 
 func (x *DeleteProjectRequest) Reset() {
 	*x = DeleteProjectRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[22]
+	mi := &file_izci_api_v1_project_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2129,7 +2368,7 @@ func (x *DeleteProjectRequest) String() string {
 func (*DeleteProjectRequest) ProtoMessage() {}
 
 func (x *DeleteProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[22]
+	mi := &file_izci_api_v1_project_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2142,7 +2381,7 @@ func (x *DeleteProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteProjectRequest.ProtoReflect.Descriptor instead.
 func (*DeleteProjectRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{22}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *DeleteProjectRequest) GetSlug() string {
@@ -2168,7 +2407,7 @@ type DeleteProjectResponse struct {
 
 func (x *DeleteProjectResponse) Reset() {
 	*x = DeleteProjectResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[23]
+	mi := &file_izci_api_v1_project_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2180,7 +2419,7 @@ func (x *DeleteProjectResponse) String() string {
 func (*DeleteProjectResponse) ProtoMessage() {}
 
 func (x *DeleteProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[23]
+	mi := &file_izci_api_v1_project_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2193,7 +2432,7 @@ func (x *DeleteProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteProjectResponse.ProtoReflect.Descriptor instead.
 func (*DeleteProjectResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{23}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{25}
 }
 
 // ListApiKeysRequest identifies the project.
@@ -2209,7 +2448,7 @@ type ListApiKeysRequest struct {
 
 func (x *ListApiKeysRequest) Reset() {
 	*x = ListApiKeysRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[24]
+	mi := &file_izci_api_v1_project_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2221,7 +2460,7 @@ func (x *ListApiKeysRequest) String() string {
 func (*ListApiKeysRequest) ProtoMessage() {}
 
 func (x *ListApiKeysRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[24]
+	mi := &file_izci_api_v1_project_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2234,7 +2473,7 @@ func (x *ListApiKeysRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListApiKeysRequest.ProtoReflect.Descriptor instead.
 func (*ListApiKeysRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{24}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ListApiKeysRequest) GetProject() string {
@@ -2262,7 +2501,7 @@ type ListApiKeysResponse struct {
 
 func (x *ListApiKeysResponse) Reset() {
 	*x = ListApiKeysResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[25]
+	mi := &file_izci_api_v1_project_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2274,7 +2513,7 @@ func (x *ListApiKeysResponse) String() string {
 func (*ListApiKeysResponse) ProtoMessage() {}
 
 func (x *ListApiKeysResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[25]
+	mi := &file_izci_api_v1_project_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2287,7 +2526,7 @@ func (x *ListApiKeysResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListApiKeysResponse.ProtoReflect.Descriptor instead.
 func (*ListApiKeysResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{25}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ListApiKeysResponse) GetKeys() []*ApiKey {
@@ -2316,7 +2555,7 @@ type CreateApiKeyRequest struct {
 
 func (x *CreateApiKeyRequest) Reset() {
 	*x = CreateApiKeyRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[26]
+	mi := &file_izci_api_v1_project_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2328,7 +2567,7 @@ func (x *CreateApiKeyRequest) String() string {
 func (*CreateApiKeyRequest) ProtoMessage() {}
 
 func (x *CreateApiKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[26]
+	mi := &file_izci_api_v1_project_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2341,7 +2580,7 @@ func (x *CreateApiKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateApiKeyRequest.ProtoReflect.Descriptor instead.
 func (*CreateApiKeyRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{26}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *CreateApiKeyRequest) GetProject() string {
@@ -2394,7 +2633,7 @@ type CreateApiKeyResponse struct {
 
 func (x *CreateApiKeyResponse) Reset() {
 	*x = CreateApiKeyResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[27]
+	mi := &file_izci_api_v1_project_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2406,7 +2645,7 @@ func (x *CreateApiKeyResponse) String() string {
 func (*CreateApiKeyResponse) ProtoMessage() {}
 
 func (x *CreateApiKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[27]
+	mi := &file_izci_api_v1_project_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2419,7 +2658,7 @@ func (x *CreateApiKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateApiKeyResponse.ProtoReflect.Descriptor instead.
 func (*CreateApiKeyResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{27}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *CreateApiKeyResponse) GetKey() *ApiKey {
@@ -2464,7 +2703,7 @@ type UpdateApiKeyRequest struct {
 
 func (x *UpdateApiKeyRequest) Reset() {
 	*x = UpdateApiKeyRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[28]
+	mi := &file_izci_api_v1_project_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2476,7 +2715,7 @@ func (x *UpdateApiKeyRequest) String() string {
 func (*UpdateApiKeyRequest) ProtoMessage() {}
 
 func (x *UpdateApiKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[28]
+	mi := &file_izci_api_v1_project_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2489,7 +2728,7 @@ func (x *UpdateApiKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateApiKeyRequest.ProtoReflect.Descriptor instead.
 func (*UpdateApiKeyRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{28}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *UpdateApiKeyRequest) GetProject() string {
@@ -2545,7 +2784,7 @@ type UpdateApiKeyResponse struct {
 
 func (x *UpdateApiKeyResponse) Reset() {
 	*x = UpdateApiKeyResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[29]
+	mi := &file_izci_api_v1_project_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2557,7 +2796,7 @@ func (x *UpdateApiKeyResponse) String() string {
 func (*UpdateApiKeyResponse) ProtoMessage() {}
 
 func (x *UpdateApiKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[29]
+	mi := &file_izci_api_v1_project_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2570,7 +2809,7 @@ func (x *UpdateApiKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateApiKeyResponse.ProtoReflect.Descriptor instead.
 func (*UpdateApiKeyResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{29}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *UpdateApiKeyResponse) GetKey() *ApiKey {
@@ -2593,7 +2832,7 @@ type RevokeApiKeyRequest struct {
 
 func (x *RevokeApiKeyRequest) Reset() {
 	*x = RevokeApiKeyRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[30]
+	mi := &file_izci_api_v1_project_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2605,7 +2844,7 @@ func (x *RevokeApiKeyRequest) String() string {
 func (*RevokeApiKeyRequest) ProtoMessage() {}
 
 func (x *RevokeApiKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[30]
+	mi := &file_izci_api_v1_project_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2618,7 +2857,7 @@ func (x *RevokeApiKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeApiKeyRequest.ProtoReflect.Descriptor instead.
 func (*RevokeApiKeyRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{30}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *RevokeApiKeyRequest) GetProject() string {
@@ -2644,7 +2883,7 @@ type RevokeApiKeyResponse struct {
 
 func (x *RevokeApiKeyResponse) Reset() {
 	*x = RevokeApiKeyResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[31]
+	mi := &file_izci_api_v1_project_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2656,7 +2895,7 @@ func (x *RevokeApiKeyResponse) String() string {
 func (*RevokeApiKeyResponse) ProtoMessage() {}
 
 func (x *RevokeApiKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[31]
+	mi := &file_izci_api_v1_project_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2669,7 +2908,7 @@ func (x *RevokeApiKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeApiKeyResponse.ProtoReflect.Descriptor instead.
 func (*RevokeApiKeyResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{31}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{33}
 }
 
 // GetIngestEndpointsRequest identifies the project.
@@ -2683,7 +2922,7 @@ type GetIngestEndpointsRequest struct {
 
 func (x *GetIngestEndpointsRequest) Reset() {
 	*x = GetIngestEndpointsRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[32]
+	mi := &file_izci_api_v1_project_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2695,7 +2934,7 @@ func (x *GetIngestEndpointsRequest) String() string {
 func (*GetIngestEndpointsRequest) ProtoMessage() {}
 
 func (x *GetIngestEndpointsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[32]
+	mi := &file_izci_api_v1_project_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2708,7 +2947,7 @@ func (x *GetIngestEndpointsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIngestEndpointsRequest.ProtoReflect.Descriptor instead.
 func (*GetIngestEndpointsRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{32}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *GetIngestEndpointsRequest) GetProject() string {
@@ -2739,7 +2978,7 @@ type GetIngestEndpointsResponse struct {
 
 func (x *GetIngestEndpointsResponse) Reset() {
 	*x = GetIngestEndpointsResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[33]
+	mi := &file_izci_api_v1_project_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2751,7 +2990,7 @@ func (x *GetIngestEndpointsResponse) String() string {
 func (*GetIngestEndpointsResponse) ProtoMessage() {}
 
 func (x *GetIngestEndpointsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[33]
+	mi := &file_izci_api_v1_project_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2764,7 +3003,7 @@ func (x *GetIngestEndpointsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIngestEndpointsResponse.ProtoReflect.Descriptor instead.
 func (*GetIngestEndpointsResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{33}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *GetIngestEndpointsResponse) GetBaseUrl() string {
@@ -2813,7 +3052,7 @@ type SendTestEventRequest struct {
 
 func (x *SendTestEventRequest) Reset() {
 	*x = SendTestEventRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[34]
+	mi := &file_izci_api_v1_project_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2825,7 +3064,7 @@ func (x *SendTestEventRequest) String() string {
 func (*SendTestEventRequest) ProtoMessage() {}
 
 func (x *SendTestEventRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[34]
+	mi := &file_izci_api_v1_project_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2838,7 +3077,7 @@ func (x *SendTestEventRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendTestEventRequest.ProtoReflect.Descriptor instead.
 func (*SendTestEventRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{34}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *SendTestEventRequest) GetProject() string {
@@ -2863,7 +3102,7 @@ type SendTestEventResponse struct {
 
 func (x *SendTestEventResponse) Reset() {
 	*x = SendTestEventResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[35]
+	mi := &file_izci_api_v1_project_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2875,7 +3114,7 @@ func (x *SendTestEventResponse) String() string {
 func (*SendTestEventResponse) ProtoMessage() {}
 
 func (x *SendTestEventResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[35]
+	mi := &file_izci_api_v1_project_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2888,7 +3127,7 @@ func (x *SendTestEventResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendTestEventResponse.ProtoReflect.Descriptor instead.
 func (*SendTestEventResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{35}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *SendTestEventResponse) GetEventId() string {
@@ -2923,7 +3162,7 @@ type ListEnvironmentsRequest struct {
 
 func (x *ListEnvironmentsRequest) Reset() {
 	*x = ListEnvironmentsRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[36]
+	mi := &file_izci_api_v1_project_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2935,7 +3174,7 @@ func (x *ListEnvironmentsRequest) String() string {
 func (*ListEnvironmentsRequest) ProtoMessage() {}
 
 func (x *ListEnvironmentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[36]
+	mi := &file_izci_api_v1_project_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2948,7 +3187,7 @@ func (x *ListEnvironmentsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEnvironmentsRequest.ProtoReflect.Descriptor instead.
 func (*ListEnvironmentsRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{36}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ListEnvironmentsRequest) GetProject() string {
@@ -2969,7 +3208,7 @@ type ListEnvironmentsResponse struct {
 
 func (x *ListEnvironmentsResponse) Reset() {
 	*x = ListEnvironmentsResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[37]
+	mi := &file_izci_api_v1_project_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2981,7 +3220,7 @@ func (x *ListEnvironmentsResponse) String() string {
 func (*ListEnvironmentsResponse) ProtoMessage() {}
 
 func (x *ListEnvironmentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[37]
+	mi := &file_izci_api_v1_project_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2994,7 +3233,7 @@ func (x *ListEnvironmentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEnvironmentsResponse.ProtoReflect.Descriptor instead.
 func (*ListEnvironmentsResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{37}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *ListEnvironmentsResponse) GetEnvironments() []*Environment {
@@ -3021,7 +3260,7 @@ type ListReleasesRequest struct {
 
 func (x *ListReleasesRequest) Reset() {
 	*x = ListReleasesRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[38]
+	mi := &file_izci_api_v1_project_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3033,7 +3272,7 @@ func (x *ListReleasesRequest) String() string {
 func (*ListReleasesRequest) ProtoMessage() {}
 
 func (x *ListReleasesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[38]
+	mi := &file_izci_api_v1_project_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3046,7 +3285,7 @@ func (x *ListReleasesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListReleasesRequest.ProtoReflect.Descriptor instead.
 func (*ListReleasesRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{38}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *ListReleasesRequest) GetProject() string {
@@ -3090,7 +3329,7 @@ type ListReleasesResponse struct {
 
 func (x *ListReleasesResponse) Reset() {
 	*x = ListReleasesResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[39]
+	mi := &file_izci_api_v1_project_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3102,7 +3341,7 @@ func (x *ListReleasesResponse) String() string {
 func (*ListReleasesResponse) ProtoMessage() {}
 
 func (x *ListReleasesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[39]
+	mi := &file_izci_api_v1_project_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3115,7 +3354,7 @@ func (x *ListReleasesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListReleasesResponse.ProtoReflect.Descriptor instead.
 func (*ListReleasesResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{39}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ListReleasesResponse) GetReleases() []*Release {
@@ -3152,7 +3391,7 @@ type LinkRepositoryRequest struct {
 
 func (x *LinkRepositoryRequest) Reset() {
 	*x = LinkRepositoryRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[40]
+	mi := &file_izci_api_v1_project_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3164,7 +3403,7 @@ func (x *LinkRepositoryRequest) String() string {
 func (*LinkRepositoryRequest) ProtoMessage() {}
 
 func (x *LinkRepositoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[40]
+	mi := &file_izci_api_v1_project_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3177,7 +3416,7 @@ func (x *LinkRepositoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LinkRepositoryRequest.ProtoReflect.Descriptor instead.
 func (*LinkRepositoryRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{40}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *LinkRepositoryRequest) GetProject() string {
@@ -3226,7 +3465,7 @@ type LinkRepositoryResponse struct {
 
 func (x *LinkRepositoryResponse) Reset() {
 	*x = LinkRepositoryResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[41]
+	mi := &file_izci_api_v1_project_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3238,7 +3477,7 @@ func (x *LinkRepositoryResponse) String() string {
 func (*LinkRepositoryResponse) ProtoMessage() {}
 
 func (x *LinkRepositoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[41]
+	mi := &file_izci_api_v1_project_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3251,7 +3490,7 @@ func (x *LinkRepositoryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LinkRepositoryResponse.ProtoReflect.Descriptor instead.
 func (*LinkRepositoryResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{41}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *LinkRepositoryResponse) GetRepository() *ProjectRepository {
@@ -3272,7 +3511,7 @@ type UnlinkRepositoryRequest struct {
 
 func (x *UnlinkRepositoryRequest) Reset() {
 	*x = UnlinkRepositoryRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[42]
+	mi := &file_izci_api_v1_project_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3284,7 +3523,7 @@ func (x *UnlinkRepositoryRequest) String() string {
 func (*UnlinkRepositoryRequest) ProtoMessage() {}
 
 func (x *UnlinkRepositoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[42]
+	mi := &file_izci_api_v1_project_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3297,7 +3536,7 @@ func (x *UnlinkRepositoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnlinkRepositoryRequest.ProtoReflect.Descriptor instead.
 func (*UnlinkRepositoryRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{42}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *UnlinkRepositoryRequest) GetProject() string {
@@ -3316,7 +3555,7 @@ type UnlinkRepositoryResponse struct {
 
 func (x *UnlinkRepositoryResponse) Reset() {
 	*x = UnlinkRepositoryResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[43]
+	mi := &file_izci_api_v1_project_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3328,7 +3567,7 @@ func (x *UnlinkRepositoryResponse) String() string {
 func (*UnlinkRepositoryResponse) ProtoMessage() {}
 
 func (x *UnlinkRepositoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[43]
+	mi := &file_izci_api_v1_project_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3341,7 +3580,7 @@ func (x *UnlinkRepositoryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnlinkRepositoryResponse.ProtoReflect.Descriptor instead.
 func (*UnlinkRepositoryResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{43}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{45}
 }
 
 // GetFilterStatsRequest names a project.
@@ -3355,7 +3594,7 @@ type GetFilterStatsRequest struct {
 
 func (x *GetFilterStatsRequest) Reset() {
 	*x = GetFilterStatsRequest{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[44]
+	mi := &file_izci_api_v1_project_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3367,7 +3606,7 @@ func (x *GetFilterStatsRequest) String() string {
 func (*GetFilterStatsRequest) ProtoMessage() {}
 
 func (x *GetFilterStatsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[44]
+	mi := &file_izci_api_v1_project_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3380,7 +3619,7 @@ func (x *GetFilterStatsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFilterStatsRequest.ProtoReflect.Descriptor instead.
 func (*GetFilterStatsRequest) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{44}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *GetFilterStatsRequest) GetProject() string {
@@ -3406,7 +3645,7 @@ type GetFilterStatsResponse struct {
 
 func (x *GetFilterStatsResponse) Reset() {
 	*x = GetFilterStatsResponse{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[45]
+	mi := &file_izci_api_v1_project_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3418,7 +3657,7 @@ func (x *GetFilterStatsResponse) String() string {
 func (*GetFilterStatsResponse) ProtoMessage() {}
 
 func (x *GetFilterStatsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[45]
+	mi := &file_izci_api_v1_project_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3431,7 +3670,7 @@ func (x *GetFilterStatsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFilterStatsResponse.ProtoReflect.Descriptor instead.
 func (*GetFilterStatsResponse) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{45}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *GetFilterStatsResponse) GetReasons() []*FilterStat {
@@ -3468,7 +3707,7 @@ type FilterStat struct {
 
 func (x *FilterStat) Reset() {
 	*x = FilterStat{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[46]
+	mi := &file_izci_api_v1_project_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3480,7 +3719,7 @@ func (x *FilterStat) String() string {
 func (*FilterStat) ProtoMessage() {}
 
 func (x *FilterStat) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[46]
+	mi := &file_izci_api_v1_project_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3493,7 +3732,7 @@ func (x *FilterStat) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilterStat.ProtoReflect.Descriptor instead.
 func (*FilterStat) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{46}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *FilterStat) GetReason() FilterReason {
@@ -3523,7 +3762,7 @@ type FilterDay struct {
 
 func (x *FilterDay) Reset() {
 	*x = FilterDay{}
-	mi := &file_izci_api_v1_project_proto_msgTypes[47]
+	mi := &file_izci_api_v1_project_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3535,7 +3774,7 @@ func (x *FilterDay) String() string {
 func (*FilterDay) ProtoMessage() {}
 
 func (x *FilterDay) ProtoReflect() protoreflect.Message {
-	mi := &file_izci_api_v1_project_proto_msgTypes[47]
+	mi := &file_izci_api_v1_project_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3548,7 +3787,7 @@ func (x *FilterDay) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilterDay.ProtoReflect.Descriptor instead.
 func (*FilterDay) Descriptor() ([]byte, []int) {
-	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{47}
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *FilterDay) GetDay() string {
@@ -3565,11 +3804,150 @@ func (x *FilterDay) GetCount() uint64 {
 	return 0
 }
 
+// TestGroupingRulesRequest carries rules to check and an optional event.
+type TestGroupingRulesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Project slug.
+	Project string `protobuf:"bytes,1,opt,name=project,proto3" json:"project,omitempty"`
+	// The rules to check.
+	Grouping *GroupingSettings `protobuf:"bytes,2,opt,name=grouping,proto3" json:"grouping,omitempty"`
+	// Server-side id of a stored event of the project (EventSummary.id) to
+	// group with the rules; empty to only check the rules.
+	EventId       string `protobuf:"bytes,3,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TestGroupingRulesRequest) Reset() {
+	*x = TestGroupingRulesRequest{}
+	mi := &file_izci_api_v1_project_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TestGroupingRulesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TestGroupingRulesRequest) ProtoMessage() {}
+
+func (x *TestGroupingRulesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_project_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TestGroupingRulesRequest.ProtoReflect.Descriptor instead.
+func (*TestGroupingRulesRequest) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{50}
+}
+
+func (x *TestGroupingRulesRequest) GetProject() string {
+	if x != nil {
+		return x.Project
+	}
+	return ""
+}
+
+func (x *TestGroupingRulesRequest) GetGrouping() *GroupingSettings {
+	if x != nil {
+		return x.Grouping
+	}
+	return nil
+}
+
+func (x *TestGroupingRulesRequest) GetEventId() string {
+	if x != nil {
+		return x.EventId
+	}
+	return ""
+}
+
+// TestGroupingRulesResponse reports the check.
+type TestGroupingRulesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Invalid lines; the rules can be saved only without any.
+	Problems []*GroupingRuleProblem `protobuf:"bytes,1,rep,name=problems,proto3" json:"problems,omitempty"`
+	// The grouping the event would get (when event_id was given).
+	Grouping *Grouping `protobuf:"bytes,2,opt,name=grouping,proto3" json:"grouping,omitempty"`
+	// Short id of the issue events with that fingerprint join; empty when
+	// they would open a new issue.
+	IssueShortId string `protobuf:"bytes,3,opt,name=issue_short_id,json=issueShortId,proto3" json:"issue_short_id,omitempty"`
+	// Whether that is the issue the event is in now.
+	SameIssue     bool `protobuf:"varint,4,opt,name=same_issue,json=sameIssue,proto3" json:"same_issue,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TestGroupingRulesResponse) Reset() {
+	*x = TestGroupingRulesResponse{}
+	mi := &file_izci_api_v1_project_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TestGroupingRulesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TestGroupingRulesResponse) ProtoMessage() {}
+
+func (x *TestGroupingRulesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_izci_api_v1_project_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TestGroupingRulesResponse.ProtoReflect.Descriptor instead.
+func (*TestGroupingRulesResponse) Descriptor() ([]byte, []int) {
+	return file_izci_api_v1_project_proto_rawDescGZIP(), []int{51}
+}
+
+func (x *TestGroupingRulesResponse) GetProblems() []*GroupingRuleProblem {
+	if x != nil {
+		return x.Problems
+	}
+	return nil
+}
+
+func (x *TestGroupingRulesResponse) GetGrouping() *Grouping {
+	if x != nil {
+		return x.Grouping
+	}
+	return nil
+}
+
+func (x *TestGroupingRulesResponse) GetIssueShortId() string {
+	if x != nil {
+		return x.IssueShortId
+	}
+	return ""
+}
+
+func (x *TestGroupingRulesResponse) GetSameIssue() bool {
+	if x != nil {
+		return x.SameIssue
+	}
+	return false
+}
+
 var File_izci_api_v1_project_proto protoreflect.FileDescriptor
 
 const file_izci_api_v1_project_proto_rawDesc = "" +
 	"\n" +
-	"\x19izci/api/v1/project.proto\x12\vizci.api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x18izci/api/v1/common.proto\x1a\x1aizci/ingest/v1/event.proto\"\xe0\x02\n" +
+	"\x19izci/api/v1/project.proto\x12\vizci.api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x18izci/api/v1/common.proto\x1a\x17izci/api/v1/issue.proto\x1a\x1aizci/ingest/v1/event.proto\"\xe0\x02\n" +
 	"\aProject\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04slug\x18\x02 \x01(\tR\x04slug\x12\x12\n" +
@@ -3589,14 +3967,24 @@ const file_izci_api_v1_project_proto_rawDesc = "" +
 	"events_24h\x18\x02 \x01(\x04R\tevents24h\x122\n" +
 	"\n" +
 	"series_24h\x18\x03 \x01(\v2\x13.izci.api.v1.SeriesR\tseries24h\x12>\n" +
-	"\rlast_event_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vlastEventAt\"\xc9\x02\n" +
+	"\rlast_event_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vlastEventAt\"\x84\x03\n" +
 	"\x0fProjectSettings\x126\n" +
 	"\aprivacy\x18\x01 \x01(\v2\x1c.izci.api.v1.PrivacySettingsR\aprivacy\x12.\n" +
 	"\x06in_app\x18\x02 \x01(\v2\x17.izci.api.v1.InAppRulesR\x05inApp\x121\n" +
 	"\x15rate_limit_per_minute\x18\x03 \x01(\rR\x12rateLimitPerMinute\x12;\n" +
 	"\x14ignored_environments\x18\x04 \x03(\tB\b\xbaH\x05\x92\x01\x02\x10\x14R\x13ignoredEnvironments\x12'\n" +
 	"\x02ai\x18\x05 \x01(\v2\x17.izci.api.v1.AiSettingsR\x02ai\x125\n" +
-	"\afilters\x18\x06 \x01(\v2\x1b.izci.api.v1.InboundFiltersR\afilters\"\xc7\x02\n" +
+	"\afilters\x18\x06 \x01(\v2\x1b.izci.api.v1.InboundFiltersR\afilters\x129\n" +
+	"\bgrouping\x18\a \x01(\v2\x1d.izci.api.v1.GroupingSettingsR\bgrouping\"\x80\x01\n" +
+	"\x10GroupingSettings\x126\n" +
+	"\x11fingerprint_rules\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x18\x80\x80\x04R\x10fingerprintRules\x124\n" +
+	"\x10stacktrace_rules\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x18\x80\x80\x04R\x0fstacktraceRules\"\xa9\x01\n" +
+	"\x13GroupingRuleProblem\x12\x14\n" +
+	"\x05field\x18\x01 \x01(\tR\x05field\x12\x12\n" +
+	"\x04line\x18\x02 \x01(\rR\x04line\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\x128\n" +
+	"\x04kind\x18\x04 \x01(\x0e2$.izci.api.v1.GroupingRuleProblemKindR\x04kind\x12\x14\n" +
+	"\x05value\x18\x05 \x01(\tR\x05value\"\xc7\x02\n" +
 	"\x0eInboundFilters\x12-\n" +
 	"\x12browser_extensions\x18\x01 \x01(\bR\x11browserExtensions\x12!\n" +
 	"\fweb_crawlers\x18\x02 \x01(\bR\vwebCrawlers\x12'\n" +
@@ -3809,7 +4197,31 @@ const file_izci_api_v1_project_proto_rawDesc = "" +
 	"\x05count\x18\x02 \x01(\x04R\x05count\"3\n" +
 	"\tFilterDay\x12\x10\n" +
 	"\x03day\x18\x01 \x01(\tR\x03day\x12\x14\n" +
-	"\x05count\x18\x02 \x01(\x04R\x05count*\xa9\x02\n" +
+	"\x05count\x18\x02 \x01(\x04R\x05count\"\xa6\x01\n" +
+	"\x18TestGroupingRulesRequest\x12#\n" +
+	"\aproject\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x182R\aproject\x12A\n" +
+	"\bgrouping\x18\x02 \x01(\v2\x1d.izci.api.v1.GroupingSettingsB\x06\xbaH\x03\xc8\x01\x01R\bgrouping\x12\"\n" +
+	"\bevent_id\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x18@R\aeventId\"\xd1\x01\n" +
+	"\x19TestGroupingRulesResponse\x12<\n" +
+	"\bproblems\x18\x01 \x03(\v2 .izci.api.v1.GroupingRuleProblemR\bproblems\x121\n" +
+	"\bgrouping\x18\x02 \x01(\v2\x15.izci.api.v1.GroupingR\bgrouping\x12$\n" +
+	"\x0eissue_short_id\x18\x03 \x01(\tR\fissueShortId\x12\x1d\n" +
+	"\n" +
+	"same_issue\x18\x04 \x01(\bR\tsameIssue*\xba\x04\n" +
+	"\x17GroupingRuleProblemKind\x12*\n" +
+	"&GROUPING_RULE_PROBLEM_KIND_UNSPECIFIED\x10\x00\x12'\n" +
+	"#GROUPING_RULE_PROBLEM_KIND_NO_ARROW\x10\x01\x12%\n" +
+	"!GROUPING_RULE_PROBLEM_KIND_SYNTAX\x10\x02\x12.\n" +
+	"*GROUPING_RULE_PROBLEM_KIND_UNKNOWN_MATCHER\x10\x03\x12/\n" +
+	"+GROUPING_RULE_PROBLEM_KIND_UNKNOWN_VARIABLE\x10\x04\x120\n" +
+	",GROUPING_RULE_PROBLEM_KIND_DEFAULT_NOT_ALONE\x10\x05\x120\n" +
+	",GROUPING_RULE_PROBLEM_KIND_EMPTY_FINGERPRINT\x10\x06\x12-\n" +
+	")GROUPING_RULE_PROBLEM_KIND_UNKNOWN_ACTION\x10\a\x12(\n" +
+	"$GROUPING_RULE_PROBLEM_KIND_NO_ACTION\x10\b\x12)\n" +
+	"%GROUPING_RULE_PROBLEM_KIND_NO_MATCHER\x10\t\x121\n" +
+	"-GROUPING_RULE_PROBLEM_KIND_UNTERMINATED_QUOTE\x10\n" +
+	"\x12'\n" +
+	"#GROUPING_RULE_PROBLEM_KIND_TOO_MANY\x10\v*\xa9\x02\n" +
 	"\fFilterReason\x12\x1d\n" +
 	"\x19FILTER_REASON_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19FILTER_REASON_ENVIRONMENT\x10\x01\x12#\n" +
@@ -3839,7 +4251,7 @@ const file_izci_api_v1_project_proto_rawDesc = "" +
 	"\vApiKeyScope\x12\x1d\n" +
 	"\x19API_KEY_SCOPE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14API_KEY_SCOPE_INGEST\x10\x01\x12\x1a\n" +
-	"\x16API_KEY_SCOPE_RELEASES\x10\x022\xbc\v\n" +
+	"\x16API_KEY_SCOPE_RELEASES\x10\x022\xa5\f\n" +
 	"\x0eProjectService\x12X\n" +
 	"\fListProjects\x12 .izci.api.v1.ListProjectsRequest\x1a!.izci.api.v1.ListProjectsResponse\"\x03\x90\x02\x01\x12R\n" +
 	"\n" +
@@ -3853,7 +4265,8 @@ const file_izci_api_v1_project_proto_rawDesc = "" +
 	"\fRevokeApiKey\x12 .izci.api.v1.RevokeApiKeyRequest\x1a!.izci.api.v1.RevokeApiKeyResponse\x12j\n" +
 	"\x12GetIngestEndpoints\x12&.izci.api.v1.GetIngestEndpointsRequest\x1a'.izci.api.v1.GetIngestEndpointsResponse\"\x03\x90\x02\x01\x12^\n" +
 	"\x0eGetFilterStats\x12\".izci.api.v1.GetFilterStatsRequest\x1a#.izci.api.v1.GetFilterStatsResponse\"\x03\x90\x02\x01\x12V\n" +
-	"\rSendTestEvent\x12!.izci.api.v1.SendTestEventRequest\x1a\".izci.api.v1.SendTestEventResponse\x12d\n" +
+	"\rSendTestEvent\x12!.izci.api.v1.SendTestEventRequest\x1a\".izci.api.v1.SendTestEventResponse\x12g\n" +
+	"\x11TestGroupingRules\x12%.izci.api.v1.TestGroupingRulesRequest\x1a&.izci.api.v1.TestGroupingRulesResponse\"\x03\x90\x02\x01\x12d\n" +
 	"\x10ListEnvironments\x12$.izci.api.v1.ListEnvironmentsRequest\x1a%.izci.api.v1.ListEnvironmentsResponse\"\x03\x90\x02\x01\x12X\n" +
 	"\fListReleases\x12 .izci.api.v1.ListReleasesRequest\x1a!.izci.api.v1.ListReleasesResponse\"\x03\x90\x02\x01\x12Y\n" +
 	"\x0eLinkRepository\x12\".izci.api.v1.LinkRepositoryRequest\x1a#.izci.api.v1.LinkRepositoryResponse\x12_\n" +
@@ -3872,152 +4285,165 @@ func file_izci_api_v1_project_proto_rawDescGZIP() []byte {
 	return file_izci_api_v1_project_proto_rawDescData
 }
 
-var file_izci_api_v1_project_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_izci_api_v1_project_proto_msgTypes = make([]protoimpl.MessageInfo, 48)
+var file_izci_api_v1_project_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
+var file_izci_api_v1_project_proto_msgTypes = make([]protoimpl.MessageInfo, 52)
 var file_izci_api_v1_project_proto_goTypes = []any{
-	(FilterReason)(0),                  // 0: izci.api.v1.FilterReason
-	(IpStorage)(0),                     // 1: izci.api.v1.IpStorage
-	(AutoAnalyze)(0),                   // 2: izci.api.v1.AutoAnalyze
-	(AutoAction)(0),                    // 3: izci.api.v1.AutoAction
-	(ApiKeyScope)(0),                   // 4: izci.api.v1.ApiKeyScope
-	(*Project)(nil),                    // 5: izci.api.v1.Project
-	(*ProjectStats)(nil),               // 6: izci.api.v1.ProjectStats
-	(*ProjectSettings)(nil),            // 7: izci.api.v1.ProjectSettings
-	(*InboundFilters)(nil),             // 8: izci.api.v1.InboundFilters
-	(*PrivacySettings)(nil),            // 9: izci.api.v1.PrivacySettings
-	(*InAppRules)(nil),                 // 10: izci.api.v1.InAppRules
-	(*AiSettings)(nil),                 // 11: izci.api.v1.AiSettings
-	(*ProjectRepository)(nil),          // 12: izci.api.v1.ProjectRepository
-	(*PathMapping)(nil),                // 13: izci.api.v1.PathMapping
-	(*ApiKey)(nil),                     // 14: izci.api.v1.ApiKey
-	(*Environment)(nil),                // 15: izci.api.v1.Environment
-	(*Release)(nil),                    // 16: izci.api.v1.Release
-	(*ReleaseHealth)(nil),              // 17: izci.api.v1.ReleaseHealth
-	(*Deploy)(nil),                     // 18: izci.api.v1.Deploy
-	(*ListProjectsRequest)(nil),        // 19: izci.api.v1.ListProjectsRequest
-	(*ListProjectsResponse)(nil),       // 20: izci.api.v1.ListProjectsResponse
-	(*GetProjectRequest)(nil),          // 21: izci.api.v1.GetProjectRequest
-	(*GetProjectResponse)(nil),         // 22: izci.api.v1.GetProjectResponse
-	(*CreateProjectRequest)(nil),       // 23: izci.api.v1.CreateProjectRequest
-	(*CreateProjectResponse)(nil),      // 24: izci.api.v1.CreateProjectResponse
-	(*UpdateProjectRequest)(nil),       // 25: izci.api.v1.UpdateProjectRequest
-	(*UpdateProjectResponse)(nil),      // 26: izci.api.v1.UpdateProjectResponse
-	(*DeleteProjectRequest)(nil),       // 27: izci.api.v1.DeleteProjectRequest
-	(*DeleteProjectResponse)(nil),      // 28: izci.api.v1.DeleteProjectResponse
-	(*ListApiKeysRequest)(nil),         // 29: izci.api.v1.ListApiKeysRequest
-	(*ListApiKeysResponse)(nil),        // 30: izci.api.v1.ListApiKeysResponse
-	(*CreateApiKeyRequest)(nil),        // 31: izci.api.v1.CreateApiKeyRequest
-	(*CreateApiKeyResponse)(nil),       // 32: izci.api.v1.CreateApiKeyResponse
-	(*UpdateApiKeyRequest)(nil),        // 33: izci.api.v1.UpdateApiKeyRequest
-	(*UpdateApiKeyResponse)(nil),       // 34: izci.api.v1.UpdateApiKeyResponse
-	(*RevokeApiKeyRequest)(nil),        // 35: izci.api.v1.RevokeApiKeyRequest
-	(*RevokeApiKeyResponse)(nil),       // 36: izci.api.v1.RevokeApiKeyResponse
-	(*GetIngestEndpointsRequest)(nil),  // 37: izci.api.v1.GetIngestEndpointsRequest
-	(*GetIngestEndpointsResponse)(nil), // 38: izci.api.v1.GetIngestEndpointsResponse
-	(*SendTestEventRequest)(nil),       // 39: izci.api.v1.SendTestEventRequest
-	(*SendTestEventResponse)(nil),      // 40: izci.api.v1.SendTestEventResponse
-	(*ListEnvironmentsRequest)(nil),    // 41: izci.api.v1.ListEnvironmentsRequest
-	(*ListEnvironmentsResponse)(nil),   // 42: izci.api.v1.ListEnvironmentsResponse
-	(*ListReleasesRequest)(nil),        // 43: izci.api.v1.ListReleasesRequest
-	(*ListReleasesResponse)(nil),       // 44: izci.api.v1.ListReleasesResponse
-	(*LinkRepositoryRequest)(nil),      // 45: izci.api.v1.LinkRepositoryRequest
-	(*LinkRepositoryResponse)(nil),     // 46: izci.api.v1.LinkRepositoryResponse
-	(*UnlinkRepositoryRequest)(nil),    // 47: izci.api.v1.UnlinkRepositoryRequest
-	(*UnlinkRepositoryResponse)(nil),   // 48: izci.api.v1.UnlinkRepositoryResponse
-	(*GetFilterStatsRequest)(nil),      // 49: izci.api.v1.GetFilterStatsRequest
-	(*GetFilterStatsResponse)(nil),     // 50: izci.api.v1.GetFilterStatsResponse
-	(*FilterStat)(nil),                 // 51: izci.api.v1.FilterStat
-	(*FilterDay)(nil),                  // 52: izci.api.v1.FilterDay
-	(*timestamppb.Timestamp)(nil),      // 53: google.protobuf.Timestamp
-	(*Series)(nil),                     // 54: izci.api.v1.Series
-	(v1.Level)(0),                      // 55: izci.ingest.v1.Level
-	(*UserRef)(nil),                    // 56: izci.api.v1.UserRef
-	(StatsPeriod)(0),                   // 57: izci.api.v1.StatsPeriod
+	(GroupingRuleProblemKind)(0),       // 0: izci.api.v1.GroupingRuleProblemKind
+	(FilterReason)(0),                  // 1: izci.api.v1.FilterReason
+	(IpStorage)(0),                     // 2: izci.api.v1.IpStorage
+	(AutoAnalyze)(0),                   // 3: izci.api.v1.AutoAnalyze
+	(AutoAction)(0),                    // 4: izci.api.v1.AutoAction
+	(ApiKeyScope)(0),                   // 5: izci.api.v1.ApiKeyScope
+	(*Project)(nil),                    // 6: izci.api.v1.Project
+	(*ProjectStats)(nil),               // 7: izci.api.v1.ProjectStats
+	(*ProjectSettings)(nil),            // 8: izci.api.v1.ProjectSettings
+	(*GroupingSettings)(nil),           // 9: izci.api.v1.GroupingSettings
+	(*GroupingRuleProblem)(nil),        // 10: izci.api.v1.GroupingRuleProblem
+	(*InboundFilters)(nil),             // 11: izci.api.v1.InboundFilters
+	(*PrivacySettings)(nil),            // 12: izci.api.v1.PrivacySettings
+	(*InAppRules)(nil),                 // 13: izci.api.v1.InAppRules
+	(*AiSettings)(nil),                 // 14: izci.api.v1.AiSettings
+	(*ProjectRepository)(nil),          // 15: izci.api.v1.ProjectRepository
+	(*PathMapping)(nil),                // 16: izci.api.v1.PathMapping
+	(*ApiKey)(nil),                     // 17: izci.api.v1.ApiKey
+	(*Environment)(nil),                // 18: izci.api.v1.Environment
+	(*Release)(nil),                    // 19: izci.api.v1.Release
+	(*ReleaseHealth)(nil),              // 20: izci.api.v1.ReleaseHealth
+	(*Deploy)(nil),                     // 21: izci.api.v1.Deploy
+	(*ListProjectsRequest)(nil),        // 22: izci.api.v1.ListProjectsRequest
+	(*ListProjectsResponse)(nil),       // 23: izci.api.v1.ListProjectsResponse
+	(*GetProjectRequest)(nil),          // 24: izci.api.v1.GetProjectRequest
+	(*GetProjectResponse)(nil),         // 25: izci.api.v1.GetProjectResponse
+	(*CreateProjectRequest)(nil),       // 26: izci.api.v1.CreateProjectRequest
+	(*CreateProjectResponse)(nil),      // 27: izci.api.v1.CreateProjectResponse
+	(*UpdateProjectRequest)(nil),       // 28: izci.api.v1.UpdateProjectRequest
+	(*UpdateProjectResponse)(nil),      // 29: izci.api.v1.UpdateProjectResponse
+	(*DeleteProjectRequest)(nil),       // 30: izci.api.v1.DeleteProjectRequest
+	(*DeleteProjectResponse)(nil),      // 31: izci.api.v1.DeleteProjectResponse
+	(*ListApiKeysRequest)(nil),         // 32: izci.api.v1.ListApiKeysRequest
+	(*ListApiKeysResponse)(nil),        // 33: izci.api.v1.ListApiKeysResponse
+	(*CreateApiKeyRequest)(nil),        // 34: izci.api.v1.CreateApiKeyRequest
+	(*CreateApiKeyResponse)(nil),       // 35: izci.api.v1.CreateApiKeyResponse
+	(*UpdateApiKeyRequest)(nil),        // 36: izci.api.v1.UpdateApiKeyRequest
+	(*UpdateApiKeyResponse)(nil),       // 37: izci.api.v1.UpdateApiKeyResponse
+	(*RevokeApiKeyRequest)(nil),        // 38: izci.api.v1.RevokeApiKeyRequest
+	(*RevokeApiKeyResponse)(nil),       // 39: izci.api.v1.RevokeApiKeyResponse
+	(*GetIngestEndpointsRequest)(nil),  // 40: izci.api.v1.GetIngestEndpointsRequest
+	(*GetIngestEndpointsResponse)(nil), // 41: izci.api.v1.GetIngestEndpointsResponse
+	(*SendTestEventRequest)(nil),       // 42: izci.api.v1.SendTestEventRequest
+	(*SendTestEventResponse)(nil),      // 43: izci.api.v1.SendTestEventResponse
+	(*ListEnvironmentsRequest)(nil),    // 44: izci.api.v1.ListEnvironmentsRequest
+	(*ListEnvironmentsResponse)(nil),   // 45: izci.api.v1.ListEnvironmentsResponse
+	(*ListReleasesRequest)(nil),        // 46: izci.api.v1.ListReleasesRequest
+	(*ListReleasesResponse)(nil),       // 47: izci.api.v1.ListReleasesResponse
+	(*LinkRepositoryRequest)(nil),      // 48: izci.api.v1.LinkRepositoryRequest
+	(*LinkRepositoryResponse)(nil),     // 49: izci.api.v1.LinkRepositoryResponse
+	(*UnlinkRepositoryRequest)(nil),    // 50: izci.api.v1.UnlinkRepositoryRequest
+	(*UnlinkRepositoryResponse)(nil),   // 51: izci.api.v1.UnlinkRepositoryResponse
+	(*GetFilterStatsRequest)(nil),      // 52: izci.api.v1.GetFilterStatsRequest
+	(*GetFilterStatsResponse)(nil),     // 53: izci.api.v1.GetFilterStatsResponse
+	(*FilterStat)(nil),                 // 54: izci.api.v1.FilterStat
+	(*FilterDay)(nil),                  // 55: izci.api.v1.FilterDay
+	(*TestGroupingRulesRequest)(nil),   // 56: izci.api.v1.TestGroupingRulesRequest
+	(*TestGroupingRulesResponse)(nil),  // 57: izci.api.v1.TestGroupingRulesResponse
+	(*timestamppb.Timestamp)(nil),      // 58: google.protobuf.Timestamp
+	(*Series)(nil),                     // 59: izci.api.v1.Series
+	(v1.Level)(0),                      // 60: izci.ingest.v1.Level
+	(*UserRef)(nil),                    // 61: izci.api.v1.UserRef
+	(StatsPeriod)(0),                   // 62: izci.api.v1.StatsPeriod
+	(*Grouping)(nil),                   // 63: izci.api.v1.Grouping
 }
 var file_izci_api_v1_project_proto_depIdxs = []int32{
-	7,  // 0: izci.api.v1.Project.settings:type_name -> izci.api.v1.ProjectSettings
-	12, // 1: izci.api.v1.Project.repository:type_name -> izci.api.v1.ProjectRepository
-	6,  // 2: izci.api.v1.Project.stats:type_name -> izci.api.v1.ProjectStats
-	53, // 3: izci.api.v1.Project.created_at:type_name -> google.protobuf.Timestamp
-	54, // 4: izci.api.v1.ProjectStats.series_24h:type_name -> izci.api.v1.Series
-	53, // 5: izci.api.v1.ProjectStats.last_event_at:type_name -> google.protobuf.Timestamp
-	9,  // 6: izci.api.v1.ProjectSettings.privacy:type_name -> izci.api.v1.PrivacySettings
-	10, // 7: izci.api.v1.ProjectSettings.in_app:type_name -> izci.api.v1.InAppRules
-	11, // 8: izci.api.v1.ProjectSettings.ai:type_name -> izci.api.v1.AiSettings
-	8,  // 9: izci.api.v1.ProjectSettings.filters:type_name -> izci.api.v1.InboundFilters
-	1,  // 10: izci.api.v1.PrivacySettings.ip_storage:type_name -> izci.api.v1.IpStorage
-	2,  // 11: izci.api.v1.AiSettings.auto_analyze:type_name -> izci.api.v1.AutoAnalyze
-	55, // 12: izci.api.v1.AiSettings.min_level:type_name -> izci.ingest.v1.Level
-	3,  // 13: izci.api.v1.AiSettings.auto_action:type_name -> izci.api.v1.AutoAction
-	13, // 14: izci.api.v1.ProjectRepository.path_mappings:type_name -> izci.api.v1.PathMapping
-	53, // 15: izci.api.v1.ProjectRepository.linked_at:type_name -> google.protobuf.Timestamp
-	4,  // 16: izci.api.v1.ApiKey.scopes:type_name -> izci.api.v1.ApiKeyScope
-	56, // 17: izci.api.v1.ApiKey.created_by:type_name -> izci.api.v1.UserRef
-	53, // 18: izci.api.v1.ApiKey.created_at:type_name -> google.protobuf.Timestamp
-	53, // 19: izci.api.v1.ApiKey.last_used_at:type_name -> google.protobuf.Timestamp
-	53, // 20: izci.api.v1.ApiKey.browser_seen_at:type_name -> google.protobuf.Timestamp
-	53, // 21: izci.api.v1.Environment.first_seen:type_name -> google.protobuf.Timestamp
-	53, // 22: izci.api.v1.Environment.last_seen:type_name -> google.protobuf.Timestamp
-	53, // 23: izci.api.v1.Release.first_seen:type_name -> google.protobuf.Timestamp
-	53, // 24: izci.api.v1.Release.last_seen:type_name -> google.protobuf.Timestamp
-	18, // 25: izci.api.v1.Release.deploys:type_name -> izci.api.v1.Deploy
-	17, // 26: izci.api.v1.Release.health:type_name -> izci.api.v1.ReleaseHealth
-	53, // 27: izci.api.v1.Deploy.deployed_at:type_name -> google.protobuf.Timestamp
-	5,  // 28: izci.api.v1.ListProjectsResponse.projects:type_name -> izci.api.v1.Project
-	5,  // 29: izci.api.v1.GetProjectResponse.project:type_name -> izci.api.v1.Project
-	5,  // 30: izci.api.v1.CreateProjectResponse.project:type_name -> izci.api.v1.Project
-	14, // 31: izci.api.v1.CreateProjectResponse.api_key:type_name -> izci.api.v1.ApiKey
-	7,  // 32: izci.api.v1.UpdateProjectRequest.settings:type_name -> izci.api.v1.ProjectSettings
-	5,  // 33: izci.api.v1.UpdateProjectResponse.project:type_name -> izci.api.v1.Project
-	14, // 34: izci.api.v1.ListApiKeysResponse.keys:type_name -> izci.api.v1.ApiKey
-	4,  // 35: izci.api.v1.CreateApiKeyRequest.scopes:type_name -> izci.api.v1.ApiKeyScope
-	14, // 36: izci.api.v1.CreateApiKeyResponse.key:type_name -> izci.api.v1.ApiKey
-	14, // 37: izci.api.v1.UpdateApiKeyResponse.key:type_name -> izci.api.v1.ApiKey
-	15, // 38: izci.api.v1.ListEnvironmentsResponse.environments:type_name -> izci.api.v1.Environment
-	57, // 39: izci.api.v1.ListReleasesRequest.health_period:type_name -> izci.api.v1.StatsPeriod
-	16, // 40: izci.api.v1.ListReleasesResponse.releases:type_name -> izci.api.v1.Release
-	13, // 41: izci.api.v1.LinkRepositoryRequest.path_mappings:type_name -> izci.api.v1.PathMapping
-	12, // 42: izci.api.v1.LinkRepositoryResponse.repository:type_name -> izci.api.v1.ProjectRepository
-	51, // 43: izci.api.v1.GetFilterStatsResponse.reasons:type_name -> izci.api.v1.FilterStat
-	52, // 44: izci.api.v1.GetFilterStatsResponse.days:type_name -> izci.api.v1.FilterDay
-	0,  // 45: izci.api.v1.FilterStat.reason:type_name -> izci.api.v1.FilterReason
-	19, // 46: izci.api.v1.ProjectService.ListProjects:input_type -> izci.api.v1.ListProjectsRequest
-	21, // 47: izci.api.v1.ProjectService.GetProject:input_type -> izci.api.v1.GetProjectRequest
-	23, // 48: izci.api.v1.ProjectService.CreateProject:input_type -> izci.api.v1.CreateProjectRequest
-	25, // 49: izci.api.v1.ProjectService.UpdateProject:input_type -> izci.api.v1.UpdateProjectRequest
-	27, // 50: izci.api.v1.ProjectService.DeleteProject:input_type -> izci.api.v1.DeleteProjectRequest
-	29, // 51: izci.api.v1.ProjectService.ListApiKeys:input_type -> izci.api.v1.ListApiKeysRequest
-	31, // 52: izci.api.v1.ProjectService.CreateApiKey:input_type -> izci.api.v1.CreateApiKeyRequest
-	33, // 53: izci.api.v1.ProjectService.UpdateApiKey:input_type -> izci.api.v1.UpdateApiKeyRequest
-	35, // 54: izci.api.v1.ProjectService.RevokeApiKey:input_type -> izci.api.v1.RevokeApiKeyRequest
-	37, // 55: izci.api.v1.ProjectService.GetIngestEndpoints:input_type -> izci.api.v1.GetIngestEndpointsRequest
-	49, // 56: izci.api.v1.ProjectService.GetFilterStats:input_type -> izci.api.v1.GetFilterStatsRequest
-	39, // 57: izci.api.v1.ProjectService.SendTestEvent:input_type -> izci.api.v1.SendTestEventRequest
-	41, // 58: izci.api.v1.ProjectService.ListEnvironments:input_type -> izci.api.v1.ListEnvironmentsRequest
-	43, // 59: izci.api.v1.ProjectService.ListReleases:input_type -> izci.api.v1.ListReleasesRequest
-	45, // 60: izci.api.v1.ProjectService.LinkRepository:input_type -> izci.api.v1.LinkRepositoryRequest
-	47, // 61: izci.api.v1.ProjectService.UnlinkRepository:input_type -> izci.api.v1.UnlinkRepositoryRequest
-	20, // 62: izci.api.v1.ProjectService.ListProjects:output_type -> izci.api.v1.ListProjectsResponse
-	22, // 63: izci.api.v1.ProjectService.GetProject:output_type -> izci.api.v1.GetProjectResponse
-	24, // 64: izci.api.v1.ProjectService.CreateProject:output_type -> izci.api.v1.CreateProjectResponse
-	26, // 65: izci.api.v1.ProjectService.UpdateProject:output_type -> izci.api.v1.UpdateProjectResponse
-	28, // 66: izci.api.v1.ProjectService.DeleteProject:output_type -> izci.api.v1.DeleteProjectResponse
-	30, // 67: izci.api.v1.ProjectService.ListApiKeys:output_type -> izci.api.v1.ListApiKeysResponse
-	32, // 68: izci.api.v1.ProjectService.CreateApiKey:output_type -> izci.api.v1.CreateApiKeyResponse
-	34, // 69: izci.api.v1.ProjectService.UpdateApiKey:output_type -> izci.api.v1.UpdateApiKeyResponse
-	36, // 70: izci.api.v1.ProjectService.RevokeApiKey:output_type -> izci.api.v1.RevokeApiKeyResponse
-	38, // 71: izci.api.v1.ProjectService.GetIngestEndpoints:output_type -> izci.api.v1.GetIngestEndpointsResponse
-	50, // 72: izci.api.v1.ProjectService.GetFilterStats:output_type -> izci.api.v1.GetFilterStatsResponse
-	40, // 73: izci.api.v1.ProjectService.SendTestEvent:output_type -> izci.api.v1.SendTestEventResponse
-	42, // 74: izci.api.v1.ProjectService.ListEnvironments:output_type -> izci.api.v1.ListEnvironmentsResponse
-	44, // 75: izci.api.v1.ProjectService.ListReleases:output_type -> izci.api.v1.ListReleasesResponse
-	46, // 76: izci.api.v1.ProjectService.LinkRepository:output_type -> izci.api.v1.LinkRepositoryResponse
-	48, // 77: izci.api.v1.ProjectService.UnlinkRepository:output_type -> izci.api.v1.UnlinkRepositoryResponse
-	62, // [62:78] is the sub-list for method output_type
-	46, // [46:62] is the sub-list for method input_type
-	46, // [46:46] is the sub-list for extension type_name
-	46, // [46:46] is the sub-list for extension extendee
-	0,  // [0:46] is the sub-list for field type_name
+	8,  // 0: izci.api.v1.Project.settings:type_name -> izci.api.v1.ProjectSettings
+	15, // 1: izci.api.v1.Project.repository:type_name -> izci.api.v1.ProjectRepository
+	7,  // 2: izci.api.v1.Project.stats:type_name -> izci.api.v1.ProjectStats
+	58, // 3: izci.api.v1.Project.created_at:type_name -> google.protobuf.Timestamp
+	59, // 4: izci.api.v1.ProjectStats.series_24h:type_name -> izci.api.v1.Series
+	58, // 5: izci.api.v1.ProjectStats.last_event_at:type_name -> google.protobuf.Timestamp
+	12, // 6: izci.api.v1.ProjectSettings.privacy:type_name -> izci.api.v1.PrivacySettings
+	13, // 7: izci.api.v1.ProjectSettings.in_app:type_name -> izci.api.v1.InAppRules
+	14, // 8: izci.api.v1.ProjectSettings.ai:type_name -> izci.api.v1.AiSettings
+	11, // 9: izci.api.v1.ProjectSettings.filters:type_name -> izci.api.v1.InboundFilters
+	9,  // 10: izci.api.v1.ProjectSettings.grouping:type_name -> izci.api.v1.GroupingSettings
+	0,  // 11: izci.api.v1.GroupingRuleProblem.kind:type_name -> izci.api.v1.GroupingRuleProblemKind
+	2,  // 12: izci.api.v1.PrivacySettings.ip_storage:type_name -> izci.api.v1.IpStorage
+	3,  // 13: izci.api.v1.AiSettings.auto_analyze:type_name -> izci.api.v1.AutoAnalyze
+	60, // 14: izci.api.v1.AiSettings.min_level:type_name -> izci.ingest.v1.Level
+	4,  // 15: izci.api.v1.AiSettings.auto_action:type_name -> izci.api.v1.AutoAction
+	16, // 16: izci.api.v1.ProjectRepository.path_mappings:type_name -> izci.api.v1.PathMapping
+	58, // 17: izci.api.v1.ProjectRepository.linked_at:type_name -> google.protobuf.Timestamp
+	5,  // 18: izci.api.v1.ApiKey.scopes:type_name -> izci.api.v1.ApiKeyScope
+	61, // 19: izci.api.v1.ApiKey.created_by:type_name -> izci.api.v1.UserRef
+	58, // 20: izci.api.v1.ApiKey.created_at:type_name -> google.protobuf.Timestamp
+	58, // 21: izci.api.v1.ApiKey.last_used_at:type_name -> google.protobuf.Timestamp
+	58, // 22: izci.api.v1.ApiKey.browser_seen_at:type_name -> google.protobuf.Timestamp
+	58, // 23: izci.api.v1.Environment.first_seen:type_name -> google.protobuf.Timestamp
+	58, // 24: izci.api.v1.Environment.last_seen:type_name -> google.protobuf.Timestamp
+	58, // 25: izci.api.v1.Release.first_seen:type_name -> google.protobuf.Timestamp
+	58, // 26: izci.api.v1.Release.last_seen:type_name -> google.protobuf.Timestamp
+	21, // 27: izci.api.v1.Release.deploys:type_name -> izci.api.v1.Deploy
+	20, // 28: izci.api.v1.Release.health:type_name -> izci.api.v1.ReleaseHealth
+	58, // 29: izci.api.v1.Deploy.deployed_at:type_name -> google.protobuf.Timestamp
+	6,  // 30: izci.api.v1.ListProjectsResponse.projects:type_name -> izci.api.v1.Project
+	6,  // 31: izci.api.v1.GetProjectResponse.project:type_name -> izci.api.v1.Project
+	6,  // 32: izci.api.v1.CreateProjectResponse.project:type_name -> izci.api.v1.Project
+	17, // 33: izci.api.v1.CreateProjectResponse.api_key:type_name -> izci.api.v1.ApiKey
+	8,  // 34: izci.api.v1.UpdateProjectRequest.settings:type_name -> izci.api.v1.ProjectSettings
+	6,  // 35: izci.api.v1.UpdateProjectResponse.project:type_name -> izci.api.v1.Project
+	17, // 36: izci.api.v1.ListApiKeysResponse.keys:type_name -> izci.api.v1.ApiKey
+	5,  // 37: izci.api.v1.CreateApiKeyRequest.scopes:type_name -> izci.api.v1.ApiKeyScope
+	17, // 38: izci.api.v1.CreateApiKeyResponse.key:type_name -> izci.api.v1.ApiKey
+	17, // 39: izci.api.v1.UpdateApiKeyResponse.key:type_name -> izci.api.v1.ApiKey
+	18, // 40: izci.api.v1.ListEnvironmentsResponse.environments:type_name -> izci.api.v1.Environment
+	62, // 41: izci.api.v1.ListReleasesRequest.health_period:type_name -> izci.api.v1.StatsPeriod
+	19, // 42: izci.api.v1.ListReleasesResponse.releases:type_name -> izci.api.v1.Release
+	16, // 43: izci.api.v1.LinkRepositoryRequest.path_mappings:type_name -> izci.api.v1.PathMapping
+	15, // 44: izci.api.v1.LinkRepositoryResponse.repository:type_name -> izci.api.v1.ProjectRepository
+	54, // 45: izci.api.v1.GetFilterStatsResponse.reasons:type_name -> izci.api.v1.FilterStat
+	55, // 46: izci.api.v1.GetFilterStatsResponse.days:type_name -> izci.api.v1.FilterDay
+	1,  // 47: izci.api.v1.FilterStat.reason:type_name -> izci.api.v1.FilterReason
+	9,  // 48: izci.api.v1.TestGroupingRulesRequest.grouping:type_name -> izci.api.v1.GroupingSettings
+	10, // 49: izci.api.v1.TestGroupingRulesResponse.problems:type_name -> izci.api.v1.GroupingRuleProblem
+	63, // 50: izci.api.v1.TestGroupingRulesResponse.grouping:type_name -> izci.api.v1.Grouping
+	22, // 51: izci.api.v1.ProjectService.ListProjects:input_type -> izci.api.v1.ListProjectsRequest
+	24, // 52: izci.api.v1.ProjectService.GetProject:input_type -> izci.api.v1.GetProjectRequest
+	26, // 53: izci.api.v1.ProjectService.CreateProject:input_type -> izci.api.v1.CreateProjectRequest
+	28, // 54: izci.api.v1.ProjectService.UpdateProject:input_type -> izci.api.v1.UpdateProjectRequest
+	30, // 55: izci.api.v1.ProjectService.DeleteProject:input_type -> izci.api.v1.DeleteProjectRequest
+	32, // 56: izci.api.v1.ProjectService.ListApiKeys:input_type -> izci.api.v1.ListApiKeysRequest
+	34, // 57: izci.api.v1.ProjectService.CreateApiKey:input_type -> izci.api.v1.CreateApiKeyRequest
+	36, // 58: izci.api.v1.ProjectService.UpdateApiKey:input_type -> izci.api.v1.UpdateApiKeyRequest
+	38, // 59: izci.api.v1.ProjectService.RevokeApiKey:input_type -> izci.api.v1.RevokeApiKeyRequest
+	40, // 60: izci.api.v1.ProjectService.GetIngestEndpoints:input_type -> izci.api.v1.GetIngestEndpointsRequest
+	52, // 61: izci.api.v1.ProjectService.GetFilterStats:input_type -> izci.api.v1.GetFilterStatsRequest
+	42, // 62: izci.api.v1.ProjectService.SendTestEvent:input_type -> izci.api.v1.SendTestEventRequest
+	56, // 63: izci.api.v1.ProjectService.TestGroupingRules:input_type -> izci.api.v1.TestGroupingRulesRequest
+	44, // 64: izci.api.v1.ProjectService.ListEnvironments:input_type -> izci.api.v1.ListEnvironmentsRequest
+	46, // 65: izci.api.v1.ProjectService.ListReleases:input_type -> izci.api.v1.ListReleasesRequest
+	48, // 66: izci.api.v1.ProjectService.LinkRepository:input_type -> izci.api.v1.LinkRepositoryRequest
+	50, // 67: izci.api.v1.ProjectService.UnlinkRepository:input_type -> izci.api.v1.UnlinkRepositoryRequest
+	23, // 68: izci.api.v1.ProjectService.ListProjects:output_type -> izci.api.v1.ListProjectsResponse
+	25, // 69: izci.api.v1.ProjectService.GetProject:output_type -> izci.api.v1.GetProjectResponse
+	27, // 70: izci.api.v1.ProjectService.CreateProject:output_type -> izci.api.v1.CreateProjectResponse
+	29, // 71: izci.api.v1.ProjectService.UpdateProject:output_type -> izci.api.v1.UpdateProjectResponse
+	31, // 72: izci.api.v1.ProjectService.DeleteProject:output_type -> izci.api.v1.DeleteProjectResponse
+	33, // 73: izci.api.v1.ProjectService.ListApiKeys:output_type -> izci.api.v1.ListApiKeysResponse
+	35, // 74: izci.api.v1.ProjectService.CreateApiKey:output_type -> izci.api.v1.CreateApiKeyResponse
+	37, // 75: izci.api.v1.ProjectService.UpdateApiKey:output_type -> izci.api.v1.UpdateApiKeyResponse
+	39, // 76: izci.api.v1.ProjectService.RevokeApiKey:output_type -> izci.api.v1.RevokeApiKeyResponse
+	41, // 77: izci.api.v1.ProjectService.GetIngestEndpoints:output_type -> izci.api.v1.GetIngestEndpointsResponse
+	53, // 78: izci.api.v1.ProjectService.GetFilterStats:output_type -> izci.api.v1.GetFilterStatsResponse
+	43, // 79: izci.api.v1.ProjectService.SendTestEvent:output_type -> izci.api.v1.SendTestEventResponse
+	57, // 80: izci.api.v1.ProjectService.TestGroupingRules:output_type -> izci.api.v1.TestGroupingRulesResponse
+	45, // 81: izci.api.v1.ProjectService.ListEnvironments:output_type -> izci.api.v1.ListEnvironmentsResponse
+	47, // 82: izci.api.v1.ProjectService.ListReleases:output_type -> izci.api.v1.ListReleasesResponse
+	49, // 83: izci.api.v1.ProjectService.LinkRepository:output_type -> izci.api.v1.LinkRepositoryResponse
+	51, // 84: izci.api.v1.ProjectService.UnlinkRepository:output_type -> izci.api.v1.UnlinkRepositoryResponse
+	68, // [68:85] is the sub-list for method output_type
+	51, // [51:68] is the sub-list for method input_type
+	51, // [51:51] is the sub-list for extension type_name
+	51, // [51:51] is the sub-list for extension extendee
+	0,  // [0:51] is the sub-list for field type_name
 }
 
 func init() { file_izci_api_v1_project_proto_init() }
@@ -4026,13 +4452,14 @@ func file_izci_api_v1_project_proto_init() {
 		return
 	}
 	file_izci_api_v1_common_proto_init()
+	file_izci_api_v1_issue_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_izci_api_v1_project_proto_rawDesc), len(file_izci_api_v1_project_proto_rawDesc)),
-			NumEnums:      5,
-			NumMessages:   48,
+			NumEnums:      6,
+			NumMessages:   52,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

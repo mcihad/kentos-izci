@@ -13,6 +13,9 @@ import (
 type InAppRules struct {
 	Include []string
 	Exclude []string
+	// Stack holds the project's stack trace rules, whose +app and -app
+	// actions override everything else.
+	Stack *GroupingRules
 }
 
 // libraryModulePrefixes mark modules that are never application code.
@@ -44,6 +47,7 @@ func resolveInApp(frames []*ingestv1.Frame, platform string, rules InAppRules) {
 		v := classifyFrame(f, platform, rules)
 		f.InApp = &v
 	}
+	rules.Stack.applyApp(frames)
 }
 
 func classifyFrame(f *ingestv1.Frame, platform string, rules InAppRules) bool {

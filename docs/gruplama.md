@@ -6,7 +6,7 @@ Hata sayfasındaki **Neden bu grupta?** kutusu, parmak izinin hangi bileşenlerd
 
 ## Kurallar (gruplama v1)
 
-İlk uyan kural kullanılır:
+İlk uyan kural kullanılır. Projenin [parmak izi kuralları](#proje-kuralları) hepsinden önce gelir.
 
 ### 1. Özel parmak izi
 
@@ -45,6 +45,60 @@ Mesaj şablonu (`message.template`, ör. `Sipariş {id} bulunamadı`), yoksa nor
 
 Parmak izi, bileşenlerin SHA-256 özetinin ilk 128 bitidir. Algoritmanın sürümü özete dahildir; algoritma değişirse eski hatalar kendi parmak izlerini korur.
 
+## Proje kuralları
+
+**Proje ayarları › Gruplama** bölümünde yöneticiler iki tür kural yazar. Kurallar yalnız **yeni olaylara** uygulanır; mevcut hatalar parmak izlerini korur. Yeni kuralla açılan bir hatayı eskisiyle [birleştirebilirsiniz](#birleştirme-ve-ayırma). Kaydetmeden önce **Dene** ile kuralları bir hatanın son olayına uygulayıp hangi parmak izini alacağını ve hangi hataya düşeceğini görebilirsiniz; hatalı satırlar satır numarasıyla gösterilir ve kaydedilmez.
+
+Değerler büyük/küçük harf ayırmaz; `*` her şeyle, `?` tek karakterle eşleşir. Boşluk içeren değerler çift tırnağa alınır. Başına `!` konan eşleştirici tersine döner. Bir satırdaki bütün eşleştiriciler uymalıdır; `#` ile başlayan satırlar açıklamadır.
+
+### Parmak izi kuralları
+
+Her satır `eşleştiriciler -> parmak izi` biçimindedir. **Eşleşen ilk kural**, uygulamanın gönderdiği `fingerprint` dahil her şeyden önce gelir:
+
+```text
+error.type:*TimeoutException transaction:/api/odeme* -> odeme-zaman-asimi
+error.value:"*bağlantı havuzu*" -> baglanti-havuzu
+message:"Rapor * oluşturulamadı" -> rapor-olusturma
+tags.modul:imar !level:warning -> {{ default }}, imar
+logger:Kalem.Mail* -> mail, {{ error.type }}
+```
+
+| Eşleştirici | Neye bakar |
+|---|---|
+| `error.type`, `error.value` | Zincirdeki herhangi bir istisnanın türü ya da mesajı |
+| `message` | Günlük mesajı (biçimlenmiş hâli ya da şablonu) |
+| `logger`, `level`, `transaction`, `environment`, `release` | Olayın aynı adlı alanları (`level`: `error`, `warning`…) |
+| `tags.<ad>` | Bir etiketin değeri |
+| `stack.module`, `stack.function`, `stack.filename`, `stack.package` | Yığın izindeki herhangi bir çerçeve |
+
+Parmak izi virgülle ayrılmış parçalardan oluşur. Parçalarda değişkenler kullanılabilir: `{{ default }}` (varsayılan gruplamanın bileşenleri; tek başına bir parça olmalı), `{{ error.type }}`, `{{ error.value }}` ve `{{ message }}` (normalize edilmiş ilk satır), `{{ transaction }}`, `{{ level }}`, `{{ logger }}`, `{{ environment }}`, `{{ release }}`, `{{ stack.function }}` ve `{{ stack.module }}` (en yeni uygulama çerçevesi), `{{ tags.<ad> }}`. Değeri olmayan değişken `<none>` olur. Hata sayfasındaki **Neden bu grupta?** kutusu eşleşen kuralı gösterir.
+
+### Yığın izi kuralları
+
+Her satır çerçeve eşleştiricileri (`stack.module`, `stack.function`, `stack.filename`, `stack.package`) ve eylemlerden oluşur:
+
+```text
+stack.function:*Logger.* -group
+stack.module:Kalem.Ortak.* -app
+stack.module:Polly* +group
+```
+
+| Eylem | Etkisi |
+|---|---|
+| `-group` | Çerçeve gruplamaya hiç katılmaz (günlük yazıcıları, sarmalayıcılar). |
+| `+group` | Çerçeve, uygulama kodu olmasa da gruplamaya katılır. |
+| `+app`, `-app` | Çerçeve uygulama kodu sayılır ya da sayılmaz; SDK'nın işaretini ve [uygulama kodu](#uygulama-kodu-in-app) kurallarını geçersiz kılar. Hata sayfasındaki yığın izini, sahiplik kurallarını ve yapay zekâya giden bağlamı da etkiler. |
+
+Bir çerçeveye birden çok kural uyarsa sonuncusu geçerlidir. Projede en çok 500 kural olabilir.
+
+## Birleştirme ve ayırma
+
+Yanlış ayrılmış hataları **birleştirin**: hata listesinde aynı projenin hatalarını seçip **Birleştir**'e basın ve hangisinin kalacağını seçin (varsayılan, en çok olayı olan). Diğerlerinin olay sayıları, saatlik grafikleri, etiket dağılımları, etkilenen kullanıcıları, yorumları, geri bildirimleri, takipçileri, yapay zekâ analizleri ve iş kayıtları kalan hataya geçer; olayları birkaç dakika içinde arka planda taşınır. Birleştirilen hataların parmak izleriyle gelen **yeni olaylar da** kalan hataya düşer. Eski kısa kimlikler (`KALEM-1B`) ve bağlantılar kalan hataya götürür. Üyeler (`member`) birleştirebilir; işlem denetim kaydına yazılır.
+
+Birleştirmeyi geri almak için kalan hatanın sayfasındaki **Birleştirilen hatalar** listesinden **Ayır**'a basın. Parmak izi yeniden kendi hatasına çıkar ve, başka bir hata almadıysa, eski kısa kimliğini geri alır. O parmak iziyle gelmiş olaylar ona taşınır; iki hatanın sayaçları, grafikleri, etiketleri ve etkilenen kullanıcıları saklanan olaylardan yeniden hesaplanır (saklama süresini aşmış olaylar artık sayılmaz). Yorumlar ve diğer kayıtlar kalan hatada kalır.
+
+Olay bir kez birleştirilmiş bir hatada saklandığında kendi parmak izini (`grouping_hash`) da taşır; ayırma bu yüzden olay olay doğru çalışır.
+
 ## Normalizasyon
 
 Derlemeden derlemeye değişen parçalar yer tutucuyla değiştirilir, böylece aynı kusur her dağıtımda aynı gruba düşer:
@@ -70,8 +124,8 @@ Proje ayarlarının **Gizlilik › Uygulama kodu** bölümünde modül, dosya ad
 
 ## Sık sorulanlar
 
-**Aynı kusur birden fazla hataya bölünüyor.** Genellikle mesajdaki değişken bir değer (sipariş numarası vb.) ya da yığın izi olmayan bir istisnadır. Mesaj şablonu gönderin ya da `fingerprint` kullanın.
+**Aynı kusur birden fazla hataya bölünüyor.** Genellikle mesajdaki değişken bir değer (sipariş numarası vb.) ya da yığın izi olmayan bir istisnadır. Mesaj şablonu gönderin, `fingerprint` ya da bir [parmak izi kuralı](#parmak-izi-kuralları) kullanın; açılmış hataları [birleştirin](#birleştirme-ve-ayırma).
 
-**Farklı kusurlar aynı hatada toplanıyor.** Genellikle yığın izi gönderilmiyordur ya da çerçeveler uygulama kodu olarak işaretlenmemiştir. SDK ayarlarını ve uygulama kodu kurallarını kontrol edin.
+**Farklı kusurlar aynı hatada toplanıyor.** Genellikle yığın izi gönderilmiyordur ya da çerçeveler uygulama kodu olarak işaretlenmemiştir. SDK ayarlarını, uygulama kodu kurallarını ve [yığın izi kurallarını](#yığın-izi-kuralları) (ör. ortak bir günlük yazıcısı için `-group`) kontrol edin. Birleştirmeyle karışan hataları **Ayır** ile geri alın.
 
 **Sürüm yükseltmeden sonra yeni hatalar açıldı.** Fonksiyon ya da dosya adı değiştiyse bu beklenen bir durumdur: kod değişmiştir. Eski hata sessizleşir, yenisi aynı kusuru temsil eder.
