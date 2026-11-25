@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"runtime"
 	"strings"
 	"unicode/utf8"
 
@@ -49,7 +50,7 @@ func HashPassword(pw string) (string, error) {
 	if _, err := rand.Read(salt); err != nil {
 		return "", err
 	}
-	key := argon2.IDKey([]byte(pw), salt, argonTime, argonMemory, argonThreads, argonKeyLen)
+	key := deriveKey([]byte(pw), salt, argonTime, argonMemory, argonThreads, argonKeyLen)
 	return fmt.Sprintf("$argon2id$v=%d$m=%d,t=%d,p=%d$%s$%s", argon2.Version, argonMemory, argonTime, argonThreads,
 		base64.RawStdEncoding.EncodeToString(salt), base64.RawStdEncoding.EncodeToString(key)), nil
 }
@@ -79,8 +80,19 @@ func VerifyPassword(hash, pw string) (bool, error) {
 	if err != nil {
 		return false, errBadHash
 	}
-	got := argon2.IDKey([]byte(pw), salt, iterations, memory, threads, uint32(len(want)))
+	got := deriveKey([]byte(pw), salt, iterations, memory, threads, uint32(len(want)))
 	return subtle.ConstantTimeCompare(got, want) == 1, nil
+}
+
+// hashSlots bounds concurrent argon2id computations: each holds
+// argonMemory of RAM, so a flood of sign-in, sign-up or invitation requests
+// waits here instead of exhausting memory.
+var hashSlots = make(chan struct{}, max(2, runtime.GOMAXPROCS(0)))
+
+func deriveKey(pw, salt []byte, time, memory uint32, threads uint8, keyLen uint32) []byte {
+	hashSlots <- struct{}{}
+	defer func() { <-hashSlots }()
+	return argon2.IDKey(pw, salt, time, memory, threads, keyLen)
 }
 
 // dummyHash is verified when a user does not exist, so that response times

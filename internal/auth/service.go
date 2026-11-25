@@ -180,6 +180,19 @@ func (s *Service) Login(ctx context.Context, email, password string, ip netip.Ad
 	return u, nil
 }
 
+// ThrottlePublic limits unauthenticated requests that are expensive or
+// guess secrets (sign-up, accepting invitations, setup, second steps) per
+// client address.
+func (s *Service) ThrottlePublic(ip netip.Addr) error {
+	if !ip.IsValid() {
+		return nil
+	}
+	if d := s.throttle("public:"+ip.String(), 30); d > 0 {
+		return &TooManyAttemptsError{RetryAfter: d}
+	}
+	return nil
+}
+
 // throttle consumes one attempt from a bucket refilling burst attempts per
 // 15 minutes and returns the wait time when exhausted.
 func (s *Service) throttle(key string, burst int) time.Duration {

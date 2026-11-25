@@ -357,3 +357,37 @@ func TestInvitationsRolesAndTenancy(t *testing.T) {
 		t.Fatalf("audit next page: %v %v", next, err)
 	}
 }
+
+// TestPublicAuthIsCheap checks that unauthenticated requests that cannot
+// succeed are refused before the expensive password hash, and that each
+// client address gets a limited number of them.
+func TestPublicAuthIsCheap(t *testing.T) {
+	e := newEnv(t)
+	ctx := context.Background()
+	owner := e.client(map[string]string{"Izci-Org": "kentos"})
+	if _, err := owner.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{SetupToken: testSetupToken, Name: "Owner", Email: "owner@example.com",
+		Password: "uzun ve güçlü parola", OrganizationName: "KentOS", OrganizationSlug: "kentos", ProjectName: "Kalem"})); err != nil {
+		t.Fatal(err)
+	}
+	guest := e.client(nil)
+	// A weak password would be the first complaint if the password were
+	// processed before the invitation.
+	if _, err := guest.auth.AcceptInvitation(ctx, req(&apiv1.AcceptInvitationRequest{Token: "izi_doesnotexistdoesnotexist00000", Password: "123"})); reason(err) != apiv1.ErrorReason_ERROR_REASON_INVITATION_INVALID {
+		t.Fatalf("unknown invitation: %v", err)
+	}
+	if _, err := guest.auth.CompleteSetup(ctx, req(&apiv1.CompleteSetupRequest{Name: "X", Email: "x@example.com", Password: "uzun ve güçlü parola",
+		OrganizationName: "X", OrganizationSlug: "xx", ProjectName: "X"})); reason(err) != apiv1.ErrorReason_ERROR_REASON_SETUP_COMPLETED {
+		t.Fatalf("setup after setup, without a code: %v", err)
+	}
+	var last error
+	for range 40 {
+		_, last = guest.auth.AcceptInvitation(ctx, req(&apiv1.AcceptInvitationRequest{Token: "izi_doesnotexistdoesnotexist00000",
+			Password: "uzun ve güçlü parola"}))
+		if reason(last) == apiv1.ErrorReason_ERROR_REASON_TOO_MANY_ATTEMPTS {
+			break
+		}
+	}
+	if reason(last) != apiv1.ErrorReason_ERROR_REASON_TOO_MANY_ATTEMPTS {
+		t.Fatalf("guessing invitations is not limited: %v", last)
+	}
+}

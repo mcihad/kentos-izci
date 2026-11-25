@@ -76,6 +76,9 @@ func (s *AuthServer) CompleteSetup(ctx context.Context, req *connect.Request[api
 	if !required {
 		return nil, apiError(connect.CodeFailedPrecondition, apiv1.ErrorReason_ERROR_REASON_SETUP_COMPLETED, "setup was already completed")
 	}
+	if err := s.auth.ThrottlePublic(infoFrom(ctx).IP); err != nil {
+		return nil, throttled(err)
+	}
 	if !s.auth.SetupTokenValid(m.GetSetupToken()) {
 		return nil, apiError(connect.CodePermissionDenied, apiv1.ErrorReason_ERROR_REASON_SETUP_TOKEN_INVALID,
 			"the setup code is wrong; izci prints it in its log while no user exists")
@@ -293,6 +296,9 @@ func (s *AuthServer) SignUp(ctx context.Context, req *connect.Request[apiv1.Sign
 	if s.cfg.Auth.Signup != "open" {
 		return nil, apiError(connect.CodePermissionDenied, apiv1.ErrorReason_ERROR_REASON_SIGNUP_DISABLED, "self sign-up is disabled")
 	}
+	if err := s.auth.ThrottlePublic(infoFrom(ctx).IP); err != nil {
+		return nil, throttled(err)
+	}
 	m := req.Msg
 	if err := auth.ValidatePassword(m.GetPassword()); err != nil {
 		return nil, weakPassword()
@@ -368,10 +374,32 @@ func (s *AuthServer) AcceptInvitation(ctx context.Context, req *connect.Request[
 	var created bool
 	var hash string
 	if p == nil {
+		if err := s.auth.ThrottlePublic(infoFrom(ctx).IP); err != nil {
+			return nil, throttled(err)
+		}
+		// A new account: check the invitation before the expensive
+		// password hash.
+		err := s.db.InSystem(ctx, func(tx pgx.Tx) error {
+			inv, err := store.InvitationByToken(ctx, tx, req.Msg.GetToken())
+			if err != nil {
+				return err
+			}
+			if _, err := store.GetUserByEmail(ctx, tx, inv.Email); err == nil {
+				return errSignInFirst
+			}
+			return nil
+		})
+		switch {
+		case errors.Is(err, store.ErrNotFound):
+			return nil, invitationInvalid()
+		case errors.Is(err, errSignInFirst):
+			return nil, errUnauthenticated()
+		case err != nil:
+			return nil, internal(ctx, s.log, "accept invitation", err)
+		}
 		if err := auth.ValidatePassword(req.Msg.GetPassword()); err != nil {
 			return nil, weakPassword()
 		}
-		var err error
 		if hash, err = auth.HashPassword(req.Msg.GetPassword()); err != nil {
 			return nil, internal(ctx, s.log, "hash password", err)
 		}
@@ -437,3 +465,12 @@ var (
 	errWrongAccount = errors.New("invitation email mismatch")
 	errSignInFirst  = errors.New("sign in first")
 )
+
+// throttled maps a TooManyAttemptsError.
+func throttled(err error) error {
+	var tooMany *auth.TooManyAttemptsError
+	if errors.As(err, &tooMany) {
+		return tooManyAttempts(tooMany)
+	}
+	return err
+}
