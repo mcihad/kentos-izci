@@ -69,6 +69,16 @@ Projeye özel ayarlar **Projeler › proje › Gizlilik** bölümündedir:
 - Slack, Teams, webhook ve Jira kanalları varsayılan olarak iç ağ adreslerine istek atamaz (bağlantı anında, DNS çözümlemesinden sonra denetlenir); böylece organizasyon yöneticileri sunucunun ağına ulaşamaz. İzin vermek için `NOTIFY_ALLOW_PRIVATE_NETWORKS=true`.
 - Aktarım şifrelemesi için İzci'yi TLS ile (`IZCI_TLS_*`) ya da TLS sonlandıran bir ters vekilin arkasında çalıştırın.
 
+### Ana anahtarı döndürme
+
+Ana anahtar (`IZCI_SECRET_KEY`) sızdığında ya da kurum politikası gerektirdiğinde değiştirilebilir:
+
+1. Yeni bir anahtar üretin: `openssl rand -base64 32`.
+2. Bütün örneklerde `IZCI_SECRET_KEY`'e yeni anahtarı, `IZCI_SECRET_KEY_PREVIOUS`'a eskisini yazın ve örnekleri yeniden başlatın. Yeni sırlar yeni anahtarla mühürlenir; eski anahtarla mühürlenmişler açılmaya devam eder.
+3. `izci secrets rotate` ile saklanan sırları (GitHub erişim anahtarları, bildirim kanalı sırları, iki adımlı doğrulama anahtarları) yeni anahtarla yeniden mühürleyin. `--dry-run` hiçbir şeyi değiştirmeden ne yapılacağını gösterir.
+4. Kurtarma kodları özet olarak saklandığı için taşınamaz: rapor, kodları eski anahtara bağlı kullanıcı sayısını gösterir. Bu kullanıcılar **Hesabım › İki adımlı doğrulama › Yeni kurtarma kodları** ile yeni kod oluşturana kadar eski anahtarı listede tutun.
+5. Rapor eski anahtara bağlı bir şey göstermiyorsa `IZCI_SECRET_KEY_PREVIOUS`'u kaldırıp örnekleri yeniden başlatın. Eski anahtarla imzalanmış Telegram düğmeleri bundan sonra çalışmaz; yeni bildirimlerinki çalışır.
+
 ## Kiracı yalıtımı
 
 Organizasyonlar arası yalıtım PostgreSQL satır düzeyi güvenliğiyle sağlanır; ayrıntılar [Organizasyonlar ve roller](cok-kiracilik.md#yalıtım-nasıl-sağlanır) sayfasında.

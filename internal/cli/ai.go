@@ -33,7 +33,7 @@ func (a *cliApp) aiEnv(ctx context.Context) (*aiEnv, error) {
 	if err != nil {
 		return nil, err
 	}
-	box, err := secret.NewBox(a.cfg.SecretKey)
+	box, err := secret.NewBox(a.cfg.SecretKey, a.cfg.SecretKeyPrevious.Bytes()...)
 	if err != nil {
 		database.Close()
 		return nil, err
@@ -499,7 +499,7 @@ pull requests.`,
 			if err := a.load(); err != nil {
 				return err
 			}
-			box, err := secret.NewBox(a.cfg.SecretKey)
+			box, err := secret.NewBox(a.cfg.SecretKey, a.cfg.SecretKeyPrevious.Bytes()...)
 			if err != nil {
 				return err
 			}

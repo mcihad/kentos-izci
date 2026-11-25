@@ -8,6 +8,7 @@
 package config
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/hex"
@@ -22,6 +23,7 @@ import (
 	"runtime"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
@@ -46,7 +48,11 @@ type Config struct {
 	Env       Environment `env:"IZCI_ENV" envDefault:"development"`
 	PublicURL string      `env:"IZCI_PUBLIC_URL" envDefault:"http://localhost:5300"`
 	SecretKey SecretKey   `env:"IZCI_SECRET_KEY"`
-	DataDir   string      `env:"IZCI_DATA_DIR" envDefault:"./data"`
+	// SecretKeyPrevious are earlier master keys, newest first: they still
+	// open stored secrets and verify signatures while "izci secrets rotate"
+	// moves everything to SecretKey.
+	SecretKeyPrevious SecretKeys `env:"IZCI_SECRET_KEY_PREVIOUS"`
+	DataDir           string     `env:"IZCI_DATA_DIR" envDefault:"./data"`
 
 	HTTP      HTTPConfig
 	Log       LogConfig
@@ -540,6 +546,14 @@ func (c *Config) finalize() error {
 		errs = append(errs, fmt.Errorf("DB_MAX_CONNS must be at least 2 (got %d)", c.DB.MaxConns))
 	}
 
+	for _, k := range c.SecretKeyPrevious {
+		if bytes.Equal(k, c.SecretKey) {
+			errs = append(errs, errors.New("IZCI_SECRET_KEY_PREVIOUS must not contain IZCI_SECRET_KEY"))
+		}
+	}
+	if len(c.SecretKey) == 0 && len(c.SecretKeyPrevious) > 0 {
+		errs = append(errs, errors.New("IZCI_SECRET_KEY_PREVIOUS needs IZCI_SECRET_KEY, the key that replaces them"))
+	}
 	if len(c.SecretKey) == 0 {
 		if c.Env == EnvProduction {
 			errs = append(errs, errors.New("IZCI_SECRET_KEY is required in production (generate with: openssl rand -base64 32)"))
@@ -620,6 +634,40 @@ func (k SecretKey) String() string {
 		return ""
 	}
 	return "[redacted]"
+}
+
+// SecretKeys is a comma-separated list of master keys
+// (IZCI_SECRET_KEY_PREVIOUS).
+type SecretKeys []SecretKey
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (ks *SecretKeys) UnmarshalText(text []byte) error {
+	*ks = nil
+	for i, part := range strings.FieldsFunc(string(text), func(r rune) bool { return r == ',' || unicode.IsSpace(r) }) {
+		var k SecretKey
+		if err := k.UnmarshalText([]byte(part)); err != nil {
+			return fmt.Errorf("IZCI_SECRET_KEY_PREVIOUS key %d must encode exactly %d bytes as base64 or hex", i+1, secretKeySize)
+		}
+		*ks = append(*ks, k)
+	}
+	return nil
+}
+
+// String never reveals the keys.
+func (ks SecretKeys) String() string {
+	if len(ks) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("[%d redacted]", len(ks))
+}
+
+// Bytes returns the keys for secret.NewBox.
+func (ks SecretKeys) Bytes() [][]byte {
+	out := make([][]byte, len(ks))
+	for i, k := range ks {
+		out[i] = k
+	}
+	return out
 }
 
 // PrefixList is a comma-separated list of CIDR prefixes or bare IP addresses.

@@ -55,7 +55,7 @@ CREATE DATABASE izci OWNER izci;
 ```bash
 IZCI_ENV=production
 IZCI_PUBLIC_URL=https://izci.example.com
-IZCI_SECRET_KEY=$(openssl rand -base64 32)   # bir kez üretin, saklayın, değiştirmeyin
+IZCI_SECRET_KEY=$(openssl rand -base64 32)   # bir kez üretin ve saklayın
 DATABASE_URL=postgres://izci:…@db:5432/izci?sslmode=require
 ```
 

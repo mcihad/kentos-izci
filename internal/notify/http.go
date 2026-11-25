@@ -137,6 +137,20 @@ func Open(box *secret.Box, channelID uuid.UUID, sealed string) (string, error) {
 	return string(b), err
 }
 
+// Reseal makes a channel secret one of the current master key; it reports
+// whether it had to be sealed again (izci secrets rotate).
+func Reseal(box *secret.Box, channelID uuid.UUID, sealed string) (string, bool, error) {
+	raw, err := base64.StdEncoding.DecodeString(sealed)
+	if err != nil {
+		return "", false, secret.ErrDecrypt
+	}
+	out, changed, err := box.Reseal(raw, sealAD(channelID))
+	if err != nil || !changed {
+		return sealed, false, err
+	}
+	return base64.StdEncoding.EncodeToString(out), true, nil
+}
+
 // userAgent identifies izci's outgoing requests.
 func userAgent() string { return "izci/" + version.Get().Version }
 

@@ -96,7 +96,7 @@ type Options struct {
 func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*App, error) {
 	a := &App{Config: cfg, Log: log, DB: database, Hub: realtime.NewHub(), Alerts: alert.NewEngine(30 * time.Second)}
 
-	box, err := secret.NewBox(cfg.SecretKey)
+	box, err := secret.NewBox(cfg.SecretKey, cfg.SecretKeyPrevious.Bytes()...)
 	if err != nil {
 		return nil, err
 	}
@@ -312,7 +312,7 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 // as `izci mcp`; background work (ingest, AI execution, Telegram) is not
 // started.
 func APIHandler(cfg *config.Config, log *slog.Logger, database *db.DB) (http.Handler, error) {
-	box, err := secret.NewBox(cfg.SecretKey)
+	box, err := secret.NewBox(cfg.SecretKey, cfg.SecretKeyPrevious.Bytes()...)
 	if err != nil {
 		return nil, err
 	}

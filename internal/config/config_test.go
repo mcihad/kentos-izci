@@ -1,6 +1,7 @@
 package config
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
 	"net/netip"
@@ -179,5 +180,30 @@ func TestOpenSignupNeedsSMTP(t *testing.T) {
 	t.Setenv("SMTP_HOST", "")
 	if _, err := Load(""); err != nil && strings.Contains(err.Error(), "AUTH_SIGNUP") {
 		t.Fatalf("development logs the links instead: %v", err)
+	}
+}
+
+func TestPreviousSecretKeys(t *testing.T) {
+	t.Setenv("IZCI_ENV", "development")
+	enc := func(b byte) string { return base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{b}, 32)) }
+	t.Setenv("IZCI_SECRET_KEY", enc(2))
+	t.Setenv("IZCI_SECRET_KEY_PREVIOUS", enc(1)+", "+enc(0))
+	cfg, err := Load("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(cfg.SecretKeyPrevious) != 2 || cfg.SecretKeyPrevious[0][0] != 1 || len(cfg.SecretKeyPrevious.Bytes()) != 2 {
+		t.Fatalf("previous keys: %d", len(cfg.SecretKeyPrevious))
+	}
+	if s := fmt.Sprint(cfg.SecretKeyPrevious); strings.Contains(s, enc(1)) {
+		t.Fatalf("keys must not be printed: %s", s)
+	}
+	t.Setenv("IZCI_SECRET_KEY_PREVIOUS", enc(2))
+	if _, err := Load(""); err == nil || !strings.Contains(err.Error(), "must not contain IZCI_SECRET_KEY") {
+		t.Fatalf("current key among the previous ones: %v", err)
+	}
+	t.Setenv("IZCI_SECRET_KEY_PREVIOUS", "kısa")
+	if _, err := Load(""); err == nil || !strings.Contains(err.Error(), "IZCI_SECRET_KEY_PREVIOUS") {
+		t.Fatalf("bad previous key: %v", err)
 	}
 }

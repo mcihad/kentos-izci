@@ -50,7 +50,7 @@ for instead (the server also logs it while no user exists).`,
 					return errors.New("IZCI_SECRET_KEY is not set, so the running server derived its setup code from a temporary key; " +
 						"read the code from its log")
 				}
-				box, err := secret.NewBox(a.cfg.SecretKey)
+				box, err := secret.NewBox(a.cfg.SecretKey, a.cfg.SecretKeyPrevious.Bytes()...)
 				if err != nil {
 					return err
 				}

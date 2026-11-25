@@ -101,11 +101,21 @@ func ReplaceRecoveryCodes(ctx context.Context, q Querier, userID uuid.UUID, hash
 }
 
 // UseRecoveryCode marks an unused recovery code used and reports whether
-// there was one.
-func UseRecoveryCode(ctx context.Context, q Querier, userID uuid.UUID, hash string) (bool, error) {
-	tag, err := q.Exec(ctx, `UPDATE recovery_codes SET used_at = now() WHERE user_id = $1 AND code_hash = $2 AND used_at IS NULL`,
-		userID, hash)
-	return tag.RowsAffected() == 1, err
+// there was one. hashes are the forms the code may be stored in (one per
+// key of the keyring).
+func UseRecoveryCode(ctx context.Context, q Querier, userID uuid.UUID, hashes []string) (bool, error) {
+	tag, err := q.Exec(ctx, `UPDATE recovery_codes SET used_at = now() WHERE user_id = $1 AND code_hash = ANY($2) AND used_at IS NULL`,
+		userID, hashes)
+	return tag.RowsAffected() > 0, err
+}
+
+// UsersWithStaleRecoveryCodes counts the users whose unused recovery codes
+// were hashed with another master key than the one named keyID.
+func UsersWithStaleRecoveryCodes(ctx context.Context, q Querier, keyID string) (int, error) {
+	var n int
+	err := q.QueryRow(ctx, `SELECT count(DISTINCT user_id) FROM recovery_codes
+		WHERE used_at IS NULL AND code_hash NOT LIKE $1 || ':%'`, keyID).Scan(&n)
+	return n, err
 }
 
 // RecoveryCodesLeft counts a user's unused recovery codes.

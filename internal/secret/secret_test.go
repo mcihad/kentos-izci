@@ -2,6 +2,7 @@ package secret
 
 import (
 	"bytes"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -93,5 +94,65 @@ func TestCode(t *testing.T) {
 	}
 	if c.Code("setup", 16) == code || a.Code("other", 16) == code {
 		t.Error("codes must depend on the key and the label")
+	}
+}
+
+func TestKeyring(t *testing.T) {
+	key := func(b byte) []byte { return bytes.Repeat([]byte{b}, 32) }
+	old, _ := NewBox(key(1))
+	ring, err := NewBox(key(2), key(1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	fresh, _ := NewBox(key(2))
+	ad := []byte("row")
+
+	// Values of the previous key still open; new ones use the current key.
+	sealed := old.Seal([]byte("token"), ad)
+	if got, err := ring.Open(sealed, ad); err != nil || string(got) != "token" {
+		t.Fatalf("open with the keyring: %q %v", got, err)
+	}
+	if _, err := fresh.Open(sealed, ad); err == nil {
+		t.Fatal("the new key alone must not open the old value")
+	}
+	if _, err := fresh.Open(ring.Seal([]byte("x"), ad), ad); err != nil {
+		t.Fatal("the keyring must seal with the current key")
+	}
+	resealed, changed, err := ring.Reseal(sealed, ad)
+	if err != nil || !changed {
+		t.Fatalf("reseal: %v %v", changed, err)
+	}
+	if got, err := fresh.Open(resealed, ad); err != nil || string(got) != "token" {
+		t.Fatalf("resealed value: %q %v", got, err)
+	}
+	if same, changed, err := ring.Reseal(resealed, ad); err != nil || changed || !bytes.Equal(same, resealed) {
+		t.Fatal("a value of the current key must be left as it is")
+	}
+	if _, _, err := fresh.Reseal(sealed, ad); err == nil {
+		t.Fatal("a value of an unknown key cannot be resealed")
+	}
+
+	// Signatures of the previous key still verify.
+	if !ring.Verify("msg", old.Sign("msg", 16), 16) || fresh.Verify("msg", old.Sign("msg", 16), 16) {
+		t.Fatal("verify across keys")
+	}
+	if ring.Sign("msg", 16) != fresh.Sign("msg", 16) {
+		t.Fatal("the keyring must sign with the current key")
+	}
+
+	// Keyed signatures name their key; lookups cover every key and the
+	// unnamed form of earlier versions.
+	if s := ring.KeyedSignature("code", 32); !strings.HasPrefix(s, ring.KeyID()+":") {
+		t.Fatalf("keyed signature %q", s)
+	}
+	all := ring.KeyedSignatures("code", 32)
+	for _, want := range []string{old.KeyedSignature("code", 32), old.Sign("code", 32), fresh.KeyedSignature("code", 32)} {
+		if !slices.Contains(all, want) {
+			t.Errorf("lookups lack %q", want)
+		}
+	}
+
+	if _, err := NewBox(key(2), []byte("short")); err == nil || !strings.Contains(err.Error(), "previous key 1") {
+		t.Fatalf("bad previous key: %v", err)
 	}
 }

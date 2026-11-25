@@ -50,10 +50,24 @@ type TOTPSetup struct {
 func totpAD(userID uuid.UUID) []byte { return []byte("izci/totp/" + userID.String()) }
 
 // recoveryHash is the stored form of a normalized recovery code: an HMAC
-// under a key derived from IZCI_SECRET_KEY.
+// under a key derived from IZCI_SECRET_KEY, named by the key's id so that
+// codes depending on a previous key can be counted (izci secrets rotate).
 func (s *Service) recoveryHash(userID uuid.UUID, code string) string {
-	return s.box.Sign("izci/recovery-code/"+userID.String()+"/"+code, 32)
+	return s.box.KeyedSignature(recoveryMessage(userID, code), 32)
 }
+
+// recoveryHashes are the forms a recovery code may be stored in under any
+// key of the keyring.
+func (s *Service) recoveryHashes(userID uuid.UUID, code string) []string {
+	return s.box.KeyedSignatures(recoveryMessage(userID, code), 32)
+}
+
+func recoveryMessage(userID uuid.UUID, code string) string {
+	return "izci/recovery-code/" + userID.String() + "/" + code
+}
+
+// TOTPAAD binds a sealed authenticator secret to its user.
+func TOTPAAD(userID uuid.UUID) []byte { return totpAD(userID) }
 
 // BeginTOTP starts turning on two-factor authentication with a new secret.
 // Starting again replaces the secret of an unfinished setup.
@@ -187,7 +201,7 @@ func (s *Service) withSecondFactor(ctx context.Context, userID uuid.UUID, code s
 // TOTP code; step is the TOTP time step, 0 for recovery codes.
 func (s *Service) checkSecondFactor(ctx context.Context, tx pgx.Tx, userID uuid.UUID, st *store.TwoFactorState, code string, now time.Time) (int64, bool, error) {
 	if rc := NormalizeRecoveryCode(code); rc != "" {
-		ok, err := store.UseRecoveryCode(ctx, tx, userID, s.recoveryHash(userID, rc))
+		ok, err := store.UseRecoveryCode(ctx, tx, userID, s.recoveryHashes(userID, rc))
 		return 0, ok, err
 	}
 	secret, err := s.box.Open(st.Secret, totpAD(userID))
