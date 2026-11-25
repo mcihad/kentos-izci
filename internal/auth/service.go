@@ -100,7 +100,7 @@ func (s *Service) Authenticate(ctx context.Context, h http.Header) (*Principal, 
 		if tw.User.Disabled {
 			return nil, nil
 		}
-		_ = store.TouchPersonalToken(ctx, s.db.Pool, tw.Token.ID)
+		_ = store.TouchPersonalToken(ctx, s.db.Pool, tw.Token.ID, clientIP(ctx))
 		return &Principal{User: tw.User, Token: tw.Token}, nil
 	}
 	cookies, err := http.ParseCookie(h.Get("Cookie"))
@@ -292,7 +292,45 @@ func (s *Service) ResolveTenant(ctx context.Context, p *Principal, slug string) 
 	if org.Settings.GetRequireTwoFactor() && !p.User.TwoFactor() {
 		return nil, ErrTwoFactorRequired
 	}
+	if p.Token != nil {
+		if err := s.tokenPolicy(ctx, p.Token, org); err != nil {
+			return nil, err
+		}
+	}
 	return &Tenant{Org: org, Role: role}, nil
+}
+
+// TokenPolicyError means the organization's access token policy rejects a
+// token.
+type TokenPolicyError struct{ Reason string }
+
+func (e *TokenPolicyError) Error() string { return e.Reason }
+
+// tokenPolicy applies the organization's access token policy: tokens older
+// than token_max_days do not work in it, tokens unused for token_idle_days
+// are revoked. t.LastUsedAt is the use before this request.
+func (s *Service) tokenPolicy(ctx context.Context, t *store.PersonalToken, org *store.Organization) error {
+	const day = 24 * time.Hour
+	if idle := org.Settings.GetTokenIdleDays(); idle > 0 {
+		last := t.CreatedAt
+		if t.LastUsedAt != nil {
+			last = *t.LastUsedAt
+		}
+		if time.Since(last) > time.Duration(idle)*day {
+			if err := store.RevokePersonalToken(ctx, s.db.Pool, t.UserID, t.ID); err != nil && !errors.Is(err, store.ErrNotFound) {
+				return err
+			}
+			s.log.Info("access token revoked after organization idle limit", slog.String("token", t.Prefix),
+				slog.String("org", org.Slug), slog.Int("idle_days", int(idle)))
+			return &TokenPolicyError{Reason: fmt.Sprintf("the token was not used for more than %d days and has been revoked "+
+				"(policy of organization %s); create a new one", idle, org.Slug)}
+		}
+	}
+	if limit := org.Settings.GetTokenMaxDays(); limit > 0 && time.Since(t.CreatedAt) > time.Duration(limit)*day {
+		return &TokenPolicyError{Reason: fmt.Sprintf("organization %s accepts access tokens for %d days after they were created; "+
+			"create a new one", org.Slug, limit)}
+	}
+	return nil
 }
 
 // TokenOrg returns the organization a token is bound to, for requests

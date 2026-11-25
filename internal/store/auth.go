@@ -219,16 +219,18 @@ type PersonalToken struct {
 	Scopes     []apiv1.TokenScope
 	CreatedAt  time.Time
 	LastUsedAt *time.Time
+	LastUsedIP *netip.Addr
 	ExpiresAt  *time.Time
 	RevokedAt  *time.Time
 }
 
-const tokenColumns = `id, user_id, org_id, name, prefix, scopes, created_at, last_used_at, expires_at, revoked_at`
+const tokenColumns = `id, user_id, org_id, name, prefix, scopes, created_at, last_used_at, last_used_ip, expires_at, revoked_at`
 
 func scanToken(row interface{ Scan(...any) error }) (*PersonalToken, error) {
 	var t PersonalToken
 	var scopes []int16
-	if err := row.Scan(&t.ID, &t.UserID, &t.OrgID, &t.Name, &t.Prefix, &scopes, &t.CreatedAt, &t.LastUsedAt, &t.ExpiresAt, &t.RevokedAt); err != nil {
+	if err := row.Scan(&t.ID, &t.UserID, &t.OrgID, &t.Name, &t.Prefix, &scopes, &t.CreatedAt, &t.LastUsedAt, &t.LastUsedIP, &t.ExpiresAt,
+		&t.RevokedAt); err != nil {
 		return nil, notFound(err)
 	}
 	for _, s := range scopes {
@@ -263,10 +265,10 @@ func LookupPersonalToken(ctx context.Context, q Querier, token string) (*TokenWi
 	var scopes []int16
 	u, err := scanUser(extraScanner{q.QueryRow(ctx, `
 		SELECT `+prefixed("u.", userColumns)+`,
-		       t.id, t.user_id, t.org_id, t.name, t.prefix, t.scopes, t.created_at, t.last_used_at, t.expires_at, t.revoked_at
+		       t.id, t.user_id, t.org_id, t.name, t.prefix, t.scopes, t.created_at, t.last_used_at, t.last_used_ip, t.expires_at, t.revoked_at
 		FROM personal_tokens t JOIN users u ON u.id = t.user_id
 		WHERE t.token_hash = $1 AND t.revoked_at IS NULL AND (t.expires_at IS NULL OR t.expires_at > now())`, secret.Hash(token)),
-		[]any{&t.ID, &t.UserID, &t.OrgID, &t.Name, &t.Prefix, &scopes, &t.CreatedAt, &t.LastUsedAt, &t.ExpiresAt, &t.RevokedAt}})
+		[]any{&t.ID, &t.UserID, &t.OrgID, &t.Name, &t.Prefix, &scopes, &t.CreatedAt, &t.LastUsedAt, &t.LastUsedIP, &t.ExpiresAt, &t.RevokedAt}})
 	if err != nil {
 		return nil, err
 	}
@@ -276,10 +278,15 @@ func LookupPersonalToken(ctx context.Context, q Querier, token string) (*TokenWi
 	return &TokenWithUser{Token: &t, User: u}, nil
 }
 
-// TouchPersonalToken records token usage (at most once a minute).
-func TouchPersonalToken(ctx context.Context, q Querier, id uuid.UUID) error {
-	_, err := q.Exec(ctx, `UPDATE personal_tokens SET last_used_at = now()
-		WHERE id = $1 AND (last_used_at IS NULL OR last_used_at < now() - interval '1 minute')`, id)
+// TouchPersonalToken records token usage and the client's address, when
+// known (at most once a minute).
+func TouchPersonalToken(ctx context.Context, q Querier, id uuid.UUID, ip netip.Addr) error {
+	var ipArg *netip.Addr
+	if ip.IsValid() {
+		ipArg = &ip
+	}
+	_, err := q.Exec(ctx, `UPDATE personal_tokens SET last_used_at = now(), last_used_ip = coalesce($2, last_used_ip)
+		WHERE id = $1 AND (last_used_at IS NULL OR last_used_at < now() - interval '1 minute')`, id, ipArg)
 	return err
 }
 

@@ -165,6 +165,12 @@ func (s *OrganizationServer) UpdateOrganization(ctx context.Context, req *connec
 		if was, is := t.Org.Settings.GetAiEnabled(), settings.GetAiEnabled(); was != is {
 			meta["ai_enabled"] = strconv.FormatBool(is)
 		}
+		if was, is := t.Org.Settings.GetTokenMaxDays(), settings.GetTokenMaxDays(); was != is {
+			meta["token_max_days"] = strconv.FormatUint(uint64(is), 10)
+		}
+		if was, is := t.Org.Settings.GetTokenIdleDays(), settings.GetTokenIdleDays(); was != is {
+			meta["token_idle_days"] = strconv.FormatUint(uint64(is), 10)
+		}
 		if len(meta) == 0 {
 			meta = nil
 		}

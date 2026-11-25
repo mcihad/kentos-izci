@@ -162,7 +162,16 @@ type OrganizationSettings struct {
 	// and, with a linked repository, its code. Off by default (KVKK): until
 	// an admin turns it on, analyses fail with ERROR_REASON_AI_NOT_ALLOWED
 	// and automatic analyses do not start.
-	AiEnabled     bool `protobuf:"varint,5,opt,name=ai_enabled,json=aiEnabled,proto3" json:"ai_enabled,omitempty"`
+	AiEnabled bool `protobuf:"varint,5,opt,name=ai_enabled,json=aiEnabled,proto3" json:"ai_enabled,omitempty"`
+	// Access tokens work in the organization for at most this many days
+	// after they were created; 0 means no limit. Tokens bound to the
+	// organization cannot be created for longer. Calls with an older token
+	// fail with ERROR_REASON_ACCESS_TOKEN_POLICY.
+	TokenMaxDays uint32 `protobuf:"varint,6,opt,name=token_max_days,json=tokenMaxDays,proto3" json:"token_max_days,omitempty"`
+	// Access tokens unused for this many days are revoked when they next try
+	// to reach the organization (ERROR_REASON_ACCESS_TOKEN_POLICY); 0 means
+	// never.
+	TokenIdleDays uint32 `protobuf:"varint,7,opt,name=token_idle_days,json=tokenIdleDays,proto3" json:"token_idle_days,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -230,6 +239,20 @@ func (x *OrganizationSettings) GetAiEnabled() bool {
 		return x.AiEnabled
 	}
 	return false
+}
+
+func (x *OrganizationSettings) GetTokenMaxDays() uint32 {
+	if x != nil {
+		return x.TokenMaxDays
+	}
+	return 0
+}
+
+func (x *OrganizationSettings) GetTokenIdleDays() uint32 {
+	if x != nil {
+		return x.TokenIdleDays
+	}
+	return 0
 }
 
 // OrganizationLimits are the plan limits of an organization. Zero means
@@ -1615,14 +1638,16 @@ const file_izci_api_v1_organization_proto_rawDesc = "" +
 	"\rproject_count\x18\a \x01(\rR\fprojectCount\x12!\n" +
 	"\fmember_count\x18\b \x01(\rR\vmemberCount\x129\n" +
 	"\n" +
-	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xfd\x01\n" +
+	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xdf\x02\n" +
 	"\x14OrganizationSettings\x12#\n" +
 	"\btimezone\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x18@R\btimezone\x12:\n" +
 	"\x11auto_join_domains\x18\x02 \x03(\tB\x0e\xbaH\v\x92\x01\b\x10\x14\"\x04r\x02h\x01R\x0fautoJoinDomains\x127\n" +
 	"\x0eauto_join_role\x18\x03 \x01(\x0e2\x11.izci.api.v1.RoleR\fautoJoinRole\x12,\n" +
 	"\x12require_two_factor\x18\x04 \x01(\bR\x10requireTwoFactor\x12\x1d\n" +
 	"\n" +
-	"ai_enabled\x18\x05 \x01(\bR\taiEnabled\"\xce\x01\n" +
+	"ai_enabled\x18\x05 \x01(\bR\taiEnabled\x12.\n" +
+	"\x0etoken_max_days\x18\x06 \x01(\rB\b\xbaH\x05*\x03\x18\xc2\x1cR\ftokenMaxDays\x120\n" +
+	"\x0ftoken_idle_days\x18\a \x01(\rB\b\xbaH\x05*\x03\x18\xc2\x1cR\rtokenIdleDays\"\xce\x01\n" +
 	"\x12OrganizationLimits\x12%\n" +
 	"\x0emonthly_events\x18\x01 \x01(\x04R\rmonthlyEvents\x12%\n" +
 	"\x0eretention_days\x18\x02 \x01(\rR\rretentionDays\x12!\n" +

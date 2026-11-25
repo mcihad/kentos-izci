@@ -45,6 +45,19 @@ const expiries = [
   { value: "0", label: "Süresiz" },
 ];
 
+/** Lifetimes an organization accepts (token_max_days, 0 = no limit). */
+function expiryOptions(limit: number) {
+  if (limit <= 0) return expiries;
+  const out = expiries.filter((e) => e.value !== "0" && Number(e.value) < limit);
+  if (limit <= 365) {
+    out.push({
+      value: String(limit),
+      label: expiries.find((e) => e.value === String(limit))?.label ?? `${limit} gün`,
+    });
+  }
+  return out;
+}
+
 export function Tokens() {
   const qc = useQueryClient();
   const list = useQuery(UserService.method.listAccessTokens, {}, { transport: baseTransport });
@@ -95,6 +108,7 @@ export function Tokens() {
                   {t.lastUsedAt ? (
                     <>
                       son kullanım <RelativeTime value={t.lastUsedAt} />
+                      {t.lastUsedIp ? <span className="font-mono"> ({t.lastUsedIp})</span> : null}
                     </>
                   ) : (
                     "hiç kullanılmadı"
@@ -133,6 +147,10 @@ function CreateTokenDialog({ open, onOpenChange }: { open: boolean; onOpenChange
   const [write, setWrite] = useState(false);
   const [ai, setAi] = useState(false);
   const [expiry, setExpiry] = useState("90");
+  // The chosen organization may limit how long tokens live.
+  const limit = session?.memberships.find((m) => m.organization?.slug === orgSlug)?.tokenMaxDays ?? 0;
+  const options = expiryOptions(limit);
+  const chosen = options.some((o) => o.value === expiry) ? expiry : (options.at(-1)?.value ?? "30");
   const [created, setCreated] = useState<CreateAccessTokenResponse>();
   const createToken = useSensitiveMutation(UserService.method.createAccessToken, {
     transport: baseTransport,
@@ -235,7 +253,7 @@ function CreateTokenDialog({ open, onOpenChange }: { open: boolean; onOpenChange
                 const scopes = [TokenScope.READ];
                 if (write) scopes.push(TokenScope.WRITE);
                 if (ai) scopes.push(TokenScope.AI);
-                const days = Number(expiry);
+                const days = Number(chosen);
                 createToken.mutate({
                   name,
                   organization: orgSlug,
@@ -289,13 +307,21 @@ function CreateTokenDialog({ open, onOpenChange }: { open: boolean; onOpenChange
                   </Label>
                 </div>
               </fieldset>
-              <Field label="Geçerlilik" htmlFor="tok-exp">
-                <Select value={expiry} onValueChange={setExpiry}>
+              <Field
+                label="Geçerlilik"
+                htmlFor="tok-exp"
+                hint={
+                  limit > 0
+                    ? `Bu organizasyon erişim anahtarlarına en çok ${limit} gün izin veriyor.`
+                    : undefined
+                }
+              >
+                <Select value={chosen} onValueChange={setExpiry}>
                   <SelectTrigger id="tok-exp" className="w-40">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {expiries.map((e) => (
+                    {options.map((e) => (
                       <SelectItem key={e.value} value={e.value}>
                         {e.label}
                       </SelectItem>

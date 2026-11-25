@@ -116,9 +116,9 @@ func (i *Interceptor) authorize(ctx context.Context, procedure string, h http.He
 	if !ok {
 		return ctx, errPermission("procedure is not authorized")
 	}
-	ctx = context.WithValue(ctx, requestInfoKey{}, requestInfo{
-		IP: clientip.Resolve(peer, h, i.trusted), UserAgent: h.Get("User-Agent"),
-	})
+	ip := clientip.Resolve(peer, h, i.trusted)
+	ctx = context.WithValue(ctx, requestInfoKey{}, requestInfo{IP: ip, UserAgent: h.Get("User-Agent")})
+	ctx = auth.WithClientIP(ctx, ip)
 	p, err := i.auth.Authenticate(ctx, h)
 	if err != nil {
 		return ctx, internal(ctx, i.log, "authenticate", err)

@@ -32,6 +32,8 @@ const reasonMessages: Partial<Record<ErrorReason, string>> = {
   [ErrorReason.GITHUB_APP_NOT_CONFIGURED]: "GitHub App bu sunucuda yapılandırılmamış.",
   [ErrorReason.REPOSITORY_NOT_LINKED]: "Bu projeye bir GitHub bağlantısıyla bağlanmış depo yok.",
   [ErrorReason.AI_DISABLED]: "Yapay zekâ analizi bu sunucuda kapalı.",
+  [ErrorReason.ACCESS_TOKEN_POLICY]:
+    "Bu erişim anahtarı organizasyonun anahtar politikasına uymuyor: çok eski ya da uzun süre kullanılmamış. Yeni bir anahtar oluşturun.",
   [ErrorReason.AI_NOT_ALLOWED]:
     "Yapay zekâ kullanımı bu organizasyonda kapalı. Bir yönetici Organizasyon ayarları › Genel bölümünden açabilir.",
   [ErrorReason.AI_BUDGET_EXCEEDED]: "Organizasyonun bu ayki yapay zekâ analiz hakkı doldu.",

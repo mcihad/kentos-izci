@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"connectrpc.com/connect"
@@ -84,6 +85,14 @@ func (s *UserServer) CreateAccessToken(ctx context.Context, req *connect.Request
 		}
 		e := time.Now().Add(d)
 		expires = &e
+	}
+	// A token bound to an organization lives no longer than the
+	// organization accepts tokens.
+	if org != nil {
+		if limit := org.Settings.GetTokenMaxDays(); limit > 0 &&
+			(expires == nil || m.GetExpiresIn().AsDuration() > time.Duration(limit)*24*time.Hour) {
+			return nil, fieldError("expires_in", fmt.Sprintf("organization %s accepts access tokens for at most %d days", org.Slug, limit))
+		}
 	}
 	for _, sc := range m.GetScopes() {
 		if sc == apiv1.TokenScope_TOKEN_SCOPE_UNSPECIFIED {

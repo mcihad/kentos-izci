@@ -25,6 +25,10 @@ func tenantError(ctx context.Context, log *slog.Logger, err error) error {
 	case errors.Is(err, auth.ErrSuperadminTwoFactor):
 		return errSuperadminTwoFactor()
 	}
+	var policy *auth.TokenPolicyError
+	if errors.As(err, &policy) {
+		return apiError(connect.CodePermissionDenied, apiv1.ErrorReason_ERROR_REASON_ACCESS_TOKEN_POLICY, policy.Error())
+	}
 	return internal(ctx, log, "resolve organization", err)
 }
 

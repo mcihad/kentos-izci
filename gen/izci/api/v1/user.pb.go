@@ -100,7 +100,10 @@ type AccessToken struct {
 	// When the token was last used.
 	LastUsedAt *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=last_used_at,json=lastUsedAt,proto3" json:"last_used_at,omitempty"`
 	// When the token expires; unset for tokens without expiry.
-	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	ExpiresAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	// Client address of the last use (recorded at most once a minute);
+	// empty when unknown.
+	LastUsedIp    string `protobuf:"bytes,9,opt,name=last_used_ip,json=lastUsedIp,proto3" json:"last_used_ip,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -189,6 +192,13 @@ func (x *AccessToken) GetExpiresAt() *timestamppb.Timestamp {
 		return x.ExpiresAt
 	}
 	return nil
+}
+
+func (x *AccessToken) GetLastUsedIp() string {
+	if x != nil {
+		return x.LastUsedIp
+	}
+	return ""
 }
 
 // SessionInfo describes a browser session.
@@ -1411,7 +1421,7 @@ var File_izci_api_v1_user_proto protoreflect.FileDescriptor
 
 const file_izci_api_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x16izci/api/v1/user.proto\x12\vizci.api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16izci/api/v1/auth.proto\x1a\x18izci/api/v1/common.proto\"\xf0\x02\n" +
+	"\x16izci/api/v1/user.proto\x12\vizci.api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16izci/api/v1/auth.proto\x1a\x18izci/api/v1/common.proto\"\x92\x03\n" +
 	"\vAccessToken\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
@@ -1423,7 +1433,9 @@ const file_izci_api_v1_user_proto_rawDesc = "" +
 	"\flast_used_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"lastUsedAt\x129\n" +
 	"\n" +
-	"expires_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"\xa2\x02\n" +
+	"expires_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12 \n" +
+	"\flast_used_ip\x18\t \x01(\tR\n" +
+	"lastUsedIp\"\xa2\x02\n" +
 	"\vSessionInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
 	"\acurrent\x18\x02 \x01(\bR\acurrent\x12\x1d\n" +

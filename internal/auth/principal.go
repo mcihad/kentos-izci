@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"net/netip"
 	"slices"
 
 	"github.com/google/uuid"
@@ -16,6 +17,19 @@ type Principal struct {
 	User    *store.User
 	Session *store.Session       // set for cookie sessions
 	Token   *store.PersonalToken // set for personal access tokens
+}
+
+type clientIPKey struct{}
+
+// WithClientIP records the client address of a request, for the last use
+// of access tokens.
+func WithClientIP(ctx context.Context, ip netip.Addr) context.Context {
+	return context.WithValue(ctx, clientIPKey{}, ip)
+}
+
+func clientIP(ctx context.Context) netip.Addr {
+	ip, _ := ctx.Value(clientIPKey{}).(netip.Addr)
+	return ip
 }
 
 // HasScope reports whether a token grants scope (sessions grant all).

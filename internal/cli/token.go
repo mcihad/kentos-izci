@@ -99,6 +99,9 @@ standard output, so it can be redirected into a secret store:
 				if _, err := store.MemberRole(ctx, database.Pool, o.ID, u.ID); err != nil && !u.Superadmin {
 					return fmt.Errorf("%s is not a member of %s", email, org)
 				}
+				if limit := o.Settings.GetTokenMaxDays(); limit > 0 && (exp == nil || time.Until(*exp) > time.Duration(limit)*24*time.Hour) {
+					return fmt.Errorf("%s accepts access tokens for at most %d days; use --expires %dd or less", org, limit, limit)
+				}
 				orgID = &o.ID
 			}
 			tok, secret, err := store.CreatePersonalToken(ctx, database.Pool, u.ID, orgID, name, list, exp)

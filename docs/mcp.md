@@ -12,7 +12,7 @@ Asistan sizin adınıza **kişisel erişim anahtarıyla** (`izp_…`) çalışı
 | `write` | `update_issue`, `add_comment`. |
 | `ai` | `start_ai_analysis`, `create_fix_pull_request`. |
 
-Anahtar tek bir organizasyonla sınırlanabilir ve süreli olmalıdır. Asistan hiçbir zaman sizin rolünüzden fazlasını yapamaz: bir `viewer` anahtarı `write` kapsamı taşısa bile hata durumunu değiştiremez.
+Anahtar tek bir organizasyonla sınırlanabilir ve süreli olmalıdır; organizasyonun [anahtar politikası](cok-kiracilik.md#erişim-anahtarları) en uzun süreyi belirleyebilir. Asistan hiçbir zaman sizin rolünüzden fazlasını yapamaz: bir `viewer` anahtarı `write` kapsamı taşısa bile hata durumunu değiştiremez.
 
 Sunucu yöneticisi, botlar için komut satırından da anahtar üretebilir: `izci token create --user … --scopes read` (bkz. [Komut satırı](cli.md)).
 

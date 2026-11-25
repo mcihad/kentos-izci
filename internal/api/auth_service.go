@@ -241,7 +241,7 @@ func (s *AuthServer) session(ctx context.Context, u *store.User, sess *store.Ses
 	}
 	for _, m := range memberships {
 		out.Memberships = append(out.Memberships, &apiv1.Membership{Organization: toOrgRef(m.Organization), Role: m.Role,
-			RequiresTwoFactor: m.Organization.Settings.GetRequireTwoFactor()})
+			RequiresTwoFactor: m.Organization.Settings.GetRequireTwoFactor(), TokenMaxDays: m.Organization.Settings.GetTokenMaxDays()})
 	}
 	return out, nil
 }

@@ -30,6 +30,7 @@ import (
 
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
 	"github.com/mcihad/kentos-izci/internal/auth"
+	"github.com/mcihad/kentos-izci/internal/clientip"
 	"github.com/mcihad/kentos-izci/internal/db"
 	"github.com/mcihad/kentos-izci/internal/ingest"
 	"github.com/mcihad/kentos-izci/internal/secret"
@@ -115,6 +116,9 @@ func bearer(r *http.Request) string {
 // authenticate checks the token and the organization named in the URL.
 func (h *Handler) authenticate(r *http.Request, orgSlug string) (*caller, *apiError) {
 	ctx := r.Context()
+	if h.auth != nil {
+		ctx = auth.WithClientIP(ctx, clientip.Resolve(r.RemoteAddr, r.Header, h.auth.Config().HTTP.TrustedProxies))
+	}
 	token := bearer(r)
 	orgSlug = strings.ToLower(strings.TrimSpace(orgSlug))
 	unauthorized := &apiError{http.StatusUnauthorized, "Invalid token: use a project API key with the releases scope or a personal access token"}
@@ -157,6 +161,10 @@ func (h *Handler) authenticate(r *http.Request, orgSlug string) (*caller, *apiEr
 		}
 		if errors.Is(err, auth.ErrSuperadminTwoFactor) {
 			return nil, &apiError{http.StatusForbidden, "instance administrators need two-factor authentication on this server; turn it on for your izci account"}
+		}
+		var policy *auth.TokenPolicyError
+		if errors.As(err, &policy) {
+			return nil, &apiError{http.StatusForbidden, policy.Error()}
 		}
 		if err != nil {
 			return nil, &apiError{http.StatusNotFound, "organization not found"}

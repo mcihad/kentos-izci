@@ -70,10 +70,14 @@ func toInvitation(i *store.Invitation, org *store.Organization, invitedBy *store
 }
 
 func toAccessToken(t *store.PersonalToken, org *store.Organization) *apiv1.AccessToken {
-	return &apiv1.AccessToken{
+	out := &apiv1.AccessToken{
 		Id: t.ID.String(), Name: t.Name, Prefix: t.Prefix, Organization: toOrgRef(org), Scopes: t.Scopes,
 		CreatedAt: ts(t.CreatedAt), LastUsedAt: tsp(t.LastUsedAt), ExpiresAt: tsp(t.ExpiresAt),
 	}
+	if t.LastUsedIP != nil {
+		out.LastUsedIp = t.LastUsedIP.String()
+	}
+	return out
 }
 
 func toSessionInfo(s *store.Session, current bool) *apiv1.SessionInfo {

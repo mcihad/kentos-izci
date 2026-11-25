@@ -464,6 +464,10 @@ const (
 	// The organization has not allowed sending its data to the AI provider
 	// (OrganizationSettings.ai_enabled); an admin can turn it on.
 	ErrorReason_ERROR_REASON_AI_NOT_ALLOWED ErrorReason = 40
+	// The organization's access token policy rejects the token: it is older
+	// than OrganizationSettings.token_max_days, or was unused for
+	// token_idle_days and has been revoked. Create a new token.
+	ErrorReason_ERROR_REASON_ACCESS_TOKEN_POLICY ErrorReason = 41
 )
 
 // Enum value maps for ErrorReason.
@@ -510,6 +514,7 @@ var (
 		38: "ERROR_REASON_EMAIL_DELIVERY_FAILED",
 		39: "ERROR_REASON_VERIFICATION_LINK_INVALID",
 		40: "ERROR_REASON_AI_NOT_ALLOWED",
+		41: "ERROR_REASON_ACCESS_TOKEN_POLICY",
 	}
 	ErrorReason_value = map[string]int32{
 		"ERROR_REASON_UNSPECIFIED":               0,
@@ -553,6 +558,7 @@ var (
 		"ERROR_REASON_EMAIL_DELIVERY_FAILED":     38,
 		"ERROR_REASON_VERIFICATION_LINK_INVALID": 39,
 		"ERROR_REASON_AI_NOT_ALLOWED":            40,
+		"ERROR_REASON_ACCESS_TOKEN_POLICY":       41,
 	}
 )
 
@@ -1116,7 +1122,7 @@ const file_izci_api_v1_common_proto_rawDesc = "" +
 	"\x18STATS_PERIOD_LAST_7_DAYS\x10\x03\x12\x1d\n" +
 	"\x19STATS_PERIOD_LAST_14_DAYS\x10\x04\x12\x1d\n" +
 	"\x19STATS_PERIOD_LAST_30_DAYS\x10\x05\x12\x1d\n" +
-	"\x19STATS_PERIOD_LAST_90_DAYS\x10\x06*\xb7\v\n" +
+	"\x19STATS_PERIOD_LAST_90_DAYS\x10\x06*\xdd\v\n" +
 	"\vErrorReason\x12\x1c\n" +
 	"\x18ERROR_REASON_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cERROR_REASON_UNAUTHENTICATED\x10\x01\x12\"\n" +
@@ -1159,7 +1165,8 @@ const file_izci_api_v1_common_proto_rawDesc = "" +
 	"&ERROR_REASON_REAUTHENTICATION_REQUIRED\x10%\x12&\n" +
 	"\"ERROR_REASON_EMAIL_DELIVERY_FAILED\x10&\x12*\n" +
 	"&ERROR_REASON_VERIFICATION_LINK_INVALID\x10'\x12\x1f\n" +
-	"\x1bERROR_REASON_AI_NOT_ALLOWED\x10(B\xa1\x01\n" +
+	"\x1bERROR_REASON_AI_NOT_ALLOWED\x10(\x12$\n" +
+	" ERROR_REASON_ACCESS_TOKEN_POLICY\x10)B\xa1\x01\n" +
 	"\x0fcom.izci.api.v1B\vCommonProtoP\x01Z3github.com/mcihad/kentos-izci/gen/izci/api/v1;apiv1\xa2\x02\x03IAX\xaa\x02\vIzci.Api.V1\xca\x02\vIzci\\Api\\V1\xe2\x02\x17Izci\\Api\\V1\\GPBMetadata\xea\x02\rIzci::Api::V1b\x06proto3"
 
 var (

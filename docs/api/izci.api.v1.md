@@ -1591,6 +1591,7 @@ AccessToken is a personal access token.
 | `created_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the token was created. |
 | `last_used_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the token was last used. |
 | `expires_at` | [google.protobuf.Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) | When the token expires; unset for tokens without expiry. |
+| `last_used_ip` | `string` | Client address of the last use (recorded at most once a minute); empty when unknown. |
 
 <a id="izci-api-v1-addissuecommentrequest"></a>
 
@@ -4205,6 +4206,7 @@ Membership is a user's role in one organization.
 | `organization` | [OrganizationRef](#izci-api-v1-organizationref) | The organization. |
 | `role` | [Role](#izci-api-v1-role) | The user's role in it. |
 | `requires_two_factor` | `bool` | The organization requires two-factor authentication (OrganizationSettings.require_two_factor). While the user has not turned it on, calls in the organization fail with ERROR_REASON_TWO_FACTOR_REQUIRED. |
+| `token_max_days` | `uint32` | Longest lifetime of access tokens in the organization, in days (OrganizationSettings.token_max_days); 0 means no limit. |
 
 <a id="izci-api-v1-monitor"></a>
 
@@ -4326,6 +4328,8 @@ OrganizationSettings are editable organization settings.
 | `auto_join_role` | [Role](#izci-api-v1-role) | Role granted to users who join through auto_join_domains. |  |
 | `require_two_factor` | `bool` | Members must turn on two-factor authentication. Until they do, every call in the organization (sessions and access tokens alike) fails with ERROR_REASON_TWO_FACTOR_REQUIRED. Only a caller who uses two-factor authentication may turn this on. |  |
 | `ai_enabled` | `bool` | Members may send the organization's issues to the AI provider the server uses (AI_ENABLED): error records with personal data removed and, with a linked repository, its code. Off by default (KVKK): until an admin turns it on, analyses fail with ERROR_REASON_AI_NOT_ALLOWED and automatic analyses do not start. |  |
+| `token_max_days` | `uint32` | Access tokens work in the organization for at most this many days after they were created; 0 means no limit. Tokens bound to the organization cannot be created for longer. Calls with an older token fail with ERROR_REASON_ACCESS_TOKEN_POLICY. | ≤ 3650 |
+| `token_idle_days` | `uint32` | Access tokens unused for this many days are revoked when they next try to reach the organization (ERROR_REASON_ACCESS_TOKEN_POLICY); 0 means never. | ≤ 3650 |
 
 <a id="izci-api-v1-overviewtotals"></a>
 
@@ -5827,6 +5831,7 @@ reason to a localized message.
 | `ERROR_REASON_EMAIL_DELIVERY_FAILED` | 38 | The e-mail confirming a sign-up could not be sent; try again later. |
 | `ERROR_REASON_VERIFICATION_LINK_INVALID` | 39 | The sign-up link is unknown, already used or expired; sign up again. |
 | `ERROR_REASON_AI_NOT_ALLOWED` | 40 | The organization has not allowed sending its data to the AI provider (OrganizationSettings.ai_enabled); an admin can turn it on. |
+| `ERROR_REASON_ACCESS_TOKEN_POLICY` | 41 | The organization's access token policy rejects the token: it is older than OrganizationSettings.token_max_days, or was unused for token_idle_days and has been revoked. Create a new token. |
 
 <a id="izci-api-v1-eventpick"></a>
 

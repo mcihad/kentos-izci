@@ -180,6 +180,10 @@ message Membership {
   // turned it on, calls in the organization fail with
   // ERROR_REASON_TWO_FACTOR_REQUIRED.
   bool requires_two_factor = 3;
+
+  // Longest lifetime of access tokens in the organization, in days
+  // (OrganizationSettings.token_max_days); 0 means no limit.
+  uint32 token_max_days = 4;
 }
 
 // Session describes the signed-in user.

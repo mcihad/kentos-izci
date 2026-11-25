@@ -296,8 +296,11 @@ type Membership struct {
 	// turned it on, calls in the organization fail with
 	// ERROR_REASON_TWO_FACTOR_REQUIRED.
 	RequiresTwoFactor bool `protobuf:"varint,3,opt,name=requires_two_factor,json=requiresTwoFactor,proto3" json:"requires_two_factor,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Longest lifetime of access tokens in the organization, in days
+	// (OrganizationSettings.token_max_days); 0 means no limit.
+	TokenMaxDays  uint32 `protobuf:"varint,4,opt,name=token_max_days,json=tokenMaxDays,proto3" json:"token_max_days,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Membership) Reset() {
@@ -349,6 +352,13 @@ func (x *Membership) GetRequiresTwoFactor() bool {
 		return x.RequiresTwoFactor
 	}
 	return false
+}
+
+func (x *Membership) GetTokenMaxDays() uint32 {
+	if x != nil {
+		return x.TokenMaxDays
+	}
+	return 0
 }
 
 // Session describes the signed-in user.
@@ -2026,12 +2036,13 @@ const file_izci_api_v1_auth_proto_rawDesc = "" +
 	"\x0fTelegramAccount\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x127\n" +
-	"\tlinked_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\blinkedAt\"\xa5\x01\n" +
+	"\tlinked_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\blinkedAt\"\xcb\x01\n" +
 	"\n" +
 	"Membership\x12@\n" +
 	"\forganization\x18\x01 \x01(\v2\x1c.izci.api.v1.OrganizationRefR\forganization\x12%\n" +
 	"\x04role\x18\x02 \x01(\x0e2\x11.izci.api.v1.RoleR\x04role\x12.\n" +
-	"\x13requires_two_factor\x18\x03 \x01(\bR\x11requiresTwoFactor\"\xb0\x02\n" +
+	"\x13requires_two_factor\x18\x03 \x01(\bR\x11requiresTwoFactor\x12$\n" +
+	"\x0etoken_max_days\x18\x04 \x01(\rR\ftokenMaxDays\"\xb0\x02\n" +
 	"\aSession\x12%\n" +
 	"\x04user\x18\x01 \x01(\v2\x11.izci.api.v1.UserR\x04user\x129\n" +
 	"\vmemberships\x18\x02 \x03(\v2\x17.izci.api.v1.MembershipR\vmemberships\x129\n" +

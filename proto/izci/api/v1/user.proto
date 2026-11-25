@@ -90,6 +90,10 @@ message AccessToken {
 
   // When the token expires; unset for tokens without expiry.
   google.protobuf.Timestamp expires_at = 8;
+
+  // Client address of the last use (recorded at most once a minute);
+  // empty when unknown.
+  string last_used_ip = 9;
 }
 
 // TokenScope is a permission of a personal access token.

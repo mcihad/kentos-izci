@@ -65,6 +65,8 @@ export function OrganizationGeneral() {
         role: o.settings?.autoJoinRole || Role.MEMBER,
         requireTwoFactor: o.settings?.requireTwoFactor ?? false,
         aiEnabled: o.settings?.aiEnabled ?? false,
+        tokenMaxDays: o.settings?.tokenMaxDays ?? 0,
+        tokenIdleDays: o.settings?.tokenIdleDays ?? 0,
         settings: o.settings,
       }}
       plan={o.plan}
@@ -85,6 +87,8 @@ function GeneralForm({
     role: Role;
     requireTwoFactor: boolean;
     aiEnabled: boolean;
+    tokenMaxDays: number;
+    tokenIdleDays: number;
     // Settings this form does not show are kept as they are.
     settings?: OrganizationSettings;
   };
@@ -99,6 +103,8 @@ function GeneralForm({
   const [role, setRole] = useState(initial.role);
   const [requireTwoFactor, setRequireTwoFactor] = useState(initial.requireTwoFactor);
   const [aiEnabled, setAiEnabled] = useState(initial.aiEnabled);
+  const [tokenMaxDays, setTokenMaxDays] = useState(String(initial.tokenMaxDays));
+  const [tokenIdleDays, setTokenIdleDays] = useState(String(initial.tokenIdleDays));
   // The choice matters only where the server runs AI analyses.
   const ai = useQuery(AiService.method.getAiStatus, {}, { staleTime: 60_000 }).data;
   const update = useSensitiveMutation(OrganizationService.method.updateOrganization, {
@@ -125,6 +131,8 @@ function GeneralForm({
         settings.autoJoinRole = role;
         settings.requireTwoFactor = requireTwoFactor;
         settings.aiEnabled = aiEnabled;
+        settings.tokenMaxDays = Math.max(0, Math.trunc(Number(tokenMaxDays) || 0));
+        settings.tokenIdleDays = Math.max(0, Math.trunc(Number(tokenIdleDays) || 0));
         update.mutate({ name, settings });
       }}
     >
@@ -234,6 +242,38 @@ function GeneralForm({
           </div>
         </div>
       ) : null}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field
+          label="Erişim anahtarlarının en uzun ömrü (gün)"
+          htmlFor="org-token-max"
+          hint="Anahtarlar oluşturulduktan bu kadar gün sonra bu organizasyonda çalışmaz; buraya bağlı anahtarlar daha uzun süreli oluşturulamaz. 0: sınır yok."
+        >
+          <Input
+            id="org-token-max"
+            type="number"
+            min={0}
+            max={3650}
+            value={tokenMaxDays}
+            onChange={(e) => setTokenMaxDays(e.target.value)}
+            className="w-32"
+          />
+        </Field>
+        <Field
+          label="Kullanılmayan anahtarların iptali (gün)"
+          htmlFor="org-token-idle"
+          hint="Bu kadar gün kullanılmayan bir anahtar, organizasyona eriştiği ilk istekte iptal edilir. 0: hiçbir zaman."
+        >
+          <Input
+            id="org-token-idle"
+            type="number"
+            min={0}
+            max={3650}
+            value={tokenIdleDays}
+            onChange={(e) => setTokenIdleDays(e.target.value)}
+            className="w-32"
+          />
+        </Field>
+      </div>
       <p className="text-sm text-muted-foreground">
         Plan: <span className="text-foreground">{plan || "varsayılan"}</span>
       </p>

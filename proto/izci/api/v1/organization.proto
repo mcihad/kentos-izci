@@ -120,6 +120,17 @@ message OrganizationSettings {
   // an admin turns it on, analyses fail with ERROR_REASON_AI_NOT_ALLOWED
   // and automatic analyses do not start.
   bool ai_enabled = 5;
+
+  // Access tokens work in the organization for at most this many days
+  // after they were created; 0 means no limit. Tokens bound to the
+  // organization cannot be created for longer. Calls with an older token
+  // fail with ERROR_REASON_ACCESS_TOKEN_POLICY.
+  uint32 token_max_days = 6 [(buf.validate.field).uint32.lte = 3650];
+
+  // Access tokens unused for this many days are revoked when they next try
+  // to reach the organization (ERROR_REASON_ACCESS_TOKEN_POLICY); 0 means
+  // never.
+  uint32 token_idle_days = 7 [(buf.validate.field).uint32.lte = 3650];
 }
 
 // OrganizationLimits are the plan limits of an organization. Zero means
