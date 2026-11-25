@@ -281,8 +281,49 @@ func (s *AdminServer) DeleteUser(ctx context.Context, req *connect.Request[apiv1
 	if err := s.deleteUser(ctx, u); err != nil {
 		return nil, internal(ctx, s.log, "delete user", err)
 	}
+	err = s.db.InSystem(ctx, func(tx pgx.Tx) error {
+		return s.adminAudit(ctx, tx, nil, "user.admin_delete", "user", u.ID.String(), u.Email, nil)
+	})
+	if err != nil {
+		s.log.WarnContext(ctx, "audit user deletion", slog.Any("err", err))
+	}
 	s.account.AccountDeleted(ctx, u.Email, true, time.Now())
 	s.log.InfoContext(ctx, "user deleted by an administrator", slog.String("user_id", u.ID.String()),
 		slog.String("by", auth.PrincipalFrom(ctx).User.Email))
 	return connect.NewResponse(&apiv1.DeleteUserResponse{}), nil
+}
+
+// ListInstanceAuditLog implements AdminService.ListInstanceAuditLog.
+func (s *AdminServer) ListInstanceAuditLog(ctx context.Context, req *connect.Request[apiv1.ListInstanceAuditLogRequest]) (*connect.Response[apiv1.ListInstanceAuditLogResponse], error) {
+	limit := pageSize(req.Msg.GetPageSize())
+	at, id, ok := decodeCursor(req.Msg.GetPageToken())
+	var before *time.Time
+	if ok {
+		before = &at
+	}
+	out := &apiv1.ListInstanceAuditLogResponse{}
+	err := s.db.InSystem(ctx, func(tx pgx.Tx) error {
+		records, err := store.ListInstanceAudit(ctx, tx, before, id, limit+1)
+		if err != nil {
+			return err
+		}
+		if len(records) > limit {
+			records = records[:limit]
+			last := records[limit-1]
+			out.NextPageToken = encodeCursor(last.CreatedAt, last.ID)
+		}
+		for _, r := range records {
+			e := &apiv1.AuditLogEntry{Id: r.ID.String(), Action: r.Action, TargetType: r.TargetType, TargetId: r.TargetID,
+				TargetName: r.TargetName, Metadata: r.Metadata, IpAddress: r.IP, CreatedAt: ts(r.CreatedAt)}
+			if r.ActorID != nil {
+				e.Actor = &apiv1.UserRef{Id: r.ActorID.String(), Name: r.ActorName, Email: r.ActorEmail, AvatarUrl: r.ActorAvatar}
+			}
+			out.Entries = append(out.Entries, e)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, internal(ctx, s.log, "list instance audit log", err)
+	}
+	return connect.NewResponse(out), nil
 }

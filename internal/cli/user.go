@@ -164,6 +164,7 @@ func newUserCmd(a *cliApp) *cobra.Command {
 			}
 			defer database.Close()
 			ctx := cmd.Context()
+			var created *store.User
 			err = database.InSystem(ctx, func(tx pgx.Tx) error {
 				if name == "" {
 					name = strings.Split(email, "@")[0]
@@ -172,6 +173,7 @@ func newUserCmd(a *cliApp) *cobra.Command {
 				if err != nil {
 					return err
 				}
+				created = u
 				if orgSlug == "" {
 					return nil
 				}
@@ -191,6 +193,9 @@ func newUserCmd(a *cliApp) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			e := userEntry("user.create", created)
+			e.Metadata = map[string]string{"superadmin": fmt.Sprint(superadmin), "organization": orgSlug}
+			cliAudit(ctx, database, cmd.ErrOrStderr(), e, nil)
 			fmt.Fprintf(cmd.OutOrStdout(), "user %s created\n", email)
 			return nil
 		},
@@ -258,6 +263,7 @@ func newUserCmd(a *cliApp) *cobra.Command {
 			if _, err := store.DeleteUserSessions(cmd.Context(), database.Pool, u.ID); err != nil {
 				return err
 			}
+			cliAudit(cmd.Context(), database, cmd.ErrOrStderr(), userEntry("user.password.reset", u), &u.ID)
 			fmt.Fprintf(cmd.OutOrStdout(), "password of %s changed; sessions ended\n", u.Email)
 			return nil
 		},
@@ -296,6 +302,7 @@ turn them away until they do.`,
 			if err != nil {
 				return err
 			}
+			cliAudit(cmd.Context(), database, cmd.ErrOrStderr(), userEntry("user.two_factor.reset", u), &u.ID)
 			fmt.Fprintf(cmd.OutOrStdout(), "two-factor authentication of %s turned off and their sessions ended\n", u.Email)
 			return nil
 		},
@@ -320,6 +327,11 @@ turn them away until they do.`,
 			if _, err := store.UpdateUserFlags(cmd.Context(), database.Pool, u.ID, &v, nil); err != nil {
 				return err
 			}
+			action := "user.superadmin.grant"
+			if revoke {
+				action = "user.superadmin.revoke"
+			}
+			cliAudit(cmd.Context(), database, cmd.ErrOrStderr(), userEntry(action, u), nil)
 			fmt.Fprintf(cmd.OutOrStdout(), "superadmin=%v for %s\n", v, u.Email)
 			return nil
 		},

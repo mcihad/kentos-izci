@@ -39,7 +39,7 @@ func TestHostCookies(t *testing.T) {
 	}
 
 	svc := service("https://izci.example.com")
-	cookie, _, err := svc.StartSession(ctx, user.ID, netip.Addr{}, "test")
+	cookie, _, err := svc.StartSession(ctx, user.ID, netip.Addr{}, "test", "password")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -62,7 +62,7 @@ func TestHostCookies(t *testing.T) {
 
 	// Plain http (development) has no secure cookies, hence no prefix.
 	dev := service("http://localhost:5300")
-	cookie, _, err = dev.StartSession(ctx, user.ID, netip.Addr{}, "test")
+	cookie, _, err = dev.StartSession(ctx, user.ID, netip.Addr{}, "test", "password")
 	if err != nil || cookie.Name != "izci_session" || cookie.Secure {
 		t.Fatalf("development cookie: %+v %v", cookie, err)
 	}

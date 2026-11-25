@@ -5,11 +5,9 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { StackedBars } from "@/components/charts/stacked-bars";
+import { AuditEntries } from "@/components/common/audit-entries";
 import { Field } from "@/components/common/field";
-import { RelativeTime } from "@/components/common/relative-time";
 import { StatStrip } from "@/components/common/stat-strip";
-import { EmptyState } from "@/components/common/states";
-import { thClass, theadClass, trClass } from "@/components/common/table";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -483,117 +481,19 @@ export function Usage() {
   );
 }
 
-const actionLabels: Record<string, string> = {
-  "alert_rule.create": "Uyarı kuralı oluşturdu",
-  "alert_rule.delete": "Uyarı kuralını sildi",
-  "alert_rule.update": "Uyarı kuralını değiştirdi",
-  "api_key.create": "API anahtarı oluşturdu",
-  "api_key.revoke": "API anahtarını iptal etti",
-  "api_key.update": "API anahtarını değiştirdi",
-  "channel.create": "Bildirim kanalı ekledi",
-  "channel.delete": "Bildirim kanalını kaldırdı",
-  "channel.update": "Bildirim kanalını değiştirdi",
-  "customer.update": "Müşteri bilgilerini değiştirdi",
-  "event.delete": "Olayı sildi",
-  "instance.setup": "İzci kurulumunu tamamladı",
-  "invitation.create": "Üye davet etti",
-  "invitation.revoke": "Daveti geri aldı",
-  "issue.delete": "Hatayı sildi",
-  "issue.merge": "Hataları birleştirdi",
-  "issue.unmerge": "Birleştirilen hatayı ayırdı",
-  "member.join": "Organizasyona katıldı",
-  "member.remove": "Üyeyi çıkardı",
-  "member.update": "Üyenin rolünü değiştirdi",
-  "monitor.create": "Zamanlanmış görev izleyicisi oluşturdu",
-  "monitor.delete": "Zamanlanmış görev izleyicisini sildi",
-  "monitor.update": "Zamanlanmış görev izleyicisini değiştirdi",
-  "organization.plan_update": "Planı değiştirdi",
-  "organization.update": "Organizasyon ayarlarını değiştirdi",
-  "privacy.delete": "Kişisel verileri sildi",
-  "privacy.export": "Kişisel verileri dışa aktardı",
-  "project.create": "Proje oluşturdu",
-  "project.delete": "Projeyi sildi",
-  "project.link_repository": "Depo bağladı",
-  "project.unlink_repository": "Depo bağlantısını kaldırdı",
-  "project.update": "Proje ayarlarını değiştirdi",
-  "symbols.bundle.delete": "Kaynak eşleme paketini sildi",
-  "symbols.debug_file.delete": "Sembol dosyasını sildi",
-  "user.delete": "Kullanıcı hesabını sildi",
-  "user.two_factor.disable": "İki adımlı doğrulamayı kapattı",
-  "user.two_factor.enable": "İki adımlı doğrulamayı açtı",
-  "user.two_factor.recovery_codes": "Yeni kurtarma kodları oluşturdu",
-};
-
 export function AuditLog() {
   const q = useInfiniteQuery(
     OrganizationService.method.listAuditLog,
     { pageSize: 50, pageToken: "" },
     { pageParamKey: "pageToken", getNextPageParam: (last) => last.nextPageToken || undefined },
   );
-  const rows = q.data?.pages.flatMap((p) => p.entries) ?? [];
   if (q.isPending) return <Skeleton className="my-6 h-72 w-full max-w-4xl" />;
-  if (rows.length === 0)
-    return (
-      <EmptyState title="Henüz kayıt yok" className="my-6 max-w-4xl rounded-lg border py-10">
-        Üyeler, projeler ve anahtarlar değiştikçe kimin neyi ne zaman yaptığı burada görünür.
-      </EmptyState>
-    );
   return (
-    <div className="max-w-4xl py-6">
-      <ul className="divide-y rounded-lg border md:hidden">
-        {rows.map((e) => (
-          <li key={e.id} className="px-4 py-3">
-            <div className="flex items-baseline justify-between gap-3">
-              <p className="font-medium text-md">{actionLabels[e.action] ?? e.action}</p>
-              <span className="shrink-0 text-sm text-muted-foreground">
-                <RelativeTime value={e.createdAt} />
-              </span>
-            </div>
-            <p className="mt-0.5 truncate text-sm text-muted-foreground">
-              {e.actor?.name || e.actor?.email || "Sistem"}
-              {e.ipAddress ? `, ${e.ipAddress}` : ""}
-            </p>
-            {e.targetName || e.targetId ? (
-              <p className="mt-1 truncate font-mono text-sm">{e.targetName || e.targetId}</p>
-            ) : null}
-          </li>
-        ))}
-      </ul>
-      <div className="hidden overflow-x-auto rounded-lg border md:block">
-        <table className="w-full text-sm">
-          <thead className={theadClass}>
-            <tr>
-              <th className={thClass}>Zaman</th>
-              <th className={thClass}>Kişi</th>
-              <th className={thClass}>İşlem</th>
-              <th className={thClass}>Hedef</th>
-              <th className={thClass}>IP</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {rows.map((e) => (
-              <tr key={e.id} className={trClass}>
-                <td className="whitespace-nowrap px-3.5 py-2 text-muted-foreground">
-                  <RelativeTime value={e.createdAt} />
-                </td>
-                <td className="max-w-44 truncate px-3.5 py-2">
-                  {e.actor?.name || e.actor?.email || "Sistem"}
-                </td>
-                <td className="px-3.5 py-2">{actionLabels[e.action] ?? e.action}</td>
-                <td className="max-w-52 truncate px-3.5 py-2 font-mono text-sm text-muted-foreground">
-                  {e.targetName || e.targetId}
-                </td>
-                <td className="px-3.5 py-2 font-mono text-sm text-muted-foreground">{e.ipAddress || "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {q.hasNextPage ? (
-        <Button variant="ghost" size="sm" className="mt-2" onClick={() => void q.fetchNextPage()}>
-          Daha eski kayıtlar
-        </Button>
-      ) : null}
-    </div>
+    <AuditEntries
+      rows={q.data?.pages.flatMap((p) => p.entries) ?? []}
+      hasMore={q.hasNextPage}
+      onMore={() => void q.fetchNextPage()}
+      empty="Üyeler, projeler ve anahtarlar değiştikçe kimin neyi ne zaman yaptığı burada görünür."
+    />
   );
 }

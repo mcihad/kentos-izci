@@ -54,6 +54,10 @@ To rotate the master key:
 			if err != nil {
 				return err
 			}
+			if !dryRun {
+				cliAudit(cmd.Context(), database, cmd.ErrOrStderr(), store.AuditEntry{Action: "secrets.rotate", TargetType: "instance",
+					Metadata: map[string]string{"key_id": box.KeyID()}}, nil)
+			}
 			r.print(cmd.OutOrStdout(), box.KeyID(), dryRun)
 			return nil
 		},

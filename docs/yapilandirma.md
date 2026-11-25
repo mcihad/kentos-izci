@@ -129,6 +129,16 @@ Ayrıntılar: [Telegram bildirimleri](telegram.md).
 
 Ayrıntılar: [Bildirim kanalları](bildirimler.md).
 
+## Denetim kaydı aktarımı
+
+[Denetim kaydı](guvenlik.md#siem-aktarımı) bir SIEM'e aktarılabilir. İkisi birlikte de kullanılabilir.
+
+| Değişken | Varsayılan | Açıklama |
+|---|---|---|
+| `AUDIT_WEBHOOK_URL` | (boş) | Yeni kayıtların JSON olarak `POST` edildiği adres (`http` ya da `https`). |
+| `AUDIT_WEBHOOK_SECRET` | (boş) | Verilirse gövde HMAC-SHA256 ile imzalanır: `X-Izci-Signature: sha256=<hex>`. |
+| `AUDIT_SYSLOG_ADDR` | (boş) | Kayıtların RFC 5424 iletisi olarak gittiği syslog sunucusu: `udp://siem:514`, `tcp://siem:601` ya da `tls://siem:6514`. |
+
 ## GitHub
 
 | Değişken | Varsayılan | Açıklama |

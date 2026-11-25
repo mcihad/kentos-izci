@@ -140,7 +140,7 @@ func (s *AuthServer) VerifySignup(ctx context.Context, req *connect.Request[apiv
 		return nil, internal(ctx, s.log, "verify sign-up", err)
 	}
 	resp := connect.NewResponse(&apiv1.VerifySignupResponse{})
-	if resp.Msg.Session, err = s.startSession(ctx, resp.Header(), user); err != nil {
+	if resp.Msg.Session, err = s.startSession(ctx, resp.Header(), user, "signup"); err != nil {
 		return nil, internal(ctx, s.log, "start session", err)
 	}
 	return resp, nil
@@ -208,6 +208,7 @@ func (s *AuthServer) RequestPasswordReset(ctx context.Context, req *connect.Requ
 	if err := s.auth.ThrottleEmail(ctx, "reset", email); err != nil {
 		return nil, throttled(err)
 	}
+	s.auth.Audit(ctx, store.AuditEntry{Action: "auth.password_reset_request", TargetType: "user", TargetName: email, IP: infoFrom(ctx).IP})
 	u, err := store.GetUserByEmail(ctx, s.db.Pool, email)
 	switch {
 	case errors.Is(err, store.ErrNotFound):
@@ -279,5 +280,7 @@ func (s *AuthServer) ResetPassword(ctx context.Context, req *connect.Request[api
 		return nil, internal(ctx, s.log, "reset password", err)
 	}
 	s.account.PasswordChanged(ctx, user.Email, time.Now())
+	s.auth.AuditUser(ctx, user.ID, store.AuditEntry{ActorID: &user.ID, Action: "user.password.reset", TargetType: "user",
+		TargetID: user.ID.String(), TargetName: user.Email, IP: infoFrom(ctx).IP})
 	return connect.NewResponse(&apiv1.ResetPasswordResponse{}), nil
 }

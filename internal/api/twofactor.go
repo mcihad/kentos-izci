@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
-	"github.com/jackc/pgx/v5"
 
 	apiv1 "github.com/mcihad/kentos-izci/gen/izci/api/v1"
 	"github.com/mcihad/kentos-izci/internal/auth"
@@ -71,12 +70,16 @@ func (s *AuthServer) VerifyTwoFactor(ctx context.Context, req *connect.Request[a
 		return nil, throttled(err)
 	}
 	u, err := s.auth.CompleteChallenge(ctx, req.Header(), req.Msg.GetCode())
+	if errors.Is(err, auth.ErrInvalidSecondFactor) {
+		s.auth.Audit(ctx, store.AuditEntry{Action: "auth.login_failed", TargetType: "user",
+			Metadata: map[string]string{"reason": "second_factor"}, IP: infoFrom(ctx).IP})
+	}
 	if err != nil {
 		return nil, secondFactorError(ctx, s.log, "verify two-factor", err)
 	}
 	resp := connect.NewResponse(&apiv1.VerifyTwoFactorResponse{})
 	resp.Header().Add("Set-Cookie", s.auth.ClearChallengeCookie().String())
-	if resp.Msg.Session, err = s.startSession(ctx, resp.Header(), u); err != nil {
+	if resp.Msg.Session, err = s.startSession(ctx, resp.Header(), u, "two_factor"); err != nil {
 		return nil, internal(ctx, s.log, "start session", err)
 	}
 	return resp, nil
@@ -153,20 +156,8 @@ func (s *UserServer) RegenerateRecoveryCodes(ctx context.Context, req *connect.R
 // audit log of every organization they belong to, so that administrators
 // see it. Failures are logged, not returned: the change is done.
 func (s *UserServer) userAudit(ctx context.Context, u *store.User, action string) {
-	memberships, err := store.ListMemberships(ctx, s.db.Pool, u.ID)
-	for _, m := range memberships {
-		orgID := m.Organization.ID
-		err = s.db.InOrg(ctx, orgID, func(tx pgx.Tx) error {
-			return store.InsertAudit(ctx, tx, store.AuditEntry{OrgID: &orgID, ActorID: &u.ID, Action: action,
-				TargetType: "user", TargetID: u.ID.String(), TargetName: u.Email, IP: infoFrom(ctx).IP})
-		})
-		if err != nil {
-			break
-		}
-	}
-	if err != nil {
-		s.log.WarnContext(ctx, "audit two-factor change", slog.String("action", action), slog.Any("err", err))
-	}
+	s.auth.AuditUser(ctx, u.ID, store.AuditEntry{ActorID: &u.ID, Action: action, TargetType: "user", TargetID: u.ID.String(),
+		TargetName: u.Email, IP: infoFrom(ctx).IP})
 }
 
 // requireRecentAuth guards sensitive changes: a browser session that

@@ -48,6 +48,9 @@ const (
 	AdminServiceUpdateUserProcedure = "/izci.api.v1.AdminService/UpdateUser"
 	// AdminServiceDeleteUserProcedure is the fully-qualified name of the AdminService's DeleteUser RPC.
 	AdminServiceDeleteUserProcedure = "/izci.api.v1.AdminService/DeleteUser"
+	// AdminServiceListInstanceAuditLogProcedure is the fully-qualified name of the AdminService's
+	// ListInstanceAuditLog RPC.
+	AdminServiceListInstanceAuditLogProcedure = "/izci.api.v1.AdminService/ListInstanceAuditLog"
 )
 
 // AdminServiceClient is a client for the izci.api.v1.AdminService service.
@@ -68,6 +71,11 @@ type AdminServiceClient interface {
 	// deleted until the organization has another owner or is deleted
 	// (ERROR_REASON_LAST_OWNER).
 	DeleteUser(context.Context, *connect.Request[v1.DeleteUserRequest]) (*connect.Response[v1.DeleteUserResponse], error)
+	// ListInstanceAuditLog lists the instance-level audit log, newest first:
+	// sign-ins and failed sign-ins, account security changes, server
+	// administration and CLI actions. Organizations' own entries are in
+	// OrganizationService.ListAuditLog.
+	ListInstanceAuditLog(context.Context, *connect.Request[v1.ListInstanceAuditLogRequest]) (*connect.Response[v1.ListInstanceAuditLogResponse], error)
 }
 
 // NewAdminServiceClient constructs a client for the izci.api.v1.AdminService service. By default,
@@ -120,6 +128,13 @@ func NewAdminServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(adminServiceMethods.ByName("DeleteUser")),
 			connect.WithClientOptions(opts...),
 		),
+		listInstanceAuditLog: connect.NewClient[v1.ListInstanceAuditLogRequest, v1.ListInstanceAuditLogResponse](
+			httpClient,
+			baseURL+AdminServiceListInstanceAuditLogProcedure,
+			connect.WithSchema(adminServiceMethods.ByName("ListInstanceAuditLog")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -131,6 +146,7 @@ type adminServiceClient struct {
 	listUsers              *connect.Client[v1.ListUsersRequest, v1.ListUsersResponse]
 	updateUser             *connect.Client[v1.UpdateUserRequest, v1.UpdateUserResponse]
 	deleteUser             *connect.Client[v1.DeleteUserRequest, v1.DeleteUserResponse]
+	listInstanceAuditLog   *connect.Client[v1.ListInstanceAuditLogRequest, v1.ListInstanceAuditLogResponse]
 }
 
 // GetInstanceInfo calls izci.api.v1.AdminService.GetInstanceInfo.
@@ -163,6 +179,11 @@ func (c *adminServiceClient) DeleteUser(ctx context.Context, req *connect.Reques
 	return c.deleteUser.CallUnary(ctx, req)
 }
 
+// ListInstanceAuditLog calls izci.api.v1.AdminService.ListInstanceAuditLog.
+func (c *adminServiceClient) ListInstanceAuditLog(ctx context.Context, req *connect.Request[v1.ListInstanceAuditLogRequest]) (*connect.Response[v1.ListInstanceAuditLogResponse], error) {
+	return c.listInstanceAuditLog.CallUnary(ctx, req)
+}
+
 // AdminServiceHandler is an implementation of the izci.api.v1.AdminService service.
 type AdminServiceHandler interface {
 	// GetInstanceInfo returns version, database and feature information.
@@ -181,6 +202,11 @@ type AdminServiceHandler interface {
 	// deleted until the organization has another owner or is deleted
 	// (ERROR_REASON_LAST_OWNER).
 	DeleteUser(context.Context, *connect.Request[v1.DeleteUserRequest]) (*connect.Response[v1.DeleteUserResponse], error)
+	// ListInstanceAuditLog lists the instance-level audit log, newest first:
+	// sign-ins and failed sign-ins, account security changes, server
+	// administration and CLI actions. Organizations' own entries are in
+	// OrganizationService.ListAuditLog.
+	ListInstanceAuditLog(context.Context, *connect.Request[v1.ListInstanceAuditLogRequest]) (*connect.Response[v1.ListInstanceAuditLogResponse], error)
 }
 
 // NewAdminServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -229,6 +255,13 @@ func NewAdminServiceHandler(svc AdminServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(adminServiceMethods.ByName("DeleteUser")),
 		connect.WithHandlerOptions(opts...),
 	)
+	adminServiceListInstanceAuditLogHandler := connect.NewUnaryHandler(
+		AdminServiceListInstanceAuditLogProcedure,
+		svc.ListInstanceAuditLog,
+		connect.WithSchema(adminServiceMethods.ByName("ListInstanceAuditLog")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/izci.api.v1.AdminService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AdminServiceGetInstanceInfoProcedure:
@@ -243,6 +276,8 @@ func NewAdminServiceHandler(svc AdminServiceHandler, opts ...connect.HandlerOpti
 			adminServiceUpdateUserHandler.ServeHTTP(w, r)
 		case AdminServiceDeleteUserProcedure:
 			adminServiceDeleteUserHandler.ServeHTTP(w, r)
+		case AdminServiceListInstanceAuditLogProcedure:
+			adminServiceListInstanceAuditLogHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -274,4 +309,8 @@ func (UnimplementedAdminServiceHandler) UpdateUser(context.Context, *connect.Req
 
 func (UnimplementedAdminServiceHandler) DeleteUser(context.Context, *connect.Request[v1.DeleteUserRequest]) (*connect.Response[v1.DeleteUserResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.AdminService.DeleteUser is not implemented"))
+}
+
+func (UnimplementedAdminServiceHandler) ListInstanceAuditLog(context.Context, *connect.Request[v1.ListInstanceAuditLogRequest]) (*connect.Response[v1.ListInstanceAuditLogResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("izci.api.v1.AdminService.ListInstanceAuditLog is not implemented"))
 }

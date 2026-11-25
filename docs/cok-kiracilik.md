@@ -31,7 +31,7 @@ Bir kullanıcı birden fazla organizasyonun üyesi olabilir; organizasyonlar ara
 
 Organizasyonun en az bir sahibi (`owner`) kalmalıdır.
 
-**Sunucu yöneticisi** (`superadmin`) organizasyonlardan bağımsız bir yetkidir. **Sunucu yönetimi** sayfasında bütün organizasyonları, planlarını ve sınırlarını, kullanıcıları görür ve düzenler. Üyesi olmadığı bir organizasyona girdiğinde sahip gibi davranır. İlk kurulumu yapan kişi sunucu yöneticisi olur; başkalarına `izci user superadmin EMAIL` ile verilir.
+**Sunucu yöneticisi** (`superadmin`) organizasyonlardan bağımsız bir yetkidir. **Sunucu yönetimi** sayfasında bütün organizasyonları, planlarını ve sınırlarını, kullanıcıları ve sunucunun güvenlik kaydını görür ve düzenler. Üyesi olmadığı bir organizasyona girdiğinde sahip gibi davranır; bu, organizasyonun denetim kaydına yazılır. İlk kurulumu yapan kişi sunucu yöneticisi olur; başkalarına `izci user superadmin EMAIL` ile verilir.
 
 ## Üyelik
 

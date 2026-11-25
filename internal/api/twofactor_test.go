@@ -284,13 +284,15 @@ func TestTwoFactorAuthentication(t *testing.T) {
 		t.Fatalf("token of a user without 2FA: %v", err)
 	}
 
-	var audited int
+	// Each change is in the organization's audit log and the instance's.
+	var inOrg, inInstance int
 	err = e.db.InSystem(ctx, func(tx pgx.Tx) error {
-		return tx.QueryRow(ctx, `SELECT count(*) FROM audit_log WHERE action IN
-			('user.two_factor.enable', 'user.two_factor.disable', 'user.two_factor.recovery_codes')`).Scan(&audited)
+		return tx.QueryRow(ctx, `SELECT count(*) FILTER (WHERE org_id IS NOT NULL), count(*) FILTER (WHERE org_id IS NULL)
+			FROM audit_log WHERE action IN ('user.two_factor.enable', 'user.two_factor.disable', 'user.two_factor.recovery_codes')`).
+			Scan(&inOrg, &inInstance)
 	})
-	if err != nil || audited != 4 {
-		t.Fatalf("audit entries: %d %v", audited, err)
+	if err != nil || inOrg != 4 || inInstance != 4 {
+		t.Fatalf("audit entries: %d in the organization, %d in the instance, %v", inOrg, inInstance, err)
 	}
 }
 

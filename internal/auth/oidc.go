@@ -340,7 +340,7 @@ func (s *Service) oidcCallback(w http.ResponseWriter, r *http.Request) {
 	}
 	_ = store.MarkUserLogin(ctx, s.db.Pool, user.ID)
 	ip := clientip.Resolve(r.RemoteAddr, r.Header, s.cfg.HTTP.TrustedProxies)
-	cookie, _, err := s.StartSession(ctx, user.ID, ip, r.UserAgent())
+	cookie, _, err := s.StartSession(ctx, user.ID, ip, r.UserAgent(), "oidc:"+id)
 	if err != nil {
 		loginRedirect(w, r, "oidc_internal")
 		return

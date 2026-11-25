@@ -26,6 +26,7 @@ import (
 	"github.com/mcihad/kentos-izci/internal/ai"
 	"github.com/mcihad/kentos-izci/internal/alert"
 	"github.com/mcihad/kentos-izci/internal/api"
+	"github.com/mcihad/kentos-izci/internal/auditforward"
 	"github.com/mcihad/kentos-izci/internal/auth"
 	"github.com/mcihad/kentos-izci/internal/config"
 	"github.com/mcihad/kentos-izci/internal/db"
@@ -333,6 +334,7 @@ func New(cfg *config.Config, log *slog.Logger, database *db.DB, opts Options) (*
 			}
 			return err
 		}},
+		jobs.Task{Name: "audit-forward", Interval: 15 * time.Second, Run: auditforward.New(database, cfg.Audit, log).Run},
 		jobs.Task{Name: "issue-purge", Interval: time.Minute, Run: func(ctx context.Context) error {
 			// Events of merged and unmerged issues move first, so that a
 			// deletion right after a merge finds them.

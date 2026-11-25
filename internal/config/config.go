@@ -63,6 +63,7 @@ type Config struct {
 	Telegram  TelegramConfig
 	SMTP      SMTPConfig
 	Notify    NotifyConfig
+	Audit     AuditConfig
 	GitHub    GitHubConfig
 	AI        AIConfig
 	MCP       MCPConfig
@@ -223,6 +224,21 @@ type NotifyConfig struct {
 	// when organization admins are not trusted with the server's network.
 	AllowPrivateNetworks bool `env:"NOTIFY_ALLOW_PRIVATE_NETWORKS" envDefault:"false"`
 }
+
+// AuditConfig forwards the audit log to a SIEM.
+type AuditConfig struct {
+	// WebhookURL receives new audit entries as JSON arrays (POST).
+	WebhookURL string `env:"AUDIT_WEBHOOK_URL"`
+	// WebhookSecret signs webhook bodies: X-Izci-Signature is
+	// "sha256=" + hex(HMAC-SHA256(secret, body)).
+	WebhookSecret Secret `env:"AUDIT_WEBHOOK_SECRET"`
+	// SyslogAddr receives each entry as an RFC 5424 message, e.g.
+	// "udp://siem.local:514", "tcp://siem.local:601" or "tls://siem.local:6514".
+	SyslogAddr string `env:"AUDIT_SYSLOG_ADDR"`
+}
+
+// Enabled reports whether audit entries are forwarded anywhere.
+func (c AuditConfig) Enabled() bool { return c.WebhookURL != "" || c.SyslogAddr != "" }
 
 // GitHubConfig configures GitHub (or GitHub Enterprise Server) access.
 type GitHubConfig struct {
@@ -476,6 +492,17 @@ func (c *Config) finalize() error {
 		case "starttls", "tls", "none":
 		default:
 			errs = append(errs, fmt.Errorf("SMTP_TLS must be starttls, tls or none (got %q)", c.SMTP.TLS))
+		}
+	}
+	if u := c.Audit.WebhookURL; u != "" {
+		if parsed, err := url.Parse(u); err != nil || (parsed.Scheme != "https" && parsed.Scheme != "http") || parsed.Host == "" {
+			errs = append(errs, fmt.Errorf("AUDIT_WEBHOOK_URL must be an http(s) URL (got %q)", u))
+		}
+	}
+	if a := c.Audit.SyslogAddr; a != "" {
+		if parsed, err := url.Parse(a); err != nil || (parsed.Scheme != "udp" && parsed.Scheme != "tcp" && parsed.Scheme != "tls") ||
+			parsed.Port() == "" {
+			errs = append(errs, fmt.Errorf("AUDIT_SYSLOG_ADDR must be udp://, tcp:// or tls:// with a host and port (got %q)", a))
 		}
 	}
 	c.Telegram.APIURL = strings.TrimRight(c.Telegram.APIURL, "/")

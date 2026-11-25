@@ -1,11 +1,12 @@
 import { create } from "@bufbuild/protobuf";
-import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
+import { createConnectQueryKey, useInfiniteQuery, useMutation, useQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShieldAlertIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { gutter, PageHeader } from "@/components/app/page";
+import { AuditEntries } from "@/components/common/audit-entries";
 import { Field } from "@/components/common/field";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState } from "@/components/common/states";
@@ -38,6 +39,7 @@ const tabs = [
   { id: "instance", label: "Sunucu" },
   { id: "organizations", label: "Organizasyonlar" },
   { id: "users", label: "Kullanıcılar" },
+  { id: "audit", label: "Güvenlik kaydı" },
 ] as const;
 type Tab = (typeof tabs)[number]["id"];
 
@@ -95,6 +97,7 @@ function AdminPage() {
           {tab === "instance" ? <Instance /> : null}
           {tab === "organizations" ? <Organizations /> : null}
           {tab === "users" ? <Users /> : null}
+          {tab === "audit" ? <InstanceAudit /> : null}
         </TabbedCard>
       </div>
     </div>
@@ -498,5 +501,27 @@ function Users() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+/** The instance-level audit log: sign-ins, account security, administration, CLI. */
+function InstanceAudit() {
+  const q = useInfiniteQuery(
+    AdminService.method.listInstanceAuditLog,
+    { pageSize: 50, pageToken: "" },
+    {
+      transport: baseTransport,
+      pageParamKey: "pageToken",
+      getNextPageParam: (last) => last.nextPageToken || undefined,
+    },
+  );
+  if (q.isPending) return <Skeleton className="my-6 h-72 w-full max-w-5xl" />;
+  return (
+    <AuditEntries
+      rows={q.data?.pages.flatMap((p) => p.entries) ?? []}
+      hasMore={q.hasNextPage}
+      onMore={() => void q.fetchNextPage()}
+      empty="Girişler, başarısız giriş denemeleri, hesap güvenliği değişiklikleri, sunucu yönetimi ve komut satırı işlemleri burada görünür."
+    />
   );
 }

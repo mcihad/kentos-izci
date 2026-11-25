@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strconv"
 	"strings"
 	"time"
 
@@ -107,17 +108,26 @@ func (s *UserServer) CreateAccessToken(ctx context.Context, req *connect.Request
 		return nil, internal(ctx, s.log, "create token", err)
 	}
 	s.account.TokenCreated(ctx, p.User.Email, tok.Name, scopeNames(tok.Scopes), tok.ExpiresAt)
+	meta := map[string]string{"scopes": scopeNames(tok.Scopes)}
+	if tok.ExpiresAt != nil {
+		meta["expires_at"] = tok.ExpiresAt.UTC().Format(time.RFC3339)
+	}
+	s.auth.AuditUser(ctx, p.User.ID, store.AuditEntry{ActorID: &p.User.ID, Action: "user.access_token.create", TargetType: "access_token",
+		TargetID: tok.ID.String(), TargetName: tok.Name, Metadata: meta, IP: infoFrom(ctx).IP})
 	return connect.NewResponse(&apiv1.CreateAccessTokenResponse{Token: toAccessToken(tok, org), Secret: secret}), nil
 }
 
 // RevokeAccessToken implements UserService.RevokeAccessToken.
 func (s *UserServer) RevokeAccessToken(ctx context.Context, req *connect.Request[apiv1.RevokeAccessTokenRequest]) (*connect.Response[apiv1.RevokeAccessTokenResponse], error) {
 	id, _ := uuid.Parse(req.Msg.GetId())
-	if err := store.RevokePersonalToken(ctx, s.db.Pool, auth.PrincipalFrom(ctx).User.ID, id); errors.Is(err, store.ErrNotFound) {
+	me := auth.PrincipalFrom(ctx).User.ID
+	if err := store.RevokePersonalToken(ctx, s.db.Pool, me, id); errors.Is(err, store.ErrNotFound) {
 		return nil, errNotFound("token")
 	} else if err != nil {
 		return nil, internal(ctx, s.log, "revoke token", err)
 	}
+	s.auth.AuditUser(ctx, me, store.AuditEntry{ActorID: &me, Action: "user.access_token.revoke", TargetType: "access_token",
+		TargetID: id.String(), IP: infoFrom(ctx).IP})
 	return connect.NewResponse(&apiv1.RevokeAccessTokenResponse{}), nil
 }
 
@@ -155,6 +165,10 @@ func (s *UserServer) RevokeSession(ctx context.Context, req *connect.Request[api
 	}
 	if err != nil {
 		return nil, internal(ctx, s.log, "revoke session", err)
+	}
+	if n > 0 {
+		s.auth.Audit(ctx, store.AuditEntry{ActorID: &p.User.ID, Action: "user.session.revoke", TargetType: "user", TargetID: p.User.ID.String(),
+			TargetName: p.User.Email, Metadata: map[string]string{"sessions": strconv.FormatInt(n, 10)}, IP: infoFrom(ctx).IP})
 	}
 	return connect.NewResponse(&apiv1.RevokeSessionResponse{Revoked: uint32(n)}), nil
 }
@@ -249,6 +263,8 @@ func (s *UserServer) DeleteAccount(ctx context.Context, req *connect.Request[api
 	if err := s.deleteUser(ctx, u); err != nil {
 		return nil, internal(ctx, s.log, "delete account", err)
 	}
+	s.auth.Audit(ctx, store.AuditEntry{ActorID: &u.ID, Action: "user.delete", TargetType: "user", TargetID: u.ID.String(),
+		TargetName: u.Email, IP: infoFrom(ctx).IP})
 	s.account.AccountDeleted(ctx, u.Email, false, time.Now())
 	s.log.InfoContext(ctx, "account deleted", slog.String("user_id", u.ID.String()))
 	resp := connect.NewResponse(&apiv1.DeleteAccountResponse{})

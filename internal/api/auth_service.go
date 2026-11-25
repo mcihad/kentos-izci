@@ -146,7 +146,7 @@ func (s *AuthServer) CompleteSetup(ctx context.Context, req *connect.Request[api
 		return nil, internal(ctx, s.log, "complete setup", err)
 	}
 	resp := connect.NewResponse(&apiv1.CompleteSetupResponse{ProjectSlug: projectSlug, ApiKey: apiKey})
-	if resp.Msg.Session, err = s.startSession(ctx, resp.Header(), user); err != nil {
+	if resp.Msg.Session, err = s.startSession(ctx, resp.Header(), user, "setup"); err != nil {
 		return nil, internal(ctx, s.log, "start session", err)
 	}
 	return resp, nil
@@ -183,6 +183,16 @@ func signupMode(s string) apiv1.SignupMode {
 func (s *AuthServer) Login(ctx context.Context, req *connect.Request[apiv1.LoginRequest]) (*connect.Response[apiv1.LoginResponse], error) {
 	u, err := s.auth.Login(ctx, req.Msg.GetEmail(), req.Msg.GetPassword(), infoFrom(ctx).IP)
 	var tooMany *auth.TooManyAttemptsError
+	if reason := loginFailure(err); reason != "" {
+		email := strings.ToLower(strings.TrimSpace(req.Msg.GetEmail()))
+		e := store.AuditEntry{Action: "auth.login_failed", TargetType: "user", TargetName: email,
+			Metadata: map[string]string{"reason": reason}, IP: infoFrom(ctx).IP}
+		// Attempts on an existing account are attributed to it.
+		if known, err := store.GetUserByEmail(ctx, s.db.Pool, email); err == nil {
+			e.ActorID, e.TargetID = &known.ID, known.ID.String()
+		}
+		s.auth.Audit(ctx, e)
+	}
 	switch {
 	case errors.As(err, &tooMany):
 		return nil, tooManyAttempts(tooMany)
@@ -205,17 +215,33 @@ func (s *AuthServer) Login(ctx context.Context, req *connect.Request[apiv1.Login
 		resp.Msg.TwoFactorRequired = true
 		return resp, nil
 	}
-	if resp.Msg.Session, err = s.startSession(ctx, resp.Header(), u); err != nil {
+	if resp.Msg.Session, err = s.startSession(ctx, resp.Header(), u, "password"); err != nil {
 		return nil, internal(ctx, s.log, "start session", err)
 	}
 	return resp, nil
 }
 
+// loginFailure names why a sign-in failed, for the audit log; "" when it
+// did not, or failed for reasons that are not the user's.
+func loginFailure(err error) string {
+	var tooMany *auth.TooManyAttemptsError
+	switch {
+	case errors.As(err, &tooMany):
+		return "too_many_attempts"
+	case errors.Is(err, auth.ErrInvalidCredentials):
+		return "invalid_credentials"
+	case errors.Is(err, auth.ErrAccountDisabled):
+		return "account_disabled"
+	}
+	return ""
+}
+
 // startSession creates a session, sets its cookie on the response and
-// returns the session message.
-func (s *AuthServer) startSession(ctx context.Context, h http.Header, u *store.User) (*apiv1.Session, error) {
+// returns the session message; method says how the user signed in
+// ("password", "two_factor", "setup", "signup", "invitation").
+func (s *AuthServer) startSession(ctx context.Context, h http.Header, u *store.User, method string) (*apiv1.Session, error) {
 	info := infoFrom(ctx)
-	cookie, sess, err := s.auth.StartSession(ctx, u.ID, info.IP, info.UserAgent)
+	cookie, sess, err := s.auth.StartSession(ctx, u.ID, info.IP, info.UserAgent, method)
 	if err != nil {
 		return nil, err
 	}
@@ -257,6 +283,10 @@ func (s *AuthServer) session(ctx context.Context, u *store.User, sess *store.Ses
 func (s *AuthServer) Logout(ctx context.Context, _ *connect.Request[apiv1.LogoutRequest]) (*connect.Response[apiv1.LogoutResponse], error) {
 	if err := s.auth.EndSession(ctx, auth.PrincipalFrom(ctx)); err != nil {
 		return nil, internal(ctx, s.log, "logout", err)
+	}
+	if p := auth.PrincipalFrom(ctx); p != nil && p.Session != nil {
+		s.auth.Audit(ctx, store.AuditEntry{ActorID: &p.User.ID, Action: "auth.logout", TargetType: "user", TargetID: p.User.ID.String(),
+			TargetName: p.User.Email, IP: infoFrom(ctx).IP})
 	}
 	resp := connect.NewResponse(&apiv1.LogoutResponse{})
 	resp.Header().Add("Set-Cookie", s.auth.ClearCookie().String())
@@ -306,6 +336,8 @@ func (s *AuthServer) ChangePassword(ctx context.Context, req *connect.Request[ap
 		return nil, internal(ctx, s.log, "end sessions", err)
 	}
 	s.account.PasswordChanged(ctx, p.User.Email, time.Now())
+	s.auth.AuditUser(ctx, p.User.ID, store.AuditEntry{ActorID: &p.User.ID, Action: "user.password.change", TargetType: "user",
+		TargetID: p.User.ID.String(), TargetName: p.User.Email, IP: infoFrom(ctx).IP})
 	return connect.NewResponse(&apiv1.ChangePasswordResponse{}), nil
 }
 
@@ -427,7 +459,7 @@ func (s *AuthServer) AcceptInvitation(ctx context.Context, req *connect.Request[
 	}
 	resp := connect.NewResponse(&apiv1.AcceptInvitationResponse{})
 	if created {
-		resp.Msg.Session, err = s.startSession(ctx, resp.Header(), user)
+		resp.Msg.Session, err = s.startSession(ctx, resp.Header(), user, "invitation")
 	} else {
 		resp.Msg.Session, err = s.session(ctx, user, p.Session)
 	}

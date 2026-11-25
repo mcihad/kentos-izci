@@ -97,6 +97,37 @@ Organizasyonlar arası yalıtım PostgreSQL satır düzeyi güvenliğiyle sağla
 
 Ayrıntılar: [GitHub ve yapay zekâ analizi](yapay-zeka.md#güvenlik).
 
+## Denetim kaydı
+
+Güvenliği etkileyen her işlem kimin, ne zaman, hangi adresten yaptığıyla kaydedilir:
+
+- **Organizasyonun kaydı** (**Organizasyon ayarları › Denetim kaydı**, yöneticiler): anahtarlar, üyeler, roller, kanallar, kurallar, projeler, entegrasyonlar, ayarlar, birleştirme ve silmeler, kişisel veri talepleri; üyelerin hesap güvenliği değişiklikleri (parola değişikliği ve sıfırlaması, iki adımlı doğrulama, erişim anahtarları, hesap silme); sunucu yöneticisinin **üyesi olmadığı** organizasyona girmesi (aynı kişi için saatte bir kayıt).
+- **Sunucunun güvenlik kaydı** (**Sunucu yönetimi › Güvenlik kaydı**, sunucu yöneticileri): girişler (yöntem ve cihazla), başarısız girişler ve nedenleri (hatalı parola, devre dışı hesap, çok fazla deneme, hatalı doğrulama kodu), çıkışlar, parola sıfırlama istekleri, hesap güvenliği değişiklikleri, kullanıcı yönetimi ve komut satırı işlemleri. `izci user create`, `reset-password`, `reset-2fa`, `superadmin` ve `izci secrets rotate` kayda komutu çalıştıran işletim sistemi kullanıcısı ve makine adıyla yazılır; hesap güvenliğini değiştirenler kişinin organizasyonlarının kaydına da düşer.
+
+Girişler ve başarısız girişler iki yıl (ya da daha uzunsa `RETENTION_DAYS`) tutulur; diğer kayıtlar organizasyonla birlikte silinene kadar kalır.
+
+### SIEM aktarımı
+
+`AUDIT_WEBHOOK_URL` ve `AUDIT_SYSLOG_ADDR` (bkz. [Yapılandırma](yapilandirma.md#denetim-kaydı-aktarımı)) verilince bütün kayıtlar (organizasyonların ve sunucunun) sırayla ve en az bir kez aktarılır. Aktarma, ayar ilk verildiği andan sonraki kayıtlarla başlar; kayıtlar 30 saniye geriden okunur, böylece geç tamamlanan bir işlemin kaydı atlanmaz. Teslim edilemeyen kayıtlar bir sonraki denemede yeniden gönderilir; birden çok sunucu örneğinde aktarmayı biri yapar.
+
+Webhook her çağrıda `{"entries": [...]}` gövdesini `POST` eder. `AUDIT_WEBHOOK_SECRET` verildiyse `X-Izci-Signature` başlığı `sha256=` ile gövdenin HMAC-SHA256 özetini taşır; alıcı aynı özeti hesaplayıp karşılaştırmalıdır:
+
+```python
+import hashlib, hmac
+expected = "sha256=" + hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
+assert hmac.compare_digest(expected, request.headers["X-Izci-Signature"])
+```
+
+Syslog'a her kayıt bir RFC 5424 iletisi olarak gider: tesis `log audit` (13), önem başarısız girişlerde `warning`, diğerlerinde `notice`; `APP-NAME` `izci`, `MSGID` işlemin adı (`auth.login_failed`), ileti gövdesi kaydın JSON hâli. TCP ve TLS'te iletiler uzunluk önekiyle (RFC 6587) çerçevelenir.
+
+Bir kaydın JSON hâli:
+
+```json
+{"id": "019…", "time": "2026-11-25T08:15:02.41Z", "organization": {"id": "…", "slug": "kentos"},
+ "actor": {"id": "…", "email": "ayse@kentos.com.tr", "name": "Ayşe"}, "action": "member.update",
+ "target": {"type": "user", "id": "…", "name": "mehmet@kentos.com.tr"}, "metadata": {"role": "ROLE_ADMIN"}, "ip": "10.1.2.3"}
+```
+
 ## Kişisel veri talepleri
 
 KVKK'nın 11. maddesi (GDPR'da erişim ve silme hakları) kapsamındaki talepler **Organizasyon ayarları › Kişisel veriler** bölümünden karşılanır (yalnız yöneticiler):

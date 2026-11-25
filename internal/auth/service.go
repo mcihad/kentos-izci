@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/netip"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -64,6 +65,9 @@ type Service struct {
 	oidc map[string]*oidcProvider
 	// notifier hears about sign-ins from new devices; nil reports none.
 	notifier SignInNotifier
+	// superadminSeen remembers when a server administrator was last
+	// recorded entering an organization they are not a member of.
+	superadminSeen sync.Map
 }
 
 // NewService creates the authentication service.
@@ -223,16 +227,60 @@ func (s *Service) SetSignInNotifier(n SignInNotifier) { s.notifier = n }
 // StartSession creates a session for the user and returns its cookie. A
 // sign-in from a device the member had not used is reported to them
 // (except their very first sign-in).
-func (s *Service) StartSession(ctx context.Context, userID uuid.UUID, ip netip.Addr, userAgent string) (*http.Cookie, *store.Session, error) {
+func (s *Service) StartSession(ctx context.Context, userID uuid.UUID, ip netip.Addr, userAgent, method string) (*http.Cookie, *store.Session, error) {
 	maxAge := s.sessionMaxAge()
 	sess, token, err := store.CreateSession(ctx, s.db.Pool, userID, ip, userAgent, min(s.cfg.Auth.SessionTTL, maxAge))
 	if err != nil {
 		return nil, nil, err
 	}
+	ua := ingest.ParseUserAgent(userAgent)
+	s.Audit(ctx, store.AuditEntry{ActorID: &userID, Action: "auth.login", TargetType: "user", TargetID: userID.String(),
+		Metadata: map[string]string{"method": method, "device": strings.Trim(ua.BrowserLabel()+" · "+ua.OSLabel(), " ·")}, IP: ip})
 	s.seenDevice(ctx, userID, ip, userAgent)
 	// The browser keeps the cookie until the session's last possible
 	// moment; the server ends it earlier when it goes unused.
 	return s.sessionCookie(token, sess.CreatedAt.Add(maxAge)), sess, nil
+}
+
+// Audit records an instance-level entry (sign-ins, account security);
+// failures are logged, never returned: the action itself is done.
+func (s *Service) Audit(ctx context.Context, e store.AuditEntry) {
+	e.OrgID = nil
+	if len(e.TargetName) > 320 {
+		e.TargetName = e.TargetName[:320]
+	}
+	err := s.db.InSystem(ctx, func(tx pgx.Tx) error { return store.InsertAudit(ctx, tx, e) })
+	if err != nil {
+		s.log.Warn("audit", slog.String("action", e.Action), slog.Any("err", err))
+	}
+}
+
+// auditSuperadminAccess records in the organization's audit log, at most
+// hourly per administrator, that a server administrator acted in an
+// organization they are not a member of.
+func (s *Service) auditSuperadminAccess(ctx context.Context, u *store.User, org *store.Organization) {
+	key := u.ID.String() + "|" + org.ID.String()
+	now := time.Now()
+	if last, ok := s.superadminSeen.Load(key); ok && now.Sub(last.(time.Time)) < time.Hour {
+		return
+	}
+	s.superadminSeen.Store(key, now)
+	err := s.db.InOrg(ctx, org.ID, func(tx pgx.Tx) error {
+		return store.InsertAudit(ctx, tx, store.AuditEntry{OrgID: &org.ID, ActorID: &u.ID, Action: "superadmin.access",
+			TargetType: "organization", TargetID: org.ID.String(), TargetName: org.Slug, IP: clientIP(ctx)})
+	})
+	if err != nil {
+		s.log.Warn("audit superadmin access", slog.Any("err", err))
+	}
+}
+
+// AuditUser records an entry about a user's account at instance level and
+// in every organization they belong to.
+func (s *Service) AuditUser(ctx context.Context, userID uuid.UUID, e store.AuditEntry) {
+	err := s.db.InSystem(ctx, func(tx pgx.Tx) error { return store.InsertUserAudit(ctx, tx, userID, e) })
+	if err != nil {
+		s.log.Warn("audit", slog.String("action", e.Action), slog.Any("err", err))
+	}
 }
 
 // seenDevice records the device of a sign-in and reports new ones.
@@ -319,6 +367,7 @@ func (s *Service) ResolveTenant(ctx context.Context, p *Principal, slug string) 
 			return nil, ErrSuperadminTwoFactor
 		}
 		role = apiv1.Role_ROLE_OWNER
+		s.auditSuperadminAccess(ctx, p.User, org)
 	case errors.Is(err, store.ErrNotFound):
 		return nil, ErrOrgNotFound
 	case err != nil:

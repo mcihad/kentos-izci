@@ -206,4 +206,5 @@ var rules = map[string]rule{
 	c.AdminServiceListUsersProcedure:              {superadmin: true, scope: read},
 	c.AdminServiceUpdateUserProcedure:             {superadmin: true, scope: write},
 	c.AdminServiceDeleteUserProcedure:             {superadmin: true, scope: write},
+	c.AdminServiceListInstanceAuditLogProcedure:   {superadmin: true, scope: read},
 }
