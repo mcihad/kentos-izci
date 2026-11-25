@@ -141,8 +141,9 @@ func (s *Service) oidcStart(w http.ResponseWriter, r *http.Request) {
 	}
 	payload, _ := json.Marshal(st)
 	value := base64.RawURLEncoding.EncodeToString(payload)
+	// Path=/ is what the __Host- prefix requires.
 	http.SetCookie(w, &http.Cookie{
-		Name: stateCookie, Value: value + "." + s.box.Sign(value, 32), Path: "/auth/oidc/",
+		Name: s.cookieName(stateCookie), Value: value + "." + s.box.Sign(value, 32), Path: "/",
 		MaxAge: int(stateTTL.Seconds()), HttpOnly: true, Secure: s.secureCookies(), SameSite: http.SameSiteLaxMode,
 	})
 	authURL := p.oauth.AuthCodeURL(st.State, oidc.Nonce(st.Nonce), oauth2.S256ChallengeOption(st.Verifier))
@@ -152,7 +153,7 @@ func (s *Service) oidcStart(w http.ResponseWriter, r *http.Request) {
 func (s *Service) oidcCallback(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	id := r.PathValue("provider")
-	http.SetCookie(w, &http.Cookie{Name: stateCookie, Value: "", Path: "/auth/oidc/", MaxAge: -1, HttpOnly: true,
+	http.SetCookie(w, &http.Cookie{Name: s.cookieName(stateCookie), Value: "", Path: "/", MaxAge: -1, HttpOnly: true,
 		Secure: s.secureCookies(), SameSite: http.SameSiteLaxMode})
 
 	st, ok := s.readState(r)
@@ -431,7 +432,7 @@ func withQuery(path, key, value string) string {
 }
 
 func (s *Service) readState(r *http.Request) (*oidcState, bool) {
-	c, err := r.Cookie(stateCookie)
+	c, err := r.Cookie(s.cookieName(stateCookie))
 	if err != nil {
 		return nil, false
 	}

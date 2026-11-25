@@ -1095,8 +1095,9 @@ export const SignupModeSchema: GenEnum<SignupMode> = /*@__PURE__*/
  * AuthService handles first-run setup, sign-in and sessions.
  *
  * Methods of this service do not require the Izci-Org header. Login,
- * VerifyTwoFactor, CompleteSetup, SignUp and AcceptInvitation set the
- * "izci_session" cookie (HttpOnly, Secure, SameSite=Lax); Logout clears it.
+ * VerifyTwoFactor, CompleteSetup, VerifySignup and AcceptInvitation set the
+ * "izci_session" cookie, "__Host-izci_session" on https (HttpOnly, Secure,
+ * SameSite=Lax); Logout clears it.
  * OpenID Connect sign-in is a browser redirect flow outside of this service:
  * open AuthProvider.login_url. For accounts with two-factor authentication
  * it ends on "/login?two_factor=1", where VerifyTwoFactor completes it.
@@ -1145,8 +1146,8 @@ export const AuthService: GenService<{
    * limited per account and per client address
    * (ERROR_REASON_TOO_MANY_ATTEMPTS). For accounts with two-factor
    * authentication the response has two_factor_required instead of a
-   * session, and sets the "izci_2fa" cookie (HttpOnly, 10 minutes) that
-   * VerifyTwoFactor needs.
+   * session, and sets the "izci_2fa" cookie ("__Host-izci_2fa" on https;
+   * HttpOnly, 10 minutes) that VerifyTwoFactor needs.
    *
    * @generated from rpc izci.api.v1.AuthService.Login
    */

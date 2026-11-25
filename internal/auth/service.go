@@ -21,8 +21,23 @@ import (
 	"github.com/mcihad/kentos-izci/internal/store"
 )
 
-// CookieName is the browser session cookie.
+// CookieName is the browser session cookie. On https it is sent as
+// "__Host-izci_session" (see cookieName).
 const CookieName = "izci_session"
+
+// hostPrefix makes browsers accept a cookie only from this host over
+// https, with Path=/ and no Domain: an application on a sibling subdomain
+// cannot plant its own session or challenge cookie ("cookie tossing").
+const hostPrefix = "__Host-"
+
+// cookieName is the name a cookie has on this server: with the __Host-
+// prefix on https, as it is on plain http (development).
+func (s *Service) cookieName(name string) string {
+	if s.secureCookies() {
+		return hostPrefix + name
+	}
+	return name
+}
 
 // Sign-in errors.
 var (
@@ -93,7 +108,7 @@ func (s *Service) Authenticate(ctx context.Context, h http.Header) (*Principal, 
 		return nil, nil
 	}
 	for _, c := range cookies {
-		if c.Name != CookieName || !secret.HasPrefix(c.Value, secret.PrefixSession) {
+		if c.Name != s.cookieName(CookieName) || !secret.HasPrefix(c.Value, secret.PrefixSession) {
 			continue
 		}
 		sw, err := store.LookupSession(ctx, s.db.Pool, c.Value, s.sessionMaxAge())
@@ -218,14 +233,14 @@ func (s *Service) secureCookies() bool { return strings.HasPrefix(s.cfg.PublicUR
 
 func (s *Service) sessionCookie(token string, expires time.Time) *http.Cookie {
 	return &http.Cookie{
-		Name: CookieName, Value: token, Path: "/", Expires: expires,
+		Name: s.cookieName(CookieName), Value: token, Path: "/", Expires: expires,
 		HttpOnly: true, Secure: s.secureCookies(), SameSite: http.SameSiteLaxMode,
 	}
 }
 
 // ClearCookie expires the session cookie.
 func (s *Service) ClearCookie() *http.Cookie {
-	return &http.Cookie{Name: CookieName, Value: "", Path: "/", MaxAge: -1, HttpOnly: true,
+	return &http.Cookie{Name: s.cookieName(CookieName), Value: "", Path: "/", MaxAge: -1, HttpOnly: true,
 		Secure: s.secureCookies(), SameSite: http.SameSiteLaxMode}
 }
 

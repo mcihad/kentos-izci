@@ -88,8 +88,8 @@ type AuthServiceClient interface {
 	// limited per account and per client address
 	// (ERROR_REASON_TOO_MANY_ATTEMPTS). For accounts with two-factor
 	// authentication the response has two_factor_required instead of a
-	// session, and sets the "izci_2fa" cookie (HttpOnly, 10 minutes) that
-	// VerifyTwoFactor needs.
+	// session, and sets the "izci_2fa" cookie ("__Host-izci_2fa" on https;
+	// HttpOnly, 10 minutes) that VerifyTwoFactor needs.
 	Login(context.Context, *connect.Request[v1.LoginRequest]) (*connect.Response[v1.LoginResponse], error)
 	// VerifyTwoFactor completes a sign-in waiting for its second step (the
 	// "izci_2fa" cookie) with a code from the authenticator app or a recovery
@@ -335,8 +335,8 @@ type AuthServiceHandler interface {
 	// limited per account and per client address
 	// (ERROR_REASON_TOO_MANY_ATTEMPTS). For accounts with two-factor
 	// authentication the response has two_factor_required instead of a
-	// session, and sets the "izci_2fa" cookie (HttpOnly, 10 minutes) that
-	// VerifyTwoFactor needs.
+	// session, and sets the "izci_2fa" cookie ("__Host-izci_2fa" on https;
+	// HttpOnly, 10 minutes) that VerifyTwoFactor needs.
 	Login(context.Context, *connect.Request[v1.LoginRequest]) (*connect.Response[v1.LoginResponse], error)
 	// VerifyTwoFactor completes a sign-in waiting for its second step (the
 	// "izci_2fa" cookie) with a code from the authenticator app or a recovery

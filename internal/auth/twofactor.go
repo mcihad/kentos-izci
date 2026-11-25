@@ -14,7 +14,8 @@ import (
 )
 
 // ChallengeCookie carries the token of a sign-in waiting for its second
-// step (HttpOnly, like the session cookie).
+// step (HttpOnly, and with the __Host- prefix on https, like the session
+// cookie).
 const ChallengeCookie = "izci_2fa"
 
 const (
@@ -220,14 +221,14 @@ func (s *Service) BeginChallenge(ctx context.Context, userID uuid.UUID) (*http.C
 		return nil, err
 	}
 	return &http.Cookie{
-		Name: ChallengeCookie, Value: token, Path: "/", MaxAge: int(challengeTTL.Seconds()),
+		Name: s.cookieName(ChallengeCookie), Value: token, Path: "/", MaxAge: int(challengeTTL.Seconds()),
 		HttpOnly: true, Secure: s.secureCookies(), SameSite: http.SameSiteLaxMode,
 	}, nil
 }
 
 // ClearChallengeCookie expires the challenge cookie.
 func (s *Service) ClearChallengeCookie() *http.Cookie {
-	return &http.Cookie{Name: ChallengeCookie, Value: "", Path: "/", MaxAge: -1, HttpOnly: true,
+	return &http.Cookie{Name: s.cookieName(ChallengeCookie), Value: "", Path: "/", MaxAge: -1, HttpOnly: true,
 		Secure: s.secureCookies(), SameSite: http.SameSiteLaxMode}
 }
 
@@ -238,7 +239,7 @@ func (s *Service) CompleteChallenge(ctx context.Context, h http.Header, code str
 	token := ""
 	if cookies, err := http.ParseCookie(h.Get("Cookie")); err == nil {
 		for _, c := range cookies {
-			if c.Name == ChallengeCookie {
+			if c.Name == s.cookieName(ChallengeCookie) {
 				token = c.Value
 			}
 		}

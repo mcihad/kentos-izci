@@ -75,7 +75,7 @@ Açtığı anda yönetici hakları geri gelir. Komut satırı (`izci user …`, 
 
 Kendi istemcinizi yazıyorsanız:
 
-1. `AuthService.Login` iki adımlı doğrulaması açık hesaplarda oturum yerine `two_factor_required: true` döner ve 10 dakikalık `izci_2fa` çerezini (HttpOnly) koyar.
+1. `AuthService.Login` iki adımlı doğrulaması açık hesaplarda oturum yerine `two_factor_required: true` döner ve 10 dakikalık `izci_2fa` çerezini (HttpOnly; https'de `__Host-izci_2fa`) koyar.
 2. `AuthService.VerifyTwoFactor` aynı çerezle ve `code` alanıyla (6 hane ya da kurtarma kodu) çağrılır; başarıda oturum çerezi konur ve oturum döner.
 
 Hatalı kod `ERROR_REASON_INVALID_TWO_FACTOR_CODE`, süresi dolan giriş `ERROR_REASON_TWO_FACTOR_EXPIRED`, kilit `ERROR_REASON_TOO_MANY_ATTEMPTS` (`retry_after_seconds` ile) döner. Kurulum ve kapatma (`UserService.BeginTwoFactorSetup`, `EnableTwoFactor`, `DisableTwoFactor`, `RegenerateRecoveryCodes`) yalnız tarayıcı oturumuyla yapılır, kişisel erişim anahtarıyla yapılamaz.
