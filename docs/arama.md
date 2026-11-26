@@ -96,9 +96,9 @@ Arama anlaşılamazsa sonuç yerine hatanın konumu ve nedeni gösterilir. Örne
 
 ## Hata özeti
 
-Hata listesinde bir satıra tıklamak hatanın özetini sağdan açılan bir çekmecede gösterir: başlık, durum, çöz/yoksay/ata düğmeleri, son 24 saat ve 30 günün grafikleri, ilk ve son görülme, etkilenen müşteriler ve etiketler. Liste arkada kullanılabilir kalır; başka bir satıra tıklamak özeti o hataya geçirir, **Esc** kapatır. Çekmecenin kenarını sürükleyerek genişliği ayarlayabilirsiniz; tarayıcı bunu hatırlar. **Tam sayfayı aç** hatanın kendi sayfasına geçer. ⌘ ya da Ctrl ile tıklamak (veya orta tık) hatayı doğrudan yeni sekmede açar. Telefonda özet alttan açılır.
+Hata listesinde, panolardaki hata listesi bileşenlerinde ve müşteri sayfasındaki hata listesinde bir satıra tıklamak hatanın özetini sağdan açılan bir çekmecede gösterir: başlık, durum, çöz/yoksay/ata düğmeleri, son 24 saat ve 30 günün grafikleri, ilk ve son görülme, etkilenen müşteriler ve etiketler. Sayfa arkada kullanılabilir kalır; başka bir satıra tıklamak özeti o hataya geçirir, **Esc** kapatır. Çekmecenin kenarını sürükleyerek genişliği ayarlayabilirsiniz; tarayıcı bunu hatırlar. **Tam sayfayı aç** hatanın kendi sayfasına geçer. ⌘ ya da Ctrl ile tıklamak (veya orta tık) hatayı doğrudan yeni sekmede açar. Telefonda özet alttan açılır.
 
-Klavyeyle: **J** / **K** listede gezinir, **Enter** odaktaki hatanın özetini açar (özet açıkken J ve K özeti de değiştirir), **O** hatayı tam sayfada açar.
+Hata listesinde klavyeyle: **J** / **K** listede gezinir, **Enter** odaktaki hatanın özetini açar (özet açıkken J ve K özeti de değiştirir), **O** hatayı tam sayfada açar.
 
 ## Kayıtlı aramalar
 

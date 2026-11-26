@@ -7,6 +7,7 @@ import { RelativeTime } from "@/components/common/relative-time";
 import type { IssueSummary } from "@/gen/izci/api/v1/issue_pb";
 import { formatCompact } from "@/lib/format";
 import { IssueTitle, LevelBlaze, PriorityBadge, SubstatusBadge, UnhandledBadge } from "./badges";
+import { useIssuePreview } from "./issue-preview";
 
 /** Whether first and last sighting are far enough apart to show both. */
 function ageDiffers(issue: IssueSummary): boolean {
@@ -36,9 +37,12 @@ export function IssueRow({
   /**
    * Opens a summary instead of navigating on a plain click; modified clicks
    * (⌘/Ctrl, Shift, middle button) still open the issue page as a link.
+   * Inside an IssuePreviewHost rows do this without the prop.
    */
   onPreview?: () => void;
 }) {
+  const host = useIssuePreview();
+  const preview = onPreview ?? (host ? () => host(issue.shortId) : undefined);
   const events = formatCompact(issue.periodCount || issue.timesSeen);
   const users = formatCompact(issue.usersCount);
   return (
@@ -67,9 +71,9 @@ export function IssueRow({
           to="/o/$org/issues/$issueId"
           params={{ org, issueId: issue.shortId }}
           onClick={(e) => {
-            if (!onPreview || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+            if (!preview || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
             e.preventDefault();
-            onPreview();
+            preview();
           }}
           className="line-clamp-2 break-words text-base leading-snug after:absolute after:inset-0 focus-visible:outline-none sm:line-clamp-1"
         >

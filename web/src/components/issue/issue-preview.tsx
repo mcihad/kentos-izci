@@ -14,7 +14,7 @@ import { Button } from "@kentos/components/ui/button";
 import { Skeleton } from "@kentos/components/ui/skeleton";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRightIcon } from "lucide-react";
-import { useRef } from "react";
+import { createContext, type ReactNode, useContext, useMemo, useRef, useState } from "react";
 import { ErrorState } from "@/components/common/states";
 import { StatsPeriod } from "@/gen/izci/api/v1/common_pb";
 import { IssueService } from "@/gen/izci/api/v1/issue_pb";
@@ -76,6 +76,28 @@ export function IssuePreview({
         {shown ? <PreviewBody key={shown} shortId={shown} writable={writable} /> : null}
       </DrawerContent>
     </Drawer>
+  );
+}
+
+const PreviewContext = createContext<((shortId: string) => void) | null>(null);
+
+/** Opens an issue's summary drawer from inside an IssuePreviewHost, or null outside one. */
+export function useIssuePreview() {
+  return useContext(PreviewContext);
+}
+
+/**
+ * Gives every IssueRow below it the summary drawer: a plain click on a row
+ * opens the issue's summary here instead of leaving the page.
+ */
+export function IssuePreviewHost({ writable, children }: { writable: boolean; children: ReactNode }) {
+  const [shortId, setShortId] = useState<string | null>(null);
+  const open = useMemo(() => (id: string) => setShortId(id), []);
+  return (
+    <PreviewContext.Provider value={open}>
+      {children}
+      <IssuePreview shortId={shortId} onClose={() => setShortId(null)} writable={writable} />
+    </PreviewContext.Provider>
   );
 }
 

@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { gutter, Page, useDocumentTitle } from "@/components/app/page";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { AddWidgetDialog, Widget } from "@/components/dashboard/widgets";
+import { IssuePreviewHost } from "@/components/issue/issue-preview";
 import {
   type Dashboard,
   DashboardSchema,
@@ -77,100 +78,102 @@ function DashboardPage() {
     });
 
   return (
-    <Page
-      icon={LayoutDashboardIcon}
-      title={d.name}
-      breadcrumb={
-        <PageBreadcrumb>
-          <Link to="/o/$org/dashboards" params={{ org: org.slug }}>
-            Panolar
-          </Link>
-          <span>{d.name}</span>
-        </PageBreadcrumb>
-      }
-      description={
-        d.shared ? (
-          <span className="inline-flex items-center gap-1.5">
-            <UsersIcon className="size-3.5" />
-            Ortak pano, {d.owner?.name || d.owner?.email}
-          </span>
-        ) : (
-          "Kişisel pano"
-        )
-      }
-      actions={
-        d.editable ? (
-          <>
-            {canWrite(org.role) ? (
+    <IssuePreviewHost writable={canWrite(org.role)}>
+      <Page
+        icon={LayoutDashboardIcon}
+        title={d.name}
+        breadcrumb={
+          <PageBreadcrumb>
+            <Link to="/o/$org/dashboards" params={{ org: org.slug }}>
+              Panolar
+            </Link>
+            <span>{d.name}</span>
+          </PageBreadcrumb>
+        }
+        description={
+          d.shared ? (
+            <span className="inline-flex items-center gap-1.5">
+              <UsersIcon className="size-3.5" />
+              Ortak pano, {d.owner?.name || d.owner?.email}
+            </span>
+          ) : (
+            "Kişisel pano"
+          )
+        }
+        actions={
+          d.editable ? (
+            <>
+              {canWrite(org.role) ? (
+                <PageAction
+                  icon={Share2Icon}
+                  label={d.shared ? "Paylaşmayı bırak" : "Paylaş"}
+                  description={d.shared ? "Pano yalnızca sizin olur" : "Organizasyondaki herkes görebilir"}
+                  disabled={save.isPending}
+                  onClick={() => update((next) => (next.shared = !next.shared))}
+                />
+              ) : null}
+              <PageActionMenu icon={EllipsisIcon} label="Diğer işlemler" hideLabel>
+                <PageAction
+                  icon={Trash2Icon}
+                  label="Panoyu sil"
+                  variant="destructive"
+                  disabled={remove.isPending}
+                  onClick={() =>
+                    void dialogs.confirm({
+                      tone: "danger",
+                      title: `${d.name} panosu silinsin mi?`,
+                      description: "Pano ve bileşenleri silinir; kayıtlı aramalar kalır.",
+                      confirmLabel: "Panoyu sil",
+                      pendingLabel: "Siliniyor…",
+                      // The dialog shows the failure; no toast on top of it.
+                      onConfirm: () =>
+                        remove.mutateAsync({ id: d.id }).catch((err) => {
+                          throw new Error(errorMessage(err));
+                        }),
+                    })
+                  }
+                />
+              </PageActionMenu>
               <PageAction
-                icon={Share2Icon}
-                label={d.shared ? "Paylaşmayı bırak" : "Paylaş"}
-                description={d.shared ? "Pano yalnızca sizin olur" : "Organizasyondaki herkes görebilir"}
-                disabled={save.isPending}
-                onClick={() => update((next) => (next.shared = !next.shared))}
+                icon={PlusIcon}
+                label="Bileşen ekle"
+                description="Grafik ya da hata listesi"
+                variant="default"
+                disabled={d.widgets.length >= 24}
+                onClick={() => setAdding(true)}
               />
-            ) : null}
-            <PageActionMenu icon={EllipsisIcon} label="Diğer işlemler" hideLabel>
-              <PageAction
-                icon={Trash2Icon}
-                label="Panoyu sil"
-                variant="destructive"
-                disabled={remove.isPending}
-                onClick={() =>
-                  void dialogs.confirm({
-                    tone: "danger",
-                    title: `${d.name} panosu silinsin mi?`,
-                    description: "Pano ve bileşenleri silinir; kayıtlı aramalar kalır.",
-                    confirmLabel: "Panoyu sil",
-                    pendingLabel: "Siliniyor…",
-                    // The dialog shows the failure; no toast on top of it.
-                    onConfirm: () =>
-                      remove.mutateAsync({ id: d.id }).catch((err) => {
-                        throw new Error(errorMessage(err));
-                      }),
-                  })
-                }
-              />
-            </PageActionMenu>
-            <PageAction
-              icon={PlusIcon}
-              label="Bileşen ekle"
-              description="Grafik ya da hata listesi"
-              variant="default"
-              disabled={d.widgets.length >= 24}
-              onClick={() => setAdding(true)}
-            />
-          </>
-        ) : null
-      }
-    >
-      <div className={gutter}>
-        {d.widgets.length === 0 ? (
-          <EmptyState title="Bu panoda bileşen yok" className="card py-14">
-            {d.editable
-              ? "Bileşen ekle ile bir aramayı grafik ya da hata listesi olarak ekleyin."
-              : "Panonun sahibi henüz bileşen eklemedi."}
-          </EmptyState>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {d.widgets.map((w, i) => (
-              <Widget
-                // biome-ignore lint/suspicious/noArrayIndexKey: widgets have no ids; their order is their identity.
-                key={i}
-                widget={w}
-                editable={d.editable}
-                onMove={(by) => move(i, by)}
-                onRemove={() => update((next) => next.widgets.splice(i, 1))}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-      <AddWidgetDialog
-        open={adding}
-        onOpenChange={setAdding}
-        onAdd={(w) => update((next) => next.widgets.push(w))}
-      />
-    </Page>
+            </>
+          ) : null
+        }
+      >
+        <div className={gutter}>
+          {d.widgets.length === 0 ? (
+            <EmptyState title="Bu panoda bileşen yok" className="card py-14">
+              {d.editable
+                ? "Bileşen ekle ile bir aramayı grafik ya da hata listesi olarak ekleyin."
+                : "Panonun sahibi henüz bileşen eklemedi."}
+            </EmptyState>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {d.widgets.map((w, i) => (
+                <Widget
+                  // biome-ignore lint/suspicious/noArrayIndexKey: widgets have no ids; their order is their identity.
+                  key={i}
+                  widget={w}
+                  editable={d.editable}
+                  onMove={(by) => move(i, by)}
+                  onRemove={() => update((next) => next.widgets.splice(i, 1))}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+        <AddWidgetDialog
+          open={adding}
+          onOpenChange={setAdding}
+          onAdd={(w) => update((next) => next.widgets.push(w))}
+        />
+      </Page>
+    </IssuePreviewHost>
   );
 }

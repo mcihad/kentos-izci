@@ -27,6 +27,7 @@ import { Sparkline } from "@/components/charts/sparkline";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { HealthLabel } from "@/components/customer/health";
+import { IssuePreviewHost } from "@/components/issue/issue-preview";
 import { IssueRow } from "@/components/issue/issue-row";
 import { type Customer, CustomerService } from "@/gen/izci/api/v1/customer_pb";
 import { errorMessage, isNotFound } from "@/lib/errors";
@@ -85,131 +86,133 @@ function CustomerPage() {
   const s = d.summary;
 
   return (
-    <Page
-      icon={Building2Icon}
-      title={c.name || c.key}
-      breadcrumb={
-        <PageBreadcrumb>
-          <Link to="/o/$org/customers" params={{ org: org.slug }}>
-            Müşteriler
-          </Link>
-          <span className="font-mono">{c.key}</span>
-        </PageBreadcrumb>
-      }
-      description={
-        <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <HealthLabel health={s.health} className="text-foreground" />
-          <span>
-            İlk olay <RelativeTime value={c.firstSeen} />
+    <IssuePreviewHost writable={canWrite(org.role)}>
+      <Page
+        icon={Building2Icon}
+        title={c.name || c.key}
+        breadcrumb={
+          <PageBreadcrumb>
+            <Link to="/o/$org/customers" params={{ org: org.slug }}>
+              Müşteriler
+            </Link>
+            <span className="font-mono">{c.key}</span>
+          </PageBreadcrumb>
+        }
+        description={
+          <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <HealthLabel health={s.health} className="text-foreground" />
+            <span>
+              İlk olay <RelativeTime value={c.firstSeen} />
+            </span>
+            <span>
+              Son olay <RelativeTime value={c.lastSeen} />
+            </span>
           </span>
-          <span>
-            Son olay <RelativeTime value={c.lastSeen} />
-          </span>
-        </span>
-      }
-      filters={
-        <PeriodSelect
-          value={period.key}
-          onChange={(k) => void navigate({ search: { period: k === "7d" ? undefined : k }, replace: true })}
-        />
-      }
-      actions={
-        <>
-          {canWrite(org.role) ? (
-            <PageAction icon={PencilIcon} label="Düzenle" onClick={() => setEditing(true)} />
-          ) : null}
-          <PageAction icon={BugIcon} label="Hatalarını gör" asChild>
-            <Link
-              to="/o/$org/issues"
-              params={{ org: org.slug }}
-              search={{ query: `is:unresolved customer:${c.key}` }}
-            />
-          </PageAction>
-          <PageAction
-            icon={FileTextIcon}
-            label="Sağlık raporu"
-            description="Yazdırılabilir rapor"
-            variant="default"
-            asChild
-          >
-            <Link
-              to="/o/$org/customer-report/$key"
-              params={{ org: org.slug, key: c.key }}
-              search={{ period: search.period ?? "30d" }}
-            />
-          </PageAction>
-        </>
-      }
-    >
-      <div className={cn("space-y-9 pt-2", gutter)}>
-        <StatStrip
-          stats={[
-            { label: "Açık hata", value: formatNumber(s.unresolvedIssues) },
-            { label: "Yeni hata", value: formatNumber(s.newIssues), note: periodText },
-            { label: "Olay", value: formatCompact(s.periodEvents), note: periodText },
-            { label: "Etkilenen proje", value: formatNumber(s.affectedProjects) },
-          ]}
-        />
-        <Section title="Olaylar">
-          <StackedBars
-            height={170}
-            step={seriesStep(s.series)}
-            layers={[
-              { key: "events", label: "Olay", color: "var(--primary)", points: seriesPoints(s.series) },
+        }
+        filters={
+          <PeriodSelect
+            value={period.key}
+            onChange={(k) => void navigate({ search: { period: k === "7d" ? undefined : k }, replace: true })}
+          />
+        }
+        actions={
+          <>
+            {canWrite(org.role) ? (
+              <PageAction icon={PencilIcon} label="Düzenle" onClick={() => setEditing(true)} />
+            ) : null}
+            <PageAction icon={BugIcon} label="Hatalarını gör" asChild>
+              <Link
+                to="/o/$org/issues"
+                params={{ org: org.slug }}
+                search={{ query: `is:unresolved customer:${c.key}` }}
+              />
+            </PageAction>
+            <PageAction
+              icon={FileTextIcon}
+              label="Sağlık raporu"
+              description="Yazdırılabilir rapor"
+              variant="default"
+              asChild
+            >
+              <Link
+                to="/o/$org/customer-report/$key"
+                params={{ org: org.slug, key: c.key }}
+                search={{ period: search.period ?? "30d" }}
+              />
+            </PageAction>
+          </>
+        }
+      >
+        <div className={cn("space-y-9 pt-2", gutter)}>
+          <StatStrip
+            stats={[
+              { label: "Açık hata", value: formatNumber(s.unresolvedIssues) },
+              { label: "Yeni hata", value: formatNumber(s.newIssues), note: periodText },
+              { label: "Olay", value: formatCompact(s.periodEvents), note: periodText },
+              { label: "Etkilenen proje", value: formatNumber(s.affectedProjects) },
             ]}
           />
-        </Section>
-        <div className="grid grid-cols-1 gap-9 xl:grid-cols-[minmax(0,1fr)_22rem]">
-          <Section title="Açık hatalar" description="Bu müşteriden en çok olay gelen çözülmemiş hatalar">
-            {d.topIssues.length === 0 ? (
-              <p className="card px-4 py-8 text-center text-sm text-muted-foreground">Açık hata yok.</p>
-            ) : (
-              <div className="overflow-hidden card [&>div:last-child]:border-b-0">
-                {d.topIssues.map((i) => (
-                  <IssueRow key={i.id} issue={i} org={org.slug} compact showUsers={false} />
-                ))}
-              </div>
-            )}
+          <Section title="Olaylar">
+            <StackedBars
+              height={170}
+              step={seriesStep(s.series)}
+              layers={[
+                { key: "events", label: "Olay", color: "var(--primary)", points: seriesPoints(s.series) },
+              ]}
+            />
           </Section>
-          <div className="space-y-9">
-            <Section title="Projelere göre">
-              <ul className="divide-y card">
-                {d.projects.map((p) => (
-                  <li key={p.project?.id} className="flex items-center gap-3 px-3 py-2.5 text-sm">
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate font-medium">{p.project?.name}</span>
-                      <span className="text-xs text-muted-foreground tabular">
-                        {formatNumber(p.unresolvedIssues)} açık hata
-                      </span>
-                    </span>
-                    <Sparkline series={p.series} className="h-5 w-20" />
-                    <span className="w-12 text-right tabular">{formatCompact(p.periodEvents)}</span>
-                  </li>
-                ))}
-              </ul>
-            </Section>
-            {c.notes ? (
-              <Section title="Notlar">
-                <p className="whitespace-pre-wrap card px-4 py-3 text-sm leading-relaxed">{c.notes}</p>
-              </Section>
-            ) : null}
-            {Object.keys(c.attributes).length > 0 ? (
-              <Section title="Uygulamanın bildirdiği bilgiler">
-                <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 gap-y-1.5 text-sm">
-                  {Object.entries(c.attributes).map(([k, v]) => (
-                    <div key={k} className="contents">
-                      <dt className="text-muted-foreground">{k}</dt>
-                      <dd className="wrap-anywhere">{v}</dd>
-                    </div>
+          <div className="grid grid-cols-1 gap-9 xl:grid-cols-[minmax(0,1fr)_22rem]">
+            <Section title="Açık hatalar" description="Bu müşteriden en çok olay gelen çözülmemiş hatalar">
+              {d.topIssues.length === 0 ? (
+                <p className="card px-4 py-8 text-center text-sm text-muted-foreground">Açık hata yok.</p>
+              ) : (
+                <div className="overflow-hidden card [&>div:last-child]:border-b-0">
+                  {d.topIssues.map((i) => (
+                    <IssueRow key={i.id} issue={i} org={org.slug} compact showUsers={false} />
                   ))}
-                </dl>
+                </div>
+              )}
+            </Section>
+            <div className="space-y-9">
+              <Section title="Projelere göre">
+                <ul className="divide-y card">
+                  {d.projects.map((p) => (
+                    <li key={p.project?.id} className="flex items-center gap-3 px-3 py-2.5 text-sm">
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-medium">{p.project?.name}</span>
+                        <span className="text-xs text-muted-foreground tabular">
+                          {formatNumber(p.unresolvedIssues)} açık hata
+                        </span>
+                      </span>
+                      <Sparkline series={p.series} className="h-5 w-20" />
+                      <span className="w-12 text-right tabular">{formatCompact(p.periodEvents)}</span>
+                    </li>
+                  ))}
+                </ul>
               </Section>
-            ) : null}
+              {c.notes ? (
+                <Section title="Notlar">
+                  <p className="whitespace-pre-wrap card px-4 py-3 text-sm leading-relaxed">{c.notes}</p>
+                </Section>
+              ) : null}
+              {Object.keys(c.attributes).length > 0 ? (
+                <Section title="Uygulamanın bildirdiği bilgiler">
+                  <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 gap-y-1.5 text-sm">
+                    {Object.entries(c.attributes).map(([k, v]) => (
+                      <div key={k} className="contents">
+                        <dt className="text-muted-foreground">{k}</dt>
+                        <dd className="wrap-anywhere">{v}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </Section>
+              ) : null}
+            </div>
           </div>
         </div>
-      </div>
-      <EditCustomer customer={c} open={editing} onOpenChange={setEditing} />
-    </Page>
+        <EditCustomer customer={c} open={editing} onOpenChange={setEditing} />
+      </Page>
+    </IssuePreviewHost>
   );
 }
 
