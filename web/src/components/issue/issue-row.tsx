@@ -24,6 +24,7 @@ export function IssueRow({
   focused,
   compact = false,
   showUsers = true,
+  onPreview,
 }: {
   issue: IssueSummary;
   org: string;
@@ -32,6 +33,11 @@ export function IssueRow({
   focused?: boolean;
   compact?: boolean;
   showUsers?: boolean;
+  /**
+   * Opens a summary instead of navigating on a plain click; modified clicks
+   * (⌘/Ctrl, Shift, middle button) still open the issue page as a link.
+   */
+  onPreview?: () => void;
 }) {
   const events = formatCompact(issue.periodCount || issue.timesSeen);
   const users = formatCompact(issue.usersCount);
@@ -60,6 +66,11 @@ export function IssueRow({
         <Link
           to="/o/$org/issues/$issueId"
           params={{ org, issueId: issue.shortId }}
+          onClick={(e) => {
+            if (!onPreview || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+            e.preventDefault();
+            onPreview();
+          }}
           className="line-clamp-2 break-words text-base leading-snug after:absolute after:inset-0 focus-visible:outline-none sm:line-clamp-1"
         >
           <IssueTitle type={issue.type} value={issue.value} title={issue.title} />

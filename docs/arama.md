@@ -94,6 +94,12 @@ Yapay zekâ analizi bekleyen ya da tamamlanmış açık hatalar.
 
 Arama anlaşılamazsa sonuç yerine hatanın konumu ve nedeni gösterilir. Örneğin `level:kritik` için: "unknown level" (konum 0, `kritik`). API bu durumda `ERROR_REASON_INVALID_QUERY` ile `position` ve `token` bilgisini döner.
 
+## Hata özeti
+
+Hata listesinde bir satıra tıklamak hatanın özetini sağdan açılan bir çekmecede gösterir: başlık, durum, çöz/yoksay/ata düğmeleri, son 24 saat ve 30 günün grafikleri, ilk ve son görülme, etkilenen müşteriler ve etiketler. Liste arkada kullanılabilir kalır; başka bir satıra tıklamak özeti o hataya geçirir, **Esc** kapatır. Çekmecenin kenarını sürükleyerek genişliği ayarlayabilirsiniz; tarayıcı bunu hatırlar. **Tam sayfayı aç** hatanın kendi sayfasına geçer. ⌘ ya da Ctrl ile tıklamak (veya orta tık) hatayı doğrudan yeni sekmede açar. Telefonda özet alttan açılır.
+
+Klavyeyle: **J** / **K** listede gezinir, **Enter** odaktaki hatanın özetini açar (özet açıkken J ve K özeti de değiştirir), **O** hatayı tam sayfada açar.
+
 ## Kayıtlı aramalar
 
 Hata listesindeki **Kayıtlı aramalar › Bu aramayı kaydet** arama ifadesini, seçili projeleri, sıralamayı ve dönemi bir adla saklar; aynı menüden seçilince hepsi geri gelir. Aramalar kişiseldir; üyeler (`member` ve üstü) **Organizasyonla paylaş** ile bütün organizasyona açabilir. Paylaşılan bir aramayı yalnız sahibi ve yöneticiler değiştirip silebilir. Kaydederken arama denetlenir; anlaşılmayan ifade kaydedilmez.

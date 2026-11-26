@@ -20,6 +20,7 @@ import { PeriodSelect, ProjectFilter, parsePeriod } from "@/components/app/filte
 import { gutter, Page } from "@/components/app/page";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { TabStrip, tabActiveOptions } from "@/components/common/tab-nav";
+import { IssuePreview } from "@/components/issue/issue-preview";
 import { IssueRow } from "@/components/issue/issue-row";
 import { MergeDialog } from "@/components/issue/merge";
 import { ExportCsvButton, SavedSearchMenu } from "@/components/issue/saved-searches";
@@ -96,6 +97,8 @@ function IssuesPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [merging, setMerging] = useState(false);
   const [focus, setFocus] = useState(-1);
+  // Short id of the issue whose summary is open in the drawer.
+  const [preview, setPreview] = useState<string | null>(null);
   // A new result set clears selection and keyboard focus.
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset when the filters change
   useEffect(() => {
@@ -129,16 +132,24 @@ function IssuesPage() {
     const i = Math.max(0, Math.min(rows.length - 1, to));
     setFocus(i);
     virtualizer.scrollToIndex(i, { align: "auto" });
+    // An open summary follows the focus, for triage with J and K.
+    const next = rows[i];
+    if (next) setPreview((open) => (open ? next.shortId : open));
   };
   const openFocused = () => {
     const f = rows[focus];
     if (f) void navigate({ to: "/o/$org/issues/$issueId", params: { org: org.slug, issueId: f.shortId } });
   };
+  const previewFocused = () => {
+    const f = rows[focus];
+    if (f) setPreview(f.shortId);
+  };
   useHotkeys({
     "/": () => searchRef.current?.focus(),
     j: () => moveFocus(focus + 1),
     k: () => moveFocus(focus - 1),
-    Enter: openFocused,
+    Enter: previewFocused,
+    o: openFocused,
     x: () => {
       const f = rows[focus];
       if (!f) return;
@@ -270,6 +281,10 @@ function IssuesPage() {
                     <IssueRow
                       issue={issue}
                       org={org.slug}
+                      onPreview={() => {
+                        setFocus(v.index);
+                        setPreview(issue.shortId);
+                      }}
                       focused={focus === v.index}
                       selected={selected.has(issue.id)}
                       onSelect={
@@ -352,6 +367,7 @@ function IssuesPage() {
           onMerged={() => setSelected(new Set())}
         />
       ) : null}
+      <IssuePreview shortId={preview} onClose={() => setPreview(null)} writable={writable} />
     </Page>
   );
 }
