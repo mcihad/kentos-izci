@@ -220,7 +220,8 @@ A change is done when:
   `showFooter`. The issue page keeps its own header (level strip, triage bar)
   inside a bare `PageWrapper`.
 - **Dialogs and toasts:** results of actions are toasts (`toast` from
-  `sonner`); questions use the kit's dialogs: `dialogs.confirm/prompt/alert`
+  `sonner`, shown with the tinted tone: success, error, warning and info on
+  their status colours); questions use the kit's dialogs: `dialogs.confirm/prompt/alert`
   from `@kentos/components/common/dialog-host` in handlers (`<DialogHost />`
   is mounted in `routes/__root.tsx`) or `ConfirmDialog`, `InputDialog`,
   `ProgressDialog`… from `common/dialogs`. Pass `onConfirm` a promise whose

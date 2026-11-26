@@ -17,7 +17,7 @@ function Root() {
     <TooltipProvider delayDuration={300}>
       <Outlet />
       <ReauthHost />
-      <Toaster position="bottom-right" />
+      <Toaster position="bottom-right" tone="tinted" />
       <DialogHost />
     </TooltipProvider>
   );
