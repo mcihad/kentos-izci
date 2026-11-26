@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PeriodSelect, ProjectFilter, parsePeriod } from "@/components/app/filters";
-import { gutter, PageHeader } from "@/components/app/page";
+import { gutter, Page } from "@/components/app/page";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { TabStrip, tabActiveOptions, tabClass } from "@/components/common/tab-nav";
 import { IssueRow } from "@/components/issue/issue-row";
@@ -158,22 +158,22 @@ function IssuesPage() {
   const invalidQuery = issues.error && errorReason(issues.error) === ErrorReason.INVALID_QUERY;
 
   return (
-    <div className="pb-24">
-      <PageHeader
-        title="Hatalar"
-        description={
-          issues.isPending ? (
-            "Yükleniyor…"
-          ) : (
-            <span className="tabular">
-              {formatNumber(total)}
-              {total >= 10000 ? "+" : ""} hata,{" "}
-              {period.value ? `${periodTitle(period.key)} içinde görülen` : ""}
-            </span>
-          )
-        }
-      />
-
+    <Page
+      icon={BugIcon}
+      bodyClassName="pb-24"
+      title="Hatalar"
+      description={
+        issues.isPending ? (
+          "Yükleniyor…"
+        ) : (
+          <span className="tabular">
+            {formatNumber(total)}
+            {total >= 10000 ? "+" : ""} hata,{" "}
+            {period.value ? `${periodTitle(period.key)} içinde görülen` : ""}
+          </span>
+        )
+      }
+    >
       <div className={gutter}>
         {/* The design system's list card: views, search and filters, then the rows.
             On phones it runs edge to edge to give the rows the full width. */}
@@ -354,7 +354,7 @@ function IssuesPage() {
           onMerged={() => setSelected(new Set())}
         />
       ) : null}
-    </div>
+    </Page>
   );
 }
 

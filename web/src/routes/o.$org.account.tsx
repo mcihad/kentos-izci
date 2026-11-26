@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { UserIcon } from "lucide-react";
 import { NotificationPreferences } from "@/components/account/notifications";
 import { Profile } from "@/components/account/profile";
 import { Sessions } from "@/components/account/sessions";
 import { Telegram } from "@/components/account/telegram";
 import { Tokens } from "@/components/account/tokens";
 import { TwoFactor } from "@/components/account/two-factor";
-import { gutter, PageHeader } from "@/components/app/page";
+import { gutter, Page } from "@/components/app/page";
 import { TabbedCard, TabNav } from "@/components/common/tab-nav";
 import { useSession } from "@/lib/session";
 
@@ -33,8 +34,7 @@ function AccountPage() {
   const tab = search.tab ?? "profile";
   const user = useSession()?.user;
   return (
-    <div className="pb-12">
-      <PageHeader title="Hesabım" description={user?.email} />
+    <Page icon={UserIcon} title="Hesabım" description={user?.email}>
       <div className={gutter}>
         <TabbedCard
           tabs={
@@ -55,6 +55,6 @@ function AccountPage() {
           {tab === "telegram" ? <Telegram /> : null}
         </TabbedCard>
       </div>
-    </div>
+    </Page>
   );
 }

@@ -1,6 +1,7 @@
 import { createConnectQueryKey, useInfiniteQuery, useMutation, useQuery } from "@connectrpc/connect-query";
 import { StatStrip } from "@kentos/components/common/stat-strip";
 import { tdClass, thClass, theadClass, trClass } from "@kentos/components/common/table";
+import { PageAction, PageActionMenu, PageBreadcrumb } from "@kentos/components/layout/page";
 import { cn } from "@kentos/components/lib/utils";
 import { Button } from "@kentos/components/ui/button";
 import {
@@ -14,10 +15,10 @@ import {
 import { Skeleton } from "@kentos/components/ui/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ChevronRightIcon, PauseIcon, PencilIcon, PlayIcon, Trash2Icon } from "lucide-react";
+import { EllipsisIcon, PauseIcon, PencilIcon, PlayIcon, TimerIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { gutter, Section, useDocumentTitle } from "@/components/app/page";
+import { gutter, Page, Section, useDocumentTitle } from "@/components/app/page";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { MonitorDialog } from "@/components/monitor/monitor-dialog";
@@ -99,68 +100,60 @@ function MonitorView({ monitor: m, orgSlug }: { monitor: Monitor; orgSlug: strin
   const cron = crontabOf(m);
 
   return (
-    <div className="pb-12">
-      <header className={cn("pt-4 pb-4 sm:pt-5 sm:pb-5", gutter)}>
-        <nav className="flex items-center gap-1.5 text-muted-foreground text-sm" aria-label="Konum">
-          <Link to="/o/$org/monitors" params={{ org: orgSlug }} className="-my-2 py-2 hover:text-foreground">
+    <Page
+      icon={TimerIcon}
+      title={m.name}
+      meta={<MonitorBadge monitor={m} />}
+      breadcrumb={
+        <PageBreadcrumb>
+          <Link to="/o/$org/monitors" params={{ org: orgSlug }}>
             Zamanlanmış görevler
           </Link>
-          <ChevronRightIcon className="size-3.5" />
-          <span className="font-mono text-foreground">{m.slug}</span>
-        </nav>
-        <div className="mt-2 flex flex-wrap items-end gap-x-6 gap-y-3">
-          <div className="min-w-0 flex-[1_1_18rem]">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-              <h1 className="min-w-0 font-semibold text-xl leading-tight sm:text-2xl">{m.name}</h1>
-              <MonitorBadge monitor={m} />
-            </div>
-            <p className="mt-1.5 text-md text-muted-foreground">
-              {describeSchedule(m.schedule)}
-              {cron && describeSchedule(m.schedule) !== cron ? (
-                <>
-                  {" "}
-                  (<span className="font-mono">{cron}</span>)
-                </>
-              ) : null}
-              , {m.timezone}. Proje:{" "}
-              <Link
-                to="/o/$org/projects/$slug"
-                params={{ org: orgSlug, slug: m.project?.slug ?? "" }}
-                className="text-link hover:underline"
-              >
-                {m.project?.name}
-              </Link>
-            </p>
-          </div>
-          {admin ? (
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={update.isPending}
-                onClick={() => update.mutate({ id: m.id, paused: !m.paused })}
-              >
-                {m.paused ? <PlayIcon /> : <PauseIcon />}
-                {m.paused ? "Sürdür" : "Duraklat"}
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
-                <PencilIcon />
-                Düzenle
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-destructive"
-                onClick={() => setDeleting(true)}
-              >
-                <Trash2Icon />
-                Sil
-              </Button>
-            </div>
+          <span className="font-mono">{m.slug}</span>
+        </PageBreadcrumb>
+      }
+      description={
+        <>
+          {describeSchedule(m.schedule)}
+          {cron && describeSchedule(m.schedule) !== cron ? (
+            <>
+              {" "}
+              (<span className="font-mono">{cron}</span>)
+            </>
           ) : null}
-        </div>
-      </header>
-
+          , {m.timezone}. Proje:{" "}
+          <Link
+            to="/o/$org/projects/$slug"
+            params={{ org: orgSlug, slug: m.project?.slug ?? "" }}
+            className="text-link hover:underline"
+          >
+            {m.project?.name}
+          </Link>
+        </>
+      }
+      actions={
+        admin ? (
+          <>
+            <PageAction
+              icon={m.paused ? PlayIcon : PauseIcon}
+              label={m.paused ? "Sürdür" : "Duraklat"}
+              description={m.paused ? "Kaçırılan çalışmalar yeniden uyarı üretir" : "Uyarılar durdurulur"}
+              disabled={update.isPending}
+              onClick={() => update.mutate({ id: m.id, paused: !m.paused })}
+            />
+            <PageAction icon={PencilIcon} label="Düzenle" onClick={() => setEditing(true)} />
+            <PageActionMenu icon={EllipsisIcon} label="Diğer işlemler" hideLabel>
+              <PageAction
+                icon={Trash2Icon}
+                label="İzleyiciyi sil"
+                variant="destructive"
+                onClick={() => setDeleting(true)}
+              />
+            </PageActionMenu>
+          </>
+        ) : null
+      }
+    >
       <div className={cn("space-y-4", gutter)}>
         <StatStrip
           stats={[
@@ -261,7 +254,7 @@ function MonitorView({ monitor: m, orgSlug }: { monitor: Monitor; orgSlug: strin
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </Page>
   );
 }
 

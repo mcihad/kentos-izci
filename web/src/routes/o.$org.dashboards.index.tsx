@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@connectrpc/connect-query";
 import { Field } from "@kentos/components/common/field";
+import { PageAction } from "@kentos/components/layout/page";
 import { Button } from "@kentos/components/ui/button";
 import { Checkbox } from "@kentos/components/ui/checkbox";
 import {
@@ -17,7 +18,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { LayoutDashboardIcon, PlusIcon, UsersIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { gutter, PageHeader } from "@/components/app/page";
+import { gutter, Page } from "@/components/app/page";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { ViewService } from "@/gen/izci/api/v1/view_pb";
@@ -32,17 +33,20 @@ function DashboardsPage() {
   const q = useQuery(ViewService.method.listDashboards, {});
   const [creating, setCreating] = useState(false);
   return (
-    <div className="pb-12">
-      <PageHeader
-        title="Panolar"
-        description="Kayıtlı aramaları grafik ve listelerle bir arada izleyin."
-        actions={
-          <Button size="sm" onClick={() => setCreating(true)}>
-            <PlusIcon className="size-4" />
-            Yeni pano
-          </Button>
-        }
-      />
+    <Page
+      icon={LayoutDashboardIcon}
+      title="Panolar"
+      description="Kayıtlı aramaları grafik ve listelerle bir arada izleyin."
+      actions={
+        <PageAction
+          icon={PlusIcon}
+          label="Yeni pano"
+          description="Kayıtlı aramaları bir araya getirin"
+          variant="default"
+          onClick={() => setCreating(true)}
+        />
+      }
+    >
       <div className={gutter}>
         {q.isPending ? (
           <Skeleton className="h-40 w-full" />
@@ -85,7 +89,7 @@ function DashboardsPage() {
         )}
       </div>
       <NewDashboardDialog open={creating} onOpenChange={setCreating} canShare={canWrite(org.role)} />
-    </div>
+    </Page>
   );
 }
 

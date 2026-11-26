@@ -8,7 +8,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { GitPullRequestDraftIcon, GitPullRequestIcon, SparklesIcon } from "lucide-react";
 import { changeStats, runDuration, runTrigger } from "@/components/ai/labels";
 import { RunStatusPill } from "@/components/ai/run-view";
-import { gutter, PageHeader } from "@/components/app/page";
+import { gutter, Page } from "@/components/app/page";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { type AiRun, AiRunStatus, AiService } from "@/gen/izci/api/v1/ai_pb";
@@ -58,52 +58,52 @@ function AiPage() {
   const st = status.data;
 
   return (
-    <div className="pb-12">
-      <PageHeader
-        title="Yapay zekâ"
-        description="Hataların yapay zekâ analizleri ve önerilen düzeltmeler"
-        actions={
-          <>
-            <Select
-              value={search.project ?? "all"}
-              onValueChange={(v) =>
-                void navigate({ search: (p) => ({ ...p, project: v === "all" ? undefined : v }) })
-              }
-            >
-              <SelectTrigger size="sm" className="w-44 text-sm" aria-label="Proje">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tüm projeler</SelectItem>
-                {projects.data?.projects.map((p) => (
-                  <SelectItem key={p.slug} value={p.slug}>
-                    {p.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={filter.id}
-              onValueChange={(v) =>
-                void navigate({
-                  search: (p) => ({ ...p, status: v === "all" ? undefined : (v as StatusId) }),
-                })
-              }
-            >
-              <SelectTrigger size="sm" className="w-40 text-sm" aria-label="Durum">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {statuses.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </>
-        }
-      />
+    <Page
+      icon={SparklesIcon}
+      title="Yapay zekâ"
+      description="Hataların yapay zekâ analizleri ve önerilen düzeltmeler"
+      filters={
+        <>
+          <Select
+            value={search.project ?? "all"}
+            onValueChange={(v) =>
+              void navigate({ search: (p) => ({ ...p, project: v === "all" ? undefined : v }) })
+            }
+          >
+            <SelectTrigger size="sm" className="w-44 text-sm" aria-label="Proje">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tüm projeler</SelectItem>
+              {projects.data?.projects.map((p) => (
+                <SelectItem key={p.slug} value={p.slug}>
+                  {p.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={filter.id}
+            onValueChange={(v) =>
+              void navigate({
+                search: (p) => ({ ...p, status: v === "all" ? undefined : (v as StatusId) }),
+              })
+            }
+          >
+            <SelectTrigger size="sm" className="w-40 text-sm" aria-label="Durum">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {statuses.map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {s.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </>
+      }
+    >
       <div className={cn("grid grid-cols-1 gap-4", gutter)}>
         {st ? (
           <StatStrip
@@ -173,7 +173,7 @@ function AiPage() {
           </div>
         )}
       </div>
-    </div>
+    </Page>
   );
 }
 

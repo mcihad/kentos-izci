@@ -1,9 +1,10 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { PageBreadcrumb } from "@kentos/components/layout/page";
 import { cn } from "@kentos/components/lib/utils";
 import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronRightIcon } from "lucide-react";
-import { gutter, useDocumentTitle } from "@/components/app/page";
+import { BoxesIcon } from "lucide-react";
+import { gutter, Page, useDocumentTitle } from "@/components/app/page";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { TabbedCard, TabStrip, tabActiveOptions, tabClass } from "@/components/common/tab-nav";
 import { ProjectAi } from "@/components/project/ai";
@@ -72,27 +73,24 @@ function ProjectPage() {
   const tab: Tab = search.tab ?? (project.stats?.lastEventAt ? "general" : "setup");
 
   return (
-    <div className="pb-12">
-      <header>
-        <div className={cn("pt-4 pb-4 sm:pt-5 sm:pb-5", gutter)}>
-          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground" aria-label="Konum">
-            <Link
-              to="/o/$org/projects"
-              params={{ org: org.slug }}
-              className="-my-2 py-2 hover:text-foreground"
-            >
-              Projeler
-            </Link>
-            <ChevronRightIcon className="size-3.5" />
-            <span className="font-mono text-foreground">{project.slug}</span>
-          </nav>
-          <h1 className="mt-2 font-semibold text-xl leading-tight sm:text-2xl">{project.name}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {platformLabel(project.platform)} projesi, Sentry numarası{" "}
-            <span className="font-mono">{String(project.publicId)}</span>
-          </p>
-        </div>
-      </header>
+    <Page
+      icon={BoxesIcon}
+      title={project.name}
+      breadcrumb={
+        <PageBreadcrumb>
+          <Link to="/o/$org/projects" params={{ org: org.slug }}>
+            Projeler
+          </Link>
+          <span className="font-mono">{project.slug}</span>
+        </PageBreadcrumb>
+      }
+      description={
+        <>
+          {platformLabel(project.platform)} projesi, Sentry numarası{" "}
+          <span className="font-mono">{String(project.publicId)}</span>
+        </>
+      }
+    >
       <div className={gutter} key={project.id}>
         <TabbedCard
           tabs={
@@ -125,6 +123,6 @@ function ProjectPage() {
           {tab === "ai" ? <ProjectAi project={project} /> : null}
         </TabbedCard>
       </div>
-    </div>
+    </Page>
   );
 }

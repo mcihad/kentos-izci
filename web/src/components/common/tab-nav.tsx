@@ -100,7 +100,7 @@ export function TabNav<T extends string>({
  */
 export function TabbedCard({ tabs, children }: { tabs: ReactNode; children: ReactNode }) {
   return (
-    <div className="card max-w-5xl max-sm:-mx-4 max-sm:rounded-none max-sm:border-x-0">
+    <div className="card max-sm:-mx-4 max-sm:rounded-none max-sm:border-x-0">
       {tabs}
       <div className="px-4 sm:px-(--card-p)">{children}</div>
     </div>

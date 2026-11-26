@@ -1,5 +1,7 @@
+import { PageWrapper } from "@kentos/components/layout/page";
 import { cn } from "@kentos/components/lib/utils";
 import type * as React from "react";
+import type { ComponentProps } from "react";
 import { useEffect } from "react";
 
 /** Sets the browser tab title while the page is shown. */
@@ -13,39 +15,30 @@ export function useDocumentTitle(title: string | undefined) {
   }, [title]);
 }
 
-/** Horizontal page gutter shared by headers and bodies; follows the density scope. */
-export const gutter = "px-4 sm:px-(--gutter)";
+/**
+ * Horizontal page gutter for content inside a Page (which is unpadded so
+ * lists can bleed to the edges on phones); matches the kit's page header.
+ */
+export const gutter = "px-4 md:px-(--gutter)";
 
-export function PageHeader({
+/**
+ * An izci page: the kit's PageWrapper (icon, title, tagline, breadcrumb,
+ * filters, actions that move into a floating button on phones) plus the
+ * browser tab title. The body is unpadded; sections add `gutter` themselves.
+ */
+export function Page({
   title,
-  description,
-  actions,
-  children,
-  className,
-}: {
-  title: React.ReactNode;
-  description?: React.ReactNode;
-  actions?: React.ReactNode;
-  children?: React.ReactNode;
-  className?: string;
+  documentTitle,
+  padded = false,
+  bodyClassName = "pb-12",
+  ...props
+}: ComponentProps<typeof PageWrapper> & {
+  title: string;
+  /** Tab title when it should differ from the heading. */
+  documentTitle?: string;
 }) {
-  useDocumentTitle(typeof title === "string" ? title : undefined);
-  return (
-    <header className={className}>
-      <div className={cn("flex flex-wrap items-end gap-x-6 gap-y-3 pt-5 pb-4 sm:pt-6 sm:pb-5", gutter)}>
-        <div className="min-w-0 flex-[1_1_16rem]">
-          <h1 className="font-semibold text-xl leading-tight sm:text-2xl">{title}</h1>
-          {description ? <div className="mt-1 text-md text-muted-foreground">{description}</div> : null}
-        </div>
-        {actions ? (
-          <div className="scrollbar-none flex items-center gap-2 *:shrink-0 max-sm:-mx-4 max-sm:w-[calc(100%+2rem)] max-sm:overflow-x-auto max-sm:px-4 sm:flex-wrap">
-            {actions}
-          </div>
-        ) : null}
-      </div>
-      {children}
-    </header>
-  );
+  useDocumentTitle(documentTitle ?? title);
+  return <PageWrapper title={title} padded={padded} bodyClassName={bodyClassName} {...props} />;
 }
 
 /**

@@ -1,11 +1,12 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { PageAction } from "@kentos/components/layout/page";
 import { cn } from "@kentos/components/lib/utils";
 import { Button } from "@kentos/components/ui/button";
 import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BoxesIcon, PlusIcon } from "lucide-react";
 import { useState } from "react";
-import { gutter, PageHeader } from "@/components/app/page";
+import { gutter, Page } from "@/components/app/page";
 import { Sparkline } from "@/components/charts/sparkline";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
@@ -27,19 +28,22 @@ function ProjectsPage() {
   const list = projects.data?.projects ?? [];
 
   return (
-    <div className="pb-12">
-      <PageHeader
-        title="Projeler"
-        description="Hata gönderen uygulamalar ve servisler"
-        actions={
-          canAdmin(org.role) ? (
-            <Button size="sm" onClick={() => setCreating(true)}>
-              <PlusIcon className="size-4" />
-              Yeni proje
-            </Button>
-          ) : null
-        }
-      />
+    <Page
+      icon={BoxesIcon}
+      title="Projeler"
+      description="Hata gönderen uygulamalar ve servisler"
+      actions={
+        canAdmin(org.role) ? (
+          <PageAction
+            icon={PlusIcon}
+            label="Yeni proje"
+            description="Bir uygulama için DSN alın"
+            variant="default"
+            onClick={() => setCreating(true)}
+          />
+        ) : null
+      }
+    >
       {projects.isPending ? (
         <div className={cn("space-y-2", gutter)}>
           <Skeleton className="h-14 w-full" />
@@ -50,7 +54,7 @@ function ProjectsPage() {
       ) : list.length === 0 ? (
         <EmptyState
           icon={BoxesIcon}
-          className={cn("card mx-4 sm:mx-(--gutter)")}
+          className="card mx-4 md:mx-(--gutter)"
           title="Henüz proje yok"
           action={
             canAdmin(org.role) ? (
@@ -116,6 +120,6 @@ function ProjectsPage() {
         </div>
       )}
       <NewProjectDialog open={creating} onOpenChange={setCreating} />
-    </div>
+    </Page>
   );
 }

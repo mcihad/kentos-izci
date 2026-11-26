@@ -1,12 +1,12 @@
 import { createClient } from "@connectrpc/connect";
+import { PageAction } from "@kentos/components/layout/page";
 import { cn } from "@kentos/components/lib/utils";
-import { Button } from "@kentos/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PauseIcon, PlayIcon, RadioIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ProjectFilter } from "@/components/app/filters";
-import { gutter, PageHeader } from "@/components/app/page";
+import { gutter, Page } from "@/components/app/page";
 import { EmptyState } from "@/components/common/states";
 import { IssueTitle, LevelBlaze, pill, tones } from "@/components/issue/badges";
 import { DashboardService, LiveEventKind, type WatchLiveResponse } from "@/gen/izci/api/v1/dashboard_pb";
@@ -86,50 +86,54 @@ function LivePage() {
   }, [rows]);
 
   return (
-    <div className="pb-12">
-      <PageHeader
-        title="Canlı akış"
-        description={
-          <span className="inline-flex items-center gap-2">
-            <span
-              className={cn(
-                "size-2 rounded-full",
-                status === "live"
-                  ? "animate-pulse bg-primary"
-                  : status === "retrying"
-                    ? "bg-level-warning"
-                    : "bg-muted-foreground",
-              )}
-            />
-            {status === "live"
-              ? `Bağlı, son dakikada ${perMinute} olay`
-              : status === "retrying"
-                ? "Bağlantı koptu, yeniden bağlanılıyor…"
-                : "Bağlanıyor…"}
-          </span>
-        }
-        actions={
-          <>
-            <ProjectFilter value={projects} onChange={setProjects} />
-            <Select value={min} onValueChange={setMin}>
-              <SelectTrigger size="sm" className="text-sm" aria-label="En düşük seviye">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent align="end">
-                {minLevels.map((m) => (
-                  <SelectItem key={m.value} value={m.value}>
-                    {m.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button variant="outline" size="sm" onClick={() => setPaused(!paused)}>
-              {paused ? <PlayIcon className="size-3.5" /> : <PauseIcon className="size-3.5" />}
-              {paused ? "Sürdür" : "Duraklat"}
-            </Button>
-          </>
-        }
-      />
+    <Page
+      icon={RadioIcon}
+      title="Canlı akış"
+      description={
+        <span className="inline-flex items-center gap-2">
+          <span
+            className={cn(
+              "size-2 rounded-full",
+              status === "live"
+                ? "animate-pulse bg-primary"
+                : status === "retrying"
+                  ? "bg-level-warning"
+                  : "bg-muted-foreground",
+            )}
+          />
+          {status === "live"
+            ? `Bağlı, son dakikada ${perMinute} olay`
+            : status === "retrying"
+              ? "Bağlantı koptu, yeniden bağlanılıyor…"
+              : "Bağlanıyor…"}
+        </span>
+      }
+      filters={
+        <>
+          <ProjectFilter value={projects} onChange={setProjects} />
+          <Select value={min} onValueChange={setMin}>
+            <SelectTrigger size="sm" className="text-sm" aria-label="En düşük seviye">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent align="end">
+              {minLevels.map((m) => (
+                <SelectItem key={m.value} value={m.value}>
+                  {m.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </>
+      }
+      actions={
+        <PageAction
+          icon={paused ? PlayIcon : PauseIcon}
+          label={paused ? "Sürdür" : "Duraklat"}
+          description={paused ? "Yeni olayları yeniden göster" : "Akışı durdurup olayları incele"}
+          onClick={() => setPaused(!paused)}
+        />
+      }
+    >
       <div className={gutter}>
         {rows.length === 0 ? (
           <EmptyState icon={RadioIcon} title="Olay bekleniyor" className="card py-16">
@@ -179,6 +183,6 @@ function LivePage() {
           </ol>
         )}
       </div>
-    </div>
+    </Page>
   );
 }

@@ -1,11 +1,12 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { PageAction } from "@kentos/components/layout/page";
 import { Button } from "@kentos/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
 import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon, TimerIcon } from "lucide-react";
 import { useState } from "react";
-import { gutter, PageHeader } from "@/components/app/page";
+import { gutter, Page } from "@/components/app/page";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { MonitorDialog } from "@/components/monitor/monitor-dialog";
@@ -46,45 +47,48 @@ function MonitorsPage() {
   }).length;
 
   return (
-    <div className="pb-12">
-      <PageHeader
-        title="Zamanlanmış görevler"
-        description={
-          list.data && monitors.length > 0
-            ? failing > 0
-              ? `${monitors.length} görev izleniyor, ${failing} tanesi sorunlu`
-              : `${monitors.length} görev izleniyor, hepsi zamanında çalışıyor`
-            : "Rapor, tahsilat ve aktarım gibi düzenli işlerin zamanında ve hatasız çalıştığını izleyin"
-        }
-        actions={
-          <>
-            <Select
-              value={search.project ?? "all"}
-              onValueChange={(v) =>
-                void navigate({ search: { project: v === "all" ? undefined : v }, replace: true })
-              }
-            >
-              <SelectTrigger size="sm" aria-label="Proje">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent align="end">
-                <SelectItem value="all">Tüm projeler</SelectItem>
-                {(projects.data?.projects ?? []).map((p) => (
-                  <SelectItem key={p.id} value={p.slug}>
-                    {p.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {admin ? (
-              <Button size="sm" onClick={() => setCreating(true)}>
-                <PlusIcon />
-                Yeni izleyici
-              </Button>
-            ) : null}
-          </>
-        }
-      />
+    <Page
+      icon={TimerIcon}
+      title="Zamanlanmış görevler"
+      description={
+        list.data && monitors.length > 0
+          ? failing > 0
+            ? `${monitors.length} görev izleniyor, ${failing} tanesi sorunlu`
+            : `${monitors.length} görev izleniyor, hepsi zamanında çalışıyor`
+          : "Rapor, tahsilat ve aktarım gibi düzenli işlerin zamanında ve hatasız çalıştığını izleyin"
+      }
+      filters={
+        <Select
+          value={search.project ?? "all"}
+          onValueChange={(v) =>
+            void navigate({ search: { project: v === "all" ? undefined : v }, replace: true })
+          }
+        >
+          <SelectTrigger size="sm" aria-label="Proje">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent align="end">
+            <SelectItem value="all">Tüm projeler</SelectItem>
+            {(projects.data?.projects ?? []).map((p) => (
+              <SelectItem key={p.id} value={p.slug}>
+                {p.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      }
+      actions={
+        admin ? (
+          <PageAction
+            icon={PlusIcon}
+            label="Yeni izleyici"
+            description="Düzenli bir işin zamanında çalıştığını izleyin"
+            variant="default"
+            onClick={() => setCreating(true)}
+          />
+        ) : null
+      }
+    >
       <div className={gutter}>
         {list.isPending ? (
           <div className="card space-y-3 p-4">
@@ -128,7 +132,7 @@ function MonitorsPage() {
           void navigate({ to: "/o/$org/monitors/$monitorId", params: { org: org.slug, monitorId: m.id } });
         }}
       />
-    </div>
+    </Page>
   );
 }
 

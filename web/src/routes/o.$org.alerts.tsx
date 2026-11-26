@@ -30,7 +30,7 @@ import { ChannelDialog, type FormKind } from "@/components/alert/channel-dialog"
 import { describeRule } from "@/components/alert/describe";
 import { LinkChatDialog } from "@/components/alert/link-chat";
 import { RuleDialog } from "@/components/alert/rule-dialog";
-import { gutter, PageHeader, Section } from "@/components/app/page";
+import { gutter, Page, Section } from "@/components/app/page";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState } from "@/components/common/states";
 import { type AlertRule, AlertService, type Channel, ChannelKind } from "@/gen/izci/api/v1/alert_pb";
@@ -156,9 +156,8 @@ function AlertsPage() {
     });
 
   return (
-    <div className="pb-12">
-      <PageHeader title="Uyarılar" description="Hangi hataların hangi kanallara bildirileceği" />
-      <div className={cn("max-w-4xl space-y-10 pt-6", gutter)}>
+    <Page icon={BellRingIcon} title="Uyarılar" description="Hangi hataların hangi kanallara bildirileceği">
+      <div className={cn("space-y-10 pt-2", gutter)}>
         <Section
           title="Kanallar"
           description={
@@ -379,6 +378,6 @@ function AlertsPage() {
           onOpenChange={(v) => !v && setEditing(undefined)}
         />
       ) : null}
-    </div>
+    </Page>
   );
 }

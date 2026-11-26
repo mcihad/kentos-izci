@@ -1,14 +1,14 @@
 import { clone } from "@bufbuild/protobuf";
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
+import { PageAction, PageActionMenu, PageBreadcrumb } from "@kentos/components/layout/page";
 import { cn } from "@kentos/components/lib/utils";
-import { Button } from "@kentos/components/ui/button";
 import { Skeleton } from "@kentos/components/ui/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ChevronRightIcon, PlusIcon, Trash2Icon, UsersIcon } from "lucide-react";
+import { EllipsisIcon, LayoutDashboardIcon, PlusIcon, Share2Icon, Trash2Icon, UsersIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { gutter, useDocumentTitle } from "@/components/app/page";
+import { gutter, Page, useDocumentTitle } from "@/components/app/page";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { AddWidgetDialog, Widget } from "@/components/dashboard/widgets";
 import {
@@ -77,63 +77,62 @@ function DashboardPage() {
     });
 
   return (
-    <div className="pb-12">
-      <header className={cn("flex flex-wrap items-start gap-3 pt-4 pb-5", gutter)}>
-        <div className="min-w-0 flex-1">
-          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground" aria-label="Konum">
-            <Link to="/o/$org/dashboards" params={{ org: org.slug }} className="hover:text-foreground">
-              Panolar
-            </Link>
-            <ChevronRightIcon className="size-3.5" />
-          </nav>
-          <h1 className="mt-1 truncate font-semibold text-xl">{d.name}</h1>
-          <p className="mt-1 flex items-center gap-1.5 text-muted-foreground text-sm">
-            {d.shared ? (
-              <>
-                <UsersIcon className="size-3.5" />
-                Ortak pano, {d.owner?.name || d.owner?.email}
-              </>
-            ) : (
-              "Kişisel pano"
-            )}
-          </p>
-        </div>
-        {d.editable ? (
-          <div className="flex gap-2">
+    <Page
+      icon={LayoutDashboardIcon}
+      title={d.name}
+      breadcrumb={
+        <PageBreadcrumb>
+          <Link to="/o/$org/dashboards" params={{ org: org.slug }}>
+            Panolar
+          </Link>
+          <span>{d.name}</span>
+        </PageBreadcrumb>
+      }
+      description={
+        d.shared ? (
+          <span className="inline-flex items-center gap-1.5">
+            <UsersIcon className="size-3.5" />
+            Ortak pano, {d.owner?.name || d.owner?.email}
+          </span>
+        ) : (
+          "Kişisel pano"
+        )
+      }
+      actions={
+        d.editable ? (
+          <>
             {canWrite(org.role) ? (
-              <Button
-                variant="outline"
-                size="sm"
+              <PageAction
+                icon={Share2Icon}
+                label={d.shared ? "Paylaşmayı bırak" : "Paylaş"}
+                description={d.shared ? "Pano yalnızca sizin olur" : "Organizasyondaki herkes görebilir"}
                 disabled={save.isPending}
                 onClick={() => update((next) => (next.shared = !next.shared))}
-              >
-                {d.shared ? "Paylaşmayı bırak" : "Paylaş"}
-              </Button>
+              />
             ) : null}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAdding(true)}
+            <PageActionMenu icon={EllipsisIcon} label="Diğer işlemler" hideLabel>
+              <PageAction
+                icon={Trash2Icon}
+                label="Panoyu sil"
+                variant="destructive"
+                disabled={remove.isPending}
+                onClick={() => {
+                  if (window.confirm(`${d.name} panosu silinsin mi?`)) remove.mutate({ id: d.id });
+                }}
+              />
+            </PageActionMenu>
+            <PageAction
+              icon={PlusIcon}
+              label="Bileşen ekle"
+              description="Grafik ya da hata listesi"
+              variant="default"
               disabled={d.widgets.length >= 24}
-            >
-              <PlusIcon className="size-4" />
-              Bileşen ekle
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-destructive"
-              disabled={remove.isPending}
-              onClick={() => {
-                if (window.confirm(`${d.name} panosu silinsin mi?`)) remove.mutate({ id: d.id });
-              }}
-            >
-              <Trash2Icon className="size-4" />
-              Sil
-            </Button>
-          </div>
-        ) : null}
-      </header>
+              onClick={() => setAdding(true)}
+            />
+          </>
+        ) : null
+      }
+    >
       <div className={gutter}>
         {d.widgets.length === 0 ? (
           <EmptyState title="Bu panoda bileşen yok" className="card py-14">
@@ -161,6 +160,6 @@ function DashboardPage() {
         onOpenChange={setAdding}
         onAdd={(w) => update((next) => next.widgets.push(w))}
       />
-    </div>
+    </Page>
   );
 }

@@ -5,11 +5,11 @@ import { tdClass, thClass, theadClass, trClass } from "@kentos/components/common
 import { cn } from "@kentos/components/lib/utils";
 import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowDownRightIcon, ArrowUpRightIcon } from "lucide-react";
+import { ArrowDownRightIcon, ArrowUpRightIcon, CompassIcon } from "lucide-react";
 import { useMemo } from "react";
 import { EnvironmentSelect } from "@/components/app/environment-select";
 import { PeriodSelect, ProjectFilter, parsePeriod } from "@/components/app/filters";
-import { gutter, PageHeader, Section } from "@/components/app/page";
+import { gutter, Page, Section } from "@/components/app/page";
 import { Sparkline } from "@/components/charts/sparkline";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { healthLabels } from "@/components/customer/health";
@@ -69,28 +69,25 @@ function OverviewPage() {
   })();
 
   return (
-    <div className="pb-12">
-      <PageHeader
-        title="Genel bakış"
-        description={`${org.name} uygulamalarında ${periodLabel} içinde olanlar`}
-        actions={
-          <>
-            <ProjectFilter
-              value={projects}
-              onChange={(p) => setSearch({ projects: p.length ? p.join(",") : undefined })}
-            />
-            <EnvironmentSelect
-              value={search.env ?? ""}
-              onChange={(e) => setSearch({ env: e || undefined })}
-            />
-            <PeriodSelect
-              value={period.key}
-              onChange={(k) => setSearch({ period: k === "24h" ? undefined : k })}
-              exclude={["90d"]}
-            />
-          </>
-        }
-      />
+    <Page
+      icon={CompassIcon}
+      title="Genel bakış"
+      description={`${org.name} uygulamalarında ${periodLabel} içinde olanlar`}
+      filters={
+        <>
+          <ProjectFilter
+            value={projects}
+            onChange={(p) => setSearch({ projects: p.length ? p.join(",") : undefined })}
+          />
+          <EnvironmentSelect value={search.env ?? ""} onChange={(e) => setSearch({ env: e || undefined })} />
+          <PeriodSelect
+            value={period.key}
+            onChange={(k) => setSearch({ period: k === "24h" ? undefined : k })}
+            exclude={["90d"]}
+          />
+        </>
+      }
+    >
       <div className={cn("space-y-4 pb-2", gutter)}>
         {overview.error ? (
           <ErrorState error={overview.error} onRetry={() => void overview.refetch()} />
@@ -266,7 +263,7 @@ function OverviewPage() {
           </>
         )}
       </div>
-    </div>
+    </Page>
   );
 }
 

@@ -2,6 +2,7 @@ import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connec
 import { StackedBars } from "@kentos/components/charts/stacked-bars";
 import { Field } from "@kentos/components/common/field";
 import { StatStrip } from "@kentos/components/common/stat-strip";
+import { PageAction, PageBreadcrumb } from "@kentos/components/layout/page";
 import { cn } from "@kentos/components/lib/utils";
 import { Button } from "@kentos/components/ui/button";
 import {
@@ -17,11 +18,11 @@ import { Skeleton } from "@kentos/components/ui/skeleton";
 import { Textarea } from "@kentos/components/ui/textarea";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ChevronRightIcon, PencilIcon } from "lucide-react";
+import { BugIcon, Building2Icon, FileTextIcon, PencilIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { PeriodSelect, parsePeriod } from "@/components/app/filters";
-import { gutter, Section, useDocumentTitle } from "@/components/app/page";
+import { gutter, Page, Section, useDocumentTitle } from "@/components/app/page";
 import { Sparkline } from "@/components/charts/sparkline";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
@@ -84,69 +85,63 @@ function CustomerPage() {
   const s = d.summary;
 
   return (
-    <div className="pb-12">
-      <header className="border-b">
-        <div className={cn("pt-4 pb-5", gutter)}>
-          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground" aria-label="Konum">
+    <Page
+      icon={Building2Icon}
+      title={c.name || c.key}
+      breadcrumb={
+        <PageBreadcrumb>
+          <Link to="/o/$org/customers" params={{ org: org.slug }}>
+            Müşteriler
+          </Link>
+          <span className="font-mono">{c.key}</span>
+        </PageBreadcrumb>
+      }
+      description={
+        <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <HealthLabel health={s.health} className="text-foreground" />
+          <span>
+            İlk olay <RelativeTime value={c.firstSeen} />
+          </span>
+          <span>
+            Son olay <RelativeTime value={c.lastSeen} />
+          </span>
+        </span>
+      }
+      filters={
+        <PeriodSelect
+          value={period.key}
+          onChange={(k) => void navigate({ search: { period: k === "7d" ? undefined : k }, replace: true })}
+        />
+      }
+      actions={
+        <>
+          {canWrite(org.role) ? (
+            <PageAction icon={PencilIcon} label="Düzenle" onClick={() => setEditing(true)} />
+          ) : null}
+          <PageAction icon={BugIcon} label="Hatalarını gör" asChild>
             <Link
-              to="/o/$org/customers"
+              to="/o/$org/issues"
               params={{ org: org.slug }}
-              className="-my-2 py-2 hover:text-foreground"
-            >
-              Müşteriler
-            </Link>
-            <ChevronRightIcon className="size-3.5" />
-            <span className="font-mono text-foreground">{c.key}</span>
-          </nav>
-          <div className="mt-2 flex flex-wrap items-start gap-3">
-            <div className="min-w-0 flex-1">
-              <h1 className="font-semibold text-xl leading-tight tracking-[-0.015em]">{c.name || c.key}</h1>
-              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                <HealthLabel health={s.health} className="text-foreground" />
-                <span>
-                  İlk olay <RelativeTime value={c.firstSeen} />
-                </span>
-                <span>
-                  Son olay <RelativeTime value={c.lastSeen} />
-                </span>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              {canWrite(org.role) ? (
-                <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
-                  <PencilIcon className="size-3.5" />
-                  Düzenle
-                </Button>
-              ) : null}
-              <PeriodSelect
-                value={period.key}
-                onChange={(k) =>
-                  void navigate({ search: { period: k === "7d" ? undefined : k }, replace: true })
-                }
-              />
-              <Button asChild variant="outline" size="sm">
-                <Link
-                  to="/o/$org/issues"
-                  params={{ org: org.slug }}
-                  search={{ query: `is:unresolved customer:${c.key}` }}
-                >
-                  Hatalarını gör
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link
-                  to="/o/$org/customer-report/$key"
-                  params={{ org: org.slug, key: c.key }}
-                  search={{ period: search.period ?? "30d" }}
-                >
-                  Sağlık raporu
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-      <div className={cn("space-y-9 pt-6", gutter)}>
+              search={{ query: `is:unresolved customer:${c.key}` }}
+            />
+          </PageAction>
+          <PageAction
+            icon={FileTextIcon}
+            label="Sağlık raporu"
+            description="Yazdırılabilir rapor"
+            variant="default"
+            asChild
+          >
+            <Link
+              to="/o/$org/customer-report/$key"
+              params={{ org: org.slug, key: c.key }}
+              search={{ period: search.period ?? "30d" }}
+            />
+          </PageAction>
+        </>
+      }
+    >
+      <div className={cn("space-y-9 pt-2", gutter)}>
         <StatStrip
           stats={[
             { label: "Açık hata", value: formatNumber(s.unresolvedIssues) },
@@ -214,7 +209,7 @@ function CustomerPage() {
         </div>
       </div>
       <EditCustomer customer={c} open={editing} onOpenChange={setEditing} />
-    </div>
+    </Page>
   );
 }
 

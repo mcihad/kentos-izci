@@ -209,6 +209,16 @@ A change is done when:
   stay for severity only. Stack traces and breadcrumbs share the "trail"
   (`components/event/stack-trail.tsx`). Monospace is reserved for code and
   identifiers.
+- **Pages:** every route renders `Page` from `components/app/page.tsx`, the
+  kit's `PageWrapper` plus the tab title: `icon` (the page's sidebar icon),
+  `title`, `description`, `breadcrumb` (`PageBreadcrumb`) on detail pages,
+  `filters` for selects that change what is shown (they stay visible on
+  phones) and `actions` built from `PageAction` / `PageActionMenu` (one
+  `variant="default"` primary action; on phones they move into a floating
+  button and bottom sheet). The body is unpadded: wrap sections in `gutter`
+  so lists can run edge to edge on phones. The footer is off unless
+  `showFooter`. The issue page keeps its own header (level strip, triage bar)
+  inside a bare `PageWrapper`.
 - **Navigation:** `components/app/sidebar.tsx` builds the left menu from the
   kit's `layout/sidebar` (switcher, search, groups, account; icon rail on
   desktop, drawer on phones). Pages come from `components/app/nav.ts`: a new

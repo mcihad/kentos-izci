@@ -9,7 +9,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Building2Icon, SearchIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PeriodSelect, parsePeriod } from "@/components/app/filters";
-import { gutter, PageHeader } from "@/components/app/page";
+import { gutter, Page } from "@/components/app/page";
 import { Sparkline } from "@/components/charts/sparkline";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
@@ -58,11 +58,11 @@ function CustomersPage() {
     void navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
 
   return (
-    <div className="pb-12">
-      <PageHeader
-        title="Müşteriler"
-        description="Uygulamalarınızı kullanan kurumlar ve hatalardan ne kadar etkilendikleri"
-      />
+    <Page
+      icon={Building2Icon}
+      title="Müşteriler"
+      description="Uygulamalarınızı kullanan kurumlar ve hatalardan ne kadar etkilendikleri"
+    >
       <div className={gutter}>
         <div className="card overflow-hidden max-sm:-mx-4 max-sm:rounded-none max-sm:border-x-0">
           <div className="flex flex-col gap-2 border-b px-4 py-3 sm:flex-row sm:items-center">
@@ -240,6 +240,6 @@ function CustomersPage() {
           ) : null}
         </div>
       </div>
-    </div>
+    </Page>
   );
 }

@@ -19,10 +19,10 @@ import { Skeleton } from "@kentos/components/ui/skeleton";
 import { Switch } from "@kentos/components/ui/switch";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ShieldAlertIcon } from "lucide-react";
+import { ShieldAlertIcon, ShieldCheckIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { gutter, PageHeader } from "@/components/app/page";
+import { gutter, Page } from "@/components/app/page";
 import { AuditEntries } from "@/components/common/audit-entries";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState } from "@/components/common/states";
@@ -77,11 +77,11 @@ function AdminPage() {
     );
   }
   return (
-    <div className="pb-12">
-      <PageHeader
-        title="Sunucu yönetimi"
-        description="Tüm organizasyonları ve kullanıcıları kapsayan ayarlar"
-      />
+    <Page
+      icon={ShieldCheckIcon}
+      title="Sunucu yönetimi"
+      description="Tüm organizasyonları ve kullanıcıları kapsayan ayarlar"
+    >
       <div className={gutter}>
         <TabbedCard
           tabs={
@@ -100,7 +100,7 @@ function AdminPage() {
           {tab === "audit" ? <InstanceAudit /> : null}
         </TabbedCard>
       </div>
-    </div>
+    </Page>
   );
 }
 

@@ -1,5 +1,6 @@
 import { skipToken, useQuery } from "@connectrpc/connect-query";
 import { CopyButton } from "@kentos/components/common/copy-button";
+import { PageWrapper } from "@kentos/components/layout/page";
 import { cn } from "@kentos/components/lib/utils";
 import { Button } from "@kentos/components/ui/button";
 import {
@@ -156,7 +157,7 @@ function IssuePage() {
   }
 
   return (
-    <div className="pb-12">
+    <PageWrapper padded={false} bodyClassName="pb-12">
       <header>
         <div className={cn("pt-4 pb-4 sm:pt-5", gutter)}>
           <nav className="flex items-center gap-1.5 text-sm text-muted-foreground" aria-label="Konum">
@@ -296,7 +297,7 @@ function IssuePage() {
           <IssueAside issue={issue} facets={facets.data?.facets} writable={writable} />
         </aside>
       </div>
-    </div>
+    </PageWrapper>
   );
 }
 

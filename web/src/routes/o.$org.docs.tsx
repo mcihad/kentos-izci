@@ -9,7 +9,8 @@ import {
   SelectValue,
 } from "@kentos/components/ui/select";
 import { createFileRoute, Link, Outlet, useNavigate, useParams } from "@tanstack/react-router";
-import { gutter, PageHeader } from "@/components/app/page";
+import { BookOpenIcon } from "lucide-react";
+import { gutter, Page } from "@/components/app/page";
 import { sections, useGuides } from "@/components/docs/docs";
 import { useOrg } from "@/lib/org";
 
@@ -26,9 +27,13 @@ function DocsLayout() {
   const groups = sections(guides.data ?? []);
 
   return (
-    <div className="pb-16">
-      <PageHeader title="Belgeler" description="Kurulum, veri gönderme, kullanım ve yönetim rehberleri" />
-      <div className={cn("grid grid-cols-1 gap-8 pt-6 lg:grid-cols-[14rem_minmax(0,1fr)]", gutter)}>
+    <Page
+      icon={BookOpenIcon}
+      bodyClassName="pb-16"
+      title="Belgeler"
+      description="Kurulum, veri gönderme, kullanım ve yönetim rehberleri"
+    >
+      <div className={cn("grid grid-cols-1 gap-8 pt-2 lg:grid-cols-[14rem_minmax(0,1fr)]", gutter)}>
         <div className="lg:hidden">
           <Select
             value={active || "index"}
@@ -88,6 +93,6 @@ function DocsLayout() {
           <Outlet />
         </div>
       </div>
-    </div>
+    </Page>
   );
 }

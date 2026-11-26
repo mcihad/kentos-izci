@@ -1,12 +1,12 @@
 import { useQuery } from "@connectrpc/connect-query";
 import { StackedBars } from "@kentos/components/charts/stacked-bars";
+import { PageAction, PageBreadcrumb } from "@kentos/components/layout/page";
 import { cn } from "@kentos/components/lib/utils";
-import { Button } from "@kentos/components/ui/button";
 import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ChevronRightIcon, DownloadIcon, PrinterIcon } from "lucide-react";
+import { DownloadIcon, FileTextIcon, PrinterIcon } from "lucide-react";
 import { PeriodSelect, parsePeriod } from "@/components/app/filters";
-import { gutter, useDocumentTitle } from "@/components/app/page";
+import { gutter, Page, useDocumentTitle } from "@/components/app/page";
 import { ErrorState } from "@/components/common/states";
 import { HealthLabel } from "@/components/customer/health";
 import { IssueStatus } from "@/gen/izci/api/v1/common_pb";
@@ -96,133 +96,145 @@ function CustomerReport() {
     downloadText(`izci-${c.key}-rapor-${end.toISOString().slice(0, 10)}.csv`, issuesCsv(d.topIssues));
 
   return (
-    <div className={cn("mx-auto max-w-4xl space-y-8 py-6 print:max-w-none print:py-0", gutter)}>
-      <div className="flex flex-wrap items-center justify-between gap-2 print:hidden">
-        <nav className="flex items-center gap-1.5 text-sm text-muted-foreground" aria-label="Konum">
-          <Link to="/o/$org/customers" params={{ org: org.slug }} className="hover:text-foreground">
+    <Page
+      icon={FileTextIcon}
+      title="Sağlık raporu"
+      documentTitle={`${c.name || c.key} sağlık raporu`}
+      className="print:min-h-0 print:[&>[data-slot=page-header]]:hidden"
+      breadcrumb={
+        <PageBreadcrumb>
+          <Link to="/o/$org/customers" params={{ org: org.slug }}>
             Müşteriler
           </Link>
-          <ChevronRightIcon className="size-3.5" />
-          <Link
-            to="/o/$org/customers/$key"
-            params={{ org: org.slug, key: c.key }}
-            className="font-mono hover:text-foreground"
-          >
+          <Link to="/o/$org/customers/$key" params={{ org: org.slug, key: c.key }} className="font-mono">
             {c.key}
           </Link>
-          <ChevronRightIcon className="size-3.5" />
-          <span className="text-foreground">Sağlık raporu</span>
-        </nav>
-        <div className="flex gap-2">
-          <PeriodSelect
-            value={period.key}
-            exclude={["1h"]}
-            onChange={(k) => void navigate({ search: { period: k }, replace: true })}
-          />
-          <Button variant="outline" size="sm" onClick={download} disabled={d.topIssues.length === 0}>
-            <DownloadIcon className="size-4" />
-            CSV
-          </Button>
-          <Button size="sm" onClick={() => window.print()}>
-            <PrinterIcon className="size-4" />
-            Yazdır ya da PDF
-          </Button>
-        </div>
-      </div>
-
-      <header className="border-b pb-5">
-        <p className="text-muted-foreground text-sm">{org.name} · Hata izleme sağlık raporu</p>
-        <h1 className="mt-1 font-semibold text-2xl tracking-[-0.015em]">{c.name || c.key}</h1>
-        <p className="mt-1.5 text-sm text-muted-foreground">
-          {formatDate(start)} – {formatDate(end)} dönemi · oluşturulma {formatDateTime(end)}
-        </p>
-      </header>
-
-      <section className="grid grid-cols-2 gap-4 sm:grid-cols-5">
-        <div>
-          <p className="text-muted-foreground text-sm">Durum</p>
-          <HealthLabel health={s.health} className="mt-1 font-semibold text-lg" />
-        </div>
-        {(
-          [
-            ["Olay", formatNumber(s.periodEvents)],
-            ["Yeni hata", formatNumber(s.newIssues)],
-            ["Açık hata", formatNumber(s.unresolvedIssues)],
-            ["Etkilenen proje", formatNumber(s.affectedProjects)],
-          ] as const
-        ).map(([label, value]) => (
-          <div key={label}>
-            <p className="text-muted-foreground text-sm">{label}</p>
-            <p className="mt-1 font-semibold text-2xl tabular">{value}</p>
-          </div>
-        ))}
-      </section>
-
-      <section className="break-inside-avoid">
-        <h2 className="mb-3 font-semibold text-lg">Olayların dağılımı</h2>
-        <StackedBars
-          height={160}
-          step={seriesStep(s.series)}
-          layers={[{ key: "events", label: "Olay", color: "var(--primary)", points: seriesPoints(s.series) }]}
+          <span>Sağlık raporu</span>
+        </PageBreadcrumb>
+      }
+      description="Müşteriye gönderilebilecek, yazdırılabilir özet"
+      filters={
+        <PeriodSelect
+          value={period.key}
+          exclude={["1h"]}
+          onChange={(k) => void navigate({ search: { period: k }, replace: true })}
         />
-      </section>
+      }
+      actions={
+        <>
+          <PageAction
+            icon={DownloadIcon}
+            label="CSV"
+            description="En çok etkileyen hatalar"
+            onClick={download}
+            disabled={d.topIssues.length === 0}
+          />
+          <PageAction
+            icon={PrinterIcon}
+            label="Yazdır ya da PDF"
+            variant="default"
+            onClick={() => window.print()}
+          />
+        </>
+      }
+    >
+      <div className={cn("mx-auto max-w-4xl space-y-8 pt-2 print:max-w-none print:py-0", gutter)}>
+        <header className="border-b pb-5">
+          <p className="text-muted-foreground text-sm">{org.name} · Hata izleme sağlık raporu</p>
+          <h1 className="mt-1 font-semibold text-2xl tracking-[-0.015em]">{c.name || c.key}</h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            {formatDate(start)} – {formatDate(end)} dönemi · oluşturulma {formatDateTime(end)}
+          </p>
+        </header>
 
-      <section>
-        <h2 className="mb-3 font-semibold text-lg">En çok etkileyen açık hatalar</h2>
-        {d.topIssues.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Bu müşteriyi etkileyen açık hata yok.</p>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="border-b text-left text-muted-foreground text-xs">
-              <tr>
-                <th className="py-2 pr-3 font-medium">Hata</th>
-                <th className="py-2 pr-3 font-medium">Proje</th>
-                <th className="py-2 pr-3 text-right font-medium">Olay</th>
-                <th className="py-2 pr-3 text-right font-medium">Kullanıcı</th>
-                <th className="py-2 font-medium">Son görülme</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {d.topIssues.map((i) => (
-                <tr key={i.id} className="break-inside-avoid align-top">
-                  <td className="py-2 pr-3">
-                    <span className="font-mono text-muted-foreground text-xs">{i.shortId}</span>
-                    <span className="block">{i.title}</span>
-                  </td>
-                  <td className="py-2 pr-3">{i.project?.name}</td>
-                  <td className="py-2 pr-3 text-right tabular">{formatNumber(i.periodCount)}</td>
-                  <td className="py-2 pr-3 text-right tabular">{formatNumber(i.usersCount)}</td>
-                  <td className="whitespace-nowrap py-2">{formatDate(i.lastSeen)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
-
-      {d.projects.length > 0 ? (
-        <section className="break-inside-avoid">
-          <h2 className="mb-3 font-semibold text-lg">Projelere göre</h2>
-          <table className="w-full text-sm">
-            <thead className="border-b text-left text-muted-foreground text-xs">
-              <tr>
-                <th className="py-2 pr-3 font-medium">Proje</th>
-                <th className="py-2 pr-3 text-right font-medium">Açık hata</th>
-                <th className="py-2 text-right font-medium">Olay</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {d.projects.map((p) => (
-                <tr key={p.project?.id}>
-                  <td className="py-2 pr-3">{p.project?.name}</td>
-                  <td className="py-2 pr-3 text-right tabular">{formatNumber(p.unresolvedIssues)}</td>
-                  <td className="py-2 text-right tabular">{formatNumber(p.periodEvents)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <section className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+          <div>
+            <p className="text-muted-foreground text-sm">Durum</p>
+            <HealthLabel health={s.health} className="mt-1 font-semibold text-lg" />
+          </div>
+          {(
+            [
+              ["Olay", formatNumber(s.periodEvents)],
+              ["Yeni hata", formatNumber(s.newIssues)],
+              ["Açık hata", formatNumber(s.unresolvedIssues)],
+              ["Etkilenen proje", formatNumber(s.affectedProjects)],
+            ] as const
+          ).map(([label, value]) => (
+            <div key={label}>
+              <p className="text-muted-foreground text-sm">{label}</p>
+              <p className="mt-1 font-semibold text-2xl tabular">{value}</p>
+            </div>
+          ))}
         </section>
-      ) : null}
-    </div>
+
+        <section className="break-inside-avoid">
+          <h2 className="mb-3 font-semibold text-lg">Olayların dağılımı</h2>
+          <StackedBars
+            height={160}
+            step={seriesStep(s.series)}
+            layers={[
+              { key: "events", label: "Olay", color: "var(--primary)", points: seriesPoints(s.series) },
+            ]}
+          />
+        </section>
+
+        <section>
+          <h2 className="mb-3 font-semibold text-lg">En çok etkileyen açık hatalar</h2>
+          {d.topIssues.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Bu müşteriyi etkileyen açık hata yok.</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="border-b text-left text-muted-foreground text-xs">
+                <tr>
+                  <th className="py-2 pr-3 font-medium">Hata</th>
+                  <th className="py-2 pr-3 font-medium">Proje</th>
+                  <th className="py-2 pr-3 text-right font-medium">Olay</th>
+                  <th className="py-2 pr-3 text-right font-medium">Kullanıcı</th>
+                  <th className="py-2 font-medium">Son görülme</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {d.topIssues.map((i) => (
+                  <tr key={i.id} className="break-inside-avoid align-top">
+                    <td className="py-2 pr-3">
+                      <span className="font-mono text-muted-foreground text-xs">{i.shortId}</span>
+                      <span className="block">{i.title}</span>
+                    </td>
+                    <td className="py-2 pr-3">{i.project?.name}</td>
+                    <td className="py-2 pr-3 text-right tabular">{formatNumber(i.periodCount)}</td>
+                    <td className="py-2 pr-3 text-right tabular">{formatNumber(i.usersCount)}</td>
+                    <td className="whitespace-nowrap py-2">{formatDate(i.lastSeen)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </section>
+
+        {d.projects.length > 0 ? (
+          <section className="break-inside-avoid">
+            <h2 className="mb-3 font-semibold text-lg">Projelere göre</h2>
+            <table className="w-full text-sm">
+              <thead className="border-b text-left text-muted-foreground text-xs">
+                <tr>
+                  <th className="py-2 pr-3 font-medium">Proje</th>
+                  <th className="py-2 pr-3 text-right font-medium">Açık hata</th>
+                  <th className="py-2 text-right font-medium">Olay</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {d.projects.map((p) => (
+                  <tr key={p.project?.id}>
+                    <td className="py-2 pr-3">{p.project?.name}</td>
+                    <td className="py-2 pr-3 text-right tabular">{formatNumber(p.unresolvedIssues)}</td>
+                    <td className="py-2 text-right tabular">{formatNumber(p.periodEvents)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+        ) : null}
+      </div>
+    </Page>
   );
 }

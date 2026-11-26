@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { gutter, PageHeader } from "@/components/app/page";
+import { SettingsIcon } from "lucide-react";
+import { gutter, Page } from "@/components/app/page";
 import { TabbedCard, TabNav } from "@/components/common/tab-nav";
 import { Integrations } from "@/components/settings/integrations";
 import { Members } from "@/components/settings/members";
@@ -33,8 +34,7 @@ function SettingsPage() {
   // Data subject requests are for administrators.
   const visible = tabs.filter((t) => t.id !== "privacy" || canAdmin(org.role));
   return (
-    <div className="pb-12">
-      <PageHeader title="Organizasyon ayarları" description={org.name} />
+    <Page icon={SettingsIcon} title="Organizasyon ayarları" description={org.name}>
       <div className={gutter}>
         <TabbedCard
           tabs={
@@ -55,6 +55,6 @@ function SettingsPage() {
           {tab === "audit" ? <AuditLog /> : null}
         </TabbedCard>
       </div>
-    </div>
+    </Page>
   );
 }

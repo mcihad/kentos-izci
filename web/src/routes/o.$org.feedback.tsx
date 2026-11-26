@@ -1,9 +1,9 @@
 import { useQuery } from "@connectrpc/connect-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
 import { createFileRoute } from "@tanstack/react-router";
-import { SearchIcon } from "lucide-react";
+import { MessageSquareTextIcon, SearchIcon } from "lucide-react";
 import { useState } from "react";
-import { gutter, PageHeader } from "@/components/app/page";
+import { gutter, Page } from "@/components/app/page";
 import { FeedbackList } from "@/components/feedback/feedback-list";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 
@@ -23,33 +23,33 @@ function FeedbackPage() {
   const projects = useQuery(ProjectService.method.listProjects, {});
   const [draft, setDraft] = useState(search.q ?? "");
   return (
-    <div className="pb-12">
-      <PageHeader
-        title="Geri bildirim"
-        description="Kullanıcıların uygulamalardan yazdıkları"
-        actions={
-          <Select
-            value={search.project ?? "all"}
-            onValueChange={(v) =>
-              void navigate({ search: (p) => ({ ...p, project: v === "all" ? undefined : v }) })
-            }
-          >
-            <SelectTrigger size="sm" className="w-44 text-sm" aria-label="Proje">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tüm projeler</SelectItem>
-              {projects.data?.projects.map((p) => (
-                <SelectItem key={p.slug} value={p.slug}>
-                  {p.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        }
-      />
+    <Page
+      icon={MessageSquareTextIcon}
+      title="Geri bildirim"
+      description="Kullanıcıların uygulamalardan yazdıkları"
+      filters={
+        <Select
+          value={search.project ?? "all"}
+          onValueChange={(v) =>
+            void navigate({ search: (p) => ({ ...p, project: v === "all" ? undefined : v }) })
+          }
+        >
+          <SelectTrigger size="sm" className="w-44 text-sm" aria-label="Proje">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tüm projeler</SelectItem>
+            {projects.data?.projects.map((p) => (
+              <SelectItem key={p.slug} value={p.slug}>
+                {p.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      }
+    >
       <div className={gutter}>
-        <div className="card max-w-4xl overflow-hidden max-sm:-mx-4 max-sm:rounded-none max-sm:border-x-0">
+        <div className="card overflow-hidden max-sm:-mx-4 max-sm:rounded-none max-sm:border-x-0">
           <form
             className="relative border-b px-4 py-3"
             onSubmit={(e) => {
@@ -71,6 +71,6 @@ function FeedbackPage() {
           </div>
         </div>
       </div>
-    </div>
+    </Page>
   );
 }
