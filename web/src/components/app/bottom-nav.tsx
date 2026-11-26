@@ -4,6 +4,7 @@ import { useSidebar } from "@kentos/components/layout/sidebar";
 import { Link } from "@tanstack/react-router";
 import { MenuIcon } from "lucide-react";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
+import { ViewService } from "@/gen/izci/api/v1/view_pb";
 import { formatNumber } from "@/lib/format";
 import { useOrg } from "@/lib/org";
 import { type NavItem, primaryNav } from "./nav";
@@ -13,8 +14,8 @@ import { type NavItem, primaryNav } from "./nav";
 const destinations: NavItem["to"][] = ["/o/$org", "/o/$org/issues", "/o/$org/live", "/o/$org/dashboards"];
 
 /**
- * The phone tab bar: four primary pages (issues with the open count) and the
- * full menu. Hidden from md up.
+ * The phone tab bar: four primary pages (issues with the open count,
+ * dashboards with their number) and the full menu. Hidden from md up.
  */
 export function BottomNav() {
   const org = useOrg();
@@ -28,6 +29,19 @@ export function BottomNav() {
     { enabled: isMobile, staleTime: 60_000, refetchInterval: isMobile ? 60_000 : false },
   );
   const open = (projects.data?.projects ?? []).reduce((sum, p) => sum + (p.stats?.unresolvedIssues ?? 0), 0);
+  // The caller's and shared dashboards; the same query as the dashboards
+  // page, so creating or deleting one updates the count.
+  const dashboards = useQuery(
+    ViewService.method.listDashboards,
+    {},
+    { enabled: isMobile, staleTime: 60_000 },
+  );
+  const boards = dashboards.data?.dashboards.length ?? 0;
+  const badges: Partial<Record<NavItem["to"], { count: number; label: string; tone: "danger" | "neutral" }>> =
+    {
+      "/o/$org/issues": { count: open, label: `${formatNumber(open)} açık hata`, tone: "danger" },
+      "/o/$org/dashboards": { count: boards, label: `${formatNumber(boards)} pano`, tone: "neutral" },
+    };
   const items = destinations
     .map((to) => primaryNav.find((item) => item.to === to))
     .filter((item): item is NavItem => item !== undefined);
@@ -38,8 +52,9 @@ export function BottomNav() {
           key={item.to}
           icon={item.icon}
           label={item.label}
-          badge={item.to === "/o/$org/issues" && open > 0 ? open : undefined}
-          badgeLabel={`${formatNumber(open)} açık hata`}
+          badge={badges[item.to]?.count || undefined}
+          badgeLabel={badges[item.to]?.label}
+          badgeTone={badges[item.to]?.tone}
           asChild
         >
           <Link
