@@ -219,6 +219,13 @@ A change is done when:
   so lists can run edge to edge on phones. The footer is off unless
   `showFooter`. The issue page keeps its own header (level strip, triage bar)
   inside a bare `PageWrapper`.
+- **Dialogs and toasts:** results of actions are toasts (`toast` from
+  `sonner`); questions use the kit's dialogs: `dialogs.confirm/prompt/alert`
+  from `@kentos/components/common/dialog-host` in handlers (`<DialogHost />`
+  is mounted in `routes/__root.tsx`) or `ConfirmDialog`, `InputDialog`,
+  `ProgressDialog`… from `common/dialogs`. Pass `onConfirm` a promise whose
+  rejection is an `Error` with `errorMessage(err)`, so the dialog shows it.
+  Never `window.confirm`/`prompt`/`alert`.
 - **Navigation:** `components/app/sidebar.tsx` builds the left menu from the
   kit's `layout/sidebar` (switcher, search, groups, account; icon rail on
   desktop, drawer on phones). Pages come from `components/app/nav.ts`: a new

@@ -1,5 +1,6 @@
 import { clone } from "@bufbuild/protobuf";
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
+import { dialogs } from "@kentos/components/common/dialog-host";
 import { PageAction, PageActionMenu, PageBreadcrumb } from "@kentos/components/layout/page";
 import { cn } from "@kentos/components/lib/utils";
 import { Skeleton } from "@kentos/components/ui/skeleton";
@@ -50,7 +51,6 @@ function DashboardPage() {
       void invalidate();
       void navigate({ to: "/o/$org/dashboards", params: { org: org.slug } });
     },
-    onError: (err) => toast.error(errorMessage(err)),
   });
 
   if (q.isPending) return <Skeleton className={cn("my-6 h-64", gutter)} />;
@@ -116,9 +116,20 @@ function DashboardPage() {
                 label="Panoyu sil"
                 variant="destructive"
                 disabled={remove.isPending}
-                onClick={() => {
-                  if (window.confirm(`${d.name} panosu silinsin mi?`)) remove.mutate({ id: d.id });
-                }}
+                onClick={() =>
+                  void dialogs.confirm({
+                    tone: "danger",
+                    title: `${d.name} panosu silinsin mi?`,
+                    description: "Pano ve bileşenleri silinir; kayıtlı aramalar kalır.",
+                    confirmLabel: "Panoyu sil",
+                    pendingLabel: "Siliniyor…",
+                    // The dialog shows the failure; no toast on top of it.
+                    onConfirm: () =>
+                      remove.mutateAsync({ id: d.id }).catch((err) => {
+                        throw new Error(errorMessage(err));
+                      }),
+                  })
+                }
               />
             </PageActionMenu>
             <PageAction

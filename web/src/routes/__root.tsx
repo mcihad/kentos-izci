@@ -1,3 +1,4 @@
+import { DialogHost } from "@kentos/components/common/dialog-host";
 import { Button } from "@kentos/components/ui/button";
 import { Toaster } from "@kentos/components/ui/sonner";
 import { TooltipProvider } from "@kentos/components/ui/tooltip";
@@ -17,6 +18,7 @@ function Root() {
       <Outlet />
       <ReauthHost />
       <Toaster position="bottom-right" />
+      <DialogHost />
     </TooltipProvider>
   );
 }
