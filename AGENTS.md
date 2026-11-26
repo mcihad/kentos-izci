@@ -250,7 +250,9 @@ A change is done when:
   variables (one Shiki css-variables theme for both modes).
 - **Phones:** every table has a `md:hidden` list beside it; list and main
   cards run edge to edge below `sm`; tab strips use `TabStrip`/`TabNav`
-  (scrolls, keeps the current tab in view); controls never drop under 36–40px
+  over the kit's `TabsNav` (items are `TabsNavItem asChild` around a
+  `Link`, with `badge` for counts; the row scrolls by touch and wheel and
+  keeps the current tab in view); in-card tabs use the kit's `Tabs`; controls never drop under 36–40px
   below `md`, and inputs use 16px text so iOS does not zoom.
 - **Budget:** `pnpm build` fails when first-load JavaScript exceeds 200 KB
   gzip (`web/scripts/check-bundle.mjs`). Route definitions (`validateSearch`,
