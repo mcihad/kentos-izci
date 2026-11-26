@@ -1,10 +1,9 @@
 import { Kbd } from "@kentos/components/common/kbd";
-import { cn } from "@kentos/components/lib/utils";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@kentos/components/layout/sidebar";
 import { Button } from "@kentos/components/ui/button";
-import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@kentos/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@kentos/components/ui/tooltip";
-import { MenuIcon, PaletteIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, SearchIcon } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { PaletteIcon, SearchIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { Logo } from "@/components/brand/logo";
 import { useOrg } from "@/lib/org";
 import { appearanceFlag, paletteFlag, shortcutHelpFlag, useFlag, useHotkeys } from "@/lib/shortcuts";
@@ -12,75 +11,28 @@ import { AppearanceSheet } from "./appearance-sheet";
 import { CommandPalette } from "./command-palette";
 import { NotificationsMenu } from "./notifications-menu";
 import { ShortcutHelp } from "./shortcut-help";
-import { SidebarContent } from "./sidebar";
-
-const collapsedKey = "izci-sidebar";
-
-function readCollapsed() {
-  try {
-    return localStorage.getItem(collapsedKey) === "collapsed";
-  } catch {
-    return false;
-  }
-}
+import { AppSidebar } from "./sidebar";
 
 /**
- * The KentOS application frame: a dark rail on the left (collapsible on
- * desktop, a drawer on phones), a top bar with search and appearance, and the
- * page on the grey surface.
+ * The KentOS application frame: the kit's sidebar on the left (an icon rail
+ * when collapsed on desktop, a drawer on phones), a top bar with search and
+ * appearance, and the page on the grey surface.
  */
 export function AppShell({ children }: { children: ReactNode }) {
   const org = useOrg();
   const [paletteOpen, setPaletteOpen] = useFlag(paletteFlag);
-  const [mobileNav, setMobileNav] = useState(false);
-  const [collapsed, setCollapsed] = useState(readCollapsed);
   useHotkeys({
     "mod+k": () => setPaletteOpen(!paletteFlag.get()),
     "?": () => shortcutHelpFlag.set(true),
   });
-  const toggleRail = () => {
-    const next = !collapsed;
-    setCollapsed(next);
-    try {
-      if (next) localStorage.setItem(collapsedKey, "collapsed");
-      else localStorage.removeItem(collapsedKey);
-    } catch {
-      // Not remembered; still applied.
-    }
-  };
-
   return (
-    <div className="flex min-h-dvh bg-background">
-      <aside
-        className={cn(
-          "on-dark sticky top-0 hidden h-dvh shrink-0 border-(--sidebar-border) border-r bg-(--sidebar-bg) text-(--sidebar-fg) transition-[width] duration-(--duration-panel) ease-(--ease-entrance) md:block print:hidden",
-          collapsed ? "w-(--sidebar-w-collapsed)" : "w-(--sidebar-w)",
-        )}
-      >
-        <SidebarContent collapsed={collapsed} />
-      </aside>
-      <div className="flex min-w-0 flex-1 flex-col">
+    <SidebarProvider storageKey="izci-sidebar" className="bg-background">
+      <AppSidebar />
+      <SidebarInset>
         <header className="sticky top-0 z-30 flex h-(--topbar-h) shrink-0 items-center gap-1.5 border-(--topbar-border) border-b bg-(--topbar-bg) px-2 md:gap-3 md:px-4 print:hidden">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setMobileNav(true)}
-            aria-label="Menüyü aç"
-          >
-            <MenuIcon className="size-5" />
-          </Button>
+          <SidebarTrigger />
           <Logo className="size-6 md:hidden" />
           <span className="truncate font-semibold text-lg text-strong md:hidden">{org.name}</span>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hidden md:inline-flex"
-            onClick={toggleRail}
-            aria-label={collapsed ? "Menüyü genişlet" : "Menüyü daralt"}
-          >
-            {collapsed ? <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />}
-          </Button>
           <button
             type="button"
             onClick={() => setPaletteOpen(true)}
@@ -119,20 +71,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main className="min-w-0 flex-1">
           <div className="mx-auto w-full max-w-(--content-max-wide)">{children}</div>
         </main>
-      </div>
-      <Sheet open={mobileNav} onOpenChange={setMobileNav}>
-        <SheetContent
-          side="left"
-          className="on-dark w-[min(20rem,86vw)] gap-0 border-(--sidebar-border) bg-(--sidebar-bg) p-0 text-(--sidebar-fg) [&>button]:top-5 [&>button]:text-(--sidebar-fg)"
-        >
-          <SheetTitle className="sr-only">Menü</SheetTitle>
-          <SheetDescription className="sr-only">Sayfalar arasında gezinin</SheetDescription>
-          <SidebarContent inSheet onNavigate={() => setMobileNav(false)} />
-        </SheetContent>
-      </Sheet>
+      </SidebarInset>
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
       <ShortcutHelp />
       <AppearanceSheet />
-    </div>
+    </SidebarProvider>
   );
 }

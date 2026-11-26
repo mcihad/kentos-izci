@@ -1,7 +1,6 @@
 import { useMutation } from "@connectrpc/connect-query";
-import { UserAvatar } from "@kentos/components/common/user-avatar";
+import { SidebarUser, useSidebar } from "@kentos/components/layout/sidebar";
 import { type ThemeMode, useAppearance } from "@kentos/components/lib/theme";
-import { cn } from "@kentos/components/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +28,8 @@ import { useOrg } from "@/lib/org";
 import { useSession } from "@/lib/session";
 import { appearanceFlag, useShortcutHelp } from "@/lib/shortcuts";
 
-export function UserMenu({ collapsed = false }: { collapsed?: boolean }) {
+export function UserMenu() {
+  const { iconOnly } = useSidebar();
   const session = useSession();
   const org = useOrg();
   const qc = useQueryClient();
@@ -47,32 +47,10 @@ export function UserMenu({ collapsed = false }: { collapsed?: boolean }) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        title={collapsed ? user?.name || user?.email : undefined}
-        aria-label={collapsed ? "Hesap menüsü" : undefined}
-        className={cn(
-          "flex w-full items-center gap-2.5 rounded-md p-1.5 text-left transition-colors duration-(--duration-fast) hover:bg-(--sidebar-item-hover) data-[state=open]:bg-(--sidebar-item-hover)",
-          collapsed && "justify-center",
-        )}
-      >
-        <UserAvatar
-          name={user?.name || user?.email || ""}
-          src={user?.avatarUrl}
-          className="size-7"
-          fallbackClassName="bg-white/15 text-white"
-        />
-        {collapsed ? null : (
-          <span className="min-w-0 flex-1">
-            <span className="block truncate font-semibold text-sm text-white leading-tight">
-              {user?.name || user?.email}
-            </span>
-            <span className="block truncate text-(--sidebar-fg-muted) text-2xs leading-tight">
-              {user?.email}
-            </span>
-          </span>
-        )}
+      <DropdownMenuTrigger asChild>
+        <SidebarUser name={user?.name || user?.email || ""} description={user?.email} src={user?.avatarUrl} />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" side={collapsed ? "right" : "top"} className="w-60">
+      <DropdownMenuContent align="start" side={iconOnly ? "right" : "top"} className="w-60">
         <DropdownMenuLabel className="font-normal">
           <span className="block truncate font-medium">{user?.name}</span>
           <span className="block truncate text-muted-foreground text-xs">{user?.email}</span>

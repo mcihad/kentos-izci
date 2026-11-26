@@ -209,6 +209,11 @@ A change is done when:
   stay for severity only. Stack traces and breadcrumbs share the "trail"
   (`components/event/stack-trail.tsx`). Monospace is reserved for code and
   identifiers.
+- **Navigation:** `components/app/sidebar.tsx` builds the left menu from the
+  kit's `layout/sidebar` (switcher, search, groups, account; icon rail on
+  desktop, drawer on phones). Pages come from `components/app/nav.ts`: a new
+  page gets an icon, a `group` and search `keywords` there, and the command
+  palette lists it too.
 - **Appearance:** users customize the theme per browser from the palette
   button (`components/app/appearance-sheet.tsx`, the kit's
   `AppearancePanel` in a sheet): light/dark/system, font

@@ -1,93 +1,99 @@
-import { cn } from "@kentos/components/lib/utils";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarItem,
+  SidebarSearch,
+} from "@kentos/components/layout/sidebar";
 import { Link } from "@tanstack/react-router";
 import { BookOpenIcon, type LucideIcon, SettingsIcon, ShieldCheckIcon } from "lucide-react";
 import { useOrg } from "@/lib/org";
 import { canAdmin, useSession } from "@/lib/session";
-import { primaryNav } from "./nav";
+import { type NavItem, primaryNav } from "./nav";
 import { OrgSwitcher } from "./org-switcher";
 import { UserMenu } from "./user-menu";
 
-// Rail items of the KentOS sidebar: white text on the dark rail, the current
-// page on a lighter tint. Colours and weights live in the active/inactive
-// props so the two states never fight over the same property.
-const itemClass =
-  "relative flex h-10 items-center gap-2.5 rounded-md text-sm transition-colors duration-(--duration-fast) md:h-9";
-const activeClass = "bg-(--sidebar-item-active-bg) font-semibold text-(--sidebar-item-active-fg)";
-const inactiveClass = "font-medium text-(--sidebar-fg) hover:bg-(--sidebar-item-hover) [&>svg]:opacity-80";
-
 type Item = {
-  to: "/o/$org" | "/o/$org/docs" | "/o/$org/settings" | "/o/$org/admin" | (typeof primaryNav)[number]["to"];
+  to: "/o/$org/docs" | "/o/$org/settings" | "/o/$org/admin" | NavItem["to"];
   label: string;
   icon: LucideIcon;
   exact?: boolean;
+  keywords?: string[];
 };
 
-function RailLink({
-  item,
-  collapsed,
-  onNavigate,
-}: {
-  item: Item;
-  collapsed: boolean;
-  onNavigate?: () => void;
-}) {
+const groups = ["İzleme", "Müşteri", "Yapılandırma"] as const;
+
+// The router link marks the current page with aria-current="page", which the
+// kit's item styles as active.
+function NavLink({ item }: { item: Item }) {
   const org = useOrg();
   return (
-    <Link
-      to={item.to}
-      params={{ org: org.slug }}
-      activeOptions={{ exact: item.exact ?? false, includeSearch: false }}
-      className={cn(itemClass, collapsed ? "justify-center" : "px-2.5")}
-      activeProps={{ className: activeClass }}
-      inactiveProps={{ className: inactiveClass }}
-      title={collapsed ? item.label : undefined}
-      onClick={onNavigate}
-    >
-      <item.icon className="size-4 shrink-0" />
-      <span className={collapsed ? "sr-only" : "truncate"}>{item.label}</span>
-    </Link>
+    <SidebarItem icon={item.icon} label={item.label} keywords={item.keywords} asChild>
+      <Link
+        to={item.to}
+        params={{ org: org.slug }}
+        activeOptions={{ exact: item.exact ?? false, includeSearch: false }}
+      />
+    </SidebarItem>
   );
 }
 
-export function SidebarContent({
-  collapsed = false,
-  onNavigate,
-  inSheet = false,
-}: {
-  collapsed?: boolean;
-  onNavigate?: () => void;
-  /** Leaves room for the drawer's close button beside the organization switch. */
-  inSheet?: boolean;
-}) {
+/** The organization's sidebar: switcher, search, grouped pages, management and account. */
+export function AppSidebar() {
   const org = useOrg();
   const session = useSession();
-  const bottom: Item[] = [{ to: "/o/$org/docs", label: "Belgeler", icon: BookOpenIcon }];
+  const manage: Item[] = [
+    { to: "/o/$org/docs", label: "Belgeler", icon: BookOpenIcon, keywords: ["yardım", "SDK", "kurulum"] },
+  ];
   if (canAdmin(org.role))
-    bottom.push({ to: "/o/$org/settings", label: "Organizasyon ayarları", icon: SettingsIcon });
+    manage.push({
+      to: "/o/$org/settings",
+      label: "Organizasyon ayarları",
+      icon: SettingsIcon,
+      keywords: ["üyeler", "davet", "güvenlik", "saklama", "gizlilik", "kayıt defteri"],
+    });
   if (session?.user?.superadmin)
-    bottom.push({ to: "/o/$org/admin", label: "Sunucu yönetimi", icon: ShieldCheckIcon });
+    manage.push({
+      to: "/o/$org/admin",
+      label: "Sunucu yönetimi",
+      icon: ShieldCheckIcon,
+      keywords: ["admin", "kullanıcılar", "organizasyonlar"],
+    });
+
   return (
-    <div className="flex h-full flex-col">
-      <div className={cn("pt-2.5", collapsed ? "px-2" : "px-2.5", inSheet && "pr-12")}>
-        <OrgSwitcher collapsed={collapsed} />
-      </div>
-      <div
-        className={cn("flex min-h-0 flex-1 flex-col overflow-y-auto py-2.5", collapsed ? "px-2" : "px-2.5")}
-      >
-        <nav className="grid gap-0.5" aria-label="Ana menü">
-          {primaryNav.map((item) => (
-            <RailLink key={item.to} item={item} collapsed={collapsed} onNavigate={onNavigate} />
+    <Sidebar label="Menü">
+      <SidebarHeader>
+        <OrgSwitcher />
+      </SidebarHeader>
+      <SidebarSearch />
+      <SidebarContent>
+        <SidebarGroup>
+          {primaryNav
+            .filter((item) => !item.group)
+            .map((item) => (
+              <NavLink key={item.to} item={item} />
+            ))}
+        </SidebarGroup>
+        {groups.map((group) => (
+          <SidebarGroup key={group} label={group}>
+            {primaryNav
+              .filter((item) => item.group === group)
+              .map((item) => (
+                <NavLink key={item.to} item={item} />
+              ))}
+          </SidebarGroup>
+        ))}
+        <SidebarGroup label="Yönetim" className="mt-auto">
+          {manage.map((item) => (
+            <NavLink key={item.to} item={item} />
           ))}
-        </nav>
-        <nav className="mt-auto grid gap-0.5 pt-4" aria-label="Yönetim">
-          {bottom.map((item) => (
-            <RailLink key={item.to} item={item} collapsed={collapsed} onNavigate={onNavigate} />
-          ))}
-        </nav>
-      </div>
-      <div className={cn("border-(--sidebar-border) border-t", collapsed ? "p-2" : "p-2.5")}>
-        <UserMenu collapsed={collapsed} />
-      </div>
-    </div>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter>
+        <UserMenu />
+      </SidebarFooter>
+    </Sidebar>
   );
 }

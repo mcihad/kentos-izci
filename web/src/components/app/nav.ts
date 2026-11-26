@@ -27,18 +27,76 @@ export type NavItem = {
     | "/o/$org/ai";
   icon: LucideIcon;
   exact?: boolean;
+  /** Sidebar group; items without one sit above the groups. */
+  group?: "İzleme" | "Müşteri" | "Yapılandırma";
+  /** Extra words the sidebar search matches. */
+  keywords?: string[];
 };
 
-/** Primary navigation of an organization. */
+/** Primary navigation of an organization, in sidebar order. */
 export const primaryNav: NavItem[] = [
-  { label: "Genel bakış", to: "/o/$org", icon: CompassIcon, exact: true },
-  { label: "Hatalar", to: "/o/$org/issues", icon: BugIcon },
-  { label: "Panolar", to: "/o/$org/dashboards", icon: LayoutDashboardIcon },
-  { label: "Geri bildirim", to: "/o/$org/feedback", icon: MessageSquareTextIcon },
-  { label: "Müşteriler", to: "/o/$org/customers", icon: Building2Icon },
-  { label: "Canlı akış", to: "/o/$org/live", icon: RadioIcon },
-  { label: "Zamanlanmış görevler", to: "/o/$org/monitors", icon: TimerIcon },
-  { label: "Projeler", to: "/o/$org/projects", icon: BoxesIcon },
-  { label: "Yapay zekâ", to: "/o/$org/ai", icon: SparklesIcon },
-  { label: "Uyarılar", to: "/o/$org/alerts", icon: BellRingIcon },
+  { label: "Genel bakış", to: "/o/$org", icon: CompassIcon, exact: true, keywords: ["ana sayfa", "özet"] },
+  {
+    label: "Hatalar",
+    to: "/o/$org/issues",
+    icon: BugIcon,
+    group: "İzleme",
+    keywords: ["issue", "istisna", "exception", "olay"],
+  },
+  {
+    label: "Panolar",
+    to: "/o/$org/dashboards",
+    icon: LayoutDashboardIcon,
+    group: "İzleme",
+    keywords: ["dashboard", "grafik", "kayıtlı arama"],
+  },
+  {
+    label: "Canlı akış",
+    to: "/o/$org/live",
+    icon: RadioIcon,
+    group: "İzleme",
+    keywords: ["live", "olaylar"],
+  },
+  {
+    label: "Zamanlanmış görevler",
+    to: "/o/$org/monitors",
+    icon: TimerIcon,
+    group: "İzleme",
+    keywords: ["cron", "monitor", "check-in"],
+  },
+  {
+    label: "Müşteriler",
+    to: "/o/$org/customers",
+    icon: Building2Icon,
+    group: "Müşteri",
+    keywords: ["customer", "sağlık", "rapor"],
+  },
+  {
+    label: "Geri bildirim",
+    to: "/o/$org/feedback",
+    icon: MessageSquareTextIcon,
+    group: "Müşteri",
+    keywords: ["feedback", "kullanıcı", "şikâyet"],
+  },
+  {
+    label: "Projeler",
+    to: "/o/$org/projects",
+    icon: BoxesIcon,
+    group: "Yapılandırma",
+    keywords: ["DSN", "SDK", "kaynak eşleme"],
+  },
+  {
+    label: "Uyarılar",
+    to: "/o/$org/alerts",
+    icon: BellRingIcon,
+    group: "Yapılandırma",
+    keywords: ["alert", "bildirim", "telegram", "e-posta"],
+  },
+  {
+    label: "Yapay zekâ",
+    to: "/o/$org/ai",
+    icon: SparklesIcon,
+    group: "Yapılandırma",
+    keywords: ["AI", "çözüm", "düzeltme"],
+  },
 ];
