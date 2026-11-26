@@ -50,7 +50,7 @@ jobs:
           auth=""
           if [ -n "$TOKEN" ]; then auth="x-access-token:${TOKEN}@"; fi
           git clone --depth 1 "https://${auth}github.com/${{ github.repository_owner }}/kentos-components.git" ../kentos-components
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
           cache-dependency-path: |
