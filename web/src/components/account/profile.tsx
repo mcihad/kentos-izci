@@ -1,23 +1,16 @@
 import { useMutation, useQuery } from "@connectrpc/connect-query";
+import { ConfirmDialog } from "@kentos/components/common/dialogs";
 import { Field, FormError } from "@kentos/components/common/field";
 import { Button } from "@kentos/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@kentos/components/ui/dialog";
 import { Input } from "@kentos/components/ui/input";
 import { useQueryClient } from "@tanstack/react-query";
-import { KeyRoundIcon } from "lucide-react";
+import { KeyRoundIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AuthService } from "@/gen/izci/api/v1/auth_pb";
 import { UserService } from "@/gen/izci/api/v1/user_pb";
 import { baseTransport } from "@/lib/api";
-import { errorField, errorMessage } from "@/lib/errors";
+import { errorField, errorMessage, failWith } from "@/lib/errors";
 import { useOrg } from "@/lib/org";
 import { recentlyAuthenticated, requestReauth, useSensitiveMutation } from "@/lib/reauth";
 import { sessionQuery, useSession } from "@/lib/session";
@@ -133,12 +126,10 @@ export function Profile() {
 /** Deletes the caller's account after they repeat its e-mail address. */
 function DeleteAccount({ email }: { email: string }) {
   const [open, setOpen] = useState(false);
-  const [confirm, setConfirm] = useState("");
   const del = useSensitiveMutation(UserService.method.deleteAccount, {
     transport: baseTransport,
     // The session ended with the account: start over from the sign-in page.
     onSuccess: () => window.location.assign("/login"),
-    onError: (err) => toast.error(errorMessage(err)),
   });
   return (
     <section className="rounded-lg border border-destructive/35 px-5 py-4">
@@ -151,36 +142,24 @@ function DeleteAccount({ email }: { email: string }) {
       <Button variant="destructive" size="sm" className="mt-3" onClick={() => setOpen(true)}>
         Hesabımı sil
       </Button>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Hesabınız silinsin mi?</DialogTitle>
-            <DialogDescription>
-              Bu işlem geri alınamaz. Onaylamak için e-posta adresinizi yazın:{" "}
-              <code className="font-mono text-foreground">{email}</code>
-            </DialogDescription>
-          </DialogHeader>
-          <Input
-            type="email"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            autoFocus
-            aria-label="E-posta adresiniz"
-          />
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setOpen(false)}>
-              Vazgeç
-            </Button>
-            <Button
-              variant="destructive"
-              disabled={confirm.trim().toLowerCase() !== email.toLowerCase() || del.isPending}
-              onClick={() => del.mutate({ confirmEmail: confirm.trim() })}
-            >
-              Hesabımı kalıcı olarak sil
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={open}
+        onOpenChange={setOpen}
+        tone="danger"
+        icon={Trash2Icon}
+        title="Hesabınız silinsin mi?"
+        description="Hesabınız, oturumlarınız ve erişim anahtarlarınız kalıcı olarak silinir; organizasyonlardaki üyelikleriniz kaldırılır. Bu işlem geri alınamaz."
+        confirmText={email}
+        confirmTextLabel={
+          <span>
+            Onaylamak için e-posta adresinizi yazın:{" "}
+            <strong className="font-mono font-semibold">{email}</strong>
+          </span>
+        }
+        confirmLabel="Hesabımı kalıcı olarak sil"
+        pendingLabel="Siliniyor…"
+        onConfirm={() => del.mutateAsync({ confirmEmail: email }).catch(failWith)}
+      />
     </section>
   );
 }

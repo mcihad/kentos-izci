@@ -1,17 +1,10 @@
 import { clone, create } from "@bufbuild/protobuf";
 import { createConnectQueryKey, useInfiniteQuery, useQuery } from "@connectrpc/connect-query";
 import { StackedBars } from "@kentos/components/charts/stacked-bars";
+import { ConfirmDialog } from "@kentos/components/common/dialogs";
 import { Field } from "@kentos/components/common/field";
 import { StatStrip } from "@kentos/components/common/stat-strip";
 import { Button } from "@kentos/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@kentos/components/ui/dialog";
 import { Input } from "@kentos/components/ui/input";
 import { Label } from "@kentos/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
@@ -19,6 +12,7 @@ import { Skeleton } from "@kentos/components/ui/skeleton";
 import { Switch } from "@kentos/components/ui/switch";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AuditEntries } from "@/components/common/audit-entries";
@@ -30,7 +24,7 @@ import {
   type OrganizationSettings,
   OrganizationSettingsSchema,
 } from "@/gen/izci/api/v1/organization_pb";
-import { errorMessage } from "@/lib/errors";
+import { errorMessage, failWith } from "@/lib/errors";
 import { formatCompact, formatNumber } from "@/lib/format";
 import { roleLabels } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
@@ -346,7 +340,6 @@ function DeleteOrganizationDialog({
   const org = useOrg();
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const [confirm, setConfirm] = useState("");
   const del = useSensitiveMutation(OrganizationService.method.deleteOrganization, {
     onSuccess: async () => {
       toast.success(`${name} silindi`);
@@ -356,36 +349,18 @@ function DeleteOrganizationDialog({
     onError: (err) => toast.error(errorMessage(err)),
   });
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{name} silinsin mi?</DialogTitle>
-          <DialogDescription>
-            Bu işlem geri alınamaz. Onaylamak için organizasyonun kısa adını yazın:{" "}
-            <code className="font-mono text-foreground">{org.slug}</code>
-          </DialogDescription>
-        </DialogHeader>
-        <Input
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          autoFocus
-          className="font-mono text-sm"
-          aria-label="Organizasyonun kısa adı"
-        />
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Vazgeç
-          </Button>
-          <Button
-            variant="destructive"
-            disabled={confirm !== org.slug || del.isPending}
-            onClick={() => del.mutate({ confirmSlug: confirm })}
-          >
-            Kalıcı olarak sil
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <ConfirmDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      tone="danger"
+      icon={Trash2Icon}
+      title={`${name} silinsin mi?`}
+      description="Organizasyonun bütün projeleri, olayları, hataları, üyelikleri ve ayarları kalıcı olarak silinir. Bu işlem geri alınamaz."
+      confirmText={org.slug}
+      confirmLabel="Kalıcı olarak sil"
+      pendingLabel="Siliniyor…"
+      onConfirm={() => del.mutateAsync({ confirmSlug: org.slug }).catch(failWith)}
+    />
   );
 }
 

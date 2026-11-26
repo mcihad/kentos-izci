@@ -1,4 +1,5 @@
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
+import { ConfirmDialog } from "@kentos/components/common/dialogs";
 import { Field, FormError } from "@kentos/components/common/field";
 import { UserAvatar } from "@kentos/components/common/user-avatar";
 import { cn } from "@kentos/components/lib/utils";
@@ -15,7 +16,7 @@ import { Input } from "@kentos/components/ui/input";
 import { Skeleton } from "@kentos/components/ui/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { CircleAlertIcon, ExternalLinkIcon, KeyRoundIcon, PlugIcon } from "lucide-react";
+import { CircleAlertIcon, ExternalLinkIcon, KeyRoundIcon, PlugIcon, UnplugIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { GitHubMark } from "@/components/brand/github-mark";
@@ -24,7 +25,7 @@ import { EmptyState, ErrorState } from "@/components/common/states";
 import { pill, tones } from "@/components/issue/badges";
 import { type Integration, IntegrationAuth, IntegrationService } from "@/gen/izci/api/v1/integration_pb";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
-import { errorField, errorMessage } from "@/lib/errors";
+import { errorField, errorMessage, failWith } from "@/lib/errors";
 import { useOrg } from "@/lib/org";
 import { canAdmin } from "@/lib/session";
 
@@ -171,7 +172,6 @@ function IntegrationRow({
       setConfirm(false);
       onChanged();
     },
-    onError: (err) => toast.error(errorMessage(err)),
   });
   const app = i.auth === IntegrationAuth.APP;
   return (
@@ -213,29 +213,17 @@ function IntegrationRow({
           </Button>
         </div>
       ) : null}
-      <Dialog open={confirm} onOpenChange={setConfirm}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Bağlantı kaldırılsın mı?</DialogTitle>
-            <DialogDescription>
-              {i.accountLogin} bağlantısını kullanan projeler kaynak bağlantılarını korur, ancak yapay zekâ bu
-              depoları okuyamaz ve düzeltme gönderemez.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setConfirm(false)}>
-              Vazgeç
-            </Button>
-            <Button
-              variant="destructive"
-              disabled={remove.isPending}
-              onClick={() => remove.mutate({ id: i.id })}
-            >
-              Bağlantıyı kaldır
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={confirm}
+        onOpenChange={setConfirm}
+        tone="danger"
+        icon={UnplugIcon}
+        title="Bağlantı kaldırılsın mı?"
+        description={`${i.accountLogin} bağlantısını kullanan projeler kaynak bağlantılarını korur, ancak yapay zekâ bu depoları okuyamaz ve düzeltme gönderemez.`}
+        confirmLabel="Bağlantıyı kaldır"
+        pendingLabel="Kaldırılıyor…"
+        onConfirm={() => remove.mutateAsync({ id: i.id }).catch(failWith)}
+      />
     </li>
   );
 }

@@ -235,11 +235,13 @@ A change is done when:
 - **Appearance:** users customize the theme per browser from the palette
   button (`components/app/appearance-sheet.tsx`, the kit's
   `AppearancePanel` in a sheet): light/dark/system, font
-  (Plus Jakarta Sans, Inter, IBM Plex Sans), density, radius, accent and card
-  elevation. Each choice is one scope class on `<html>` (`.font-*`,
+  (Plus Jakarta Sans, Inter, IBM Plex Sans), code font (JetBrains Mono, Fira
+  Code, IBM Plex Mono, system), density, radius, accent and card elevation.
+  Each choice is one scope class on `<html>` (`.font-*`, `.mono-*`,
   `.density-*`, `.radius-*`, `.accent-*`, `.elevation-*`); the kit's
   `lib/theme` and `public/theme-init.js` apply them and must stay in step
-  (`main.tsx` calls `configureAppearance` with izci's storage keys). Components read
+  (`main.tsx` calls `configureAppearance` and `index.html` passes the same
+  keys to the kit's `theme-init.js` as data attributes). Components read
   control heights, gutters and radii from those tokens, never fixed values.
 - **Readability:** fonts are Plus Jakarta Sans / Inter / IBM Plex Sans and
   JetBrains Mono for code. Font sizes come only from the kit's scale

@@ -1,15 +1,8 @@
 import { createConnectQueryKey, useInfiniteQuery, useMutation, useQuery } from "@connectrpc/connect-query";
+import { ConfirmDialog } from "@kentos/components/common/dialogs";
 import { thClass, theadClass, trClass } from "@kentos/components/common/table";
 import { cn } from "@kentos/components/lib/utils";
 import { Button } from "@kentos/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@kentos/components/ui/dialog";
 import { Skeleton } from "@kentos/components/ui/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -28,7 +21,7 @@ import {
   DebugFileKind,
   SymbolService,
 } from "@/gen/izci/api/v1/symbol_pb";
-import { errorMessage } from "@/lib/errors";
+import { failWith } from "@/lib/errors";
 import { formatBytes } from "@/lib/format";
 import { useOrg } from "@/lib/org";
 import { canAdmin } from "@/lib/session";
@@ -161,14 +154,11 @@ export function ProjectSymbols({ project }: { project: Project }) {
     setDeleting(undefined);
     refresh();
   };
-  const onError = (err: Error) => toast.error(errorMessage(err));
   const deleteBundle = useMutation(SymbolService.method.deleteArtifactBundle, {
     onSuccess: onDone("Paket silindi"),
-    onError,
   });
   const deleteFile = useMutation(SymbolService.method.deleteDebugFile, {
     onSuccess: onDone("Sembol dosyası silindi"),
-    onError,
   });
   const bundleRows = bundles.data?.pages.flatMap((p) => p.bundles) ?? [];
   const fileRows = files.data?.pages.flatMap((p) => p.files) ?? [];
@@ -355,49 +345,42 @@ export function ProjectSymbols({ project }: { project: Project }) {
         )}
       </section>
 
-      <Dialog open={!!deleting} onOpenChange={(v) => !v && setDeleting(undefined)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{deleting?.kind === "file" ? "Sembol dosyasını sil" : "Paketi sil"}</DialogTitle>
-            <DialogDescription>
-              {deleting?.kind === "file" ? (
-                <>
-                  <strong className="text-foreground">{deleting.file.name}</strong> silinince bu derlemeden
-                  gelen yeni hataların yığın izleri çözülmez. Kayıtlı hatalar değişmez.
-                </>
-              ) : deleting?.kind === "bundle" ? (
-                <>
-                  {deleting.bundle.release ? (
-                    <strong className="text-foreground">{deleting.bundle.release}</strong>
-                  ) : (
-                    "Bu"
-                  )}{" "}
-                  paketi silinince bu dosyalarla gelen yeni hataların yığın izleri çözülmez. Kayıtlı hatalar
-                  değişmez.
-                </>
-              ) : null}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setDeleting(undefined)}>
-              Vazgeç
-            </Button>
-            <Button
-              variant="destructive"
-              disabled={deleteBundle.isPending || deleteFile.isPending}
-              onClick={() => {
-                if (deleting?.kind === "bundle") {
-                  deleteBundle.mutate({ project: project.slug, id: deleting.bundle.id });
-                } else if (deleting?.kind === "file") {
-                  deleteFile.mutate({ project: project.slug, id: deleting.file.id });
-                }
-              }}
-            >
-              Sil
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={!!deleting}
+        onOpenChange={(v) => !v && setDeleting(undefined)}
+        tone="danger"
+        icon={Trash2Icon}
+        title={deleting?.kind === "file" ? "Sembol dosyası silinsin mi?" : "Paket silinsin mi?"}
+        description={
+          deleting?.kind === "file" ? (
+            <>
+              <strong className="text-foreground">{deleting.file.name}</strong> silinince bu derlemeden gelen
+              yeni hataların yığın izleri çözülmez. Kayıtlı hatalar değişmez.
+            </>
+          ) : deleting?.kind === "bundle" ? (
+            <>
+              {deleting.bundle.release ? (
+                <strong className="text-foreground">{deleting.bundle.release}</strong>
+              ) : (
+                "Bu"
+              )}{" "}
+              paketi silinince bu dosyalarla gelen yeni hataların yığın izleri çözülmez. Kayıtlı hatalar
+              değişmez.
+            </>
+          ) : null
+        }
+        confirmLabel="Sil"
+        pendingLabel="Siliniyor…"
+        onConfirm={() => {
+          if (deleting?.kind === "bundle")
+            return deleteBundle
+              .mutateAsync({ project: project.slug, id: deleting.bundle.id })
+              .catch(failWith);
+          if (deleting?.kind === "file")
+            return deleteFile.mutateAsync({ project: project.slug, id: deleting.file.id }).catch(failWith);
+          return undefined;
+        }}
+      />
     </div>
   );
 }

@@ -1,17 +1,10 @@
 import { createConnectQueryKey, useInfiniteQuery, useMutation, useQuery } from "@connectrpc/connect-query";
+import { ConfirmDialog } from "@kentos/components/common/dialogs";
 import { StatStrip } from "@kentos/components/common/stat-strip";
 import { tdClass, thClass, theadClass, trClass } from "@kentos/components/common/table";
 import { PageAction, PageActionMenu, PageBreadcrumb } from "@kentos/components/layout/page";
 import { cn } from "@kentos/components/lib/utils";
 import { Button } from "@kentos/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@kentos/components/ui/dialog";
 import { Skeleton } from "@kentos/components/ui/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -32,7 +25,7 @@ import {
 } from "@/components/monitor/status";
 import { type Monitor, MonitorService } from "@/gen/izci/api/v1/monitor_pb";
 import { crontabOf, describeSchedule } from "@/lib/cron";
-import { errorMessage } from "@/lib/errors";
+import { errorMessage, failWith } from "@/lib/errors";
 import { formatDateTime, formatDuration, formatNumber } from "@/lib/format";
 import { useOrg } from "@/lib/org";
 import { canAdmin } from "@/lib/session";
@@ -231,29 +224,17 @@ function MonitorView({ monitor: m, orgSlug }: { monitor: Monitor; orgSlug: strin
           void refresh();
         }}
       />
-      <Dialog open={deleting} onOpenChange={setDeleting}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>İzleyiciyi sil</DialogTitle>
-            <DialogDescription>
-              {m.name} ve çalışma geçmişi silinir. Açtığı hata kayıtları kalır. Görev check-in göndermeyi
-              sürdürürse izleyici yeniden oluşmaz; monitor_config gönderiyorsa oluşur.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setDeleting(false)}>
-              Vazgeç
-            </Button>
-            <Button
-              variant="destructive"
-              disabled={remove.isPending}
-              onClick={() => remove.mutate({ id: m.id })}
-            >
-              Sil
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={deleting}
+        onOpenChange={setDeleting}
+        tone="danger"
+        icon={Trash2Icon}
+        title={`${m.name} silinsin mi?`}
+        description="İzleyici ve çalışma geçmişi silinir. Açtığı hata kayıtları kalır. Görev check-in göndermeyi sürdürürse izleyici yeniden oluşmaz; monitor_config gönderiyorsa oluşur."
+        confirmLabel="İzleyiciyi sil"
+        pendingLabel="Siliniyor…"
+        onConfirm={() => remove.mutateAsync({ id: m.id }).catch(failWith)}
+      />
     </Page>
   );
 }

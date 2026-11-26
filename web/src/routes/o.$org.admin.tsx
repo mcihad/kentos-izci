@@ -1,5 +1,6 @@
 import { create } from "@bufbuild/protobuf";
 import { createConnectQueryKey, useInfiniteQuery, useMutation, useQuery } from "@connectrpc/connect-query";
+import { ConfirmDialog } from "@kentos/components/common/dialogs";
 import { Field } from "@kentos/components/common/field";
 import { thClass, theadClass, trClass } from "@kentos/components/common/table";
 import { UserAvatar } from "@kentos/components/common/user-avatar";
@@ -19,7 +20,7 @@ import { Skeleton } from "@kentos/components/ui/skeleton";
 import { Switch } from "@kentos/components/ui/switch";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ShieldAlertIcon, ShieldCheckIcon } from "lucide-react";
+import { ShieldAlertIcon, ShieldCheckIcon, ShieldOffIcon, UserXIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { gutter, Page } from "@/components/app/page";
@@ -30,7 +31,7 @@ import { TabbedCard, TabNav } from "@/components/common/tab-nav";
 import { type AdminOrganization, AdminService, type AdminUser } from "@/gen/izci/api/v1/admin_pb";
 import { OrganizationLimitsSchema } from "@/gen/izci/api/v1/organization_pb";
 import { baseTransport } from "@/lib/api";
-import { errorMessage } from "@/lib/errors";
+import { errorMessage, failWith } from "@/lib/errors";
 import { formatCompact, formatDateTime, formatNumber } from "@/lib/format";
 import { useSensitiveMutation } from "@/lib/reauth";
 import { useSession } from "@/lib/session";
@@ -363,6 +364,20 @@ function Users() {
     },
     onError: (err) => toast.error(errorMessage(err)),
   });
+  // Its own mutation so a failure shows only in the confirmation dialog.
+  const reset = useMutation(AdminService.method.updateUser, {
+    transport: baseTransport,
+    onSuccess: () => {
+      toast.success("İki adımlı doğrulama sıfırlandı");
+      void qc.invalidateQueries({
+        queryKey: createConnectQueryKey({
+          schema: AdminService,
+          transport: baseTransport,
+          cardinality: undefined,
+        }),
+      });
+    },
+  });
   const remove = useSensitiveMutation(AdminService.method.deleteUser, {
     transport: baseTransport,
     onSuccess: () => {
@@ -447,59 +462,30 @@ function Users() {
           );
         })}
       </ul>
-      <Dialog open={resetting !== undefined} onOpenChange={(v) => (v ? undefined : setResetting(undefined))}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>İki adımlı doğrulamayı sıfırla</DialogTitle>
-            <DialogDescription>
-              {resetting?.user?.email} artık yalnız parolasıyla giriş yapar ve kurtarma kodları silinir. Bunu
-              yalnız telefonunu ve kurtarma kodlarını kaybeden, kimliğini başka yoldan doğruladığınız
-              kullanıcılar için yapın.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setResetting(undefined)}>
-              Vazgeç
-            </Button>
-            <Button
-              variant="destructive"
-              disabled={update.isPending}
-              onClick={() =>
-                update.mutate(
-                  { userId: resetting?.user?.id ?? "", resetTwoFactor: true },
-                  { onSuccess: () => setResetting(undefined) },
-                )
-              }
-            >
-              Sıfırla
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={removing !== undefined} onOpenChange={(v) => (v ? undefined : setRemoving(undefined))}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{removing?.user?.email} silinsin mi?</DialogTitle>
-            <DialogDescription>
-              Hesabın üyelikleri, oturumları ve erişim anahtarları silinir; yorumları ve denetim kayıtları
-              yazarsız kalır. Kişiye e-postayla haber verilir. Tek sahibi olduğu organizasyonlar varsa önce
-              sahipliği devredin. Bu işlem geri alınamaz; yalnız erişimi kesmek için devre dışı bırakın.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setRemoving(undefined)}>
-              Vazgeç
-            </Button>
-            <Button
-              variant="destructive"
-              disabled={remove.isPending}
-              onClick={() => remove.mutate({ userId: removing?.user?.id ?? "" })}
-            >
-              Kalıcı olarak sil
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={resetting !== undefined}
+        onOpenChange={(v) => (v ? undefined : setResetting(undefined))}
+        tone="warning"
+        icon={ShieldOffIcon}
+        title="İki adımlı doğrulama sıfırlansın mı?"
+        description={`${resetting?.user?.email ?? "Kullanıcı"} artık yalnız parolasıyla giriş yapar ve kurtarma kodları silinir. Bunu yalnız telefonunu ve kurtarma kodlarını kaybeden, kimliğini başka yoldan doğruladığınız kullanıcılar için yapın.`}
+        confirmLabel="Sıfırla"
+        pendingLabel="Sıfırlanıyor…"
+        onConfirm={() =>
+          reset.mutateAsync({ userId: resetting?.user?.id ?? "", resetTwoFactor: true }).catch(failWith)
+        }
+      />
+      <ConfirmDialog
+        open={removing !== undefined}
+        onOpenChange={(v) => (v ? undefined : setRemoving(undefined))}
+        tone="danger"
+        icon={UserXIcon}
+        title={`${removing?.user?.email ?? "Kullanıcı"} silinsin mi?`}
+        description="Hesabın üyelikleri, oturumları ve erişim anahtarları silinir; yorumları ve denetim kayıtları yazarsız kalır. Kişiye e-postayla haber verilir. Tek sahibi olduğu organizasyonlar varsa önce sahipliği devredin. Bu işlem geri alınamaz; yalnız erişimi kesmek için devre dışı bırakın."
+        confirmLabel="Kalıcı olarak sil"
+        pendingLabel="Siliniyor…"
+        onConfirm={() => remove.mutateAsync({ userId: removing?.user?.id ?? "" }).catch(failWith)}
+      />
     </div>
   );
 }

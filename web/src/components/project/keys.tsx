@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@connectrpc/connect-query";
 import { SecretValue } from "@kentos/components/common/copy-button";
+import { ConfirmDialog } from "@kentos/components/common/dialogs";
 import { Field, FormError } from "@kentos/components/common/field";
 import { Button } from "@kentos/components/ui/button";
 import { Checkbox } from "@kentos/components/ui/checkbox";
@@ -28,7 +29,7 @@ import {
   type Project,
   ProjectService,
 } from "@/gen/izci/api/v1/project_pb";
-import { errorField, errorMessage } from "@/lib/errors";
+import { errorField, errorMessage, failWith } from "@/lib/errors";
 import { formatNumber } from "@/lib/format";
 import { useOrg } from "@/lib/org";
 import { canAdmin } from "@/lib/session";
@@ -60,7 +61,6 @@ export function ProjectKeys({ project }: { project: Project }) {
       setRevoking(undefined);
       void invalidate();
     },
-    onError: (err) => toast.error(errorMessage(err)),
   });
 
   return (
@@ -167,29 +167,21 @@ export function ProjectKeys({ project }: { project: Project }) {
         </ul>
       )}
       <CreateKeyDialog project={project} open={creating} onOpenChange={setCreating} />
-      <Dialog open={!!revoking} onOpenChange={(v) => !v && setRevoking(undefined)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Anahtarı iptal et</DialogTitle>
-            <DialogDescription>
-              <strong className="text-foreground">{revoking?.name}</strong> anahtarıyla gönderilen olaylar
-              hemen reddedilmeye başlar. Bu işlem geri alınamaz.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setRevoking(undefined)}>
-              Vazgeç
-            </Button>
-            <Button
-              variant="destructive"
-              disabled={revoke.isPending}
-              onClick={() => revoking && revoke.mutate({ project: project.slug, keyId: revoking.id })}
-            >
-              Anahtarı iptal et
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={!!revoking}
+        onOpenChange={(v) => !v && setRevoking(undefined)}
+        tone="danger"
+        icon={KeyRoundIcon}
+        title={`${revoking?.name ?? "Anahtar"} iptal edilsin mi?`}
+        description="Bu anahtarla gönderilen olaylar hemen reddedilmeye başlar. Bu işlem geri alınamaz."
+        confirmLabel="Anahtarı iptal et"
+        pendingLabel="İptal ediliyor…"
+        onConfirm={() =>
+          revoking
+            ? revoke.mutateAsync({ project: project.slug, keyId: revoking.id }).catch(failWith)
+            : undefined
+        }
+      />
     </div>
   );
 }

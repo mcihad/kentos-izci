@@ -1,23 +1,17 @@
 import { clone, create } from "@bufbuild/protobuf";
 import { useMutation } from "@connectrpc/connect-query";
+import { ConfirmDialog } from "@kentos/components/common/dialogs";
 import { Field } from "@kentos/components/common/field";
 import { Button } from "@kentos/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@kentos/components/ui/dialog";
 import { Input } from "@kentos/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
 import { useNavigate } from "@tanstack/react-router";
+import { Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Role } from "@/gen/izci/api/v1/common_pb";
 import { type Project, ProjectService, ProjectSettingsSchema } from "@/gen/izci/api/v1/project_pb";
-import { errorMessage } from "@/lib/errors";
+import { errorMessage, failWith } from "@/lib/errors";
 import { useOrg } from "@/lib/org";
 import { platformOptions } from "@/lib/platforms";
 import { canAdmin } from "@/lib/session";
@@ -129,7 +123,6 @@ function DeleteProjectDialog({
   const org = useOrg();
   const navigate = useNavigate();
   const invalidate = useInvalidateProjects();
-  const [confirm, setConfirm] = useState("");
   const del = useMutation(ProjectService.method.deleteProject, {
     onSuccess: () => {
       toast.success(`${project.name} silindi`);
@@ -139,34 +132,17 @@ function DeleteProjectDialog({
     onError: (err) => toast.error(errorMessage(err)),
   });
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{project.name} silinsin mi?</DialogTitle>
-          <DialogDescription>
-            Bu işlem geri alınamaz. Onaylamak için projenin kısa adını yazın:{" "}
-            <code className="font-mono text-foreground">{project.slug}</code>
-          </DialogDescription>
-        </DialogHeader>
-        <Input
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          autoFocus
-          className="font-mono text-sm"
-        />
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Vazgeç
-          </Button>
-          <Button
-            variant="destructive"
-            disabled={confirm !== project.slug || del.isPending}
-            onClick={() => del.mutate({ slug: project.slug, confirmSlug: confirm })}
-          >
-            Kalıcı olarak sil
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <ConfirmDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      tone="danger"
+      icon={Trash2Icon}
+      title={`${project.name} silinsin mi?`}
+      description="Projenin bütün olayları, hataları, anahtarları, sürümleri ve kaynak eşlemeleri kalıcı olarak silinir. Bu işlem geri alınamaz."
+      confirmText={project.slug}
+      confirmLabel="Kalıcı olarak sil"
+      pendingLabel="Siliniyor…"
+      onConfirm={() => del.mutateAsync({ slug: project.slug, confirmSlug: project.slug }).catch(failWith)}
+    />
   );
 }

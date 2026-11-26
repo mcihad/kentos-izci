@@ -1,5 +1,6 @@
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
 import { SecretValue } from "@kentos/components/common/copy-button";
+import { ConfirmDialog } from "@kentos/components/common/dialogs";
 import { Field, FormError } from "@kentos/components/common/field";
 import { UserAvatar } from "@kentos/components/common/user-avatar";
 import { Button } from "@kentos/components/ui/button";
@@ -17,14 +18,14 @@ import { Label } from "@kentos/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
 import { Skeleton } from "@kentos/components/ui/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
-import { ShieldCheckIcon, UserPlusIcon } from "lucide-react";
+import { ShieldCheckIcon, UserMinusIcon, UserPlusIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { RelativeTime } from "@/components/common/relative-time";
 import type { Invitation } from "@/gen/izci/api/v1/auth_pb";
 import { Role } from "@/gen/izci/api/v1/common_pb";
 import { type Member, OrganizationService } from "@/gen/izci/api/v1/organization_pb";
-import { errorMessage } from "@/lib/errors";
+import { errorMessage, failWith } from "@/lib/errors";
 import { roleLabels } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
 import { useSession } from "@/lib/session";
@@ -74,7 +75,6 @@ export function Members() {
       setRemoving(undefined);
       done("Üye çıkarıldı")();
     },
-    onError: fail,
   });
   const revoke = useMutation(OrganizationService.method.revokeInvitation, {
     onSuccess: done("Davet geri alındı"),
@@ -203,29 +203,19 @@ export function Members() {
         </section>
       ) : null}
       <InviteDialog open={inviting} onOpenChange={setInviting} owner={owner} />
-      <Dialog open={!!removing} onOpenChange={(v) => !v && setRemoving(undefined)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Üyeyi çıkar</DialogTitle>
-            <DialogDescription>
-              {removing?.user?.name || removing?.user?.email} bu organizasyona artık erişemeyecek. Atanmış
-              hataları sahipsiz kalır.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setRemoving(undefined)}>
-              Vazgeç
-            </Button>
-            <Button
-              variant="destructive"
-              disabled={remove.isPending}
-              onClick={() => removing && remove.mutate({ userId: removing.user?.id ?? "" })}
-            >
-              Çıkar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={!!removing}
+        onOpenChange={(v) => !v && setRemoving(undefined)}
+        tone="danger"
+        icon={UserMinusIcon}
+        title={`${removing?.user?.name || removing?.user?.email || "Üye"} çıkarılsın mı?`}
+        description="Bu kişi organizasyona artık erişemeyecek. Atanmış hataları sahipsiz kalır."
+        confirmLabel="Üyeyi çıkar"
+        pendingLabel="Çıkarılıyor…"
+        onConfirm={() =>
+          removing ? remove.mutateAsync({ userId: removing.user?.id ?? "" }).catch(failWith) : undefined
+        }
+      />
     </div>
   );
 }

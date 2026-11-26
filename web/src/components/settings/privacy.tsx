@@ -1,17 +1,10 @@
 import { create } from "@bufbuild/protobuf";
 import { useQuery, useTransport } from "@connectrpc/connect-query";
+import { ConfirmDialog } from "@kentos/components/common/dialogs";
 import { Field } from "@kentos/components/common/field";
 import { StatStrip } from "@kentos/components/common/stat-strip";
 import { Button } from "@kentos/components/ui/button";
 import { Checkbox } from "@kentos/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@kentos/components/ui/dialog";
 import { Input } from "@kentos/components/ui/input";
 import { Label } from "@kentos/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
@@ -28,7 +21,7 @@ import {
   PrivacyService,
 } from "@/gen/izci/api/v1/privacy_pb";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
-import { errorMessage } from "@/lib/errors";
+import { errorMessage, failWith } from "@/lib/errors";
 import { formatNumber } from "@/lib/format";
 import { useOrg } from "@/lib/org";
 
@@ -153,8 +146,9 @@ export function PrivacyRequests() {
       toast.success(`${formatNumber(deleted)} olay ve bağlı veriler silindi`);
       await find(subject);
     } catch (err) {
-      toast.error(errorMessage(err));
       setBusy(undefined);
+      // The confirmation dialog shows the failure.
+      failWith(err);
     }
   };
 
@@ -328,9 +322,8 @@ export function PrivacyRequests() {
           found={found}
           open={confirming}
           onOpenChange={(v) => busy !== "delete" && setConfirming(v)}
-          deleting={busy === "delete"}
           progress={progress}
-          onConfirm={() => void deleteData()}
+          onConfirm={deleteData}
         />
       ) : null}
     </div>
@@ -341,55 +334,49 @@ function DeleteSubjectDialog({
   found,
   open,
   onOpenChange,
-  deleting,
   progress,
   onConfirm,
 }: {
   found: FindSubjectDataResponse;
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  deleting: boolean;
   progress: number;
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>;
 }) {
   const [sure, setSure] = useState(false);
   return (
-    <Dialog
+    <ConfirmDialog
       open={open}
       onOpenChange={(v) => {
         onOpenChange(v);
         if (!v) setSure(false);
       }}
+      tone="danger"
+      icon={Trash2Icon}
+      title="Veriler kalıcı olarak silinsin mi?"
+      description={
+        <>
+          {formatNumber(found.events)} olay, ekleri ve {formatNumber(found.feedback)} geri bildirim silinir;
+          hatalardaki etkilenen kullanıcı ve etiket kayıtları da kaldırılır. Hatalar ve sayaçları kalır. Bu
+          işlem geri alınamaz.
+        </>
+      }
+      confirmLabel="Kalıcı olarak sil"
+      pendingLabel={`Siliniyor… ${formatNumber(progress)} olay`}
+      confirmDisabled={!sure}
+      onConfirm={onConfirm}
     >
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Veriler kalıcı olarak silinsin mi?</DialogTitle>
-          <DialogDescription>
-            {formatNumber(found.events)} olay, ekleri ve {formatNumber(found.feedback)} geri bildirim silinir;
-            hatalardaki etkilenen kullanıcı ve etiket kayıtları da kaldırılır. Hatalar ve sayaçları kalır. Bu
-            işlem geri alınamaz.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex items-start gap-2.5">
-          <Checkbox
-            id="dsr-sure"
-            checked={sure}
-            onCheckedChange={(v) => setSure(v === true)}
-            className="mt-0.5"
-          />
-          <Label htmlFor="dsr-sure" className="font-normal text-sm leading-relaxed">
-            Silmeden önce gerekiyorsa verileri dışa aktardım; silinen veriler geri getirilemez.
-          </Label>
-        </div>
-        <DialogFooter>
-          <Button variant="ghost" disabled={deleting} onClick={() => onOpenChange(false)}>
-            Vazgeç
-          </Button>
-          <Button variant="destructive" disabled={!sure || deleting} onClick={onConfirm}>
-            {deleting ? `Siliniyor… ${formatNumber(progress)} olay` : "Kalıcı olarak sil"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      <div className="flex items-start gap-2.5">
+        <Checkbox
+          id="dsr-sure"
+          checked={sure}
+          onCheckedChange={(v) => setSure(v === true)}
+          className="mt-0.5"
+        />
+        <Label htmlFor="dsr-sure" className="font-normal text-sm leading-relaxed">
+          Silmeden önce gerekiyorsa verileri dışa aktardım; silinen veriler geri getirilemez.
+        </Label>
+      </div>
+    </ConfirmDialog>
   );
 }

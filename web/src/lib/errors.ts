@@ -166,3 +166,14 @@ export function integrationMessage(err: unknown): string | undefined {
   const detail = d.metadata.detail?.trim();
   return detail ? `${text} Jira'nın mesajı: ${detail}` : text;
 }
+
+/**
+ * Rethrows an API error as an Error carrying the Turkish sentence of
+ * errorMessage, for the kit's ConfirmDialog / InputDialog, which show the
+ * message of a rejected onConfirm in place:
+ *
+ *   onConfirm={() => del.mutateAsync({ id }).catch(failWith)}
+ */
+export function failWith(err: unknown): never {
+  throw new Error(errorMessage(err));
+}
