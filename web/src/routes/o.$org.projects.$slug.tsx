@@ -2,11 +2,12 @@ import { useQuery } from "@connectrpc/connect-query";
 import { PageBreadcrumb } from "@kentos/components/layout/page";
 import { cn } from "@kentos/components/lib/utils";
 import { Skeleton } from "@kentos/components/ui/skeleton";
+import { TabsNavItem } from "@kentos/components/ui/tabs";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BoxesIcon } from "lucide-react";
 import { gutter, Page, useDocumentTitle } from "@/components/app/page";
 import { EmptyState, ErrorState } from "@/components/common/states";
-import { TabbedCard, TabStrip, tabActiveOptions, tabClass } from "@/components/common/tab-nav";
+import { TabbedCard, TabStrip, tabActiveOptions } from "@/components/common/tab-nav";
 import { ProjectAi } from "@/components/project/ai";
 import { ProjectFilters } from "@/components/project/filters";
 import { ProjectGeneral } from "@/components/project/general";
@@ -94,18 +95,11 @@ function ProjectPage() {
       <div className={gutter} key={project.id}>
         <TabbedCard
           tabs={
-            <TabStrip label="Ayar bölümleri" active={tab} className="px-2 sm:px-3">
+            <TabStrip label="Ayar bölümleri" className="px-2 sm:px-3">
               {tabs.map((t) => (
-                <Link
-                  key={t.id}
-                  from={Route.fullPath}
-                  search={{ tab: t.id }}
-                  activeOptions={tabActiveOptions}
-                  className={tabClass(tab === t.id)}
-                  aria-current={tab === t.id ? "page" : undefined}
-                >
-                  {t.label}
-                </Link>
+                <TabsNavItem key={t.id} asChild active={tab === t.id} label={t.label}>
+                  <Link from={Route.fullPath} search={{ tab: t.id }} activeOptions={tabActiveOptions} />
+                </TabsNavItem>
               ))}
             </TabStrip>
           }

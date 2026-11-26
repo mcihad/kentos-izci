@@ -3,6 +3,7 @@ import { cn } from "@kentos/components/lib/utils";
 import { Button } from "@kentos/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
 import { Skeleton } from "@kentos/components/ui/skeleton";
+import { TabsNavItem } from "@kentos/components/ui/tabs";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import {
@@ -18,7 +19,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { PeriodSelect, ProjectFilter, parsePeriod } from "@/components/app/filters";
 import { gutter, Page } from "@/components/app/page";
 import { EmptyState, ErrorState } from "@/components/common/states";
-import { TabStrip, tabActiveOptions, tabClass } from "@/components/common/tab-nav";
+import { TabStrip, tabActiveOptions } from "@/components/common/tab-nav";
 import { IssueRow } from "@/components/issue/issue-row";
 import { MergeDialog } from "@/components/issue/merge";
 import { ExportCsvButton, SavedSearchMenu } from "@/components/issue/saved-searches";
@@ -178,18 +179,15 @@ function IssuesPage() {
         {/* The design system's list card: views, search and filters, then the rows.
             On phones it runs edge to edge to give the rows the full width. */}
         <div className="card max-sm:-mx-4 max-sm:rounded-none max-sm:border-x-0">
-          <TabStrip label="Görünümler" active={activeView?.label ?? ""} className="px-2 sm:px-3">
+          <TabStrip label="Görünümler" className="px-2 sm:px-3">
             {views.map((v) => (
-              <Link
-                key={v.label}
-                from={Route.fullPath}
-                search={(prev) => ({ ...prev, query: v.query === defaultQuery ? undefined : v.query })}
-                activeOptions={tabActiveOptions}
-                className={tabClass(activeView === v)}
-                aria-current={activeView === v ? "page" : undefined}
-              >
-                {v.label}
-              </Link>
+              <TabsNavItem key={v.label} asChild active={activeView === v} label={v.label}>
+                <Link
+                  from={Route.fullPath}
+                  search={(prev) => ({ ...prev, query: v.query === defaultQuery ? undefined : v.query })}
+                  activeOptions={tabActiveOptions}
+                />
+              </TabsNavItem>
             ))}
           </TabStrip>
 

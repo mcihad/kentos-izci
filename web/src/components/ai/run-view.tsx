@@ -422,26 +422,15 @@ export function RunView({
           </section>
           {hasDiff ? <PublishBar run={run} repository={repository} writable={writable} /> : null}
           <Tabs value={tab} onValueChange={setTab}>
-            <TabsList variant="line" className="h-8 px-0">
-              <TabsTrigger value="analysis" className="px-0 pr-4 text-sm">
-                Analiz
-              </TabsTrigger>
+            <TabsList variant="line" aria-label="Çalışma ayrıntıları">
+              <TabsTrigger value="analysis">Analiz</TabsTrigger>
               {hasDiff ? (
-                <TabsTrigger value="diff" className="px-0 pr-4 text-sm">
+                <TabsTrigger value="diff" badge={run.files.length}>
                   Değişiklik
-                  <span className="tabular rounded bg-muted px-1.5 text-xs text-muted-foreground">
-                    {run.files.length}
-                  </span>
                 </TabsTrigger>
               ) : null}
-              <TabsTrigger value="log" className="px-0 pr-4 text-sm">
-                Günlük
-              </TabsTrigger>
-              {run.sharedContext ? (
-                <TabsTrigger value="shared" className="px-0 text-sm">
-                  Gönderilen bağlam
-                </TabsTrigger>
-              ) : null}
+              <TabsTrigger value="log">Günlük</TabsTrigger>
+              {run.sharedContext ? <TabsTrigger value="shared">Gönderilen bağlam</TabsTrigger> : null}
             </TabsList>
             <TabsContent value="analysis" className="pt-3">
               <Suspense fallback={<Skeleton className="h-32 w-full" />}>

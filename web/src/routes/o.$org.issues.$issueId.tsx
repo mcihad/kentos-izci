@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@kentos/components/ui/dropdown-menu";
 import { Skeleton } from "@kentos/components/ui/skeleton";
+import { TabsNavItem } from "@kentos/components/ui/tabs";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { BracesIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, DownloadIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -25,7 +26,7 @@ import { gutter } from "@/components/app/page";
 import { CodeBlock } from "@/components/common/code-block";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
-import { TabStrip, tabActiveOptions, tabClass } from "@/components/common/tab-nav";
+import { TabStrip, tabActiveOptions } from "@/components/common/tab-nav";
 import { EventView } from "@/components/event/event-view";
 import { FeedbackList } from "@/components/feedback/feedback-list";
 import { Activity } from "@/components/issue/activity";
@@ -230,26 +231,28 @@ function IssuePage() {
       >
         {/* Main card: section tabs and their content. Edge to edge on phones. */}
         <div className="card min-w-0 max-sm:-mx-4 max-sm:rounded-none max-sm:border-x-0">
-          <TabStrip label="Bölümler" active={tab} className="px-2 sm:px-3">
+          <TabStrip label="Bölümler" className="px-2 sm:px-3">
             {tabs.map((t) => (
-              <Link
+              <TabsNavItem
                 key={t.id}
-                from={Route.fullPath}
-                search={(p) => ({ ...p, tab: t.id === "event" ? undefined : t.id, run: undefined })}
-                activeOptions={tabActiveOptions}
-                className={tabClass(tab === t.id)}
-                aria-current={tab === t.id ? "page" : undefined}
+                asChild
+                active={tab === t.id}
+                label={t.label}
+                badge={
+                  t.id === "feedback" && feedbackCount > 0
+                    ? feedbackCount >= 50
+                      ? "50+"
+                      : feedbackCount
+                    : undefined
+                }
+                badgeVariant={t.id === "ai" && s.aiState === AiState.RUNNING ? "dot" : "default"}
               >
-                {t.label}
-                {t.id === "feedback" && feedbackCount > 0 ? (
-                  <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full border bg-(--surface-muted) px-1.5 font-semibold text-2xs text-muted-foreground tabular">
-                    {feedbackCount >= 50 ? "50+" : feedbackCount}
-                  </span>
-                ) : null}
-                {t.id === "ai" && s.aiState === AiState.RUNNING ? (
-                  <span className="ml-1.5 inline-block size-1.5 animate-pulse rounded-full bg-primary align-middle" />
-                ) : null}
-              </Link>
+                <Link
+                  from={Route.fullPath}
+                  search={(p) => ({ ...p, tab: t.id === "event" ? undefined : t.id, run: undefined })}
+                  activeOptions={tabActiveOptions}
+                />
+              </TabsNavItem>
             ))}
           </TabStrip>
           <div className="min-w-0 px-4 sm:px-(--card-p)">

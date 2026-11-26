@@ -1,48 +1,28 @@
-import { cn } from "@kentos/components/lib/utils";
+import { TabsNav, TabsNavItem } from "@kentos/components/ui/tabs";
 import { Link } from "@tanstack/react-router";
-import { type ReactNode, useLayoutEffect, useRef } from "react";
+import type { ReactNode } from "react";
 import { gutter } from "@/components/app/page";
 
 /**
- * An underlined tab strip. On phones it scrolls sideways without a
- * scrollbar and fades at its end to show that more tabs follow; the current
- * tab (the one marked aria-current) is kept scrolled into view.
+ * Underlined section tabs from the kit (TabsNav): on phones the row scrolls
+ * with touch, with the wheel on desktop, fades at its edges and keeps the
+ * current tab in view; the indicator slides to the current tab. Children are
+ * TabsNavItem elements wrapping router links.
  */
 export function TabStrip({
   label,
-  active,
   children,
   className,
 }: {
   label: string;
-  active: string;
   children: ReactNode;
   /** Replaces the page gutter, e.g. inside a card. */
   className?: string;
 }) {
-  const ref = useRef<HTMLElement>(null);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when the current tab changes
-  useLayoutEffect(() => {
-    const strip = ref.current;
-    const current = strip?.querySelector<HTMLElement>('[aria-current="page"]');
-    if (!strip || !current || strip.scrollWidth <= strip.clientWidth) return;
-    const s = strip.getBoundingClientRect();
-    const r = current.getBoundingClientRect();
-    // Clear of the faded end (2rem) as well as the visible edge.
-    if (r.right > s.right - 32) strip.scrollLeft += r.right - s.right + 48;
-    else if (r.left < s.left) strip.scrollLeft -= s.left - r.left + 16;
-  }, [active]);
   return (
-    <nav
-      ref={ref}
-      aria-label={label}
-      className={cn(
-        "scrollbar-none flex gap-1 overflow-x-auto border-b max-sm:fade-end max-sm:pr-8",
-        className ?? gutter,
-      )}
-    >
+    <TabsNav label={label} className={className ?? gutter}>
       {children}
-    </nav>
+    </TabsNav>
   );
 }
 
@@ -52,16 +32,6 @@ export function TabStrip({
  */
 export const tabActiveOptions = { exact: true, includeSearch: true } as const;
 
-/** Classes of one tab: the design system's underline tab, tall enough to tap. */
-export function tabClass(active: boolean) {
-  return cn(
-    "relative inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-t-md px-3.5 text-sm transition-colors duration-(--duration-fast) after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-t-[1px]",
-    active
-      ? "font-semibold text-(--tabs-fg-active) after:bg-(--tabs-indicator)"
-      : "font-medium text-muted-foreground hover:bg-(--surface-hover) hover:text-foreground",
-  );
-}
-
 /** Underlined section tabs bound to the `tab` search parameter. */
 export function TabNav<T extends string>({
   tabs,
@@ -70,25 +40,22 @@ export function TabNav<T extends string>({
   label,
   className,
 }: {
-  tabs: readonly { id: T; label: ReactNode }[];
+  tabs: readonly { id: T; label: ReactNode; badge?: ReactNode }[];
   active: T;
   from: string;
   label: string;
   className?: string;
 }) {
   return (
-    <TabStrip label={label} active={active} className={className}>
+    <TabStrip label={label} className={className}>
       {tabs.map((t, i) => (
-        <Link
-          key={t.id}
-          from={from as never}
-          search={{ tab: i === 0 ? undefined : t.id } as never}
-          activeOptions={tabActiveOptions}
-          className={tabClass(active === t.id)}
-          aria-current={active === t.id ? "page" : undefined}
-        >
-          {t.label}
-        </Link>
+        <TabsNavItem key={t.id} asChild active={active === t.id} label={t.label} badge={t.badge}>
+          <Link
+            from={from as never}
+            search={{ tab: i === 0 ? undefined : t.id } as never}
+            activeOptions={tabActiveOptions}
+          />
+        </TabsNavItem>
       ))}
     </TabStrip>
   );
