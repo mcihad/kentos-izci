@@ -16,6 +16,7 @@ import { Logo } from "@/components/brand/logo";
 import { useOrg } from "@/lib/org";
 import { appearanceFlag, paletteFlag, shortcutHelpFlag, useFlag, useHotkeys } from "@/lib/shortcuts";
 import { AppearanceSheet } from "./appearance-sheet";
+import { BottomNav } from "./bottom-nav";
 import { CommandPalette } from "./command-palette";
 import { NotificationsMenu } from "./notifications-menu";
 import { ShortcutHelp } from "./shortcut-help";
@@ -24,7 +25,8 @@ import { AppSidebar } from "./sidebar";
 /**
  * İzci's frame on the kit's AppShell: the sidebar (an icon rail when
  * collapsed on desktop, a drawer on phones), the app bar with the menu
- * button, brand (phones), search and actions, and the page.
+ * button, brand (phones), search and actions, the page, and on phones a
+ * bottom tab bar.
  */
 export function AppShell({ children }: { children: ReactNode }) {
   const org = useOrg();
@@ -60,6 +62,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </AppShellActions>
       </AppShellHeader>
       <AppShellMain>{children}</AppShellMain>
+      <BottomNav />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
       <ShortcutHelp />
       <AppearanceSheet />

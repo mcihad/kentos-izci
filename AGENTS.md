@@ -230,8 +230,10 @@ A change is done when:
 - **Frame:** `components/app/app-shell.tsx` builds the frame from the kit's
   `layout/app-shell`: `AppShellSidebar` (in `sidebar.tsx`), `AppShellHeader`
   with the menu button, brand (phones), search and actions, and
-  `AppShellMain` around the routes. New frame elements (a banner, a status
-  line, a phone tab bar) are added as AppShell regions, not hand-written.
+  `AppShellMain` around the routes, and on phones the `BottomNav` tab bar
+  (`bottom-nav.tsx`: overview, issues, live, dashboards and a Menü tab that
+  opens the sidebar drawer). New frame elements (a banner, a status line)
+  are added as AppShell regions, not hand-written.
 - **Navigation:** `components/app/sidebar.tsx` builds the left menu from the
   kit's `layout/sidebar` (switcher, search, groups, account; icon rail on
   desktop, drawer on phones). Pages come from `components/app/nav.ts`: a new
