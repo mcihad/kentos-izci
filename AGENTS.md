@@ -227,6 +227,11 @@ A change is done when:
   `ProgressDialog`… from `common/dialogs`. Pass `onConfirm` a promise whose
   rejection is an `Error` with `errorMessage(err)`, so the dialog shows it.
   Never `window.confirm`/`prompt`/`alert`.
+- **Frame:** `components/app/app-shell.tsx` builds the frame from the kit's
+  `layout/app-shell`: `AppShellSidebar` (in `sidebar.tsx`), `AppShellHeader`
+  with the menu button, brand (phones), search and actions, and
+  `AppShellMain` around the routes. New frame elements (a banner, a status
+  line, a phone tab bar) are added as AppShell regions, not hand-written.
 - **Navigation:** `components/app/sidebar.tsx` builds the left menu from the
   kit's `layout/sidebar` (switcher, search, groups, account; icon rail on
   desktop, drawer on phones). Pages come from `components/app/nav.ts`: a new

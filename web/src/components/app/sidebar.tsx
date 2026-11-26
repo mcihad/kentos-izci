@@ -1,5 +1,5 @@
+import { AppShellSidebar } from "@kentos/components/layout/app-shell";
 import {
-  Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
@@ -63,7 +63,7 @@ export function AppSidebar() {
     });
 
   return (
-    <Sidebar label="Menü">
+    <AppShellSidebar label="Menü">
       <SidebarHeader>
         <OrgSwitcher />
       </SidebarHeader>
@@ -94,6 +94,6 @@ export function AppSidebar() {
       <SidebarFooter>
         <UserMenu />
       </SidebarFooter>
-    </Sidebar>
+    </AppShellSidebar>
   );
 }
