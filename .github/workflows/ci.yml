@@ -98,7 +98,7 @@ jobs:
           if [ -n "$TOKEN" ]; then auth="x-access-token:${TOKEN}@"; fi
           git clone --depth 1 "https://${auth}github.com/${{ github.repository_owner }}/kentos-components.git" ../kentos-components
       - uses: docker/setup-buildx-action@v3
-      - uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v7
         with:
           context: .
           build-contexts: kentos-components=../kentos-components
