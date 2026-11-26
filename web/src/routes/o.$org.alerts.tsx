@@ -1,4 +1,15 @@
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@kentos/components/ui/dropdown-menu";
+import { Label } from "@kentos/components/ui/label";
+import { Skeleton } from "@kentos/components/ui/skeleton";
+import { Switch } from "@kentos/components/ui/switch";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import {
@@ -22,21 +33,10 @@ import { RuleDialog } from "@/components/alert/rule-dialog";
 import { gutter, PageHeader, Section } from "@/components/app/page";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState } from "@/components/common/states";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
 import { type AlertRule, AlertService, type Channel, ChannelKind } from "@/gen/izci/api/v1/alert_pb";
 import { errorMessage } from "@/lib/errors";
 import { useOrg } from "@/lib/org";
 import { canAdmin } from "@/lib/session";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/o/$org/alerts")({
   component: AlertsPage,

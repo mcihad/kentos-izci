@@ -1,5 +1,5 @@
+import { cn } from "@kentos/components/lib/utils";
 import { Health } from "@/gen/izci/api/v1/customer_pb";
-import { cn } from "@/lib/utils";
 
 export const healthLabels: Record<Health, { label: string; color: string }> = {
   [Health.UNSPECIFIED]: { label: "Bilinmiyor", color: "var(--muted-foreground)" },

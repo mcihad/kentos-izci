@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from "@connectrpc/connect-query";
+import { Field, FormError } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
+import { Input } from "@kentos/components/ui/input";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { MailCheckIcon } from "lucide-react";
 import { useState } from "react";
 import { AuthLayout } from "@/components/app/auth-layout";
-import { Field, FormError } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { AuthService, SignupMode } from "@/gen/izci/api/v1/auth_pb";
 import { errorField, errorMessage } from "@/lib/errors";
 import { storeSession } from "@/lib/session";

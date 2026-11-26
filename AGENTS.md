@@ -162,17 +162,35 @@ A change is done when:
 - **Go:** errors are wrapped with context (`fmt.Errorf("create pool: %w", err)`);
   `context.Context` is the first parameter; slog attributes use `snake_case`
   keys; no global state besides the default logger.
-- **Web:** Tailwind v4 tokens from `web/src/index.css` (never hardcode colors or
-  sizes), shadcn/ui (new-york) + ReUI components, `cn()` for class merging,
-  `data-slot` on primitives, `cva` for variants, mobile-first layouts.
+- **Web:** the KentOS component kit `@kentos/components` (shadcn/ui new-york
+  primitives, design tokens, themes; see below), Tailwind v4 tokens (never
+  hardcode colors or sizes), `cn()` for class merging, `cva` for variants,
+  mobile-first layouts.
 
 ## Web UI
 
+- **Component kit:** generic components live in the sibling repository
+  `../kentos-components` (package `@kentos/components`, its own `AGENTS.md`
+  and showcase). `web/package.json` depends on it with
+  `file:../../kentos-components/packages/components`, so pnpm hard-links its
+  files into `node_modules`: edits to existing kit files show up at once; after
+  adding or deleting kit files run `pnpm -C web components:sync`. Import
+  primitives from `@kentos/components/ui/<name>` (button, dialog, select, …),
+  generic pieces from `@kentos/components/common/<name>` (field, kbd,
+  segmented, stat-strip, states, copy-button, user-avatar, table,
+  appearance-panel), charts from `@kentos/components/charts/<name>` and
+  `cn`/theme/format helpers from `@kentos/components/lib/<name>`. Anything
+  reusable by other KentOS applications belongs in the kit (add a showcase
+  demo there); izci-specific components stay in `web/src/components`. The
+  Docker image gets the kit as a named build context (`make docker`,
+  `KENTOS_COMPONENTS=…`) and CI clones it next to the checkout.
 - **Layout of `web/src`:** `routes/` (TanStack Router, file based, English
   paths: `/o/$org/issues/$issueId`), `lib/` (transports, errors, formatting,
   labels, session, triage, highlighting), `components/` by area (`app`,
   `issue`, `event`, `customer`, `project`, `settings`, `account`, `charts`,
-  `common`, `brand`; `ui` holds generated shadcn primitives and is not linted).
+  `common`, `brand`). `components/common/states.tsx` and
+  `components/charts/sparkline.tsx` wrap kit components for API types (errors,
+  `Series`).
 - **Data:** Connect-Query hooks only. Organization-scoped calls use the
   transport of `useOrg()` (it sends `Izci-Org`); each organization has its own
   transport, so caches never mix tenants. Invalidate with
@@ -183,22 +201,26 @@ A change is done when:
 - **Design language:** the KentOS design system (made in Claude Design, the
   "KentOS Yönetim" kit): navy brand, cool greys, a dark navy rail, a grey
   page with white cards (`card` utility), 6px controls and 10px cards,
-  navy-tinted shadows. Tokens live in `web/src/index.css` in three layers:
-  palette ramps (never used directly), semantic aliases (`--surface-*`,
-  `--text-*`, `--brand-*`, `--status-*`) and the shadcn bridge. Level colors
+  navy-tinted shadows. Tokens live in the kit
+  (`@kentos/components/styles/tokens.css`) in three layers: palette ramps
+  (never used directly), semantic aliases (`--surface-*`, `--text-*`,
+  `--brand-*`, `--status-*`) and the shadcn bridge; `web/src/index.css`
+  imports them and adds izci's own (levels, trail, code, syntax). Level colors
   stay for severity only. Stack traces and breadcrumbs share the "trail"
   (`components/event/stack-trail.tsx`). Monospace is reserved for code and
   identifiers.
 - **Appearance:** users customize the theme per browser from the palette
-  button (`components/app/appearance-sheet.tsx`): light/dark/system, font
+  button (`components/app/appearance-sheet.tsx`, the kit's
+  `AppearancePanel` in a sheet): light/dark/system, font
   (Plus Jakarta Sans, Inter, IBM Plex Sans), density, radius, accent and card
   elevation. Each choice is one scope class on `<html>` (`.font-*`,
-  `.density-*`, `.radius-*`, `.accent-*`, `.elevation-*`); `lib/theme.ts` and
-  `public/theme-init.js` apply them and must stay in step. Components read
+  `.density-*`, `.radius-*`, `.accent-*`, `.elevation-*`); the kit's
+  `lib/theme` and `public/theme-init.js` apply them and must stay in step
+  (`main.tsx` calls `configureAppearance` with izci's storage keys). Components read
   control heights, gutters and radii from those tokens, never fixed values.
 - **Readability:** fonts are Plus Jakarta Sans / Inter / IBM Plex Sans and
-  JetBrains Mono for code. Font sizes come only from the scale in
-  `index.css` (`text-2xs` 12px … `text-3xl`); no `text-[Npx]`, nothing under
+  JetBrains Mono for code. Font sizes come only from the kit's scale
+  (`text-2xs` 12px … `text-3xl`); no `text-[Npx]`, nothing under
   12px. Text in a level or health color uses the `*-ink` token; text in the
   brand color uses `text-brand-ink` or `text-link`, never `text-primary`
   (a fill colour, too dark on dark surfaces). Syntax colors are the `--syn-*`

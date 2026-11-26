@@ -1,10 +1,10 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
 import { createFileRoute } from "@tanstack/react-router";
 import { SearchIcon } from "lucide-react";
 import { useState } from "react";
 import { gutter, PageHeader } from "@/components/app/page";
 import { FeedbackList } from "@/components/feedback/feedback-list";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 
 type Search = { project?: string; q?: string };

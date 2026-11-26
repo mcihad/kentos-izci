@@ -1,4 +1,7 @@
 import { createClient } from "@connectrpc/connect";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PauseIcon, PlayIcon, RadioIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -6,13 +9,10 @@ import { ProjectFilter } from "@/components/app/filters";
 import { gutter, PageHeader } from "@/components/app/page";
 import { EmptyState } from "@/components/common/states";
 import { IssueTitle, LevelBlaze, pill, tones } from "@/components/issue/badges";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DashboardService, LiveEventKind, type WatchLiveResponse } from "@/gen/izci/api/v1/dashboard_pb";
 import { Level } from "@/gen/izci/ingest/v1/event_pb";
 import { formatTime, toDate } from "@/lib/format";
 import { useOrg } from "@/lib/org";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/o/$org/live")({
   component: LivePage,

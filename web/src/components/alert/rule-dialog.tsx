@@ -1,12 +1,9 @@
 import { create } from "@bufbuild/protobuf";
 import { DurationSchema } from "@bufbuild/protobuf/wkt";
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
-import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Field, FormError } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FormError } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
+import { Checkbox } from "@kentos/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -14,10 +11,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+} from "@kentos/components/ui/dialog";
+import { Input } from "@kentos/components/ui/input";
+import { Label } from "@kentos/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { toast } from "sonner";
 import { type AlertRule, AlertService, type Channel, TriggerKind } from "@/gen/izci/api/v1/alert_pb";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 import { Level } from "@/gen/izci/ingest/v1/event_pb";

@@ -1,11 +1,11 @@
+import { cn } from "@kentos/components/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@kentos/components/ui/tooltip";
 import { ChevronRightIcon, FileCodeIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { CodeLines } from "@/components/common/code-block";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { EventDetail } from "@/gen/izci/api/v1/event_pb";
 import type { Frame } from "@/gen/izci/ingest/v1/event_pb";
 import { languageOf } from "@/lib/highlight";
-import { cn } from "@/lib/utils";
 import { basename, sourceUrl } from "./source";
 
 type Item =

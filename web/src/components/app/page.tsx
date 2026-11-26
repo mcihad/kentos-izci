@@ -1,6 +1,6 @@
+import { cn } from "@kentos/components/lib/utils";
 import type * as React from "react";
 import { useEffect } from "react";
-import { cn } from "@/lib/utils";
 
 /** Sets the browser tab title while the page is shown. */
 export function useDocumentTitle(title: string | undefined) {

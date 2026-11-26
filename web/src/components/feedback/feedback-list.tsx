@@ -1,10 +1,10 @@
 import { useInfiniteQuery } from "@connectrpc/connect-query";
+import { Button } from "@kentos/components/ui/button";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { Link } from "@tanstack/react-router";
 import { MessageSquareTextIcon } from "lucide-react";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { FeedbackService, type UserFeedback } from "@/gen/izci/api/v1/feedback_pb";
 import { initials } from "@/lib/format";
 import { useOrg } from "@/lib/org";

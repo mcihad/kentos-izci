@@ -1,3 +1,4 @@
+import { cn } from "@kentos/components/lib/utils";
 import {
   CircleAlertIcon,
   CompassIcon,
@@ -15,7 +16,6 @@ import {
 import { useEffect, useRef } from "react";
 import { type AiLogEntry, AiLogKind } from "@/gen/izci/api/v1/ai_pb";
 import { formatClock, toDate } from "@/lib/format";
-import { cn } from "@/lib/utils";
 
 const toolIcons: Record<string, LucideIcon> = {
   read: FileTextIcon,

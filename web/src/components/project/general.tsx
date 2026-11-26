@@ -1,10 +1,7 @@
 import { clone, create } from "@bufbuild/protobuf";
 import { useMutation } from "@connectrpc/connect-query";
-import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Field } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
+import { Field } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,9 +9,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+} from "@kentos/components/ui/dialog";
+import { Input } from "@kentos/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Role } from "@/gen/izci/api/v1/common_pb";
 import { type Project, ProjectService, ProjectSettingsSchema } from "@/gen/izci/api/v1/project_pb";
 import { errorMessage } from "@/lib/errors";

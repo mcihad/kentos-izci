@@ -1,5 +1,16 @@
 import { createClient } from "@connectrpc/connect";
 import { useQuery } from "@connectrpc/connect-query";
+import { setTheme } from "@kentos/components/lib/theme";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@kentos/components/ui/command";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@kentos/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -16,23 +27,12 @@ import {
   UserIcon,
 } from "lucide-react";
 import { useState } from "react";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from "@/components/ui/command";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { AuthService } from "@/gen/izci/api/v1/auth_pb";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 import { baseTransport } from "@/lib/api";
 import { useOrg } from "@/lib/org";
 import { canAdmin } from "@/lib/session";
 import { appearanceFlag } from "@/lib/shortcuts";
-import { setTheme } from "@/lib/theme";
 import { primaryNav } from "./nav";
 
 const shortIdPattern = /^[a-z][a-z0-9-]*-[0-9a-z]+$/i;

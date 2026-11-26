@@ -1,9 +1,9 @@
+import { Label } from "@kentos/components/ui/label";
+import { Switch } from "@kentos/components/ui/switch";
 import { Link } from "@tanstack/react-router";
 import { InfoIcon, WandSparklesIcon } from "lucide-react";
 import { useState } from "react";
 import { FeedbackItem } from "@/components/feedback/feedback-list";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import type { EventDetail } from "@/gen/izci/api/v1/event_pb";
 import type { Exception, Frame, Stacktrace, Thread } from "@/gen/izci/ingest/v1/event_pb";
 import { toDate } from "@/lib/format";

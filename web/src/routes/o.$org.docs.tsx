@@ -1,6 +1,4 @@
-import { createFileRoute, Link, Outlet, useNavigate, useParams } from "@tanstack/react-router";
-import { gutter, PageHeader } from "@/components/app/page";
-import { sections, useGuides } from "@/components/docs/docs";
+import { cn } from "@kentos/components/lib/utils";
 import {
   Select,
   SelectContent,
@@ -9,9 +7,11 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@kentos/components/ui/select";
+import { createFileRoute, Link, Outlet, useNavigate, useParams } from "@tanstack/react-router";
+import { gutter, PageHeader } from "@/components/app/page";
+import { sections, useGuides } from "@/components/docs/docs";
 import { useOrg } from "@/lib/org";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/o/$org/docs")({
   component: DocsLayout,

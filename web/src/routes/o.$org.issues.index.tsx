@@ -1,4 +1,8 @@
 import { useInfiniteQuery, useQuery } from "@connectrpc/connect-query";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import {
@@ -19,9 +23,6 @@ import { IssueRow } from "@/components/issue/issue-row";
 import { MergeDialog } from "@/components/issue/merge";
 import { ExportCsvButton, SavedSearchMenu } from "@/components/issue/saved-searches";
 import { SearchBar, type SearchBarHandle } from "@/components/issue/search-bar";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorReason } from "@/gen/izci/api/v1/common_pb";
 import { IssueService, IssueSort } from "@/gen/izci/api/v1/issue_pb";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
@@ -32,7 +33,6 @@ import { useOrg } from "@/lib/org";
 import { canWrite } from "@/lib/session";
 import { useHotkeys } from "@/lib/shortcuts";
 import { useTriage } from "@/lib/triage";
-import { cn } from "@/lib/utils";
 
 // Plain keys for URL validation: route definitions stay in the entry chunk,
 // so they must not pull in generated message code.

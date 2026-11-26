@@ -10,7 +10,10 @@
 make docker                                  # izci:<sürüm>
 make docker WITH_OPENCODE=true               # yapay zekâ analizi için opencode dahil
 make docker IMAGE=registry.example.com/izci:v1.0.0
+make docker KENTOS_COMPONENTS=/yol/kentos-components   # bileşen seti başka bir yerdeyse
 ```
+
+Arayüz KentOS bileşen setini (`kentos-components`) kullanır; `make docker` onu izci'nin yanındaki klasörden adlı bir derleme bağlamı olarak verir. Elle derlerken aynı bağlamı ekleyin: `docker build --build-context kentos-components=../kentos-components .`
 
 İmaj `IZCI_ENV=production`, `IZCI_HTTP_ADDR=:5300` ve `IZCI_DATA_DIR=/var/lib/izci` ile gelir. Veritabanı adresi, gizli anahtar ve dış adres sizin vermeniz gereken değerlerdir:
 

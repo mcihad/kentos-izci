@@ -1,10 +1,8 @@
 import { create } from "@bufbuild/protobuf";
 import { useMutation, useQuery } from "@connectrpc/connect-query";
-import { CheckCircle2Icon } from "lucide-react";
-import { useState } from "react";
-import { SecretValue } from "@/components/common/copy-button";
-import { Field, FormError } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
+import { SecretValue } from "@kentos/components/common/copy-button";
+import { Field, FormError } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,10 +10,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+} from "@kentos/components/ui/dialog";
+import { Input } from "@kentos/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { Textarea } from "@kentos/components/ui/textarea";
+import { CheckCircle2Icon } from "lucide-react";
+import { useState } from "react";
 import {
   AlertService,
   type Channel,

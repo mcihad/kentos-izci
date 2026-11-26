@@ -1,4 +1,16 @@
 import { useMutation, useQuery } from "@connectrpc/connect-query";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import { Checkbox } from "@kentos/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@kentos/components/ui/dropdown-menu";
+import { Label } from "@kentos/components/ui/label";
+import { Skeleton } from "@kentos/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@kentos/components/ui/tabs";
 import { Link } from "@tanstack/react-router";
 import {
   ChevronDownIcon,
@@ -13,23 +25,11 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { RelativeTime } from "@/components/common/relative-time";
 import { pill } from "@/components/issue/badges";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type AiRun, AiRunMode, AiRunStatus, AiService } from "@/gen/izci/api/v1/ai_pb";
 import type { ProjectRepository } from "@/gen/izci/api/v1/project_pb";
 import { errorMessage } from "@/lib/errors";
 import { formatCompact, formatDuration } from "@/lib/format";
 import { useOrg } from "@/lib/org";
-import { cn } from "@/lib/utils";
 import { DiffView } from "./diff-view";
 import { changeStats, formatCost, isActive, riskLabels, runDuration, runStatus, runTrigger } from "./labels";
 import { RunLog } from "./run-log";

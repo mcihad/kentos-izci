@@ -1,10 +1,5 @@
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { Trash2Icon } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Button } from "@kentos/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +7,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@kentos/components/ui/dialog";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { Trash2Icon } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { EventService } from "@/gen/izci/api/v1/event_pb";
 import { type Issue, IssueService } from "@/gen/izci/api/v1/issue_pb";
 import { errorMessage } from "@/lib/errors";

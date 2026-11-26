@@ -1,15 +1,15 @@
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@kentos/components/ui/popover";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { AtSignIcon, BellIcon, MessageSquareIcon, RotateCcwIcon, UserRoundCheckIcon } from "lucide-react";
 import { useState } from "react";
 import { RelativeTime } from "@/components/common/relative-time";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { type UserNotification, UserNotificationKind, UserService } from "@/gen/izci/api/v1/user_pb";
 import { baseTransport } from "@/lib/api";
 import { useOrg } from "@/lib/org";
-import { cn } from "@/lib/utils";
 
 const listKey = createConnectQueryKey({
   schema: UserService.method.listNotifications,

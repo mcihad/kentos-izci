@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from "@connectrpc/connect-query";
+import { Field, FormError } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
+import { Input } from "@kentos/components/ui/input";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AuthLayout } from "@/components/app/auth-layout";
-import { Field, FormError } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { AuthService } from "@/gen/izci/api/v1/auth_pb";
 import { errorField, errorMessage } from "@/lib/errors";
 import { roleLabels } from "@/lib/labels";

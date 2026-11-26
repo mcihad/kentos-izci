@@ -1,8 +1,11 @@
-import { Link } from "@tanstack/react-router";
-import { CheckIcon, ChevronsUpDownIcon, PlusIcon } from "lucide-react";
-import { useState } from "react";
-import { Logo } from "@/components/brand/logo";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { cn } from "@kentos/components/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@kentos/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,11 +13,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@kentos/components/ui/dropdown-menu";
+import { Link } from "@tanstack/react-router";
+import { CheckIcon, ChevronsUpDownIcon, PlusIcon } from "lucide-react";
+import { useState } from "react";
+import { Logo } from "@/components/brand/logo";
 import { roleLabels } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
 import { useSession } from "@/lib/session";
-import { cn } from "@/lib/utils";
 import { CreateOrganizationForm } from "./create-organization";
 
 /** The organization switch at the top of the rail (the design system's module switch). */

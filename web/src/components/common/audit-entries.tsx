@@ -1,8 +1,8 @@
+import { thClass, theadClass, trClass } from "@kentos/components/common/table";
+import { Button } from "@kentos/components/ui/button";
 import type * as React from "react";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState } from "@/components/common/states";
-import { thClass, theadClass, trClass } from "@/components/common/table";
-import { Button } from "@/components/ui/button";
 import type { AuditLogEntry } from "@/gen/izci/api/v1/organization_pb";
 
 const actionLabels: Record<string, string> = {

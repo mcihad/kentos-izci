@@ -1,7 +1,7 @@
+import { CopyButton } from "@kentos/components/common/copy-button";
+import { cn } from "@kentos/components/lib/utils";
 import type { ThemedToken } from "shiki/core";
 import { useTokens } from "@/lib/highlight";
-import { cn } from "@/lib/utils";
-import { CopyButton } from "./copy-button";
 
 /** One source line, highlighted when tokens are available. */
 export function TokenLine({ tokens, text }: { tokens?: ThemedToken[]; text: string }) {

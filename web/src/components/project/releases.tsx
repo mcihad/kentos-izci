@@ -1,15 +1,15 @@
 import { useInfiniteQuery, useQuery } from "@connectrpc/connect-query";
+import { thClass, theadClass, trClass } from "@kentos/components/common/table";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { useState } from "react";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState } from "@/components/common/states";
-import { thClass, theadClass, trClass } from "@/components/common/table";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { StatsPeriod } from "@/gen/izci/api/v1/common_pb";
 import { type Project, ProjectService } from "@/gen/izci/api/v1/project_pb";
 import { formatNumber } from "@/lib/format";
-import { cn } from "@/lib/utils";
 
 const periods = [
   { value: StatsPeriod.LAST_24_HOURS, label: "Son 24 saat" },

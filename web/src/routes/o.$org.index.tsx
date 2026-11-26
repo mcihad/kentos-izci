@@ -1,4 +1,9 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { StackedBars } from "@kentos/components/charts/stacked-bars";
+import { StatStrip } from "@kentos/components/common/stat-strip";
+import { tdClass, thClass, theadClass, trClass } from "@kentos/components/common/table";
+import { cn } from "@kentos/components/lib/utils";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowDownRightIcon, ArrowUpRightIcon } from "lucide-react";
 import { useMemo } from "react";
@@ -6,20 +11,15 @@ import { EnvironmentSelect } from "@/components/app/environment-select";
 import { PeriodSelect, ProjectFilter, parsePeriod } from "@/components/app/filters";
 import { gutter, PageHeader, Section } from "@/components/app/page";
 import { Sparkline } from "@/components/charts/sparkline";
-import { StackedBars } from "@/components/charts/stacked-bars";
-import { StatStrip } from "@/components/common/stat-strip";
 import { EmptyState, ErrorState } from "@/components/common/states";
-import { tdClass, thClass, theadClass, trClass } from "@/components/common/table";
 import { healthLabels } from "@/components/customer/health";
 import { IssueRow } from "@/components/issue/issue-row";
-import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardService } from "@/gen/izci/api/v1/dashboard_pb";
 import type { IssueSummary } from "@/gen/izci/api/v1/issue_pb";
 import { formatCompact, formatNumber, formatPercent } from "@/lib/format";
 import { levels, periods } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
 import { seriesPoints, seriesStep } from "@/lib/series";
-import { cn } from "@/lib/utils";
 
 type OverviewSearch = { period?: string; projects?: string; env?: string };
 

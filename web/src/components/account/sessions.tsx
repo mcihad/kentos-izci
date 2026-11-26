@@ -1,9 +1,9 @@
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
+import { Button } from "@kentos/components/ui/button";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { RelativeTime } from "@/components/common/relative-time";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { UserService } from "@/gen/izci/api/v1/user_pb";
 import { baseTransport } from "@/lib/api";
 import { errorMessage } from "@/lib/errors";

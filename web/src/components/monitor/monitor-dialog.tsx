@@ -1,9 +1,8 @@
 import { create } from "@bufbuild/protobuf";
 import { useMutation, useQuery } from "@connectrpc/connect-query";
-import { useState } from "react";
-import { Field, FormError } from "@/components/common/field";
-import { Segmented } from "@/components/common/segmented";
-import { Button } from "@/components/ui/button";
+import { Field, FormError } from "@kentos/components/common/field";
+import { Segmented } from "@kentos/components/common/segmented";
+import { Button } from "@kentos/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,9 +10,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+} from "@kentos/components/ui/dialog";
+import { Input } from "@kentos/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { useState } from "react";
 import {
   type Monitor,
   MonitorIntervalUnit,

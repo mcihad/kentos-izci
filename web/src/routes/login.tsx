@@ -1,12 +1,12 @@
 import { createQueryOptions, useMutation, useQuery } from "@connectrpc/connect-query";
+import { Field, FormError } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
+import { Input } from "@kentos/components/ui/input";
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { KeyRoundIcon } from "lucide-react";
 import { useState } from "react";
 import { CodeInput, cleanCode } from "@/components/account/two-factor";
 import { AuthLayout } from "@/components/app/auth-layout";
-import { Field, FormError } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { AuthService, type Session, SignupMode } from "@/gen/izci/api/v1/auth_pb";
 import { ErrorReason } from "@/gen/izci/api/v1/common_pb";
 import { baseTransport } from "@/lib/api";

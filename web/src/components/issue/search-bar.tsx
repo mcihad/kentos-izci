@@ -1,9 +1,9 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { cn } from "@kentos/components/lib/utils";
 import { SearchIcon, XIcon } from "lucide-react";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { IssueService, SuggestionKind } from "@/gen/izci/api/v1/issue_pb";
 import { formatCompact } from "@/lib/format";
-import { cn } from "@/lib/utils";
 
 export type SearchBarHandle = { focus: () => void };
 

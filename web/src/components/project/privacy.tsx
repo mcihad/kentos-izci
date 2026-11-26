@@ -1,13 +1,13 @@
 import { clone, create } from "@bufbuild/protobuf";
 import { useQuery } from "@connectrpc/connect-query";
+import { Field } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
+import { Input } from "@kentos/components/ui/input";
+import { Label } from "@kentos/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@kentos/components/ui/radio-group";
+import { Switch } from "@kentos/components/ui/switch";
+import { Textarea } from "@kentos/components/ui/textarea";
 import { useState } from "react";
-import { Field } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import { OrganizationService } from "@/gen/izci/api/v1/organization_pb";
 import {
   InAppRulesSchema,

@@ -1,4 +1,17 @@
 import { createConnectQueryKey, useInfiniteQuery, useMutation, useQuery } from "@connectrpc/connect-query";
+import { StatStrip } from "@kentos/components/common/stat-strip";
+import { tdClass, thClass, theadClass, trClass } from "@kentos/components/common/table";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@kentos/components/ui/dialog";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronRightIcon, PauseIcon, PencilIcon, PlayIcon, Trash2Icon } from "lucide-react";
@@ -6,9 +19,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { gutter, Section, useDocumentTitle } from "@/components/app/page";
 import { RelativeTime } from "@/components/common/relative-time";
-import { StatStrip } from "@/components/common/stat-strip";
 import { EmptyState, ErrorState } from "@/components/common/states";
-import { tdClass, thClass, theadClass, trClass } from "@/components/common/table";
 import { MonitorDialog } from "@/components/monitor/monitor-dialog";
 import { MonitorSetup } from "@/components/monitor/setup";
 import {
@@ -18,23 +29,12 @@ import {
   MonitorBadge,
   monitorStatus,
 } from "@/components/monitor/status";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
 import { type Monitor, MonitorService } from "@/gen/izci/api/v1/monitor_pb";
 import { crontabOf, describeSchedule } from "@/lib/cron";
 import { errorMessage } from "@/lib/errors";
 import { formatDateTime, formatDuration, formatNumber } from "@/lib/format";
 import { useOrg } from "@/lib/org";
 import { canAdmin } from "@/lib/session";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/o/$org/monitors/$monitorId")({
   component: MonitorPage,

@@ -1,17 +1,17 @@
 import { useMutation, useQuery } from "@connectrpc/connect-query";
+import { SecretValue } from "@kentos/components/common/copy-button";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { SendIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { CodeBlock } from "@/components/common/code-block";
-import { SecretValue } from "@/components/common/copy-button";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { type Project, ProjectService } from "@/gen/izci/api/v1/project_pb";
 import { errorMessage } from "@/lib/errors";
 import { useOrg } from "@/lib/org";
 import { canWrite } from "@/lib/session";
-import { cn } from "@/lib/utils";
 import { setupSnippets } from "./snippets";
 
 export function ProjectSetup({ project }: { project: Project }) {

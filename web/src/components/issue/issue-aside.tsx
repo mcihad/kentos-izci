@@ -1,6 +1,6 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { StackedBars } from "@kentos/components/charts/stacked-bars";
 import { Link } from "@tanstack/react-router";
-import { StackedBars } from "@/components/charts/stacked-bars";
 import { RelativeTime } from "@/components/common/relative-time";
 import { StatsPeriod } from "@/gen/izci/api/v1/common_pb";
 import { type Issue, IssueService, type TagFacet } from "@/gen/izci/api/v1/issue_pb";

@@ -1,14 +1,9 @@
 import { clone, create } from "@bufbuild/protobuf";
 import { createConnectQueryKey, useInfiniteQuery, useQuery } from "@connectrpc/connect-query";
-import { useQueryClient } from "@tanstack/react-query";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { toast } from "sonner";
-import { StackedBars } from "@/components/charts/stacked-bars";
-import { AuditEntries } from "@/components/common/audit-entries";
-import { Field } from "@/components/common/field";
-import { StatStrip } from "@/components/common/stat-strip";
-import { Button } from "@/components/ui/button";
+import { StackedBars } from "@kentos/components/charts/stacked-bars";
+import { Field } from "@kentos/components/common/field";
+import { StatStrip } from "@kentos/components/common/stat-strip";
+import { Button } from "@kentos/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -16,12 +11,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
+} from "@kentos/components/ui/dialog";
+import { Input } from "@kentos/components/ui/input";
+import { Label } from "@kentos/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { Skeleton } from "@kentos/components/ui/skeleton";
+import { Switch } from "@kentos/components/ui/switch";
+import { useQueryClient } from "@tanstack/react-query";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+import { AuditEntries } from "@/components/common/audit-entries";
 import { AiService } from "@/gen/izci/api/v1/ai_pb";
 import { Role } from "@/gen/izci/api/v1/common_pb";
 import {

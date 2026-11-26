@@ -1,3 +1,4 @@
+import { cn } from "@kentos/components/lib/utils";
 import { pill, tones } from "@/components/issue/badges";
 import {
   type CheckIn,
@@ -7,7 +8,6 @@ import {
   MonitorStatus,
 } from "@/gen/izci/api/v1/monitor_pb";
 import { formatDateTime, formatDuration, toDate } from "@/lib/format";
-import { cn } from "@/lib/utils";
 
 type Look = { label: string; tone: string; color: string };
 

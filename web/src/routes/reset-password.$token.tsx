@@ -1,11 +1,11 @@
 import { useMutation } from "@connectrpc/connect-query";
+import { Field, FormError } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
+import { Input } from "@kentos/components/ui/input";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CircleCheckIcon } from "lucide-react";
 import { useState } from "react";
 import { AuthLayout } from "@/components/app/auth-layout";
-import { Field, FormError } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { AuthService } from "@/gen/izci/api/v1/auth_pb";
 import { ErrorReason } from "@/gen/izci/api/v1/common_pb";
 import { errorField, errorMessage, errorReason } from "@/lib/errors";

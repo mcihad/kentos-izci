@@ -1,10 +1,10 @@
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute } from "@tanstack/react-router";
 import { BookOpenIcon } from "lucide-react";
 import { lazy, Suspense, useCallback, useEffect, useMemo } from "react";
 import { useDocumentTitle } from "@/components/app/page";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { resolveGuideLink, useGuide, useGuides } from "@/components/docs/docs";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useOrg } from "@/lib/org";
 
 const Markdown = lazy(() => import("@/components/common/markdown"));

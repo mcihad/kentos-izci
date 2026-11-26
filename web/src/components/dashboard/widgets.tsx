@@ -1,12 +1,8 @@
 import { create } from "@bufbuild/protobuf";
 import { useQuery } from "@connectrpc/connect-query";
-import { Link } from "@tanstack/react-router";
-import { ArrowDownIcon, ArrowUpIcon, Trash2Icon } from "lucide-react";
-import { useState } from "react";
-import { StackedBars } from "@/components/charts/stacked-bars";
-import { Field } from "@/components/common/field";
-import { IssueRow } from "@/components/issue/issue-row";
-import { Button } from "@/components/ui/button";
+import { StackedBars } from "@kentos/components/charts/stacked-bars";
+import { Field } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -14,12 +10,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@kentos/components/ui/dialog";
+import { Input } from "@kentos/components/ui/input";
+import { Label } from "@kentos/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@kentos/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { Skeleton } from "@kentos/components/ui/skeleton";
+import { Link } from "@tanstack/react-router";
+import { ArrowDownIcon, ArrowUpIcon, Trash2Icon } from "lucide-react";
+import { useState } from "react";
+import { IssueRow } from "@/components/issue/issue-row";
 import { StatsPeriod } from "@/gen/izci/api/v1/common_pb";
 import { IssueService, IssueSort } from "@/gen/izci/api/v1/issue_pb";
 import {

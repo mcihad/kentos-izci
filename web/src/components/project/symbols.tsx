@@ -1,4 +1,16 @@
 import { createConnectQueryKey, useInfiniteQuery, useMutation, useQuery } from "@connectrpc/connect-query";
+import { thClass, theadClass, trClass } from "@kentos/components/common/table";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@kentos/components/ui/dialog";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Trash2Icon } from "lucide-react";
@@ -7,18 +19,7 @@ import { toast } from "sonner";
 import { CodeBlock } from "@/components/common/code-block";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState } from "@/components/common/states";
-import { thClass, theadClass, trClass } from "@/components/common/table";
 import { pill, tones } from "@/components/issue/badges";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
 import { type Project, ProjectService } from "@/gen/izci/api/v1/project_pb";
 import {
   type ArtifactBundle,
@@ -31,7 +32,6 @@ import { errorMessage } from "@/lib/errors";
 import { formatBytes } from "@/lib/format";
 import { useOrg } from "@/lib/org";
 import { canAdmin } from "@/lib/session";
-import { cn } from "@/lib/utils";
 
 type Guide = { id: string; label: string; lang: string; intro: string; code: string };
 

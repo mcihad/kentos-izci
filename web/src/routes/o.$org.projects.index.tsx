@@ -1,4 +1,7 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BoxesIcon, PlusIcon } from "lucide-react";
 import { useState } from "react";
@@ -7,14 +10,11 @@ import { Sparkline } from "@/components/charts/sparkline";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { NewProjectDialog } from "@/components/project/new-project";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 import { formatCompact, formatNumber } from "@/lib/format";
 import { platformLabel } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
 import { canAdmin } from "@/lib/session";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/o/$org/projects/")({
   component: ProjectsPage,

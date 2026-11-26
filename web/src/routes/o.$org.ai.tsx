@@ -1,20 +1,20 @@
 import { useInfiniteQuery, useQuery } from "@connectrpc/connect-query";
+import { StatStrip } from "@kentos/components/common/stat-strip";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { GitPullRequestDraftIcon, GitPullRequestIcon, SparklesIcon } from "lucide-react";
 import { changeStats, runDuration, runTrigger } from "@/components/ai/labels";
 import { RunStatusPill } from "@/components/ai/run-view";
 import { gutter, PageHeader } from "@/components/app/page";
 import { RelativeTime } from "@/components/common/relative-time";
-import { StatStrip } from "@/components/common/stat-strip";
 import { EmptyState, ErrorState } from "@/components/common/states";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { type AiRun, AiRunStatus, AiService } from "@/gen/izci/api/v1/ai_pb";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 import { formatDuration, formatNumber } from "@/lib/format";
 import { useOrg } from "@/lib/org";
-import { cn } from "@/lib/utils";
 
 // Search validation stays free of generated enums so that the route
 // definition (which is part of the main bundle) does not pull them in.

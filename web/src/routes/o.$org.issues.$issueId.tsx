@@ -1,11 +1,27 @@
 import { skipToken, useQuery } from "@connectrpc/connect-query";
+import { CopyButton } from "@kentos/components/common/copy-button";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@kentos/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@kentos/components/ui/dropdown-menu";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { BracesIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, DownloadIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { IssueAi } from "@/components/ai/issue-ai";
 import { gutter } from "@/components/app/page";
 import { CodeBlock } from "@/components/common/code-block";
-import { CopyButton } from "@/components/common/copy-button";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { TabStrip, tabActiveOptions, tabClass } from "@/components/common/tab-nav";
@@ -26,15 +42,6 @@ import { Impact } from "@/components/issue/impact";
 import { IssueAside } from "@/components/issue/issue-aside";
 import { IssueEvents } from "@/components/issue/issue-events";
 import { TriageBar } from "@/components/issue/triage-bar";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
 import { IssueStatus, StatsPeriod } from "@/gen/izci/api/v1/common_pb";
 import { type EventDetail, EventPick, EventService } from "@/gen/izci/api/v1/event_pb";
 import { FeedbackService } from "@/gen/izci/api/v1/feedback_pb";
@@ -46,7 +53,6 @@ import { useOrg } from "@/lib/org";
 import { canAdmin, canWrite } from "@/lib/session";
 import { useHotkeys } from "@/lib/shortcuts";
 import { useTriage } from "@/lib/triage";
-import { cn } from "@/lib/utils";
 
 type Tab = "event" | "events" | "impact" | "feedback" | "activity" | "ai";
 type IssueSearch = { event?: string; tab?: Tab; run?: string };

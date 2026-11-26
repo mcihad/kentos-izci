@@ -1,13 +1,14 @@
 import { createQueryOptions, useMutation } from "@connectrpc/connect-query";
+import { SecretValue } from "@kentos/components/common/copy-button";
+import { Field, FormError } from "@kentos/components/common/field";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import { Input } from "@kentos/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { CheckIcon } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { AuthLayout } from "@/components/app/auth-layout";
-import { SecretValue } from "@/components/common/copy-button";
-import { Field, FormError } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AuthService, type CompleteSetupResponse } from "@/gen/izci/api/v1/auth_pb";
 import { ErrorReason } from "@/gen/izci/api/v1/common_pb";
 import { baseTransport } from "@/lib/api";
@@ -15,7 +16,6 @@ import { errorField, errorMessage, errorReason } from "@/lib/errors";
 import { platformOptions } from "@/lib/platforms";
 import { storeSession } from "@/lib/session";
 import { slugify } from "@/lib/slug";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/setup")({
   beforeLoad: async ({ context }) => {

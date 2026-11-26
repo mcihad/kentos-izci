@@ -1,11 +1,8 @@
 import { create } from "@bufbuild/protobuf";
 import { DurationSchema } from "@bufbuild/protobuf/wkt";
 import { useQuery } from "@connectrpc/connect-query";
-import { CheckIcon, ChevronDownIcon, EyeOffIcon, RotateCcwIcon, UserRoundIcon } from "lucide-react";
-import { UserAvatar } from "@/components/common/user-avatar";
-import { DeleteIssueButton } from "@/components/issue/delete-issue";
-import { FollowButton } from "@/components/issue/follow-button";
-import { Button } from "@/components/ui/button";
+import { UserAvatar } from "@kentos/components/common/user-avatar";
+import { Button } from "@kentos/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +12,10 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@kentos/components/ui/dropdown-menu";
+import { CheckIcon, ChevronDownIcon, EyeOffIcon, RotateCcwIcon, UserRoundIcon } from "lucide-react";
+import { DeleteIssueButton } from "@/components/issue/delete-issue";
+import { FollowButton } from "@/components/issue/follow-button";
 import { IssueStatus, Priority } from "@/gen/izci/api/v1/common_pb";
 import type { Issue } from "@/gen/izci/api/v1/issue_pb";
 import { OrganizationService } from "@/gen/izci/api/v1/organization_pb";

@@ -1,11 +1,7 @@
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
-import { useQueryClient } from "@tanstack/react-query";
-import { CopyIcon, DownloadIcon, ShieldCheckIcon, TriangleAlertIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { CopyButton, copyText } from "@/components/common/copy-button";
-import { Field, FormError } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
+import { CopyButton, copyText } from "@kentos/components/common/copy-button";
+import { Field, FormError } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -13,9 +9,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@kentos/components/ui/dialog";
+import { Input } from "@kentos/components/ui/input";
+import { Skeleton } from "@kentos/components/ui/skeleton";
+import { useQueryClient } from "@tanstack/react-query";
+import { CopyIcon, DownloadIcon, ShieldCheckIcon, TriangleAlertIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { ErrorReason } from "@/gen/izci/api/v1/common_pb";
 import { UserService } from "@/gen/izci/api/v1/user_pb";
 import { baseTransport } from "@/lib/api";

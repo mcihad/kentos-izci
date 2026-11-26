@@ -1,9 +1,9 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { Segmented } from "@kentos/components/common/segmented";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { useState } from "react";
 import { Section } from "@/components/app/page";
 import { CodeBlock } from "@/components/common/code-block";
-import { Segmented } from "@/components/common/segmented";
-import { Skeleton } from "@/components/ui/skeleton";
 import { type Monitor, MonitorIntervalUnit } from "@/gen/izci/api/v1/monitor_pb";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 

@@ -4,8 +4,12 @@
 # stages, running on Debian slim with git (for AI analyses) as a non-root
 # user. Build through `make docker`, which passes the version details.
 #
-#   docker build -t izci .
-#   docker build --build-arg WITH_OPENCODE=true -t izci:ai .
+# The web UI uses the KentOS component kit from the sibling repository
+# kentos-components, passed as a named build context:
+#
+#   docker build --build-context kentos-components=../kentos-components -t izci .
+#   docker build --build-context kentos-components=../kentos-components \
+#     --build-arg WITH_OPENCODE=true -t izci:ai .
 #
 # See docs/operasyon.md for running it.
 
@@ -20,6 +24,8 @@ FROM node:${NODE_VERSION}-${DEBIAN_VERSION}-slim AS web
 ARG PNPM_VERSION=11.17.0
 RUN npm install --global --no-fund --no-audit "pnpm@${PNPM_VERSION}"
 WORKDIR /src/web
+# web/package.json refers to file:../../kentos-components/packages/components.
+COPY --from=kentos-components packages/components /kentos-components/packages/components
 COPY web/package.json web/pnpm-lock.yaml ./
 RUN --mount=type=cache,id=izci-pnpm,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile

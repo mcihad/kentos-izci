@@ -1,14 +1,9 @@
 import { create } from "@bufbuild/protobuf";
 import { useQuery, useTransport } from "@connectrpc/connect-query";
-import { Link } from "@tanstack/react-router";
-import { DownloadIcon, SearchIcon, Trash2Icon } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Field } from "@/components/common/field";
-import { RelativeTime } from "@/components/common/relative-time";
-import { StatStrip } from "@/components/common/stat-strip";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Field } from "@kentos/components/common/field";
+import { StatStrip } from "@kentos/components/common/stat-strip";
+import { Button } from "@kentos/components/ui/button";
+import { Checkbox } from "@kentos/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -16,11 +11,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+} from "@kentos/components/ui/dialog";
+import { Input } from "@kentos/components/ui/input";
+import { Label } from "@kentos/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@kentos/components/ui/toggle-group";
+import { Link } from "@tanstack/react-router";
+import { DownloadIcon, SearchIcon, Trash2Icon } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { RelativeTime } from "@/components/common/relative-time";
 import {
   type DataSubject,
   DataSubjectSchema,

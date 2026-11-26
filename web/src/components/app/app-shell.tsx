@@ -1,13 +1,13 @@
+import { Kbd } from "@kentos/components/common/kbd";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@kentos/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@kentos/components/ui/tooltip";
 import { MenuIcon, PaletteIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, SearchIcon } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Logo } from "@/components/brand/logo";
-import { Kbd } from "@/components/common/kbd";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useOrg } from "@/lib/org";
 import { appearanceFlag, paletteFlag, shortcutHelpFlag, useFlag, useHotkeys } from "@/lib/shortcuts";
-import { cn } from "@/lib/utils";
 import { AppearanceSheet } from "./appearance-sheet";
 import { CommandPalette } from "./command-palette";
 import { NotificationsMenu } from "./notifications-menu";

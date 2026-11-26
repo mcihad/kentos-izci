@@ -1,11 +1,5 @@
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { SplitIcon } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { RelativeTime } from "@/components/common/relative-time";
-import { Button } from "@/components/ui/button";
+import { Button } from "@kentos/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -13,9 +7,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+} from "@kentos/components/ui/dialog";
+import { Label } from "@kentos/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@kentos/components/ui/radio-group";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { SplitIcon } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { RelativeTime } from "@/components/common/relative-time";
 import { type Issue, IssueService, type IssueSummary } from "@/gen/izci/api/v1/issue_pb";
 import { errorMessage } from "@/lib/errors";
 import { formatCompact } from "@/lib/format";

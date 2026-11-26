@@ -1,14 +1,7 @@
 import { useMutation, useQuery } from "@connectrpc/connect-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboardIcon, PlusIcon, UsersIcon } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { gutter, PageHeader } from "@/components/app/page";
-import { Field } from "@/components/common/field";
-import { RelativeTime } from "@/components/common/relative-time";
-import { EmptyState, ErrorState } from "@/components/common/states";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Field } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
+import { Checkbox } from "@kentos/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -16,10 +9,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@kentos/components/ui/dialog";
+import { Input } from "@kentos/components/ui/input";
+import { Label } from "@kentos/components/ui/label";
+import { Skeleton } from "@kentos/components/ui/skeleton";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { LayoutDashboardIcon, PlusIcon, UsersIcon } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { gutter, PageHeader } from "@/components/app/page";
+import { RelativeTime } from "@/components/common/relative-time";
+import { EmptyState, ErrorState } from "@/components/common/states";
 import { ViewService } from "@/gen/izci/api/v1/view_pb";
 import { errorMessage } from "@/lib/errors";
 import { useOrg } from "@/lib/org";

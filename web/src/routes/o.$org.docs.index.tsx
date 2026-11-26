@@ -1,7 +1,7 @@
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ErrorState } from "@/components/common/states";
 import { sections, useGuides } from "@/components/docs/docs";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useOrg } from "@/lib/org";
 
 export const Route = createFileRoute("/o/$org/docs/")({

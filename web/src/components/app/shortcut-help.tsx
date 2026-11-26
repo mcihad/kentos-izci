@@ -1,5 +1,11 @@
-import { Kbd } from "@/components/common/kbd";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Kbd } from "@kentos/components/common/kbd";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@kentos/components/ui/dialog";
 import { shortcutGroups, shortcutHelpFlag, useFlag } from "@/lib/shortcuts";
 
 export function ShortcutHelp() {

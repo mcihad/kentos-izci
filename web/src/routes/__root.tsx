@@ -1,10 +1,10 @@
+import { Button } from "@kentos/components/ui/button";
+import { Toaster } from "@kentos/components/ui/sonner";
+import { TooltipProvider } from "@kentos/components/ui/tooltip";
 import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, Link, Outlet } from "@tanstack/react-router";
 import { ReauthHost } from "@/components/app/reauth-host";
 import { Logo } from "@/components/brand/logo";
-import { Button } from "@/components/ui/button";
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   component: Root,

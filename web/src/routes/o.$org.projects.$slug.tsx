@@ -1,4 +1,6 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { cn } from "@kentos/components/lib/utils";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRightIcon } from "lucide-react";
 import { gutter, useDocumentTitle } from "@/components/app/page";
@@ -15,12 +17,10 @@ import { ProjectReleases } from "@/components/project/releases";
 import { ProjectRepository } from "@/components/project/repository";
 import { ProjectSetup } from "@/components/project/setup";
 import { ProjectSymbols } from "@/components/project/symbols";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 import { isNotFound } from "@/lib/errors";
 import { platformLabel } from "@/lib/labels";
 import { useOrg } from "@/lib/org";
-import { cn } from "@/lib/utils";
 
 const tabs = [
   { id: "general", label: "Genel" },

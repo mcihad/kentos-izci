@@ -1,13 +1,13 @@
 import { clone, create } from "@bufbuild/protobuf";
 import { useQuery } from "@connectrpc/connect-query";
+import { StackedBars } from "@kentos/components/charts/stacked-bars";
+import { Field } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
+import { Label } from "@kentos/components/ui/label";
+import { Skeleton } from "@kentos/components/ui/skeleton";
+import { Switch } from "@kentos/components/ui/switch";
+import { Textarea } from "@kentos/components/ui/textarea";
 import { useState } from "react";
-import { StackedBars } from "@/components/charts/stacked-bars";
-import { Field } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import {
   FilterReason,
   InboundFiltersSchema,

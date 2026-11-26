@@ -1,11 +1,7 @@
 import { createConnectQueryKey, useMutation, useQuery, useTransport } from "@connectrpc/connect-query";
-import { useQueryClient } from "@tanstack/react-query";
-import { BookmarkIcon, DownloadIcon, Trash2Icon, UsersIcon } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Field } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Field } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
+import { Checkbox } from "@kentos/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +9,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@kentos/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,9 +17,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@kentos/components/ui/dropdown-menu";
+import { Input } from "@kentos/components/ui/input";
+import { Label } from "@kentos/components/ui/label";
+import { useQueryClient } from "@tanstack/react-query";
+import { BookmarkIcon, DownloadIcon, Trash2Icon, UsersIcon } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { IssueStatus, type StatsPeriod } from "@/gen/izci/api/v1/common_pb";
 import { IssueService, type IssueSort } from "@/gen/izci/api/v1/issue_pb";
 import { type SavedSearch, ViewService } from "@/gen/izci/api/v1/view_pb";

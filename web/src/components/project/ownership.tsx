@@ -1,13 +1,7 @@
 import { create } from "@bufbuild/protobuf";
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
-import { useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { XIcon } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Field, FormError } from "@/components/common/field";
-import { RelativeTime } from "@/components/common/relative-time";
-import { Button } from "@/components/ui/button";
+import { Field, FormError } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -15,12 +9,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
+} from "@kentos/components/ui/dialog";
+import { Label } from "@kentos/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@kentos/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { Skeleton } from "@kentos/components/ui/skeleton";
+import { Textarea } from "@kentos/components/ui/textarea";
+import { useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import { XIcon } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { RelativeTime } from "@/components/common/relative-time";
 import { OrganizationService } from "@/gen/izci/api/v1/organization_pb";
 import {
   AutoAssign,

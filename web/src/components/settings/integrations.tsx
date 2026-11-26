@@ -1,16 +1,8 @@
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { CircleAlertIcon, ExternalLinkIcon, KeyRoundIcon, PlugIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { GitHubMark } from "@/components/brand/github-mark";
-import { Field, FormError } from "@/components/common/field";
-import { RelativeTime } from "@/components/common/relative-time";
-import { EmptyState, ErrorState } from "@/components/common/states";
-import { UserAvatar } from "@/components/common/user-avatar";
-import { pill, tones } from "@/components/issue/badges";
-import { Button } from "@/components/ui/button";
+import { Field, FormError } from "@kentos/components/common/field";
+import { UserAvatar } from "@kentos/components/common/user-avatar";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -18,15 +10,23 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@kentos/components/ui/dialog";
+import { Input } from "@kentos/components/ui/input";
+import { Skeleton } from "@kentos/components/ui/skeleton";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { CircleAlertIcon, ExternalLinkIcon, KeyRoundIcon, PlugIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { GitHubMark } from "@/components/brand/github-mark";
+import { RelativeTime } from "@/components/common/relative-time";
+import { EmptyState, ErrorState } from "@/components/common/states";
+import { pill, tones } from "@/components/issue/badges";
 import { type Integration, IntegrationAuth, IntegrationService } from "@/gen/izci/api/v1/integration_pb";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 import { errorField, errorMessage } from "@/lib/errors";
 import { useOrg } from "@/lib/org";
 import { canAdmin } from "@/lib/session";
-import { cn } from "@/lib/utils";
 
 /** Messages for the result GitHub's installation callback reports. */
 const installResults: Record<string, { ok: boolean; text: string }> = {

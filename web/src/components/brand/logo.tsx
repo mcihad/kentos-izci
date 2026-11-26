@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@kentos/components/lib/utils";
 
 /**
  * The İzci mark: a compass needle that leaves a fading trail behind it, the

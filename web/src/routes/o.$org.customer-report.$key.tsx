@@ -1,13 +1,14 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { StackedBars } from "@kentos/components/charts/stacked-bars";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronRightIcon, DownloadIcon, PrinterIcon } from "lucide-react";
 import { PeriodSelect, parsePeriod } from "@/components/app/filters";
 import { gutter, useDocumentTitle } from "@/components/app/page";
-import { StackedBars } from "@/components/charts/stacked-bars";
 import { ErrorState } from "@/components/common/states";
 import { HealthLabel } from "@/components/customer/health";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { IssueStatus } from "@/gen/izci/api/v1/common_pb";
 import { CustomerService } from "@/gen/izci/api/v1/customer_pb";
 import type { IssueSummary } from "@/gen/izci/api/v1/issue_pb";
@@ -15,7 +16,6 @@ import { downloadText, toCsv } from "@/lib/csv";
 import { formatDate, formatDateTime, formatNumber } from "@/lib/format";
 import { useOrg } from "@/lib/org";
 import { seriesPoints, seriesStep } from "@/lib/series";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/o/$org/customer-report/$key")({
   validateSearch: (s: Record<string, unknown>): { period?: string } => ({

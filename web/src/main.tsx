@@ -1,14 +1,17 @@
-import "./fonts.css";
 import "./index.css";
 
 import { Code, ConnectError } from "@connectrpc/connect";
 import { TransportProvider } from "@connectrpc/connect-query";
+import { configureAppearance } from "@kentos/components/lib/theme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { baseTransport, setUnauthenticatedHandler } from "./lib/api";
 import { routeTree } from "./routeTree.gen";
+
+// The keys public/theme-init.js reads, so the saved appearance applies before first paint.
+configureAppearance({ storageKey: "izci-appearance", legacyKey: "izci-theme" });
 
 // Errors that will not go away by asking again.
 const final = new Set([

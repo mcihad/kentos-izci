@@ -1,10 +1,10 @@
+import { CopyButton } from "@kentos/components/common/copy-button";
+import { cn } from "@kentos/components/lib/utils";
 import { ChevronRightIcon, FileMinusIcon, FilePenLineIcon, FilePlusIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { TokenLine } from "@/components/common/code-block";
-import { CopyButton } from "@/components/common/copy-button";
 import { type DiffFile, parseDiff } from "@/lib/diff";
 import { languageOf, useTokens } from "@/lib/highlight";
-import { cn } from "@/lib/utils";
 
 const statusIcon = { added: FilePlusIcon, deleted: FileMinusIcon, modified: FilePenLineIcon };
 const statusLabel = { added: "yeni dosya", deleted: "silindi", modified: "değişti" };

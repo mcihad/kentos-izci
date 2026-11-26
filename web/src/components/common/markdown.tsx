@@ -1,3 +1,4 @@
+import { cn } from "@kentos/components/lib/utils";
 import { useRouter } from "@tanstack/react-router";
 import { Children, isValidElement, type ReactNode, useMemo } from "react";
 import type { Components } from "react-markdown";
@@ -5,7 +6,6 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CodeLines } from "@/components/common/code-block";
 import { localImage } from "@/lib/images";
-import { cn } from "@/lib/utils";
 
 const languageAlias: Record<string, string> = {
   cs: "csharp",

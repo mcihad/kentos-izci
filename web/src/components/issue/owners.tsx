@@ -1,13 +1,13 @@
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
+import { UserAvatar } from "@kentos/components/common/user-avatar";
+import { Button } from "@kentos/components/ui/button";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { GitCommitHorizontalIcon, RefreshCwIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { RelativeTime } from "@/components/common/relative-time";
-import { UserAvatar } from "@/components/common/user-avatar";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { Issue } from "@/gen/izci/api/v1/issue_pb";
 import { OwnershipService, type SuspectCommit, SuspectCommitState } from "@/gen/izci/api/v1/ownership_pb";
 import { errorMessage } from "@/lib/errors";

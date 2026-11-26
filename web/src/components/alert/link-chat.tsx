@@ -1,10 +1,7 @@
 import { useMutation, useQuery } from "@connectrpc/connect-query";
-import { CheckCircle2Icon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { SecretValue } from "@/components/common/copy-button";
-import { Field, FormError } from "@/components/common/field";
-import { RelativeTime } from "@/components/common/relative-time";
-import { Button } from "@/components/ui/button";
+import { SecretValue } from "@kentos/components/common/copy-button";
+import { Field, FormError } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,8 +9,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+} from "@kentos/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { CheckCircle2Icon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { RelativeTime } from "@/components/common/relative-time";
 import { AlertService, type CreateTelegramLinkCodeResponse } from "@/gen/izci/api/v1/alert_pb";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 import { errorMessage } from "@/lib/errors";

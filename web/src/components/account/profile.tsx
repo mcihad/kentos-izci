@@ -1,10 +1,6 @@
 import { useMutation, useQuery } from "@connectrpc/connect-query";
-import { useQueryClient } from "@tanstack/react-query";
-import { KeyRoundIcon } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Field, FormError } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
+import { Field, FormError } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,8 +8,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+} from "@kentos/components/ui/dialog";
+import { Input } from "@kentos/components/ui/input";
+import { useQueryClient } from "@tanstack/react-query";
+import { KeyRoundIcon } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { AuthService } from "@/gen/izci/api/v1/auth_pb";
 import { UserService } from "@/gen/izci/api/v1/user_pb";
 import { baseTransport } from "@/lib/api";

@@ -20,18 +20,9 @@ importers:
       '@connectrpc/connect-web':
         specifier: ^2.3.0
         version: 2.3.0(@bufbuild/protobuf@2.17.0)(@connectrpc/connect@2.3.0(@bufbuild/protobuf@2.17.0))
-      '@fontsource-variable/ibm-plex-sans':
-        specifier: ^5.3.0
-        version: 5.3.0
-      '@fontsource-variable/inter':
-        specifier: ^5.3.0
-        version: 5.3.0
-      '@fontsource-variable/jetbrains-mono':
-        specifier: ^5.3.0
-        version: 5.3.0
-      '@fontsource-variable/plus-jakarta-sans':
-        specifier: ^5.3.0
-        version: 5.3.0
+      '@kentos/components':
+        specifier: file:../../kentos-components/packages/components
+        version: file:../../kentos-components/packages/components(cmdk@1.1.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(lucide-react@1.79.0(@types/react@19.3.0)(react@19.3.1))(radix-ui@1.8.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(sonner@2.0.8(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(tailwindcss@4.3.5)
       '@tanstack/react-query':
         specifier: ^5.108.4
         version: 5.108.4(@types/react@19.3.0)(react@19.3.1)
@@ -41,12 +32,6 @@ importers:
       '@tanstack/react-virtual':
         specifier: ^3.14.28
         version: 3.14.28(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      class-variance-authority:
-        specifier: ^0.7.1
-        version: 0.7.1
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
       cmdk:
         specifier: ^1.1.1
         version: 1.1.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -77,9 +62,6 @@ importers:
       sonner:
         specifier: ^2.0.8
         version: 2.0.8(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      tailwind-merge:
-        specifier: ^3.7.1
-        version: 3.7.1
       uqr:
         specifier: 0.1.3
         version: 0.1.3
@@ -111,9 +93,6 @@ importers:
       tailwindcss:
         specifier: ^4.3.5
         version: 4.3.5
-      tw-animate-css:
-        specifier: ^1.4.0
-        version: 1.4.0
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -359,6 +338,17 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@kentos/components@file:../../kentos-components/packages/components':
+    resolution: {directory: ../../kentos-components/packages/components, type: directory}
+    peerDependencies:
+      cmdk: ^1.1.1
+      lucide-react: ^1.79.0
+      radix-ui: ^1.8.1
+      react: ^19.0.0
+      react-dom: ^19.0.0
+      sonner: ^2.0.8
+      tailwindcss: ^4.3.5
 
   '@napi-rs/wasm-runtime@1.2.6':
     resolution: {integrity: sha512-mRyDmEw9/fCDXCGfL1sbgIw/GUK0PVxRW4YwgPN61F3LQ+fSyoBFarJVzgGyhF6kRzEQZ0FejDqm4WLXSeqQmw==}
@@ -2715,6 +2705,24 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.3
       '@jridgewell/sourcemap-codec': 1.6.0
+
+  '@kentos/components@file:../../kentos-components/packages/components(cmdk@1.1.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(lucide-react@1.79.0(@types/react@19.3.0)(react@19.3.1))(radix-ui@1.8.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(sonner@2.0.8(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(tailwindcss@4.3.5)':
+    dependencies:
+      '@fontsource-variable/ibm-plex-sans': 5.3.0
+      '@fontsource-variable/inter': 5.3.0
+      '@fontsource-variable/jetbrains-mono': 5.3.0
+      '@fontsource-variable/plus-jakarta-sans': 5.3.0
+      class-variance-authority: 0.7.1
+      clsx: 2.1.1
+      cmdk: 1.1.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      lucide-react: 1.79.0(@types/react@19.3.0)(react@19.3.1)
+      radix-ui: 1.8.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+      sonner: 2.0.8(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      tailwind-merge: 3.7.1
+      tailwindcss: 4.3.5
+      tw-animate-css: 1.4.0
 
   '@napi-rs/wasm-runtime@1.2.6(@emnapi/core@2.0.0-beta.2)(@emnapi/runtime@2.0.0-beta.2)':
     dependencies:

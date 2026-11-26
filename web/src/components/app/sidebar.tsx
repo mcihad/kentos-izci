@@ -1,8 +1,8 @@
+import { cn } from "@kentos/components/lib/utils";
 import { Link } from "@tanstack/react-router";
 import { BookOpenIcon, type LucideIcon, SettingsIcon, ShieldCheckIcon } from "lucide-react";
 import { useOrg } from "@/lib/org";
 import { canAdmin, useSession } from "@/lib/session";
-import { cn } from "@/lib/utils";
 import { primaryNav } from "./nav";
 import { OrgSwitcher } from "./org-switcher";
 import { UserMenu } from "./user-menu";

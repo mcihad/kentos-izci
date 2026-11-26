@@ -110,10 +110,12 @@ build: web ## Build bin/izci with the UI embedded
 #? WITH_OPENCODE=true also installs the opencode CLI for AI analyses.
 #= IMAGE          image reference (default: izci:$(VERSION))
 #= WITH_OPENCODE  true to include opencode (default: false)
+#= KENTOS_COMPONENTS  the KentOS component kit checkout (default: ../kentos-components)
 #> make docker
 #> make docker IMAGE=registry.example.com/izci:v1.0.0 WITH_OPENCODE=true
 docker: ## Build the Docker image
 	docker build \
+		--build-context kentos-components=$(or $(KENTOS_COMPONENTS),../kentos-components) \
 		--build-arg VERSION=$(VERSION) --build-arg COMMIT=$(COMMIT) --build-arg DATE=$(DATE) \
 		--build-arg WITH_OPENCODE=$(or $(WITH_OPENCODE),false) \
 		--tag $(or $(IMAGE),izci:$(VERSION)) .

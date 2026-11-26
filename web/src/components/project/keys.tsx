@@ -1,13 +1,8 @@
 import { useMutation, useQuery } from "@connectrpc/connect-query";
-import { KeyRoundIcon, PlusIcon, TriangleAlertIcon } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { SecretValue } from "@/components/common/copy-button";
-import { Field, FormError } from "@/components/common/field";
-import { RelativeTime } from "@/components/common/relative-time";
-import { EmptyState } from "@/components/common/states";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { SecretValue } from "@kentos/components/common/copy-button";
+import { Field, FormError } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
+import { Checkbox } from "@kentos/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -15,12 +10,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
+} from "@kentos/components/ui/dialog";
+import { Input } from "@kentos/components/ui/input";
+import { Label } from "@kentos/components/ui/label";
+import { Skeleton } from "@kentos/components/ui/skeleton";
+import { Switch } from "@kentos/components/ui/switch";
+import { Textarea } from "@kentos/components/ui/textarea";
+import { KeyRoundIcon, PlusIcon, TriangleAlertIcon } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { RelativeTime } from "@/components/common/relative-time";
+import { EmptyState } from "@/components/common/states";
 import {
   type ApiKey,
   ApiKeyScope,

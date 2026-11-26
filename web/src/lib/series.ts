@@ -1,7 +1,8 @@
+import type { Point } from "@kentos/components/charts/stacked-bars";
 import type { Series } from "@/gen/izci/api/v1/common_pb";
 import { toDate } from "./format";
 
-export type Point = { t: Date; v: number };
+export type { Point };
 
 /** Expands a Series into timestamped points. */
 export function seriesPoints(s: Series | undefined): Point[] {

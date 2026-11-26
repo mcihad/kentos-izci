@@ -1,16 +1,16 @@
 import { createConnectQueryKey, useInfiniteQuery, useMutation, useQuery } from "@connectrpc/connect-query";
+import { UserAvatar } from "@kentos/components/common/user-avatar";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import { Textarea } from "@kentos/components/ui/textarea";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { RelativeTime } from "@/components/common/relative-time";
-import { UserAvatar } from "@/components/common/user-avatar";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { ActivityKind, type IssueActivity, IssueService } from "@/gen/izci/api/v1/issue_pb";
 import { type Member, OrganizationService } from "@/gen/izci/api/v1/organization_pb";
 import { errorMessage } from "@/lib/errors";
 import { useOrg } from "@/lib/org";
-import { cn } from "@/lib/utils";
 
 const statusText: Record<string, string> = {
   ISSUE_STATUS_RESOLVED: "hatayı çözüldü olarak işaretledi",

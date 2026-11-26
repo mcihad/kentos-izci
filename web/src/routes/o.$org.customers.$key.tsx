@@ -1,4 +1,20 @@
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
+import { StackedBars } from "@kentos/components/charts/stacked-bars";
+import { Field } from "@kentos/components/common/field";
+import { StatStrip } from "@kentos/components/common/stat-strip";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@kentos/components/ui/dialog";
+import { Input } from "@kentos/components/ui/input";
+import { Skeleton } from "@kentos/components/ui/skeleton";
+import { Textarea } from "@kentos/components/ui/textarea";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronRightIcon, PencilIcon } from "lucide-react";
@@ -7,32 +23,16 @@ import { toast } from "sonner";
 import { PeriodSelect, parsePeriod } from "@/components/app/filters";
 import { gutter, Section, useDocumentTitle } from "@/components/app/page";
 import { Sparkline } from "@/components/charts/sparkline";
-import { StackedBars } from "@/components/charts/stacked-bars";
-import { Field } from "@/components/common/field";
 import { RelativeTime } from "@/components/common/relative-time";
-import { StatStrip } from "@/components/common/stat-strip";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { HealthLabel } from "@/components/customer/health";
 import { IssueRow } from "@/components/issue/issue-row";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
 import { type Customer, CustomerService } from "@/gen/izci/api/v1/customer_pb";
 import { errorMessage, isNotFound } from "@/lib/errors";
 import { formatCompact, formatNumber } from "@/lib/format";
 import { useOrg } from "@/lib/org";
 import { seriesPoints, seriesStep } from "@/lib/series";
 import { canWrite } from "@/lib/session";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/o/$org/customers/$key")({
   validateSearch: (s: Record<string, unknown>): { period?: string } => ({

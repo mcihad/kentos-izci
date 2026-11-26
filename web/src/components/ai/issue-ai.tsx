@@ -1,11 +1,11 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { Button } from "@kentos/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { Link } from "@tanstack/react-router";
 import { BotIcon, ShieldOffIcon, SparklesIcon } from "lucide-react";
 import { useState } from "react";
 import { EmptyState, ErrorState } from "@/components/common/states";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { type AiRun, AiService } from "@/gen/izci/api/v1/ai_pb";
 import type { IssueSummary } from "@/gen/izci/api/v1/issue_pb";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";

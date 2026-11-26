@@ -1,5 +1,8 @@
 import { clone } from "@bufbuild/protobuf";
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronRightIcon, PlusIcon, Trash2Icon, UsersIcon } from "lucide-react";
@@ -8,8 +11,6 @@ import { toast } from "sonner";
 import { gutter, useDocumentTitle } from "@/components/app/page";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { AddWidgetDialog, Widget } from "@/components/dashboard/widgets";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   type Dashboard,
   DashboardSchema,
@@ -19,7 +20,6 @@ import {
 import { errorMessage, isNotFound } from "@/lib/errors";
 import { useOrg } from "@/lib/org";
 import { canWrite } from "@/lib/session";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/o/$org/dashboards/$id")({ component: DashboardPage });
 

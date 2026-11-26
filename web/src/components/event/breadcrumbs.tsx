@@ -1,11 +1,11 @@
 import type { JsonValue } from "@bufbuild/protobuf";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import type { Breadcrumb } from "@/gen/izci/ingest/v1/event_pb";
 import { Level } from "@/gen/izci/ingest/v1/event_pb";
 import { formatDateTime, formatTime, toDate } from "@/lib/format";
 import { levels } from "@/lib/labels";
-import { cn } from "@/lib/utils";
 
 const categoryLabels: Record<string, string> = {
   navigation: "gezinme",

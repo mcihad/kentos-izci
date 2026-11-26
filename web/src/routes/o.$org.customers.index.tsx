@@ -1,4 +1,10 @@
 import { useInfiniteQuery } from "@connectrpc/connect-query";
+import { tdClass, thClass, theadClass, trClass } from "@kentos/components/common/table";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import { Input } from "@kentos/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Building2Icon, SearchIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -7,16 +13,10 @@ import { gutter, PageHeader } from "@/components/app/page";
 import { Sparkline } from "@/components/charts/sparkline";
 import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
-import { tdClass, thClass, theadClass, trClass } from "@/components/common/table";
 import { HealthLabel, healthLabels } from "@/components/customer/health";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { CustomerService, CustomerSort } from "@/gen/izci/api/v1/customer_pb";
 import { formatCompact, formatNumber } from "@/lib/format";
 import { useOrg } from "@/lib/org";
-import { cn } from "@/lib/utils";
 
 // Plain keys for URL validation: route definitions stay in the entry chunk,
 // so they must not pull in generated message code.

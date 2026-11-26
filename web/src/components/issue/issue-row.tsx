@@ -1,11 +1,11 @@
+import { UserAvatar } from "@kentos/components/common/user-avatar";
+import { cn } from "@kentos/components/lib/utils";
+import { Checkbox } from "@kentos/components/ui/checkbox";
 import { Link } from "@tanstack/react-router";
 import { Sparkline } from "@/components/charts/sparkline";
 import { RelativeTime } from "@/components/common/relative-time";
-import { UserAvatar } from "@/components/common/user-avatar";
-import { Checkbox } from "@/components/ui/checkbox";
 import type { IssueSummary } from "@/gen/izci/api/v1/issue_pb";
 import { formatCompact } from "@/lib/format";
-import { cn } from "@/lib/utils";
 import { IssueTitle, LevelBlaze, PriorityBadge, SubstatusBadge, UnhandledBadge } from "./badges";
 
 /** Whether first and last sighting are far enough apart to show both. */

@@ -1,8 +1,8 @@
 import { useMutation } from "@connectrpc/connect-query";
+import { FormError } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AuthLayout } from "@/components/app/auth-layout";
-import { FormError } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
 import { AuthService } from "@/gen/izci/api/v1/auth_pb";
 import { ErrorReason } from "@/gen/izci/api/v1/common_pb";
 import { errorMessage, errorReason } from "@/lib/errors";

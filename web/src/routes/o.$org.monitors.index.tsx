@@ -1,4 +1,7 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { Button } from "@kentos/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { Skeleton } from "@kentos/components/ui/skeleton";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon, TimerIcon } from "lucide-react";
 import { useState } from "react";
@@ -7,9 +10,6 @@ import { RelativeTime } from "@/components/common/relative-time";
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { MonitorDialog } from "@/components/monitor/monitor-dialog";
 import { headlineEnv, MonitorBadge, RunStrip } from "@/components/monitor/status";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { type Monitor, MonitorService, MonitorStatus } from "@/gen/izci/api/v1/monitor_pb";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 import { crontabOf, describeSchedule } from "@/lib/cron";

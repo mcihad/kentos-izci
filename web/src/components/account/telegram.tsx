@@ -1,9 +1,9 @@
 import { useMutation } from "@connectrpc/connect-query";
+import { SecretValue } from "@kentos/components/common/copy-button";
+import { Button } from "@kentos/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { SecretValue } from "@/components/common/copy-button";
 import { RelativeTime } from "@/components/common/relative-time";
-import { Button } from "@/components/ui/button";
 import { UserService } from "@/gen/izci/api/v1/user_pb";
 import { baseTransport } from "@/lib/api";
 import { errorMessage } from "@/lib/errors";

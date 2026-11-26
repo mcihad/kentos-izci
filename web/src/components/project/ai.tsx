@@ -1,11 +1,11 @@
 import { clone, create } from "@bufbuild/protobuf";
 import { useQuery } from "@connectrpc/connect-query";
+import { Field } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
+import { Input } from "@kentos/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { Textarea } from "@kentos/components/ui/textarea";
 import { useState } from "react";
-import { Field } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { AiService } from "@/gen/izci/api/v1/ai_pb";
 import {
   AiSettingsSchema,

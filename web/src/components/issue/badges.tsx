@@ -1,7 +1,7 @@
+import { cn } from "@kentos/components/lib/utils";
 import { IssueStatus, IssueSubstatus, Priority } from "@/gen/izci/api/v1/common_pb";
 import type { Level } from "@/gen/izci/ingest/v1/event_pb";
 import { levels, priorityLabels, statusLabels, substatusLabels } from "@/lib/labels";
-import { cn } from "@/lib/utils";
 
 /**
  * The level "blaze": a short vertical mark in the level's color, like the

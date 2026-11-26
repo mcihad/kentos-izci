@@ -1,14 +1,9 @@
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
-import { useQueryClient } from "@tanstack/react-query";
-import { ShieldCheckIcon, UserPlusIcon } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { SecretValue } from "@/components/common/copy-button";
-import { Field, FormError } from "@/components/common/field";
-import { RelativeTime } from "@/components/common/relative-time";
-import { UserAvatar } from "@/components/common/user-avatar";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { SecretValue } from "@kentos/components/common/copy-button";
+import { Field, FormError } from "@kentos/components/common/field";
+import { UserAvatar } from "@kentos/components/common/user-avatar";
+import { Button } from "@kentos/components/ui/button";
+import { Checkbox } from "@kentos/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -16,11 +11,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@kentos/components/ui/dialog";
+import { Input } from "@kentos/components/ui/input";
+import { Label } from "@kentos/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { Skeleton } from "@kentos/components/ui/skeleton";
+import { useQueryClient } from "@tanstack/react-query";
+import { ShieldCheckIcon, UserPlusIcon } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { RelativeTime } from "@/components/common/relative-time";
 import type { Invitation } from "@/gen/izci/api/v1/auth_pb";
 import { Role } from "@/gen/izci/api/v1/common_pb";
 import { type Member, OrganizationService } from "@/gen/izci/api/v1/organization_pb";

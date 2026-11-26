@@ -1,15 +1,15 @@
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
-import { useQueryClient } from "@tanstack/react-query";
-import { ExternalLinkIcon, TicketIcon } from "lucide-react";
-import { toast } from "sonner";
-import { RelativeTime } from "@/components/common/relative-time";
-import { Button } from "@/components/ui/button";
+import { Button } from "@kentos/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@kentos/components/ui/dropdown-menu";
+import { useQueryClient } from "@tanstack/react-query";
+import { ExternalLinkIcon, TicketIcon } from "lucide-react";
+import { toast } from "sonner";
+import { RelativeTime } from "@/components/common/relative-time";
 import { AlertService, ChannelKind } from "@/gen/izci/api/v1/alert_pb";
 import { type Issue, IssueService } from "@/gen/izci/api/v1/issue_pb";
 import { errorMessage, integrationMessage } from "@/lib/errors";

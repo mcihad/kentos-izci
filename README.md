@@ -42,9 +42,10 @@ API başvurusu [`docs/api`](docs/api/README.md) klasöründe, proto dosyalarınd
 
 ## Geliştirme
 
-Gereksinimler: Go 1.26+, Node 24+, pnpm 11+, buf, PostgreSQL 18+.
+Gereksinimler: Go 1.26+, Node 24+, pnpm 11+, buf, PostgreSQL 18+ ve arayüzün kullandığı KentOS bileşen seti, izci'nin yanındaki `../kentos-components` klasöründe. Bileşenlerin vitrin sayfaları o depoda `pnpm dev` ile açılır.
 
 ```bash
+git clone https://github.com/mcihad/kentos-components ../kentos-components
 cp .env.example .env
 make setup        # Go ve web bağımlılıkları
 make db-setup     # izci rolü ve izci / izci_test veritabanları

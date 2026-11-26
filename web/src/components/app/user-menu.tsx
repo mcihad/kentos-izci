@@ -1,4 +1,17 @@
 import { useMutation } from "@connectrpc/connect-query";
+import { UserAvatar } from "@kentos/components/common/user-avatar";
+import { type ThemeMode, useAppearance } from "@kentos/components/lib/theme";
+import { cn } from "@kentos/components/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@kentos/components/ui/dropdown-menu";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -10,24 +23,11 @@ import {
   SunIcon,
   UserIcon,
 } from "lucide-react";
-import { UserAvatar } from "@/components/common/user-avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { AuthService } from "@/gen/izci/api/v1/auth_pb";
 import { baseTransport } from "@/lib/api";
 import { useOrg } from "@/lib/org";
 import { useSession } from "@/lib/session";
 import { appearanceFlag, useShortcutHelp } from "@/lib/shortcuts";
-import { type ThemeMode, useAppearance } from "@/lib/theme";
-import { cn } from "@/lib/utils";
 
 export function UserMenu({ collapsed = false }: { collapsed?: boolean }) {
   const session = useSession();

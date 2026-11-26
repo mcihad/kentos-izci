@@ -1,11 +1,11 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@kentos/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
 import { CalendarClockIcon, CheckIcon, ChevronDownIcon, FolderIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 import { periodKey, periodKeys, periods } from "@/lib/labels";
-import { cn } from "@/lib/utils";
 
 /** Period picker bound to a URL key such as "24h" or "14d". */
 export function PeriodSelect({

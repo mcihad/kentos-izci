@@ -1,17 +1,10 @@
 import { create } from "@bufbuild/protobuf";
 import { DurationSchema } from "@bufbuild/protobuf/wkt";
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
-import { useQueryClient } from "@tanstack/react-query";
-import { KeyRoundIcon, PlusIcon } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { CodeBlock } from "@/components/common/code-block";
-import { SecretValue } from "@/components/common/copy-button";
-import { Field, FormError } from "@/components/common/field";
-import { RelativeTime } from "@/components/common/relative-time";
-import { EmptyState } from "@/components/common/states";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { SecretValue } from "@kentos/components/common/copy-button";
+import { Field, FormError } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
+import { Checkbox } from "@kentos/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -19,11 +12,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@kentos/components/ui/dialog";
+import { Input } from "@kentos/components/ui/input";
+import { Label } from "@kentos/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { Skeleton } from "@kentos/components/ui/skeleton";
+import { useQueryClient } from "@tanstack/react-query";
+import { KeyRoundIcon, PlusIcon } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { CodeBlock } from "@/components/common/code-block";
+import { RelativeTime } from "@/components/common/relative-time";
+import { EmptyState } from "@/components/common/states";
 import { type CreateAccessTokenResponse, TokenScope, UserService } from "@/gen/izci/api/v1/user_pb";
 import { baseTransport } from "@/lib/api";
 import { errorMessage } from "@/lib/errors";

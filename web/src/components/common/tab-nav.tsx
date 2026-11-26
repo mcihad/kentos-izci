@@ -1,7 +1,7 @@
+import { cn } from "@kentos/components/lib/utils";
 import { Link } from "@tanstack/react-router";
 import { type ReactNode, useLayoutEffect, useRef } from "react";
 import { gutter } from "@/components/app/page";
-import { cn } from "@/lib/utils";
 
 /**
  * An underlined tab strip. On phones it scrolls sideways without a

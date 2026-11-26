@@ -1,6 +1,6 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
 import { LayersIcon } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ProjectService } from "@/gen/izci/api/v1/project_pb";
 
 /** Environment picker; "" means all environments. */

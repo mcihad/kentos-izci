@@ -1,12 +1,12 @@
 import { clone, create } from "@bufbuild/protobuf";
 import { useQuery, useTransport } from "@connectrpc/connect-query";
+import { Field } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kentos/components/ui/select";
+import { Textarea } from "@kentos/components/ui/textarea";
 import { FlaskConicalIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Field } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { EventPick, EventService } from "@/gen/izci/api/v1/event_pb";
 import { IssueService } from "@/gen/izci/api/v1/issue_pb";
 import {

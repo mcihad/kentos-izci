@@ -1,19 +1,10 @@
 import { create } from "@bufbuild/protobuf";
 import { createConnectQueryKey, useInfiniteQuery, useMutation, useQuery } from "@connectrpc/connect-query";
-import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ShieldAlertIcon } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { gutter, PageHeader } from "@/components/app/page";
-import { AuditEntries } from "@/components/common/audit-entries";
-import { Field } from "@/components/common/field";
-import { RelativeTime } from "@/components/common/relative-time";
-import { EmptyState } from "@/components/common/states";
-import { TabbedCard, TabNav } from "@/components/common/tab-nav";
-import { thClass, theadClass, trClass } from "@/components/common/table";
-import { UserAvatar } from "@/components/common/user-avatar";
-import { Button } from "@/components/ui/button";
+import { Field } from "@kentos/components/common/field";
+import { thClass, theadClass, trClass } from "@kentos/components/common/table";
+import { UserAvatar } from "@kentos/components/common/user-avatar";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -21,11 +12,21 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
+} from "@kentos/components/ui/dialog";
+import { Input } from "@kentos/components/ui/input";
+import { Label } from "@kentos/components/ui/label";
+import { Skeleton } from "@kentos/components/ui/skeleton";
+import { Switch } from "@kentos/components/ui/switch";
+import { useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ShieldAlertIcon } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { gutter, PageHeader } from "@/components/app/page";
+import { AuditEntries } from "@/components/common/audit-entries";
+import { RelativeTime } from "@/components/common/relative-time";
+import { EmptyState } from "@/components/common/states";
+import { TabbedCard, TabNav } from "@/components/common/tab-nav";
 import { type AdminOrganization, AdminService, type AdminUser } from "@/gen/izci/api/v1/admin_pb";
 import { OrganizationLimitsSchema } from "@/gen/izci/api/v1/organization_pb";
 import { baseTransport } from "@/lib/api";
@@ -33,7 +34,6 @@ import { errorMessage } from "@/lib/errors";
 import { formatCompact, formatDateTime, formatNumber } from "@/lib/format";
 import { useSensitiveMutation } from "@/lib/reauth";
 import { useSession } from "@/lib/session";
-import { cn } from "@/lib/utils";
 
 const tabs = [
   { id: "instance", label: "Sunucu" },

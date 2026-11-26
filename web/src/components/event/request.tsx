@@ -1,10 +1,10 @@
+import { copyText } from "@kentos/components/common/copy-button";
+import { cn } from "@kentos/components/lib/utils";
+import { Button } from "@kentos/components/ui/button";
 import { TerminalIcon } from "lucide-react";
 import { CodeBlock } from "@/components/common/code-block";
-import { copyText } from "@/components/common/copy-button";
-import { Button } from "@/components/ui/button";
 import type { Request } from "@/gen/izci/ingest/v1/event_pb";
 import { formatBytes } from "@/lib/format";
-import { cn } from "@/lib/utils";
 
 const filtered = "[Filtered]";
 

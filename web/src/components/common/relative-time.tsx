@@ -1,8 +1,8 @@
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
+import { cn } from "@kentos/components/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@kentos/components/ui/tooltip";
 import { useEffect, useState } from "react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatDateTime, formatRelative, toDate } from "@/lib/format";
-import { cn } from "@/lib/utils";
 
 // One shared clock for every relative time on screen.
 const listeners = new Set<(now: number) => void>();

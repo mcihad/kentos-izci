@@ -1,8 +1,8 @@
 import type { JsonValue } from "@bufbuild/protobuf";
+import { cn } from "@kentos/components/lib/utils";
 import { ChevronRightIcon } from "lucide-react";
 import type * as React from "react";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 
 /** A titled block of the event view. */
 export function EventSection({

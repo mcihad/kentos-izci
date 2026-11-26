@@ -13,9 +13,10 @@
 
 ## 1. Binary'yi edinin
 
-Kaynaktan derlemek için:
+Kaynaktan derlemek için arayüzün kullandığı KentOS bileşen seti ([kentos-components](https://github.com/mcihad/kentos-components)) izci deposunun **yanındaki** klasörde olmalıdır (`../kentos-components`):
 
 ```bash
+git clone https://github.com/mcihad/kentos-components ../kentos-components
 make setup     # Go ve web bağımlılıkları
 make build     # bin/izci (arayüz gömülü, CGO kapalı)
 ./bin/izci version

@@ -1,9 +1,9 @@
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
+import { Button } from "@kentos/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@kentos/components/ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
 import { BellIcon, BellRingIcon } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { type Issue, IssueService } from "@/gen/izci/api/v1/issue_pb";
 import { errorMessage } from "@/lib/errors";
 import { useOrg } from "@/lib/org";

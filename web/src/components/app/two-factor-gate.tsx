@@ -1,11 +1,11 @@
 import { useMutation } from "@connectrpc/connect-query";
+import { Button } from "@kentos/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { RecoveryCodes, TwoFactorSetup } from "@/components/account/two-factor";
 import { AuthLayout } from "@/components/app/auth-layout";
 import { useDocumentTitle } from "@/components/app/page";
-import { Button } from "@/components/ui/button";
 import { AuthService } from "@/gen/izci/api/v1/auth_pb";
 import { baseTransport } from "@/lib/api";
 import { sessionQuery, useSession } from "@/lib/session";

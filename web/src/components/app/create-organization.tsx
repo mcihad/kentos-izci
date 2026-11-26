@@ -1,10 +1,10 @@
 import { useMutation } from "@connectrpc/connect-query";
+import { Field, FormError } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
+import { Input } from "@kentos/components/ui/input";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Field, FormError } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { OrganizationService } from "@/gen/izci/api/v1/organization_pb";
 import { baseTransport } from "@/lib/api";
 import { errorField, errorMessage } from "@/lib/errors";

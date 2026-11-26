@@ -1,7 +1,6 @@
 import { useMutation } from "@connectrpc/connect-query";
-import { useState } from "react";
-import { FormError } from "@/components/common/field";
-import { Button } from "@/components/ui/button";
+import { FormError } from "@kentos/components/common/field";
+import { Button } from "@kentos/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,10 +8,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
+} from "@kentos/components/ui/dialog";
+import { Label } from "@kentos/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@kentos/components/ui/radio-group";
+import { Textarea } from "@kentos/components/ui/textarea";
+import { useState } from "react";
 import { type AiRun, AiRunMode, AiService } from "@/gen/izci/api/v1/ai_pb";
 import { errorMessage } from "@/lib/errors";
 
