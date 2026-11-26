@@ -8,14 +8,15 @@ const protocols = ["gRPC", "Connect", "Sentry", "KVKK uyumlu"];
 
 /**
  * Sign-in, setup and invitation frame, after the design system's login
- * screen: a navy panel that says what İzci does, and the form on the card
- * surface. Phones get the form alone.
+ * screen: a panel in the sidebar colour (it follows the accent) that says
+ * what İzci does, and the form on the card surface. Phones get the form
+ * alone.
  */
 export function AuthLayout({ children, wide = false }: { children: React.ReactNode; wide?: boolean }) {
   const setup = useQuery(AuthService.method.getSetupState, {}, { staleTime: Number.POSITIVE_INFINITY });
   return (
     <div className="grid min-h-dvh bg-card lg:grid-cols-[minmax(0,1fr)_minmax(28rem,34rem)]">
-      <aside className="on-dark relative hidden flex-col justify-between overflow-hidden bg-(--navy-900) p-12 text-white lg:flex">
+      <aside className="on-dark relative hidden flex-col justify-between overflow-hidden bg-(--sidebar-bg) p-12 text-white lg:flex">
         <div className="flex items-center gap-3">
           <span className="grid size-10 place-items-center rounded-md bg-white/15">
             <Logo inverse className="size-6" />
@@ -29,7 +30,7 @@ export function AuthLayout({ children, wide = false }: { children: React.ReactNo
           <h1 className="font-semibold text-[2.375rem] text-white leading-[1.15]">
             Uygulamalarınızın hataları tek yerde
           </h1>
-          <p className="text-(--navy-100)/80 text-lg leading-relaxed">
+          <p className="text-(--sidebar-fg)/80 text-lg leading-relaxed">
             KentOS uygulamalarından gelen hatalar gruplanır, hangi müşteriyi etkilediği görülür ve ekibinize
             anında haber verilir.
           </p>
